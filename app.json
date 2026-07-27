@@ -1,7 +1,8 @@
 {
   "expo": {
     "name": "Chronos",
-    "slug": "history-date-guessing-game",
+    "slug": "history-date-guessing-timeline-slider-game-",
+    "owner": "harryhh",
     "version": "1.0.0",
     "scheme": "chronos",
     "orientation": "portrait",
@@ -18,6 +19,7 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.harryhh.chronos",
       "adaptiveIcon": {
         "backgroundColor": "#0B0E14",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -36,6 +38,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "e847738f-2e68-46c7-b55c-70c2fa603934"
+      }
     }
   }
 }
