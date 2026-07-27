@@ -4,6 +4,7 @@
  * "1 BCE"). CE years are shown bare (the common reading for a history game).
  */
 export function formatYear(year: number): string {
+  'worklet';
   const whole = Math.round(year);
   if (whole > 0) return `${whole}`;
   if (whole === 0) return '1 BCE';

@@ -18,17 +18,20 @@ const D_MAX = PRESENT_YEAR - MIN_YEAR;
 const LOG_D_MAX = Math.log1p(D_MAX);
 
 export function warp(year: number): number {
+  'worklet';
   const d = PRESENT_YEAR - year;
   return 1 - Math.log1p(d) / LOG_D_MAX;
 }
 
 export function unwarp(coord: number): number {
+  'worklet';
   const d = Math.expm1((1 - coord) * LOG_D_MAX);
   return PRESENT_YEAR - d;
 }
 
 /** Constrain a year to the representable timeline range. */
 export function clampYear(year: number): number {
+  'worklet';
   if (year > MAX_YEAR) return MAX_YEAR;
   if (year < MIN_YEAR) return MIN_YEAR;
   return year;

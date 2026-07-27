@@ -32,6 +32,10 @@ export function getQuestionsByCategory(categoryId: string): readonly Question[] 
   return questions.filter((q) => q.categoryId === categoryId);
 }
 
+export function getCategoryById(categoryId: string): Category | undefined {
+  return categories.find((c) => c.id === categoryId);
+}
+
 /** Pick a random question, optionally excluding ids already seen this session. */
 export function getRandomQuestion(excludeIds: ReadonlySet<string> = new Set()): Question {
   const pool = questions.filter((q) => !excludeIds.has(q.id));

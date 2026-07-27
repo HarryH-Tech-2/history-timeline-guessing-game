@@ -1,6 +1,10 @@
 /** @type {import('jest').Config} */
 module.exports = {
   preset: 'jest-expo',
+  // react-native-worklets' native entrypoint needs a real native module.
+  // Its bundled resolver strips the `.native` extension so Jest loads the
+  // JS fallback instead of NativeWorklets.native.ts.
+  resolver: '<rootDir>/node_modules/react-native-worklets/jest/resolver.js',
   setupFilesAfterEnv: ['<rootDir>/jest-setup.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
