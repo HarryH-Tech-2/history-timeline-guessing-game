@@ -5,12 +5,17 @@ import { Button } from '@/components/ui';
 import type { RoundResult } from '@/domain';
 import { formatYear } from '@/features/timeline/math';
 import { useCountUp } from '@/hooks/useCountUp';
+import { palette } from '@/theme/tokens';
 
 interface RevealSheetProps {
   result: RoundResult;
   categoryColour: string;
   onNext: () => void;
   nextLabel?: string;
+  /** XP and coins banked for this round, when a progression profile is active. */
+  reward?: { xp: number; coins: number } | null;
+  /** Titles of achievements unlocked this session, shown as a subtle callout. */
+  unlockedTitles?: readonly string[];
 }
 
 function headline(result: RoundResult): string {
@@ -34,6 +39,8 @@ export function RevealSheet({
   categoryColour,
   onNext,
   nextLabel = 'Next',
+  reward,
+  unlockedTitles,
 }: RevealSheetProps) {
   const animatedScore = useCountUp(result.score.total);
   const { question } = result;
@@ -62,6 +69,33 @@ export function RevealSheet({
           </Text>
         </View>
       </View>
+
+      {reward !== undefined && reward !== null && (reward.xp > 0 || reward.coins > 0) && (
+        <View className="mb-3 flex-row gap-2" accessibilityLabel={`Earned ${reward.xp} XP and ${reward.coins} coins`}>
+          <View className="rounded-full bg-bg-raised px-3 py-1">
+            <Text className="text-xs font-bold" style={{ color: palette.accent.default }}>
+              +{reward.xp} XP
+            </Text>
+          </View>
+          {reward.coins > 0 && (
+            <View className="rounded-full bg-bg-raised px-3 py-1">
+              <Text className="text-xs font-bold" style={{ color: palette.warning }}>
+                +{reward.coins} 🪙
+              </Text>
+            </View>
+          )}
+        </View>
+      )}
+
+      {unlockedTitles !== undefined && unlockedTitles.length > 0 && (
+        <View className="mb-3">
+          {unlockedTitles.map((title) => (
+            <Text key={title} className="text-sm font-semibold" style={{ color: palette.success }}>
+              🏆 Unlocked: {title}
+            </Text>
+          ))}
+        </View>
+      )}
 
       <ScrollView className="max-h-40" showsVerticalScrollIndicator={false}>
         <Text className="text-[15px] leading-6 text-ink-secondary">

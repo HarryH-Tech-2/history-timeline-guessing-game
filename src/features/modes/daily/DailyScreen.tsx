@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 
 import { Screen } from '@/components/ui';
 import { getQuestionById } from '@/data';
-import { RoundView } from '@/features/round';
+import { RoundView, useRoundRewards } from '@/features/round';
 import { palette } from '@/theme/tokens';
 
 import { ModeHud } from '../components/ModeHud';
@@ -38,6 +38,7 @@ function DailySummary({ record, onHome }: { record: DailyRecord; onHome: () => v
 export function DailyScreen() {
   const router = useRouter();
   const { session, totalQuestions, loading, locked, record } = useDailySession();
+  const { reward, unlockedTitles } = useRoundRewards(session);
 
   if (loading) {
     return (
@@ -64,6 +65,8 @@ export function DailyScreen() {
           onSubmit={session.submit}
           onNext={session.advance}
           nextLabel={onLastQuestion ? 'Finish' : 'Next'}
+          reward={reward}
+          unlockedTitles={unlockedTitles}
           hud={
             <ModeHud
               progressLabel={`Question ${session.roundNumber} of ${totalQuestions}`}

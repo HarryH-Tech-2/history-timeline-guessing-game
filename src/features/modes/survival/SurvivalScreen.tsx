@@ -2,16 +2,18 @@ import { useState } from 'react';
 import { useRouter } from 'expo-router';
 
 import { Screen } from '@/components/ui';
-import { RoundView } from '@/features/round';
+import { RoundView, useRoundRewards } from '@/features/round';
 import { palette } from '@/theme/tokens';
 
 import { ModeHud } from '../components/ModeHud';
+import { HintButton } from '../hints/HintButton';
 import { RunSummary, type SummaryRow } from '../components/RunSummary';
 import { isOutOfLives } from './survivalRules';
 import { useSurvivalSession } from './useSurvivalSession';
 
 function SurvivalPlay({ onHome, onRetry }: { onHome: () => void; onRetry: () => void }) {
   const { session, lives, startingLives, best } = useSurvivalSession();
+  const { reward, unlockedTitles } = useRoundRewards(session);
 
   if (session.status === 'finished') {
     const stats = [{ label: 'Rounds survived', value: String(session.results.length) }];
@@ -55,6 +57,9 @@ function SurvivalPlay({ onHome, onRetry }: { onHome: () => void; onRetry: () => 
         onSubmit={session.submit}
         onNext={session.advance}
         nextLabel={nextLabel}
+        reward={reward}
+        unlockedTitles={unlockedTitles}
+        actions={<HintButton question={session.question} />}
         hud={
           <ModeHud
             progressLabel={`Round ${session.roundNumber}`}

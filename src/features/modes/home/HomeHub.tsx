@@ -3,6 +3,7 @@ import { useRouter, type Href } from 'expo-router';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
 import { Screen } from '@/components/ui';
+import { ProfileHeader } from '@/features/progression';
 import { palette } from '@/theme/tokens';
 
 interface ModeCardData {
@@ -81,6 +82,8 @@ export function HomeHub() {
           <Text className="text-3xl font-extrabold text-ink-primary">Chronos</Text>
           <Text className="text-base text-ink-secondary">When did it happen?</Text>
         </View>
+
+        <ProfileHeader />
 
         {MODES.map((mode, index) => (
           <ModeCard

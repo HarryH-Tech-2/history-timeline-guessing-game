@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { ProgressionProvider } from '@/features/progression';
 import { syncRemoteContent } from '@/services/content';
 import { AuthProvider } from '@/services/firebase/auth';
 
@@ -20,14 +21,16 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <AuthProvider>
-          <StatusBar style="light" />
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: '#0B0E14' },
-              animation: 'fade',
-            }}
-          />
+          <ProgressionProvider>
+            <StatusBar style="light" />
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: { backgroundColor: '#0B0E14' },
+                animation: 'fade',
+              }}
+            />
+          </ProgressionProvider>
         </AuthProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

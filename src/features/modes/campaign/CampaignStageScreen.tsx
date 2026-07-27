@@ -4,10 +4,11 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Button, Screen } from '@/components/ui';
 import { getCategoryById } from '@/data';
-import { RoundView } from '@/features/round';
+import { RoundView, useRoundRewards } from '@/features/round';
 import { palette } from '@/theme/tokens';
 
 import { ModeHud } from '../components/ModeHud';
+import { HintButton } from '../hints/HintButton';
 import { RunSummary, type SummaryRow } from '../components/RunSummary';
 import { getStage, type CampaignStage } from './campaignMap';
 import { useCampaignSession } from './useCampaignSession';
@@ -24,6 +25,7 @@ function StagePlay({
   onRetry: () => void;
 }) {
   const { session, totalQuestions, earnedStars } = useCampaignSession(stage);
+  const { reward, unlockedTitles } = useRoundRewards(session);
 
   if (session.status === 'finished') {
     const rounds: SummaryRow[] = session.results.map((r, i) => ({
@@ -60,6 +62,9 @@ function StagePlay({
         onSubmit={session.submit}
         onNext={session.advance}
         nextLabel={onLastQuestion ? 'Finish' : 'Next'}
+        reward={reward}
+        unlockedTitles={unlockedTitles}
+        actions={<HintButton question={session.question} />}
         hud={
           <ModeHud
             progressLabel={`Question ${session.roundNumber} of ${totalQuestions}`}

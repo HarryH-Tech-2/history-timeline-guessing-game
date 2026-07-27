@@ -27,6 +27,12 @@ interface RoundViewProps {
   hud?: ReactNode;
   /** Label for the advance button on the reveal sheet. */
   nextLabel?: string;
+  /** XP/coins banked for the revealed round, surfaced on the reveal sheet. */
+  reward?: { xp: number; coins: number } | null;
+  /** Achievements unlocked this session, surfaced on the reveal sheet. */
+  unlockedTitles?: readonly string[];
+  /** Optional control rendered next to the submit button (e.g. a hint). */
+  actions?: ReactNode;
 }
 
 /**
@@ -43,6 +49,9 @@ export function RoundView({
   onNext,
   hud,
   nextLabel,
+  reward,
+  unlockedTitles,
+  actions,
 }: RoundViewProps) {
   const controller = useTimelineTransform({ initialRange: DEFAULT_RANGE });
   const reducedMotion = useReducedMotion();
@@ -102,9 +111,12 @@ export function RoundView({
           categoryColour={colour}
           onNext={onNext}
           nextLabel={nextLabel}
+          reward={reward}
+          unlockedTitles={unlockedTitles}
         />
       ) : (
-        <View className="px-5 pb-3">
+        <View className="gap-2 px-5 pb-3">
+          {actions}
           <Button label="Submit guess" onPress={handleSubmit} testID="submit-button" />
         </View>
       )}

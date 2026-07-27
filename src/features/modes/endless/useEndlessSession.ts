@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { getRandomQuestion } from '@/data';
 import { useGameSession, type GameSession } from '@/features/round';
+import { comboModifiers } from '@/features/timeline/math';
 
 import { bestScoresStore } from '../persistence';
 
@@ -28,7 +29,7 @@ export function useEndlessSession(): EndlessSession {
     return q;
   }, []);
 
-  const session = useGameSession({ first, next });
+  const session = useGameSession({ first, next, modifiers: comboModifiers });
 
   const [best, setBest] = useState(0);
   useEffect(() => {

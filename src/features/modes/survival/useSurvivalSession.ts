@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { getRandomQuestion } from '@/data';
 import { useGameSession, type GameSession } from '@/features/round';
+import { comboModifiers } from '@/features/timeline/math';
 
 import { bestScoresStore } from '../persistence';
 import { STARTING_LIVES, isOutOfLives, livesRemaining } from './survivalRules';
@@ -32,7 +33,12 @@ export function useSurvivalSession(): SurvivalSession {
     return q;
   }, []);
 
-  const session = useGameSession({ first, next, shouldEnd: isOutOfLives });
+  const session = useGameSession({
+    first,
+    next,
+    shouldEnd: isOutOfLives,
+    modifiers: comboModifiers,
+  });
   const lives = livesRemaining(session.results);
 
   const [best, setBest] = useState<{ rounds: number; score: number } | null>(null);

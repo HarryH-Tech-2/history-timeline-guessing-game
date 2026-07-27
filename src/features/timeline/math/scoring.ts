@@ -32,10 +32,36 @@ export function scoreForError(errorYears: number): number {
 }
 
 export interface ScoreModifiers {
-  /** Combo multiplier (>=1). Inert this slice; real in slice 5. */
+  /** Combo multiplier (>=1) applied to the base score. */
   comboMultiplier?: number;
-  /** Flat streak bonus added after multiplying. Inert this slice. */
+  /** Flat streak bonus added after multiplying. */
   streakBonus?: number;
+}
+
+/** A guess this close (in years) or better keeps a combo alive. */
+export const COMBO_THRESHOLD_YEARS = 20;
+/** Each stacked combo adds this much to the multiplier. */
+export const COMBO_STEP = 0.1;
+/** Combos stop stacking past this many rounds (caps the multiplier). */
+export const COMBO_MAX_STACKS = 5;
+
+/** Length of the trailing run of "good" guesses (error within the threshold). */
+export function streakLength(results: readonly RoundResult[]): number {
+  let n = 0;
+  for (let i = results.length - 1; i >= 0; i -= 1) {
+    if (results[i]!.errorYears <= COMBO_THRESHOLD_YEARS) n += 1;
+    else break;
+  }
+  return n;
+}
+
+/**
+ * Score modifiers for the *next* guess, derived from the rounds already played.
+ * A running streak inflates the multiplier up to a cap; a miss resets it.
+ */
+export function comboModifiers(results: readonly RoundResult[]): ScoreModifiers {
+  const stacks = Math.min(streakLength(results), COMBO_MAX_STACKS);
+  return { comboMultiplier: 1 + stacks * COMBO_STEP };
 }
 
 export function buildScore(base: number, modifiers: ScoreModifiers = {}): Score {
