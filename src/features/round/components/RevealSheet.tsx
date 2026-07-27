@@ -10,6 +10,7 @@ interface RevealSheetProps {
   result: RoundResult;
   categoryColour: string;
   onNext: () => void;
+  nextLabel?: string;
 }
 
 function headline(result: RoundResult): string {
@@ -28,7 +29,12 @@ function distanceLabel(result: RoundResult): string {
 }
 
 /** Post-submission panel: the correct year, the score, and the teaching moment. */
-export function RevealSheet({ result, categoryColour, onNext }: RevealSheetProps) {
+export function RevealSheet({
+  result,
+  categoryColour,
+  onNext,
+  nextLabel = 'Next',
+}: RevealSheetProps) {
   const animatedScore = useCountUp(result.score.total);
   const { question } = result;
 
@@ -74,7 +80,7 @@ export function RevealSheet({ result, categoryColour, onNext }: RevealSheetProps
         )}
       </ScrollView>
 
-      <Button label="Next" onPress={onNext} className="mt-5" testID="next-button" />
+      <Button label={nextLabel} onPress={onNext} className="mt-5" testID="next-button" />
     </Animated.View>
   );
 }

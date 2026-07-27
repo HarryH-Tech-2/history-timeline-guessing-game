@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { CategorySchema, QuestionSchema, type Category, type Question } from '@/domain';
+import { pickDeterministic, seedFromString } from '@/utils/rng';
 
 import { CATEGORIES } from './categories';
 import { QUESTIONS } from './questions';
@@ -34,6 +35,19 @@ export function getQuestionsByCategory(categoryId: string): readonly Question[] 
 
 export function getCategoryById(categoryId: string): Category | undefined {
   return categories.find((c) => c.id === categoryId);
+}
+
+export function getQuestionById(questionId: string): Question | undefined {
+  return questions.find((q) => q.id === questionId);
+}
+
+/**
+ * The fixed set of questions for a given day. Seeded purely from the date key
+ * (`YYYY-MM-DD`), so every player and every device sees the same run — and the
+ * same day always reproduces it.
+ */
+export function getDailyQuestions(dateKey: string, count = 8): readonly Question[] {
+  return pickDeterministic(questions, count, seedFromString(`daily-${dateKey}`));
 }
 
 /** Pick a random question, optionally excluding ids already seen this session. */
