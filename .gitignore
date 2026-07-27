@@ -3,5 +3,10 @@ node_modules/
 dist/
 web-build/
 .env*
+!.env.example
 *.log
 expo-env.d.ts
+
+# Firebase Admin service-account keys — never commit these
+serviceAccount*.json
+*-service-account.json

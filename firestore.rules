@@ -1,0 +1,47 @@
+rules_version = '2';
+
+// Security model for Chronos.
+//
+//  - Game content (categories, questions) is curated and seeded via the Admin
+//    SDK. It is world-readable (a public trivia catalogue) and never writable
+//    from a client. World-readable — rather than sign-in-gated — avoids a race
+//    where the background content sync fires before anonymous auth resolves.
+//  - Everything under users/{uid} is private to that user. This is where later
+//    slices store cloud saves of progress, stats and settings.
+//  - Anything not matched is denied by default.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /questions/{questionId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /users/{uid} {
+      allow read, write: if isOwner(uid);
+
+      // All per-user subcollections inherit the same owner-only rule.
+      match /{document=**} {
+        allow read, write: if isOwner(uid);
+      }
+    }
+
+    // Explicit default-deny for any collection not handled above.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
