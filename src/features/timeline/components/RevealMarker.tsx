@@ -40,7 +40,7 @@ export function RevealMarker({ year, translateX, scale, colour }: RevealMarkerPr
       </View>
       <View className="h-40 w-0.5" style={{ backgroundColor: colour }} />
       <View
-        className="absolute h-3.5 w-3.5 rounded-full border-2 border-white"
+        className="absolute h-3.5 w-3.5 rounded-full border-2 border-bg-raised"
         style={{ backgroundColor: colour }}
       />
     </Animated.View>

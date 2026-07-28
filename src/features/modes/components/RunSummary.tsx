@@ -2,6 +2,7 @@ import { ScrollView, Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { Button, Card, Screen } from '@/components/ui';
+import { useThemeColors } from '@/theme';
 import { palette } from '@/theme/tokens';
 
 export interface SummaryRow {
@@ -34,13 +35,14 @@ interface RunSummaryProps {
 }
 
 function Stars({ count, colour }: { count: number; colour: string }) {
+  const colors = useThemeColors();
   return (
     <View className="flex-row items-center justify-center gap-2">
       {[0, 1, 2].map((i) => (
         <Text
           key={i}
           className="text-3xl"
-          style={{ color: i < count ? colour : palette.hair }}
+          style={{ color: i < count ? colour : colors.hair }}
         >
           ★
         </Text>

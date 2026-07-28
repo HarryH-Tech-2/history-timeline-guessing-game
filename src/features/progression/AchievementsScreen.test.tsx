@@ -7,7 +7,7 @@ import { AchievementsScreen } from './AchievementsScreen';
 import { ProgressionProvider, progressionStore } from './index';
 
 jest.mock('expo-router', () => ({
-  useRouter: () => ({ push: jest.fn(), back: jest.fn() }),
+  useRouter: () => ({ push: jest.fn(), back: jest.fn(), canGoBack: () => false }),
 }));
 
 describe('AchievementsScreen', () => {

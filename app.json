@@ -1,19 +1,19 @@
 {
   "expo": {
-    "name": "Chronos",
+    "name": "Date Guesser",
     "slug": "history-date-guessing-timeline-slider-game-",
     "owner": "harryhh",
     "version": "1.0.0",
     "scheme": "chronos",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "dark",
-    "backgroundColor": "#0B0E14",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#FAF7F2",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#0B0E14"
+      "backgroundColor": "#B0703A"
     },
     "ios": {
       "supportsTablet": true
@@ -21,10 +21,8 @@
     "android": {
       "package": "com.harryhh.chronos",
       "adaptiveIcon": {
-        "backgroundColor": "#0B0E14",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "backgroundColor": "#B0703A",
+        "foregroundImage": "./assets/icon.png"
       },
       "predictiveBackGestureEnabled": false
     },

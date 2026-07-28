@@ -42,7 +42,7 @@ export function Crosshair({ centreYear }: CrosshairProps) {
       {/* Crosshair line */}
       <View className="h-32 w-0.5 bg-accent" />
       {/* Cap dot */}
-      <View className="absolute h-3 w-3 rounded-full border-2 border-white bg-accent" />
+      <View className="absolute h-3 w-3 rounded-full border-2 border-bg-raised bg-accent" />
     </View>
   );
 }

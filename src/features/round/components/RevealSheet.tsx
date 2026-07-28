@@ -1,4 +1,4 @@
-import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { Button } from '@/components/ui';
@@ -101,17 +101,6 @@ export function RevealSheet({
         <Text className="text-[15px] leading-6 text-ink-secondary">
           {question.longDescription}
         </Text>
-        {question.source !== undefined && (
-          <Pressable
-            accessibilityRole="link"
-            onPress={() => {
-              if (question.source) void Linking.openURL(question.source);
-            }}
-            className="mt-3 self-start"
-          >
-            <Text className="text-sm font-semibold text-accent">Read more →</Text>
-          </Pressable>
-        )}
       </ScrollView>
 
       <Button label={nextLabel} onPress={onNext} className="mt-5" testID="next-button" />

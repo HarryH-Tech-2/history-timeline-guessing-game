@@ -6,7 +6,7 @@ import { useReducedMotion } from 'react-native-reanimated';
 import { Button } from '@/components/ui';
 import { getCategoryById } from '@/data';
 import type { Question, RoundResult } from '@/domain';
-import { TimelineTrack, useTimelineTransform } from '@/features/timeline';
+import { CenturyJumpBar, TimelineTrack, useTimelineTransform } from '@/features/timeline';
 import { palette } from '@/theme/tokens';
 
 import { Confetti } from './components/Confetti';
@@ -102,6 +102,7 @@ export function RoundView({
             revealYear={revealed ? question.year : undefined}
             revealColour={colour}
           />
+          {!revealed && <CenturyJumpBar controller={controller} />}
         </View>
       </View>
 

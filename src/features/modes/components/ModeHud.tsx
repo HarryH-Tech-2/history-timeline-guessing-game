@@ -1,6 +1,6 @@
 import { Pressable, Text, View } from 'react-native';
 
-import { palette } from '@/theme/tokens';
+import { useThemeColors } from '@/theme';
 
 interface ModeHudProps {
   /** Left-aligned progress label, e.g. "Question 3 of 8" or "Round 5". */
@@ -15,6 +15,7 @@ interface ModeHudProps {
 }
 
 function Hearts({ lives, total }: { lives: number; total: number }) {
+  const colors = useThemeColors();
   return (
     <View className="flex-row items-center gap-1.5">
       {Array.from({ length: total }, (_, i) => (
@@ -22,7 +23,7 @@ function Hearts({ lives, total }: { lives: number; total: number }) {
           key={i}
           className="h-2.5 w-2.5 rounded-full"
           style={{
-            backgroundColor: i < lives ? palette.danger : palette.hair,
+            backgroundColor: i < lives ? colors.danger : colors.hair,
           }}
         />
       ))}

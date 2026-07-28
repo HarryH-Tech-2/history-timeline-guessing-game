@@ -60,14 +60,16 @@ export function AchievementsScreen() {
               {earnedCount} of {ACHIEVEMENTS.length} earned · Level {levelForXp(state.xp)}
             </Text>
           </View>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Back"
-            testID="achievements-back"
-            onPress={() => router.back()}
-          >
-            <Text className="text-2xl text-ink-muted">✕</Text>
-          </Pressable>
+          {router.canGoBack() && (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Back"
+              testID="achievements-back"
+              onPress={() => router.back()}
+            >
+              <Text className="text-2xl text-ink-muted">✕</Text>
+            </Pressable>
+          )}
         </View>
 
         {ACHIEVEMENTS.map((achievement, index) => (

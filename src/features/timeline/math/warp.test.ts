@@ -14,10 +14,10 @@ describe('warp / unwarp', () => {
     expect(warp(2000)).toBeLessThan(warp(PRESENT_YEAR));
   });
 
-  it('gives recent years more axis space than ancient ones (non-linear zoom)', () => {
+  it('spreads periods evenly: equal spans of years take equal axis space', () => {
     const recentSpan = warp(2020) - warp(2010); // 10 modern years
     const ancientSpan = warp(-990) - warp(-1000); // 10 ancient years
-    expect(recentSpan).toBeGreaterThan(ancientSpan);
+    expect(recentSpan).toBeCloseTo(ancientSpan, 10);
   });
 
   it('round-trips year -> coord -> year across the full range', () => {

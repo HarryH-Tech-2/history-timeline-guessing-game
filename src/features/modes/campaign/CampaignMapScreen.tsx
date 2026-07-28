@@ -3,7 +3,7 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 
 import { Screen } from '@/components/ui';
-import { palette } from '@/theme/tokens';
+import { useThemeColors } from '@/theme';
 
 import { campaignStore, type CampaignProgress } from '../persistence';
 import {
@@ -26,6 +26,7 @@ function StageTile({
   stars: number;
   onPress: () => void;
 }) {
+  const colors = useThemeColors();
   return (
     <Pressable
       disabled={!unlocked}
@@ -47,9 +48,9 @@ function StageTile({
         </View>
         <Text className="text-sm font-semibold text-ink-primary">{`Stage ${stage.index}`}</Text>
       </View>
-      <Text className="text-sm" style={{ color: stars > 0 ? colour : palette.hair }}>
+      <Text className="text-sm" style={{ color: stars > 0 ? colour : colors.hair }}>
         {'★'.repeat(stars)}
-        <Text style={{ color: palette.hair }}>{'★'.repeat(3 - stars)}</Text>
+        <Text style={{ color: colors.hair }}>{'★'.repeat(3 - stars)}</Text>
       </Text>
     </Pressable>
   );

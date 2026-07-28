@@ -39,6 +39,22 @@ service cloud.firestore {
       }
     }
 
+    // Public leaderboard: anyone may read the rankings, but a player may only
+    // write their own row, and only a well-formed one (guards against a client
+    // inflating fields or spoofing another entry).
+    match /leaderboard/{uid} {
+      allow read: if true;
+      allow write: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['displayName', 'xp', 'level', 'updatedAt'])
+        && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() > 0
+        && request.resource.data.displayName.size() <= 24
+        && request.resource.data.xp is number
+        && request.resource.data.xp >= 0
+        && request.resource.data.level is int
+        && request.resource.data.updatedAt is number;
+    }
+
     // Explicit default-deny for any collection not handled above.
     match /{document=**} {
       allow read, write: if false;

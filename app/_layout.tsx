@@ -6,9 +6,29 @@ import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { useLeaderboardSync } from '@/features/leaderboard';
 import { ProgressionProvider } from '@/features/progression';
 import { syncRemoteContent } from '@/services/content';
 import { AuthProvider } from '@/services/firebase/auth';
+import { ThemeProvider, useTheme } from '@/theme';
+
+/** Navigator whose chrome (status bar, screen background) tracks the theme. */
+function ThemedNavigator() {
+  const { mode, colors } = useTheme();
+  useLeaderboardSync();
+  return (
+    <>
+      <StatusBar style={mode === 'dark' ? 'light' : 'dark'} />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: colors.bg.base },
+          animation: 'fade',
+        }}
+      />
+    </>
+  );
+}
 
 export default function RootLayout() {
   useEffect(() => {
@@ -20,18 +40,13 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <AuthProvider>
-          <ProgressionProvider>
-            <StatusBar style="light" />
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                contentStyle: { backgroundColor: '#0B0E14' },
-                animation: 'fade',
-              }}
-            />
-          </ProgressionProvider>
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <ProgressionProvider>
+              <ThemedNavigator />
+            </ProgressionProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

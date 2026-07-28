@@ -6,23 +6,23 @@ module.exports = {
     extend: {
       colors: {
         bg: {
-          base: '#0B0E14',
-          raised: '#141924',
-          overlay: '#1C2230',
+          base: 'rgb(var(--color-bg-base) / <alpha-value>)',
+          raised: 'rgb(var(--color-bg-raised) / <alpha-value>)',
+          overlay: 'rgb(var(--color-bg-overlay) / <alpha-value>)',
         },
         ink: {
-          primary: '#F4F6FB',
-          secondary: '#AEB6C6',
-          muted: '#6B7488',
+          primary: 'rgb(var(--color-ink-primary) / <alpha-value>)',
+          secondary: 'rgb(var(--color-ink-secondary) / <alpha-value>)',
+          muted: 'rgb(var(--color-ink-muted) / <alpha-value>)',
         },
         accent: {
-          DEFAULT: '#5B8CFF',
-          soft: '#8FB0FF',
+          DEFAULT: 'rgb(var(--color-accent) / <alpha-value>)',
+          soft: 'rgb(var(--color-accent-soft) / <alpha-value>)',
         },
-        success: '#3DDC97',
-        warning: '#FFB454',
-        danger: '#FF5C7A',
-        hair: 'rgba(255,255,255,0.08)',
+        success: 'rgb(var(--color-success) / <alpha-value>)',
+        warning: 'rgb(var(--color-warning) / <alpha-value>)',
+        danger: 'rgb(var(--color-danger) / <alpha-value>)',
+        hair: 'rgb(var(--color-hair) / <alpha-value>)',
       },
       borderRadius: {
         xl: '20px',

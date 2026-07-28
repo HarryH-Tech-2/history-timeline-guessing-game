@@ -4,6 +4,7 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
 
 import { Screen } from '@/components/ui';
 import { ProfileHeader } from '@/features/progression';
+import { useTheme } from '@/theme';
 import { palette } from '@/theme/tokens';
 
 interface ModeCardData {
@@ -71,6 +72,7 @@ function ModeCard({ mode, index, onPress }: { mode: ModeCardData; index: number;
 /** The landing hub: pick a mode. Each card routes into that mode's flow. */
 export function HomeHub() {
   const router = useRouter();
+  const { mode, toggle } = useTheme();
 
   return (
     <Screen>
@@ -78,9 +80,21 @@ export function HomeHub() {
         contentContainerClassName="px-5 pt-6 pb-10 gap-4"
         showsVerticalScrollIndicator={false}
       >
-        <View className="mb-2">
-          <Text className="text-3xl font-extrabold text-ink-primary">Chronos</Text>
-          <Text className="text-base text-ink-secondary">When did it happen?</Text>
+        <View className="mb-2 flex-row items-start justify-between">
+          <View className="flex-1 pr-3">
+            <Text className="text-3xl font-extrabold text-ink-primary">History Date Guesser</Text>
+            <Text className="text-base text-ink-secondary">When did it happen?</Text>
+          </View>
+          <Pressable
+            onPress={toggle}
+            accessibilityRole="button"
+            accessibilityLabel={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            hitSlop={10}
+            testID="theme-toggle"
+            className="h-10 w-10 items-center justify-center rounded-full border border-hair bg-bg-raised"
+          >
+            <Text className="text-lg">{mode === 'dark' ? '☀️' : '🌙'}</Text>
+          </Pressable>
         </View>
 
         <ProfileHeader />

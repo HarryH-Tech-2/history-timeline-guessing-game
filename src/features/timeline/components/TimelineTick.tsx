@@ -37,7 +37,9 @@ function TimelineTickComponent({ tick, translateX, scale }: TimelineTickProps) {
           {tick.label}
         </Text>
       )}
-      <View className={tick.major ? 'h-8 w-px bg-white/25' : 'h-4 w-px bg-white/10'} />
+      <View
+        className={tick.major ? 'h-8 w-px bg-ink-primary/30' : 'h-4 w-px bg-ink-primary/15'}
+      />
     </Animated.View>
   );
 }
