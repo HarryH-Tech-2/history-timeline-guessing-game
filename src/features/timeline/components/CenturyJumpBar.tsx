@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { memo, useCallback, useState } from 'react';
 import { Pressable, ScrollView, Text } from 'react-native';
 import { runOnJS, useAnimatedReaction } from 'react-native-reanimated';
 
@@ -21,8 +21,13 @@ function centuryLabel(start: number): string {
   return `${-start}s BCE`;
 }
 
-/** The century band a given year falls into (band starts step from MIN_YEAR). */
+/**
+ * The century band a given year falls into (band starts step from MIN_YEAR).
+ * Marked as a worklet so it can be called from the useAnimatedReaction below,
+ * which runs on the UI thread; it is also safe to call on the JS thread.
+ */
 function bandStartForYear(year: number): number {
+  'worklet';
   return Math.floor((year - MIN_YEAR) / 100) * 100 + MIN_YEAR;
 }
 
@@ -45,11 +50,54 @@ interface CenturyJumpBarProps {
 }
 
 /**
+ * One century chip. Memoised so the band highlight moving during a pan only
+ * re-renders the chip losing it and the chip gaining it, not the whole strip.
+ */
+const BandChip = memo(function BandChip({
+  band,
+  active,
+  onJump,
+}: {
+  band: CenturyBand;
+  active: boolean;
+  onJump: (band: CenturyBand) => void;
+}) {
+  return (
+    <Pressable
+      onPress={() => onJump(band)}
+      accessibilityRole="button"
+      accessibilityLabel={`Jump to ${band.label}`}
+      accessibilityState={{ selected: active }}
+      testID={`century-${band.start}`}
+      className={
+        active
+          ? 'rounded-full bg-accent px-3 py-1.5'
+          : 'rounded-full border border-hair bg-bg-raised px-3 py-1.5'
+      }
+    >
+      <Text
+        className={
+          active ? 'text-xs font-bold text-black' : 'text-xs font-semibold text-ink-secondary'
+        }
+      >
+        {band.label}
+      </Text>
+    </Pressable>
+  );
+});
+
+/**
  * A horizontal strip of century chips under the timeline. Tapping one re-frames
  * the timeline to that 100-year window; the chip covering the crosshair year
  * stays highlighted as the user pans.
  */
 export function CenturyJumpBar({ controller }: CenturyJumpBarProps) {
+  // Pull the shared value out of the controller so the reaction worklet below
+  // closes over *only* centreYear. Capturing the whole controller would drag
+  // its non-serialisable `gesture` (a composed Simultaneous gesture) into the
+  // worklet and crash with "Cannot copy value of type SimultaneousGesture".
+  const { centreYear } = controller;
+
   const [activeStart, setActiveStart] = useState<number>(() =>
     bandStartForYear(PRESENT_YEAR),
   );
@@ -57,13 +105,16 @@ export function CenturyJumpBar({ controller }: CenturyJumpBarProps) {
   // Track which century sits under the crosshair. Fires only when the band
   // changes (crossing a 100-year boundary), so this stays cheap while panning.
   useAnimatedReaction(
-    () => bandStartForYear(controller.centreYear.value),
+    () => bandStartForYear(centreYear.value),
     (current, previous) => {
       if (current !== previous) runOnJS(setActiveStart)(current);
     },
   );
 
-  const bands = useMemo(() => BANDS, []);
+  const onJump = useCallback(
+    (band: CenturyBand) => controller.fitTo(band.frameMin, band.frameMax),
+    [controller],
+  );
 
   return (
     <ScrollView
@@ -72,34 +123,14 @@ export function CenturyJumpBar({ controller }: CenturyJumpBarProps) {
       className="mt-3 max-h-11"
       contentContainerClassName="gap-2 px-1"
     >
-      {bands.map((band) => {
-        const active = band.start === activeStart;
-        return (
-          <Pressable
-            key={band.start}
-            onPress={() => controller.fitTo(band.frameMin, band.frameMax)}
-            accessibilityRole="button"
-            accessibilityLabel={`Jump to ${band.label}`}
-            accessibilityState={{ selected: active }}
-            testID={`century-${band.start}`}
-            className={
-              active
-                ? 'rounded-full bg-accent px-3 py-1.5'
-                : 'rounded-full border border-hair bg-bg-raised px-3 py-1.5'
-            }
-          >
-            <Text
-              className={
-                active
-                  ? 'text-xs font-bold text-white'
-                  : 'text-xs font-semibold text-ink-secondary'
-              }
-            >
-              {band.label}
-            </Text>
-          </Pressable>
-        );
-      })}
+      {BANDS.map((band) => (
+        <BandChip
+          key={band.start}
+          band={band}
+          active={band.start === activeStart}
+          onJump={onJump}
+        />
+      ))}
     </ScrollView>
   );
 }

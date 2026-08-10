@@ -47,6 +47,44 @@ describe('achievements', () => {
     expect(newlyEarnedAchievements(s2)).toContain('first-round');
   });
 
+  it('tiers round-count achievements', () => {
+    const earned = earnedAchievementIds(
+      state({ stats: { rounds: 500, perfectRounds: 0, gamesPlayed: 0, bestStreak: 0 } }),
+    );
+    expect(earned).toContain('centurion');
+    expect(earned).toContain('scholar');
+    expect(earned).toContain('chronicler');
+    expect(earned).not.toContain('living-legend');
+  });
+
+  it('tiers perfect-guess achievements', () => {
+    const earned = earnedAchievementIds(
+      state({ stats: { rounds: 5, perfectRounds: 5, gamesPlayed: 0, bestStreak: 0 } }),
+    );
+    expect(earned).toContain('deadeye');
+    expect(earned).not.toContain('sharpshooter');
+    expect(earned).not.toContain('time-lord');
+  });
+
+  it('tiers streak, game and coin achievements', () => {
+    const earned = earnedAchievementIds(
+      state({
+        coins: 2000,
+        stats: { rounds: 0, perfectRounds: 0, gamesPlayed: 50, bestStreak: 20 },
+      }),
+    );
+    expect(earned).toContain('flow-state');
+    expect(earned).toContain('marathoner');
+    expect(earned).toContain('treasure-vault');
+    expect(earned).not.toContain('completionist');
+  });
+
+  it('derives high-level achievements from xp', () => {
+    expect(earnedAchievementIds(state({ xp: xpToReachLevel(20) }))).toContain('level-20');
+    expect(earnedAchievementIds(state({ xp: xpToReachLevel(19) }))).not.toContain('level-20');
+    expect(earnedAchievementIds(state({ xp: xpToReachLevel(30) }))).toContain('level-30');
+  });
+
   it('looks achievements up by id', () => {
     expect(achievementById('bullseye')?.title).toBe('Bullseye');
     expect(achievementById('nope')).toBeUndefined();

@@ -4,22 +4,22 @@
 
 @layer base {
   /*
-   * Light-theme defaults. ThemeProvider re-applies the full set (light or dark)
+   * Dark-theme defaults. ThemeProvider re-applies the full set (light or dark)
    * at the app root via NativeWind `vars()`, so these values are the pre-hydration
-   * fallback and keep the app light on first paint.
+   * fallback and keep the app black-and-copper on first paint.
    */
   :root {
-    --color-bg-base: 250 247 242;
-    --color-bg-raised: 255 255 255;
-    --color-bg-overlay: 244 240 233;
-    --color-ink-primary: 26 24 21;
-    --color-ink-secondary: 92 87 79;
-    --color-ink-muted: 141 134 123;
-    --color-accent: 79 128 245;
-    --color-accent-soft: 143 176 255;
+    --color-bg-base: 10 9 8;
+    --color-bg-raised: 21 18 16;
+    --color-bg-overlay: 31 25 19;
+    --color-ink-primary: 247 242 234;
+    --color-ink-secondary: 183 172 157;
+    --color-ink-muted: 126 114 99;
+    --color-accent: 232 134 43;
+    --color-accent-soft: 245 178 102;
     --color-success: 22 163 116;
-    --color-warning: 217 138 40;
+    --color-warning: 217 178 60;
     --color-danger: 239 78 110;
-    --color-hair: 228 223 214;
+    --color-hair: 44 37 28;
   }
 }

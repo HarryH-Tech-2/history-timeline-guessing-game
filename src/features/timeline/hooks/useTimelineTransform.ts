@@ -3,10 +3,12 @@ import { type LayoutChangeEvent } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { Gesture, type ComposedGesture } from 'react-native-gesture-handler';
 import {
+  Easing,
   useAnimatedReaction,
   useDerivedValue,
   useSharedValue,
   withDecay,
+  withTiming,
   runOnJS,
   type SharedValue,
 } from 'react-native-reanimated';
@@ -25,6 +27,24 @@ function clampScale(value: number): number {
   'worklet';
   return Math.min(MAX_SCALE, Math.max(MIN_SCALE, value));
 }
+
+/**
+ * iOS-style rubber band: maps an overshoot distance to a diminishing offset,
+ * so dragging past the ends resists progressively instead of sliding freely
+ * and snapping back on release.
+ */
+function rubberBand(overshoot: number): number {
+  'worklet';
+  const c = 150;
+  return (overshoot * c) / (overshoot + c);
+}
+
+/** Shared easing for programmatic re-framing (century jumps, reveals, resets). */
+const FRAME_TIMING = { duration: 420, easing: Easing.out(Easing.cubic) };
+
+/** Minimum gap between haptic ticks, so fast zoomed-out pans don't flood the
+ * JS thread (and the vibration motor) with a call per decade crossed. */
+const HAPTIC_MIN_INTERVAL_MS = 80;
 
 export interface TimelineController {
   translateX: SharedValue<number>;
@@ -79,11 +99,17 @@ export function useTimelineTransform(options: Options = {}): TimelineController 
     void Haptics.selectionAsync();
   }, []);
 
+  const lastHapticAt = useSharedValue(0);
+
   useAnimatedReaction(
     () => Math.round(centreYear.value / 10),
     (current, previous) => {
       if (!haptics || previous === null || current === previous) return;
-      if (ready.value) runOnJS(tickHaptic)();
+      if (!ready.value) return;
+      const now = performance.now();
+      if (now - lastHapticAt.value < HAPTIC_MIN_INTERVAL_MS) return;
+      lastHapticAt.value = now;
+      runOnJS(tickHaptic)();
     },
   );
 
@@ -100,7 +126,15 @@ export function useTimelineTransform(options: Options = {}): TimelineController 
       startTranslateX.value = translateX.value;
     })
     .onUpdate((event) => {
-      translateX.value = startTranslateX.value + event.translationX;
+      const next = startTranslateX.value + event.translationX;
+      const [tMin, tMax] = translateBounds(scale.value);
+      if (next > tMax) {
+        translateX.value = tMax + rubberBand(next - tMax);
+      } else if (next < tMin) {
+        translateX.value = tMin - rubberBand(tMin - next);
+      } else {
+        translateX.value = next;
+      }
     })
     .onEnd((event) => {
       const [tMin, tMax] = translateBounds(scale.value);
@@ -122,6 +156,14 @@ export function useTimelineTransform(options: Options = {}): TimelineController 
       const worldUnderFocal = (event.focalX - startTranslateX.value) / startScale.value;
       translateX.value = event.focalX - worldUnderFocal * nextScale;
       scale.value = nextScale;
+    })
+    .onEnd(() => {
+      // Ease back into bounds if the pinch left the crosshair out of range.
+      const [tMin, tMax] = translateBounds(scale.value);
+      const clamped = Math.min(tMax, Math.max(tMin, translateX.value));
+      if (clamped !== translateX.value) {
+        translateX.value = withTiming(clamped, FRAME_TIMING);
+      }
     });
 
   const gesture = Gesture.Simultaneous(pan, pinch);
@@ -131,8 +173,8 @@ export function useTimelineTransform(options: Options = {}): TimelineController 
       const w = widthRef.current;
       if (w <= 0) return;
       const t = transformToFit(minYear, maxYear, w);
-      translateX.value = t.translateX;
-      scale.value = t.scale;
+      translateX.value = withTiming(t.translateX, FRAME_TIMING);
+      scale.value = withTiming(t.scale, FRAME_TIMING);
     },
     [scale, translateX],
   );

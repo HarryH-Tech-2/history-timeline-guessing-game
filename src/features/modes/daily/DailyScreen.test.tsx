@@ -60,6 +60,7 @@ jest.mock('@/data', () => ({
   getDailyQuestions: () => mockQuestions,
   getQuestionById: (id: string) => mockQuestions.find((q) => q.id === id),
   getCategoryById: () => mockCategory,
+  imageForQuestion: () => undefined,
 }));
 
 // eslint-disable-next-line import/first

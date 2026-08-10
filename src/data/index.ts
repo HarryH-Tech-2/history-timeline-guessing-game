@@ -6,6 +6,8 @@ import { pickDeterministic, seedFromString } from '@/utils/rng';
 import { CATEGORIES } from './categories';
 import { QUESTIONS } from './questions';
 
+export { QUESTION_IMAGES, imageForQuestion } from './questionImages';
+
 /**
  * Validate the local seed at module load. Bad data fails loudly and early
  * rather than corrupting a round. The seed is the app's offline default and

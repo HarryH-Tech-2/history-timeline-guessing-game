@@ -29,7 +29,8 @@ const CONTAINER: Record<ButtonVariant, string> = {
 };
 
 const LABEL: Record<ButtonVariant, string> = {
-  primary: 'text-white',
+  // Near-black on the metallic orange accent — white fails contrast there.
+  primary: 'text-black',
   ghost: 'text-ink-primary',
 };
 

@@ -89,6 +89,7 @@ export function RoundView({
       <View className="flex-1 px-5 pt-2">
         {hud}
         <PromptCard
+          questionId={question.id}
           title={question.title}
           subtitle={question.subtitle}
           categoryName={category?.name ?? 'History'}

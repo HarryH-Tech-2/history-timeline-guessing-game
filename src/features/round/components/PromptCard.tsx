@@ -1,8 +1,10 @@
-import { Text, View } from 'react-native';
+import { Image, Text, View } from 'react-native';
 
 import { Card } from '@/components/ui';
+import { imageForQuestion } from '@/data';
 
 interface PromptCardProps {
+  questionId: string;
   title: string;
   subtitle: string;
   categoryName: string;
@@ -10,16 +12,32 @@ interface PromptCardProps {
   roundNumber: number;
 }
 
-/** The question prompt: category chip, headline, and supporting line. */
+/** The question prompt: illustration, category chip, headline, supporting line. */
 export function PromptCard({
+  questionId,
   title,
   subtitle,
   categoryName,
   categoryColour,
   roundNumber,
 }: PromptCardProps) {
+  const image = imageForQuestion(questionId);
+
   return (
     <Card className="gap-3">
+      {image && (
+        <Image
+          source={image}
+          resizeMode="contain"
+          accessibilityIgnoresInvertColors
+          accessible
+          accessibilityLabel={`Illustration of ${title}`}
+          className="h-44 w-44 self-center rounded-xl bg-bg-overlay"
+          style={{ aspectRatio: 1 }}
+          testID="prompt-image"
+        />
+      )}
+
       <View className="flex-row items-center justify-between">
         <View
           className="flex-row items-center gap-2 rounded-full px-3 py-1"

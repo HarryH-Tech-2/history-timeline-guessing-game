@@ -7,8 +7,8 @@
     "scheme": "chronos",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
-    "backgroundColor": "#FAF7F2",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0A0908",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/icon.png",

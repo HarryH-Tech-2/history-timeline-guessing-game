@@ -10,24 +10,27 @@
  * theme-sensitive colour (currently just `hair`) read it from `useThemeColors`.
  */
 
-/** Brand accents — identical in both themes, tuned to read on light and dark. */
+/** Brand accents — identical in both themes, tuned to read on light and dark.
+ * Metallic orange: molten copper with a soft brass highlight. Warning shifts
+ * to gold so it stays distinguishable from the accent. */
 const brand = {
-  accent: { default: '#4F80F5', soft: '#8FB0FF' },
+  accent: { default: '#E8862B', soft: '#F5B266' },
   success: '#16A374',
-  warning: '#D98A28',
+  warning: '#D9B23C',
   danger: '#EF4E6E',
 } as const;
 
 const lightSurfaces = {
-  bg: { base: '#FAF7F2', raised: '#FFFFFF', overlay: '#F4F0E9' },
-  ink: { primary: '#1A1815', secondary: '#5C574F', muted: '#8D867B' },
-  hair: '#E4DFD6',
+  bg: { base: '#FAF5EE', raised: '#FFFFFF', overlay: '#F4EBDD' },
+  ink: { primary: '#1D1712', secondary: '#5E5243', muted: '#8F8170' },
+  hair: '#E8DECC',
 } as const;
 
+/** Near-black, warmed towards charcoal so the copper accent glows against it. */
 const darkSurfaces = {
-  bg: { base: '#0B0E14', raised: '#141924', overlay: '#1C2230' },
-  ink: { primary: '#F4F6FB', secondary: '#AEB6C6', muted: '#6B7488' },
-  hair: '#2A303C',
+  bg: { base: '#0A0908', raised: '#151210', overlay: '#1F1913' },
+  ink: { primary: '#F7F2EA', secondary: '#B7AC9D', muted: '#7E7263' },
+  hair: '#2C251C',
 } as const;
 
 export interface Palette {
