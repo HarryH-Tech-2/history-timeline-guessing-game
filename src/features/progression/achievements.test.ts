@@ -7,7 +7,11 @@ import {
   newlyEarnedAchievements,
 } from './achievements';
 
-function state(overrides: Partial<ProgressionState> = {}): ProgressionState {
+type StateOverrides = Omit<Partial<ProgressionState>, 'stats'> & {
+  stats?: Partial<ProgressionState['stats']>;
+};
+
+function state(overrides: StateOverrides = {}): ProgressionState {
   return {
     ...INITIAL_PROGRESSION,
     ...overrides,

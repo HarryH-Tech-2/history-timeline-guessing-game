@@ -10,9 +10,18 @@ import {
 } from 'react';
 
 import { INITIAL_PROGRESSION, type ProgressionState, type RoundResult } from '@/domain';
+import { dateKey } from '@/utils/date';
 
 import { progressionStore } from './persistence';
-import { applyGameComplete, applyRound, spendCoins, type RoundOutcome } from './reducer';
+import {
+  applyDailyComplete,
+  applyGameComplete,
+  applyRound,
+  buyStreakFreeze,
+  spendCoins,
+  type DailyCompleteOutcome,
+  type RoundOutcome,
+} from './reducer';
 
 export interface ProgressionApi {
   state: ProgressionState;
@@ -22,6 +31,10 @@ export interface ProgressionApi {
   awardRound: (result: RoundResult, streak: number) => RoundOutcome;
   /** Record a finished game; returns any newly unlocked achievement ids. */
   completeGame: () => readonly string[];
+  /** Fold a finished Daily into the streak (idempotent per calendar day). */
+  recordDailyCompleted: () => DailyCompleteOutcome;
+  /** Buy one streak freeze with coins; false when broke or at the cap. */
+  buyFreeze: () => boolean;
   /** Attempt to spend coins; false if unaffordable. */
   spend: (amount: number) => boolean;
 }
@@ -34,8 +47,10 @@ export interface ProgressionApi {
 const OFFLINE_API: ProgressionApi = {
   state: INITIAL_PROGRESSION,
   isLoading: false,
-  awardRound: (result, streak) => applyRound(INITIAL_PROGRESSION, result, streak),
+  awardRound: (result, streak) => applyRound(INITIAL_PROGRESSION, result, streak, dateKey()),
   completeGame: () => [],
+  recordDailyCompleted: () => applyDailyComplete(INITIAL_PROGRESSION, dateKey()),
+  buyFreeze: () => false,
   spend: () => false,
 };
 
@@ -73,7 +88,7 @@ export function ProgressionProvider({ children }: { children: ReactNode }) {
 
   const awardRound = useCallback(
     (result: RoundResult, streak: number): RoundOutcome => {
-      const outcome = applyRound(ref.current, result, streak);
+      const outcome = applyRound(ref.current, result, streak, dateKey());
       commit(outcome.state);
       return outcome;
     },
@@ -86,6 +101,18 @@ export function ProgressionProvider({ children }: { children: ReactNode }) {
     return unlocked;
   }, [commit]);
 
+  const recordDailyCompleted = useCallback((): DailyCompleteOutcome => {
+    const outcome = applyDailyComplete(ref.current, dateKey());
+    commit(outcome.state);
+    return outcome;
+  }, [commit]);
+
+  const buyFreeze = useCallback((): boolean => {
+    const { state: next, ok } = buyStreakFreeze(ref.current);
+    if (ok) commit(next);
+    return ok;
+  }, [commit]);
+
   const spend = useCallback(
     (amount: number): boolean => {
       const { state: next, ok } = spendCoins(ref.current, amount);
@@ -96,8 +123,8 @@ export function ProgressionProvider({ children }: { children: ReactNode }) {
   );
 
   const value = useMemo<ProgressionApi>(
-    () => ({ state, isLoading, awardRound, completeGame, spend }),
-    [state, isLoading, awardRound, completeGame, spend],
+    () => ({ state, isLoading, awardRound, completeGame, recordDailyCompleted, buyFreeze, spend }),
+    [state, isLoading, awardRound, completeGame, recordDailyCompleted, buyFreeze, spend],
   );
 
   return <ProgressionContext.Provider value={value}>{children}</ProgressionContext.Provider>;

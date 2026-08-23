@@ -16,6 +16,8 @@ interface RevealSheetProps {
   reward?: { xp: number; coins: number } | null;
   /** Titles of achievements unlocked this session, shown as a subtle callout. */
   unlockedTitles?: readonly string[];
+  /** True when this round just added the question's artefact to the museum. */
+  acquired?: boolean;
 }
 
 function headline(result: RoundResult): string {
@@ -30,7 +32,8 @@ function headline(result: RoundResult): string {
 function distanceLabel(result: RoundResult): string {
   if (result.isPerfect) return 'You nailed the exact year';
   const years = result.errorYears;
-  return `You were ${years} ${years === 1 ? 'year' : 'years'} away`;
+  // Name the guess so the distance can be sanity-checked against the marker.
+  return `You guessed ${formatYear(result.guessYear)} — ${years} ${years === 1 ? 'year' : 'years'} away`;
 }
 
 /** Post-submission panel: the correct year, the score, and the teaching moment. */
@@ -41,6 +44,7 @@ export function RevealSheet({
   nextLabel = 'Next',
   reward,
   unlockedTitles,
+  acquired = false,
 }: RevealSheetProps) {
   const animatedScore = useCountUp(result.score.total);
   const { question } = result;
@@ -84,6 +88,14 @@ export function RevealSheet({
               </Text>
             </View>
           )}
+        </View>
+      )}
+
+      {acquired && (
+        <View className="mb-3" testID="museum-acquired">
+          <Text className="text-sm font-semibold" style={{ color: palette.accent.default }}>
+            🏛️ Added to your museum
+          </Text>
         </View>
       )}
 

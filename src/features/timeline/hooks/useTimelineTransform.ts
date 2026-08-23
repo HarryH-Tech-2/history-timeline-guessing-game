@@ -20,23 +20,13 @@ import {
   clampYear,
   transformToFit,
   unwarp,
+  warp,
   yearForWorldX,
 } from '@/features/timeline/math';
 
 function clampScale(value: number): number {
   'worklet';
   return Math.min(MAX_SCALE, Math.max(MIN_SCALE, value));
-}
-
-/**
- * iOS-style rubber band: maps an overshoot distance to a diminishing offset,
- * so dragging past the ends resists progressively instead of sliding freely
- * and snapping back on release.
- */
-function rubberBand(overshoot: number): number {
-  'worklet';
-  const c = 150;
-  return (overshoot * c) / (overshoot + c);
 }
 
 /** Shared easing for programmatic re-framing (century jumps, reveals, resets). */
@@ -57,6 +47,8 @@ export interface TimelineController {
   readGuessYear: () => number;
   /** Re-frame the timeline to a year range (e.g. to reset between rounds). */
   fitTo: (minYear: number, maxYear: number) => void;
+  /** Nudge the crosshair year by a whole-year delta (the +/- fine controls). */
+  stepYear: (delta: number) => void;
   /** Whether the timeline has been laid out and initialised. */
   ready: SharedValue<boolean>;
 }
@@ -92,7 +84,8 @@ export function useTimelineTransform(options: Options = {}): TimelineController 
   const centreYear = useDerivedValue(() => {
     if (scale.value <= 0 || width.value <= 0) return initialRange.max;
     const worldX = (width.value / 2 - translateX.value) / scale.value;
-    return unwarp(worldX / BASE_WIDTH);
+    // Clamped so the readout can never show a year outside the playable range.
+    return clampYear(unwarp(worldX / BASE_WIDTH));
   });
 
   const tickHaptic = useCallback(() => {
@@ -126,22 +119,17 @@ export function useTimelineTransform(options: Options = {}): TimelineController 
       startTranslateX.value = translateX.value;
     })
     .onUpdate((event) => {
+      // Hard stop at both ends: the crosshair can never leave
+      // [MIN_YEAR, PRESENT_YEAR], even transiently mid-drag.
       const next = startTranslateX.value + event.translationX;
       const [tMin, tMax] = translateBounds(scale.value);
-      if (next > tMax) {
-        translateX.value = tMax + rubberBand(next - tMax);
-      } else if (next < tMin) {
-        translateX.value = tMin - rubberBand(tMin - next);
-      } else {
-        translateX.value = next;
-      }
+      translateX.value = Math.min(tMax, Math.max(tMin, next));
     })
     .onEnd((event) => {
       const [tMin, tMax] = translateBounds(scale.value);
       translateX.value = withDecay({
         velocity: event.velocityX,
         clamp: [tMin, tMax],
-        rubberBandEffect: true,
       });
     });
 
@@ -152,18 +140,13 @@ export function useTimelineTransform(options: Options = {}): TimelineController 
     })
     .onUpdate((event) => {
       const nextScale = clampScale(startScale.value * event.scale);
-      // World point under the focal point must stay put as we scale.
+      // World point under the focal point must stay put as we scale — then
+      // clamped so a pinch can't carry the crosshair out of range either.
       const worldUnderFocal = (event.focalX - startTranslateX.value) / startScale.value;
-      translateX.value = event.focalX - worldUnderFocal * nextScale;
+      const next = event.focalX - worldUnderFocal * nextScale;
+      const [tMin, tMax] = translateBounds(nextScale);
+      translateX.value = Math.min(tMax, Math.max(tMin, next));
       scale.value = nextScale;
-    })
-    .onEnd(() => {
-      // Ease back into bounds if the pinch left the crosshair out of range.
-      const [tMin, tMax] = translateBounds(scale.value);
-      const clamped = Math.min(tMax, Math.max(tMin, translateX.value));
-      if (clamped !== translateX.value) {
-        translateX.value = withTiming(clamped, FRAME_TIMING);
-      }
     });
 
   const gesture = Gesture.Simultaneous(pan, pinch);
@@ -201,6 +184,18 @@ export function useTimelineTransform(options: Options = {}): TimelineController 
     return clampYear(yearForWorldX(worldX));
   }, [scale, translateX]);
 
+  const stepYear = useCallback(
+    (delta: number) => {
+      const w = widthRef.current;
+      if (w <= 0) return;
+      const target = clampYear(Math.round(readGuessYear()) + delta);
+      // Translate that puts `target` exactly under the centre crosshair.
+      const t = w / 2 - warp(target) * BASE_WIDTH * scale.value;
+      translateX.value = withTiming(t, { duration: 140, easing: Easing.out(Easing.quad) });
+    },
+    [readGuessYear, scale, translateX],
+  );
+
   return {
     translateX,
     scale,
@@ -209,6 +204,7 @@ export function useTimelineTransform(options: Options = {}): TimelineController 
     onLayout,
     readGuessYear,
     fitTo,
+    stepYear,
     ready,
   };
 }

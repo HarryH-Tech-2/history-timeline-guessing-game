@@ -10,3 +10,13 @@ expo-env.d.ts
 # Firebase Admin service-account keys — never commit these
 serviceAccount*.json
 *-service-account.json
+
+# Local native modules: Gradle output
+modules/*/android/build/
+
+# Kept out of the repo on purpose: generated native project, session notes,
+# and the Firebase Android config (regenerable from the Firebase console).
+android/
+ios/
+SESSION-HANDOFF.txt
+google-services.json

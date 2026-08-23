@@ -6,7 +6,7 @@ import { useProgression } from '@/features/progression';
 import { useAuth } from '@/services/firebase/auth';
 
 import { publishEntry } from './service';
-import { handleForUid } from './types';
+import { handleForUid, MAX_DISPLAY_NAME } from './types';
 
 /**
  * Publishes the player's XP to the leaderboard whenever it changes (and once the
@@ -15,19 +15,27 @@ import { handleForUid } from './types';
  * offline or in unconfigured builds.
  */
 export function useLeaderboardSync(): void {
-  const { uid, isSignedIn } = useAuth();
+  const { uid, isSignedIn, user } = useAuth();
   const { state } = useProgression();
-  const lastPublishedXp = useRef<number | null>(null);
+  const lastPublished = useRef<string | null>(null);
+
+  // Real accounts show their own name on the board; guests keep the stable
+  // generated handle. Length is capped to what the security rules accept.
+  const displayName = (user?.displayName?.trim() || (uid ? handleForUid(uid) : '')).slice(
+    0,
+    MAX_DISPLAY_NAME,
+  );
 
   useEffect(() => {
     if (!isFirebaseConfigured || !isSignedIn || uid === null) return;
-    if (state.xp === lastPublishedXp.current) return;
-    lastPublishedXp.current = state.xp;
+    const key = `${uid}:${state.xp}:${displayName}`;
+    if (key === lastPublished.current) return;
+    lastPublished.current = key;
     void publishEntry(uid, {
-      displayName: handleForUid(uid),
+      displayName,
       xp: state.xp,
       level: levelForXp(state.xp),
       updatedAt: Date.now(),
     });
-  }, [uid, isSignedIn, state.xp]);
+  }, [uid, isSignedIn, state.xp, displayName]);
 }

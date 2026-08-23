@@ -3,8 +3,11 @@ import { useRouter } from 'expo-router';
 
 import { Screen } from '@/components/ui';
 import { getQuestionById } from '@/data';
+import { activeStreakCount } from '@/domain';
+import { useProgression } from '@/features/progression';
 import { RoundView, useRoundRewards } from '@/features/round';
 import { palette } from '@/theme/tokens';
+import { dateKey } from '@/utils/date';
 
 import { ModeHud } from '../components/ModeHud';
 import { RunSummary, type SummaryRow } from '../components/RunSummary';
@@ -12,6 +15,8 @@ import type { DailyRecord } from '../persistence';
 import { useDailySession } from './useDailySession';
 
 function DailySummary({ record, onHome }: { record: DailyRecord; onHome: () => void }) {
+  const { state } = useProgression();
+  const streak = activeStreakCount(state.streak, dateKey());
   const rounds: SummaryRow[] = record.rounds.map((r, i) => ({
     key: `${i}`,
     label: getQuestionById(r.questionId)?.title ?? 'Question',
@@ -22,7 +27,11 @@ function DailySummary({ record, onHome }: { record: DailyRecord; onHome: () => v
   return (
     <RunSummary
       title="Daily complete"
-      subtitle="Come back tomorrow for a fresh set."
+      subtitle={
+        streak > 0
+          ? `🔥 ${streak}-day streak — come back tomorrow to keep it alive.`
+          : 'Come back tomorrow for a fresh set.'
+      }
       totalScore={record.totalScore}
       stats={[
         { label: 'Perfect answers', value: `${record.perfectCount} / ${record.rounds.length}` },
@@ -38,7 +47,7 @@ function DailySummary({ record, onHome }: { record: DailyRecord; onHome: () => v
 export function DailyScreen() {
   const router = useRouter();
   const { session, totalQuestions, loading, locked, record } = useDailySession();
-  const { reward, unlockedTitles } = useRoundRewards(session);
+  const { reward, unlockedTitles, acquired } = useRoundRewards(session);
 
   if (loading) {
     return (
@@ -61,12 +70,12 @@ export function DailyScreen() {
           question={session.question}
           phase={session.phase}
           result={session.result}
-          roundNumber={session.roundNumber}
           onSubmit={session.submit}
           onNext={session.advance}
           nextLabel={onLastQuestion ? 'Finish' : 'Next'}
           reward={reward}
           unlockedTitles={unlockedTitles}
+          acquired={acquired}
           hud={
             <ModeHud
               progressLabel={`Question ${session.roundNumber} of ${totalQuestions}`}

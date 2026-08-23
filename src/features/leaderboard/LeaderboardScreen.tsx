@@ -230,7 +230,7 @@ export function LeaderboardScreen() {
 
   if (!isFirebaseConfigured) {
     return (
-      <Screen>
+      <Screen edges={['top']}>
         <Backdrop>
           <View className="flex-1 items-center justify-center px-5">
             <Text className="mb-2 text-center text-3xl font-extrabold text-ink-primary">
@@ -247,7 +247,9 @@ export function LeaderboardScreen() {
   }
 
   return (
-    <Screen>
+    // Top edge only: the tab bar already owns the bottom inset, and a second
+    // bottom inset here chopped the backdrop artwork off short of the bar.
+    <Screen edges={['top']}>
       <Backdrop>
         <FlatList
           data={listEntries}

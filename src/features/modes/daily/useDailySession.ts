@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { getDailyQuestions } from '@/data';
 import type { RoundResult } from '@/domain';
+import { useProgression } from '@/features/progression';
 import { useGameSession, type GameSession } from '@/features/round';
 import { dateKey } from '@/utils/date';
 
@@ -32,6 +33,7 @@ export interface DailySession {
 
 /** Daily: a fixed, date-seeded set of questions, one attempt per calendar day. */
 export function useDailySession(): DailySession {
+  const { recordDailyCompleted } = useProgression();
   const today = useMemo(() => dateKey(), []);
   const questions = useMemo(() => getDailyQuestions(today), [today]);
 
@@ -54,7 +56,8 @@ export function useDailySession(): DailySession {
     });
   }, [today]);
 
-  // Persist the run the moment it finishes.
+  // Persist the run the moment it finishes, and feed the Daily streak
+  // (idempotent per calendar day, so a re-render can't double-count).
   const saved = useRef(false);
   useEffect(() => {
     if (session.status !== 'finished' || saved.current) return;
@@ -62,7 +65,8 @@ export function useDailySession(): DailySession {
     const rec = buildRecord(today, session.results);
     void dailyStore.write(rec);
     setRecord(rec);
-  }, [session.status, session.results, today]);
+    recordDailyCompleted();
+  }, [session.status, session.results, today, recordDailyCompleted]);
 
   return {
     session,

@@ -19,8 +19,6 @@ interface RoundViewProps {
   question: Question;
   phase: 'guessing' | 'revealed';
   result: RoundResult | null;
-  /** 1-based position of this question, shown on the prompt. */
-  roundNumber: number;
   onSubmit: (guessYear: number) => void;
   onNext: () => void;
   /** Mode-specific status bar rendered above the prompt (lives, Q x/N, ...). */
@@ -31,6 +29,8 @@ interface RoundViewProps {
   reward?: { xp: number; coins: number } | null;
   /** Achievements unlocked this session, surfaced on the reveal sheet. */
   unlockedTitles?: readonly string[];
+  /** True when the revealed round just added its artefact to the museum. */
+  acquired?: boolean;
   /** Optional control rendered next to the submit button (e.g. a hint). */
   actions?: ReactNode;
 }
@@ -44,13 +44,13 @@ export function RoundView({
   question,
   phase,
   result,
-  roundNumber,
   onSubmit,
   onNext,
   hud,
   nextLabel,
   reward,
   unlockedTitles,
+  acquired,
   actions,
 }: RoundViewProps) {
   const controller = useTimelineTransform({ initialRange: DEFAULT_RANGE });
@@ -60,10 +60,13 @@ export function RoundView({
   const colour = category?.colour ?? palette.accent.default;
   const revealed = phase === 'revealed';
 
-  // Reset the framing whenever a fresh question arrives.
+  // Reset the framing whenever a fresh question arrives. Depends on the stable
+  // `fitTo` only: the controller object is rebuilt every render, and keying on
+  // it re-ran this after submit and undid the reveal's guess/answer zoom.
+  const { fitTo } = controller;
   useEffect(() => {
-    controller.fitTo(DEFAULT_RANGE.min, DEFAULT_RANGE.max);
-  }, [question.id, controller]);
+    fitTo(DEFAULT_RANGE.min, DEFAULT_RANGE.max);
+  }, [question.id, fitTo]);
 
   const handleSubmit = useCallback(() => {
     const guessYear = controller.readGuessYear();
@@ -92,9 +95,7 @@ export function RoundView({
           questionId={question.id}
           title={question.title}
           subtitle={question.subtitle}
-          categoryName={category?.name ?? 'History'}
-          categoryColour={colour}
-          roundNumber={roundNumber}
+          compact={revealed}
         />
 
         <View className="flex-1 justify-center">
@@ -102,6 +103,7 @@ export function RoundView({
             controller={controller}
             revealYear={revealed ? question.year : undefined}
             revealColour={colour}
+            guessYear={revealed && result ? result.guessYear : undefined}
           />
           {!revealed && <CenturyJumpBar controller={controller} />}
         </View>
@@ -115,6 +117,7 @@ export function RoundView({
           nextLabel={nextLabel}
           reward={reward}
           unlockedTitles={unlockedTitles}
+          acquired={acquired}
         />
       ) : (
         <View className="gap-2 px-5 pb-3">

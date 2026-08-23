@@ -27,7 +27,8 @@ const PROMPT_TEMPLATE =
   '[EVENT], with its most iconic features. Use soft, refined textures with ' +
   'realistic PBR materials and gentle, lifelike lighting and shadows. Use a ' +
   'clean, minimalistic composition with a soft, solid-colored background. ' +
-  'Square 1080x1080 dimension.';
+  'Square 1080x1080 dimension. Absolutely no text, numbers, dates, letters, ' +
+  'labels, captions or signage anywhere in the image.';
 
 const ASSETS_DIR = path.join(__dirname, '..', 'assets', 'questions');
 const MAP_FILE = path.join(__dirname, '..', 'src', 'data', 'questionImages.ts');
@@ -37,9 +38,13 @@ interface InteractionStep {
   content?: Array<{ type?: string; mime_type?: string; data?: string }>;
 }
 
+/**
+ * The year is deliberately EXCLUDED from the description: image models often
+ * render it into the scene (plaques, captions), which spoils the answer in a
+ * date-guessing game — and sometimes they even paint a WRONG year.
+ */
 function eventDescription(q: (typeof QUESTIONS)[number]): string {
-  const era = q.year < 0 ? `${-q.year} BCE` : `${q.year}`;
-  return `${q.title} (${era}) — ${q.subtitle}`;
+  return `${q.title} — ${q.subtitle}`;
 }
 
 async function generateImage(apiKey: string, event: string): Promise<Buffer> {

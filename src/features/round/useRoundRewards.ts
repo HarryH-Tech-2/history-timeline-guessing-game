@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { achievementById, useProgression } from '@/features/progression';
+import { recordRoundPlayed } from '@/features/review';
 import { streakLength } from '@/features/timeline/math';
 
 import type { GameSession } from './useGameSession';
@@ -15,6 +16,8 @@ export interface RoundRewards {
   reward: RoundReward | null;
   /** Titles of achievements unlocked so far this session, for a subtle callout. */
   unlockedTitles: readonly string[];
+  /** True when the revealed round just added its artefact to the museum. */
+  acquired: boolean;
 }
 
 /**
@@ -30,6 +33,7 @@ export function useRoundRewards(session: GameSession): RoundRewards {
   const finished = useRef(false);
   const [reward, setReward] = useState<RoundReward | null>(null);
   const [unlocked, setUnlocked] = useState<readonly string[]>([]);
+  const [acquired, setAcquired] = useState(false);
 
   const addUnlocked = (ids: readonly string[]) => {
     setUnlocked((prev) => {
@@ -46,7 +50,10 @@ export function useRoundRewards(session: GameSession): RoundRewards {
     const outcome = awardRound(latest, streak);
     awardedCount.current = session.results.length;
     setReward(outcome.reward);
+    setAcquired(outcome.acquired);
     addUnlocked(outcome.unlocked);
+    // Every revealed round counts towards the (once-ever) review ask.
+    void recordRoundPlayed();
   }, [session.results, awardRound]);
 
   useEffect(() => {
@@ -59,5 +66,5 @@ export function useRoundRewards(session: GameSession): RoundRewards {
     .map((id) => achievementById(id)?.title)
     .filter((t): t is string => t !== undefined);
 
-  return { reward, unlockedTitles };
+  return { reward, unlockedTitles, acquired };
 }

@@ -6,7 +6,15 @@ export {
   type Achievement,
 } from './achievements';
 export { progressionStore } from './persistence';
-export { applyGameComplete, applyRound, spendCoins, type RoundOutcome } from './reducer';
+export {
+  applyDailyComplete,
+  applyGameComplete,
+  applyRound,
+  buyStreakFreeze,
+  spendCoins,
+  type DailyCompleteOutcome,
+  type RoundOutcome,
+} from './reducer';
 export {
   ProgressionProvider,
   useProgression,
@@ -14,3 +22,4 @@ export {
 } from './ProgressionProvider';
 export { ProfileHeader } from './components/ProfileHeader';
 export { AchievementsScreen } from './AchievementsScreen';
+export { ProfileScreen } from './ProfileScreen';

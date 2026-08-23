@@ -7,24 +7,41 @@ interface PromptCardProps {
   questionId: string;
   title: string;
   subtitle: string;
-  categoryName: string;
-  categoryColour: string;
-  roundNumber: number;
+  /**
+   * Collapsed layout for the reveal: thumbnail plus headline only, so the
+   * timeline and the reveal sheet both fit on screen without overlapping.
+   */
+  compact?: boolean;
 }
 
-/** The question prompt: illustration, category chip, headline, supporting line. */
-export function PromptCard({
-  questionId,
-  title,
-  subtitle,
-  categoryName,
-  categoryColour,
-  roundNumber,
-}: PromptCardProps) {
+/** The question prompt: illustration, headline, supporting line. */
+export function PromptCard({ questionId, title, subtitle, compact = false }: PromptCardProps) {
   const image = imageForQuestion(questionId);
 
+  if (compact) {
+    return (
+      <Card className="flex-row items-center gap-3 py-3" testID="prompt-card-compact">
+        {image && (
+          <Image
+            source={image}
+            resizeMode="contain"
+            accessibilityIgnoresInvertColors
+            accessible
+            accessibilityLabel={`Illustration of ${title}`}
+            className="h-12 w-12 rounded-lg bg-bg-overlay"
+            style={{ aspectRatio: 1 }}
+            testID="prompt-image"
+          />
+        )}
+        <Text numberOfLines={2} className="flex-1 text-lg font-bold leading-tight text-ink-primary">
+          {title}
+        </Text>
+      </Card>
+    );
+  }
+
   return (
-    <Card className="gap-3">
+    <Card className="items-center gap-3">
       {image && (
         <Image
           source={image}
@@ -32,32 +49,18 @@ export function PromptCard({
           accessibilityIgnoresInvertColors
           accessible
           accessibilityLabel={`Illustration of ${title}`}
-          className="h-44 w-44 self-center rounded-xl bg-bg-overlay"
+          className="h-64 w-64 self-center rounded-xl bg-bg-overlay"
           style={{ aspectRatio: 1 }}
           testID="prompt-image"
         />
       )}
 
-      <View className="flex-row items-center justify-between">
-        <View
-          className="flex-row items-center gap-2 rounded-full px-3 py-1"
-          style={{ backgroundColor: `${categoryColour}22` }}
-        >
-          <View className="h-2 w-2 rounded-full" style={{ backgroundColor: categoryColour }} />
-          <Text className="text-xs font-semibold" style={{ color: categoryColour }}>
-            {categoryName}
-          </Text>
-        </View>
-        <Text className="text-xs font-medium text-ink-muted">Round {roundNumber}</Text>
-      </View>
-
-      <Text className="text-2xl font-bold leading-tight text-ink-primary">{title}</Text>
-      {subtitle.length > 0 && (
-        <Text className="text-base text-ink-secondary">{subtitle}</Text>
-      )}
-      <Text className="mt-1 text-sm text-ink-muted">
-        When did this happen? Drag the timeline to your answer.
+      <Text className="text-center text-2xl font-bold leading-tight text-ink-primary">
+        {title}
       </Text>
+      {subtitle.length > 0 && (
+        <Text className="text-center text-base text-ink-secondary">{subtitle}</Text>
+      )}
     </Card>
   );
 }

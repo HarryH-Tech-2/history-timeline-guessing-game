@@ -19,7 +19,8 @@
       "supportsTablet": true
     },
     "android": {
-      "package": "com.harryhh.chronos",
+      "package": "com.harryhh.historydateguesser",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#B0703A",
         "foregroundImage": "./assets/icon.png"
@@ -32,7 +33,9 @@
     },
     "plugins": [
       "expo-router",
-      "expo-status-bar"
+      "expo-status-bar",
+      "@react-native-google-signin/google-signin",
+      ["./plugins/withPlayGames", { "appId": "192520909417" }]
     ],
     "experiments": {
       "typedRoutes": true

@@ -3,6 +3,8 @@ import { useRouter, type Href } from 'expo-router';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
 import { Screen } from '@/components/ui';
+import { getCategories } from '@/data';
+import type { Category } from '@/domain';
 import { ProfileHeader } from '@/features/progression';
 import { useTheme } from '@/theme';
 import { palette } from '@/theme/tokens';
@@ -69,6 +71,38 @@ function ModeCard({ mode, index, onPress }: { mode: ModeCardData; index: number;
   );
 }
 
+/** A compact two-per-row tile that starts a single-topic practice run. */
+function CategoryCard({
+  category,
+  index,
+  onPress,
+}: {
+  category: Category;
+  index: number;
+  onPress: () => void;
+}) {
+  return (
+    <Animated.View
+      entering={FadeInUp.delay((MODES.length + index) * 60).springify().damping(18)}
+      className="min-w-[45%] flex-1"
+    >
+      <Pressable
+        onPress={onPress}
+        accessibilityRole="button"
+        accessibilityLabel={`Play ${category.name} questions`}
+        testID={`category-${category.id}`}
+        className="gap-2 overflow-hidden rounded-2xl border border-hair bg-bg-raised p-4"
+      >
+        <View className="h-1.5 w-10 rounded-full" style={{ backgroundColor: category.colour }} />
+        <Text className="text-base font-bold text-ink-primary">{category.name}</Text>
+        <Text numberOfLines={2} className="text-xs text-ink-secondary">
+          {category.description}
+        </Text>
+      </Pressable>
+    </Animated.View>
+  );
+}
+
 /** The landing hub: pick a mode. Each card routes into that mode's flow. */
 export function HomeHub() {
   const router = useRouter();
@@ -107,6 +141,22 @@ export function HomeHub() {
             onPress={() => router.push(mode.route)}
           />
         ))}
+
+        <Text className="mt-4 text-xs font-semibold uppercase tracking-wide text-ink-muted">
+          Categories
+        </Text>
+        <View className="flex-row flex-wrap gap-3">
+          {getCategories()
+            .filter((c) => c.active)
+            .map((category, index) => (
+              <CategoryCard
+                key={category.id}
+                category={category}
+                index={index}
+                onPress={() => router.push(`/category/${category.id}`)}
+              />
+            ))}
+        </View>
       </ScrollView>
     </Screen>
   );

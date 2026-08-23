@@ -1,8 +1,9 @@
 import { getCategories, getQuestions, getQuestionsByCategory, getRandomQuestion } from './index';
 
 describe('seed data', () => {
-  it('loads and validates the four launch categories', () => {
+  it('loads and validates the five launch categories', () => {
     expect(getCategories().map((c) => c.id).sort()).toEqual([
+      'arts',
       'battles',
       'events',
       'people',

@@ -92,3 +92,21 @@ export function getRandomQuestion(excludeIds: ReadonlySet<string> = new Set()): 
   if (!picked) throw new Error('No questions available in the seed dataset');
   return picked;
 }
+
+/**
+ * Pick a random question from one category, excluding ids already seen. Once
+ * the category is exhausted the exclusion resets (like Endless's seen-set), so
+ * a category run can continue for as long as the player likes.
+ */
+export function getRandomQuestionInCategory(
+  categoryId: string,
+  excludeIds: ReadonlySet<string> = new Set(),
+): Question {
+  const inCategory = activeQuestions.filter((q) => q.categoryId === categoryId);
+  const pool = inCategory.filter((q) => !excludeIds.has(q.id));
+  const source = pool.length > 0 ? pool : inCategory;
+  const index = Math.floor(Math.random() * source.length);
+  const picked = source[index];
+  if (!picked) throw new Error(`No questions available for category "${categoryId}"`);
+  return picked;
+}

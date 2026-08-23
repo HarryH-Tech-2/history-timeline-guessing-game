@@ -1,0 +1,27 @@
+# EAS upload exclusions. When this file exists EAS ignores .gitignore, so it
+# must repeat every .gitignore rule that matters for the build archive.
+node_modules/
+.expo/
+dist/
+web-build/
+.env*
+!.env.example
+*.log
+expo-env.d.ts
+serviceAccount*.json
+*-service-account.json
+
+# Keep EAS on managed CNG builds: if android/ were uploaded, EAS would treat
+# the project as bare and skip every config plugin in app.json. The local
+# android/ dir is prebuild output for `expo run:android` only.
+# Anchored to the project root on purpose: an unanchored `android/` also
+# matches modules/*/android/ and silently drops local native modules from the
+# upload (the module then "autolinks" with no code and is missing at runtime).
+/android/
+/ios/
+
+# Local native modules: ship their sources, not Gradle output.
+modules/*/android/build/
+
+# Local scratch
+SESSION-HANDOFF.txt

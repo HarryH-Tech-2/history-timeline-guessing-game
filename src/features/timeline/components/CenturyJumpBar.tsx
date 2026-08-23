@@ -71,13 +71,15 @@ const BandChip = memo(function BandChip({
       testID={`century-${band.start}`}
       className={
         active
-          ? 'rounded-full bg-accent px-3 py-1.5'
-          : 'rounded-full border border-hair bg-bg-raised px-3 py-1.5'
+          ? 'items-center justify-center rounded-full bg-accent px-3 py-1.5'
+          : 'items-center justify-center rounded-full border border-hair bg-bg-raised px-3 py-1.5'
       }
     >
       <Text
         className={
-          active ? 'text-xs font-bold text-black' : 'text-xs font-semibold text-ink-secondary'
+          active
+            ? 'text-center text-xs font-bold text-black'
+            : 'text-center text-xs font-semibold text-ink-secondary'
         }
       >
         {band.label}
@@ -121,7 +123,7 @@ export function CenturyJumpBar({ controller }: CenturyJumpBarProps) {
       horizontal
       showsHorizontalScrollIndicator={false}
       className="mt-3 max-h-11"
-      contentContainerClassName="gap-2 px-1"
+      contentContainerClassName="items-center gap-2 px-1"
     >
       {BANDS.map((band) => (
         <BandChip

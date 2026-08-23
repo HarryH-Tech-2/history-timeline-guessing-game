@@ -1,7 +1,7 @@
 import type { Category } from '@/domain';
 
 /**
- * The four launch categories. Shaped exactly like the future Firestore
+ * The launch categories. Shaped exactly like the future Firestore
  * `categories` documents so this array can be replaced by a network fetch in a
  * later slice with no consumer changes.
  */
@@ -49,5 +49,16 @@ export const CATEGORIES = [
     active: true,
     premiumOnly: false,
     displayOrder: 3,
+  },
+  {
+    id: 'arts',
+    name: 'Arts & Culture',
+    icon: 'palette',
+    colour: '#B07BD9',
+    description: 'Masterpieces, premieres and cultural icons.',
+    difficulty: 'medium',
+    active: true,
+    premiumOnly: false,
+    displayOrder: 4,
   },
 ] satisfies readonly Category[];

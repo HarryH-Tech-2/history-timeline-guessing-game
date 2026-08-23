@@ -10,7 +10,7 @@ import { darkPalette, lightPalette, themeVars, type Palette, type ThemeMode } fr
 const themeStore = createStore<ThemeMode>({
   key: 'chronos.theme',
   schema: z.enum(['light', 'dark']),
-  fallback: 'dark',
+  fallback: 'light',
 });
 
 interface ThemeContextValue {
@@ -24,11 +24,11 @@ interface ThemeContextValue {
 /**
  * Default used when no provider is mounted (isolated component tests, etc.).
  * Mirrors the codebase convention of a working offline default so screens render
- * standalone. Dark theme (the app default), with inert setters.
+ * standalone. Light theme (the app default), with inert setters.
  */
 const DEFAULT_CONTEXT: ThemeContextValue = {
-  mode: 'dark',
-  colors: darkPalette,
+  mode: 'light',
+  colors: lightPalette,
   toggle: () => {},
   setMode: () => {},
 };
@@ -36,16 +36,16 @@ const DEFAULT_CONTEXT: ThemeContextValue = {
 const ThemeContext = createContext<ThemeContextValue>(DEFAULT_CONTEXT);
 
 /**
- * Owns the light/dark choice. Defaults to dark (the app's black-and-copper
+ * Owns the light/dark choice. Defaults to light (the parchment-and-copper
  * look), persists the user's pick, and publishes the active theme two ways: as
  * NativeWind CSS variables applied at the root (so every
  * `bg-bg-base`/`text-ink-primary` class flips for free) and as a resolved
  * {@link Palette} on context for imperative consumers.
  */
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [mode, setModeState] = useState<ThemeMode>('dark');
+  const [mode, setModeState] = useState<ThemeMode>('light');
 
-  // Rehydrate the persisted choice after first paint (defaults to dark).
+  // Rehydrate the persisted choice after first paint (defaults to light).
   useEffect(() => {
     let active = true;
     void themeStore.read().then((saved) => {

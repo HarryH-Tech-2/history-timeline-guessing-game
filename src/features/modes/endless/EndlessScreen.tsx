@@ -11,7 +11,7 @@ import { useEndlessSession } from './useEndlessSession';
 export function EndlessScreen() {
   const router = useRouter();
   const { session } = useEndlessSession();
-  const { reward, unlockedTitles } = useRoundRewards(session);
+  const { reward, unlockedTitles, acquired } = useRoundRewards(session);
 
   return (
     <Screen>
@@ -19,11 +19,11 @@ export function EndlessScreen() {
         question={session.question}
         phase={session.phase}
         result={session.result}
-        roundNumber={session.roundNumber}
         onSubmit={session.submit}
         onNext={session.advance}
         reward={reward}
         unlockedTitles={unlockedTitles}
+        acquired={acquired}
         actions={<HintButton question={session.question} />}
         hud={
           <ModeHud

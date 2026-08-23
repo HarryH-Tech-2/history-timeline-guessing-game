@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import type { RoundResult } from './round';
+import { INITIAL_STREAK, StreakStateSchema } from './streak';
 
 /**
  * XP economy and level curve. Everything here is pure so it can be unit tested
@@ -87,12 +88,16 @@ export function rewardForRound(result: RoundResult): RoundReward {
   return { xp: xpForRound(result), coins: coinsForRound(result) };
 }
 
-/** Lifetime counters used for achievements and the profile header. */
+/** Lifetime counters used for achievements and the profile header.
+ * Later additions carry `.default()` so profiles saved by older builds still
+ * parse instead of being reset by the store's schema fallback. */
 export const ProgressionStatsSchema = z.object({
   rounds: z.number().nonnegative(),
   perfectRounds: z.number().nonnegative(),
   gamesPlayed: z.number().nonnegative(),
   bestStreak: z.number().nonnegative(),
+  /** Longest Daily streak ever held (the live one is in `streak`). */
+  bestDailyStreak: z.number().nonnegative().default(0),
 });
 export type ProgressionStats = z.infer<typeof ProgressionStatsSchema>;
 
@@ -102,6 +107,13 @@ export const ProgressionStateSchema = z.object({
   coins: z.number().nonnegative(),
   unlocked: z.array(z.string()),
   stats: ProgressionStatsSchema,
+  /** Daily streak; defaulted so pre-streak profiles migrate in place. */
+  streak: StreakStateSchema.default(INITIAL_STREAK),
+  /**
+   * Museum collection: question id → best error-years among the guesses that
+   * acquired it. An entry's existence IS the acquisition (see domain/collection).
+   */
+  collection: z.record(z.string(), z.number().nonnegative()).default({}),
 });
 export type ProgressionState = z.infer<typeof ProgressionStateSchema>;
 
@@ -109,5 +121,7 @@ export const INITIAL_PROGRESSION: ProgressionState = {
   xp: 0,
   coins: 0,
   unlocked: [],
-  stats: { rounds: 0, perfectRounds: 0, gamesPlayed: 0, bestStreak: 0 },
+  stats: { rounds: 0, perfectRounds: 0, gamesPlayed: 0, bestStreak: 0, bestDailyStreak: 0 },
+  streak: INITIAL_STREAK,
+  collection: {},
 };
