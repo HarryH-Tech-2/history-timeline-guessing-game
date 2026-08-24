@@ -93,7 +93,7 @@ export function SignInScreen() {
   }
 
   const inputClass =
-    'h-14 rounded-2xl border border-hair bg-bg-raised px-4 text-base text-ink-primary';
+    'h-14 border border-hair bg-bg-raised px-4 text-base text-ink-primary';
 
   return (
     <Screen>

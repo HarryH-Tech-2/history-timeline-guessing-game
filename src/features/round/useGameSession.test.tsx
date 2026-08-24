@@ -46,6 +46,30 @@ describe('useGameSession', () => {
     expect(result.current.totalScore).toBe(1650);
   });
 
+  it('ignores a second submit while the round is already revealed', () => {
+    const queue = [q1, q2];
+    const { result } = renderHook(() =>
+      useGameSession({
+        first: () => queue[0]!,
+        next: (results) => queue[results.length] ?? null,
+      }),
+    );
+
+    act(() => {
+      result.current.submit(1000);
+    });
+    act(() => {
+      result.current.submit(1500); // double-tap on Submit
+    });
+    // Scored once, and the queue does not skip a question on advance.
+    expect(result.current.results).toHaveLength(1);
+    expect(result.current.totalScore).toBe(1000);
+    act(() => {
+      result.current.advance();
+    });
+    expect(result.current.question.id).toBe('b');
+  });
+
   it('honours an early shouldEnd predicate', () => {
     const { result } = renderHook(() =>
       useGameSession({

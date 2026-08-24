@@ -101,7 +101,7 @@ function PodiumColumn({
 
       {/* The plinth: stepped height, metal-tinted, numbered */}
       <View
-        className="w-full items-center justify-start rounded-t-xl border-t-2 pt-2"
+        className="w-full items-center justify-start border-t-2 pt-2"
         style={{ height, borderTopColor: metal.tint, backgroundColor: `${metal.tint}26` }}
       >
         <Text className="text-2xl font-extrabold" style={{ color: metal.tint }}>
@@ -145,8 +145,8 @@ function Row({
         testID={`leaderboard-row-${rank}`}
         className={
           isMe
-            ? 'flex-row items-center gap-3 rounded-2xl border border-accent bg-accent/10 px-4 py-3'
-            : 'flex-row items-center gap-3 rounded-2xl border border-hair bg-bg-raised px-4 py-3'
+            ? 'flex-row items-center gap-3 border border-accent bg-accent/10 px-4 py-3'
+            : 'flex-row items-center gap-3 border border-hair bg-bg-raised px-4 py-3'
         }
       >
         <Text

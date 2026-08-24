@@ -6,7 +6,7 @@ import { useReducedMotion } from 'react-native-reanimated';
 import { Button } from '@/components/ui';
 import { getCategoryById } from '@/data';
 import type { Question, RoundResult } from '@/domain';
-import { CenturyJumpBar, TimelineTrack, useTimelineTransform } from '@/features/timeline';
+import { TimelineTrack, useTimelineTransform } from '@/features/timeline';
 import { palette } from '@/theme/tokens';
 
 import { Confetti } from './components/Confetti';
@@ -62,7 +62,7 @@ export function RoundView({
 
   // Reset the framing whenever a fresh question arrives. Depends on the stable
   // `fitTo` only: the controller object is rebuilt every render, and keying on
-  // it re-ran this after submit and undid the reveal's guess/answer zoom.
+  // it re-ran this after submit and undid the reveal's guess/answer framing.
   const { fitTo } = controller;
   useEffect(() => {
     fitTo(DEFAULT_RANGE.min, DEFAULT_RANGE.max);
@@ -78,18 +78,16 @@ export function RoundView({
         : Haptics.NotificationFeedbackType.Warning,
     );
 
-    // Bring both the guess and the true year into view for the reveal.
-    const lo = Math.min(guessYear, question.year);
-    const hi = Math.max(guessYear, question.year);
-    const pad = Math.max(15, (hi - lo) * 0.4);
-    controller.fitTo(lo - pad, hi + pad);
+    // Show the answer with the least movement: the timeline stays where the
+    // player left it unless the true year is off screen.
+    controller.reveal(guessYear, question.year);
 
     onSubmit(guessYear);
   }, [controller, question.year, onSubmit]);
 
   return (
     <View className="flex-1">
-      <View className="flex-1 px-5 pt-2">
+      <View className="flex-1 gap-4 px-5 pt-3">
         {hud}
         <PromptCard
           questionId={question.id}
@@ -98,14 +96,13 @@ export function RoundView({
           compact={revealed}
         />
 
-        <View className="flex-1 justify-center">
+        <View className="flex-1 justify-center py-2">
           <TimelineTrack
             controller={controller}
             revealYear={revealed ? question.year : undefined}
             revealColour={colour}
             guessYear={revealed && result ? result.guessYear : undefined}
           />
-          {!revealed && <CenturyJumpBar controller={controller} />}
         </View>
       </View>
 
@@ -120,7 +117,7 @@ export function RoundView({
           acquired={acquired}
         />
       ) : (
-        <View className="gap-2 px-5 pb-3">
+        <View className="gap-3 px-5 pb-5 pt-2">
           {actions}
           <Button label="Submit guess" onPress={handleSubmit} testID="submit-button" />
         </View>

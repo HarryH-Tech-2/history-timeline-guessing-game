@@ -1,6 +1,7 @@
-import { Image, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Image, Pressable, Text, View } from 'react-native';
 
-import { Card } from '@/components/ui';
+import { Card, ImageLightbox } from '@/components/ui';
 import { imageForQuestion } from '@/data';
 
 interface PromptCardProps {
@@ -14,28 +15,46 @@ interface PromptCardProps {
   compact?: boolean;
 }
 
-/** The question prompt: illustration, headline, supporting line. */
+/** The question prompt: illustration, headline, supporting line. Tapping the
+ * illustration opens it full-screen with pinch-to-zoom. */
 export function PromptCard({ questionId, title, subtitle, compact = false }: PromptCardProps) {
   const image = imageForQuestion(questionId);
+  const [zoomed, setZoomed] = useState(false);
+
+  const lightbox = image ? (
+    <ImageLightbox
+      visible={zoomed}
+      source={image}
+      title={title}
+      onClose={() => setZoomed(false)}
+    />
+  ) : null;
 
   if (compact) {
     return (
       <Card className="flex-row items-center gap-3 py-3" testID="prompt-card-compact">
         {image && (
-          <Image
-            source={image}
-            resizeMode="contain"
-            accessibilityIgnoresInvertColors
-            accessible
-            accessibilityLabel={`Illustration of ${title}`}
-            className="h-12 w-12 rounded-lg bg-bg-overlay"
-            style={{ aspectRatio: 1 }}
-            testID="prompt-image"
-          />
+          <Pressable
+            onPress={() => setZoomed(true)}
+            accessibilityRole="imagebutton"
+            accessibilityLabel={`Enlarge illustration of ${title}`}
+            hitSlop={6}
+            testID="prompt-image-button"
+          >
+            <Image
+              source={image}
+              resizeMode="contain"
+              accessibilityIgnoresInvertColors
+              className="h-12 w-12 bg-bg-overlay"
+              style={{ aspectRatio: 1 }}
+              testID="prompt-image"
+            />
+          </Pressable>
         )}
         <Text numberOfLines={2} className="flex-1 text-lg font-bold leading-tight text-ink-primary">
           {title}
         </Text>
+        {lightbox}
       </Card>
     );
   }
@@ -43,16 +62,33 @@ export function PromptCard({ questionId, title, subtitle, compact = false }: Pro
   return (
     <Card className="items-center gap-3">
       {image && (
-        <Image
-          source={image}
-          resizeMode="contain"
-          accessibilityIgnoresInvertColors
-          accessible
-          accessibilityLabel={`Illustration of ${title}`}
-          className="h-64 w-64 self-center rounded-xl bg-bg-overlay"
-          style={{ aspectRatio: 1 }}
-          testID="prompt-image"
-        />
+        <Pressable
+          onPress={() => setZoomed(true)}
+          accessibilityRole="imagebutton"
+          accessibilityLabel={`Enlarge illustration of ${title}`}
+          testID="prompt-image-button"
+          className="self-center"
+        >
+          <Image
+            source={image}
+            resizeMode="contain"
+            accessibilityIgnoresInvertColors
+            className="h-64 w-64 bg-bg-overlay"
+            style={{ aspectRatio: 1 }}
+            testID="prompt-image"
+          />
+          <View
+            pointerEvents="none"
+            className="absolute bottom-2 right-2 h-9 w-9 items-center justify-center border border-ink-primary/20 bg-bg-raised"
+          >
+            <Text
+              className="text-xl font-extrabold text-ink-primary"
+              style={{ includeFontPadding: false, textAlignVertical: 'center' }}
+            >
+              ⤢
+            </Text>
+          </View>
+        </Pressable>
       )}
 
       <Text className="text-center text-2xl font-bold leading-tight text-ink-primary">
@@ -61,6 +97,7 @@ export function PromptCard({ questionId, title, subtitle, compact = false }: Pro
       {subtitle.length > 0 && (
         <Text className="text-center text-base text-ink-secondary">{subtitle}</Text>
       )}
+      {lightbox}
     </Card>
   );
 }

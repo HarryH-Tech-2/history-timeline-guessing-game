@@ -23,7 +23,7 @@ export function HintButton({ question }: { question: Question }) {
 
   if (revealed) {
     return (
-      <View className="rounded-xl border border-hair bg-bg-raised px-4 py-3">
+      <View className="border border-hair bg-bg-raised px-4 py-3">
         <Text className="text-center text-sm text-ink-secondary">
           Hint: this happened in{' '}
           <Text className="font-bold text-ink-primary">{centuryHint(question.year)}</Text>

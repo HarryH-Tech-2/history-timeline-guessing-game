@@ -34,7 +34,7 @@ function StageTile({
       accessibilityRole="button"
       accessibilityLabel={`${stage.title}${unlocked ? '' : ', locked'}`}
       testID={`stage-${stage.id}`}
-      className="flex-row items-center justify-between rounded-2xl border border-hair bg-bg-raised px-4 py-3"
+      className="flex-row items-center justify-between border border-hair bg-bg-raised px-4 py-3"
       style={{ opacity: unlocked ? 1 : 0.45 }}
     >
       <View className="flex-row items-center gap-3">

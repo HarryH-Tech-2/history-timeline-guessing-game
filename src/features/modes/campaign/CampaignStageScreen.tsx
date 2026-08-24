@@ -9,7 +9,7 @@ import { palette } from '@/theme/tokens';
 
 import { ModeHud } from '../components/ModeHud';
 import { HintButton } from '../hints/HintButton';
-import { RunSummary, type SummaryRow } from '../components/RunSummary';
+import { roundDetail, RunSummary, type SummaryRow } from '../components/RunSummary';
 import { getStage, type CampaignStage } from './campaignMap';
 import { useCampaignSession } from './useCampaignSession';
 
@@ -32,7 +32,7 @@ function StagePlay({
       key: `${i}`,
       label: r.question.title,
       score: r.score.total,
-      detail: `${r.errorYears} yrs off`,
+      detail: roundDetail(r.errorYears, r.guessYear),
     }));
 
     return (

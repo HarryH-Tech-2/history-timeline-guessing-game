@@ -7,13 +7,12 @@ import { getCategories } from '@/data';
 import type { Category } from '@/domain';
 import { ProfileHeader } from '@/features/progression';
 import { useTheme } from '@/theme';
-import { palette } from '@/theme/tokens';
 
 interface ModeCardData {
   key: string;
   title: string;
   description: string;
-  colour: string;
+  icon: string;
   route: Href;
 }
 
@@ -22,31 +21,57 @@ const MODES: readonly ModeCardData[] = [
     key: 'daily',
     title: 'Daily',
     description: 'Eight fresh questions. One shot a day.',
-    colour: palette.accent.default,
+    icon: '📅',
     route: '/daily',
   },
   {
     key: 'endless',
     title: 'Endless',
     description: 'Keep guessing. Chase a high score.',
-    colour: palette.success,
+    icon: '♾️',
     route: '/endless',
   },
   {
     key: 'survival',
     title: 'Survival',
     description: 'Three lives. How far can you get?',
-    colour: palette.danger,
+    icon: '❤️',
     route: '/survival',
   },
   {
     key: 'campaign',
     title: 'Campaign',
     description: 'Work through worlds and earn stars.',
-    colour: palette.warning,
+    icon: '🗺️',
     route: '/campaign',
   },
 ];
+
+/** Glyph for each category's `icon` key (the seed data names them abstractly). */
+const CATEGORY_ICONS: Record<string, string> = {
+  flag: '📜',
+  swords: '⚔️',
+  person: '👤',
+  cpu: '⚙️',
+  palette: '🎨',
+};
+
+export function categoryIcon(icon: string): string {
+  return CATEGORY_ICONS[icon] ?? '🏛️';
+}
+
+/** Square icon plaque used to mark modes and categories. */
+function IconPlaque({ glyph, size = 'lg' }: { glyph: string; size?: 'lg' | 'md' }) {
+  const box = size === 'lg' ? 'h-12 w-12' : 'h-10 w-10';
+  const text = size === 'lg' ? 'text-2xl' : 'text-xl';
+  return (
+    <View className={`${box} items-center justify-center border border-hair bg-bg-overlay`}>
+      <Text className={text} style={{ includeFontPadding: false, textAlignVertical: 'center' }}>
+        {glyph}
+      </Text>
+    </View>
+  );
+}
 
 function ModeCard({ mode, index, onPress }: { mode: ModeCardData; index: number; onPress: () => void }) {
   return (
@@ -56,16 +81,14 @@ function ModeCard({ mode, index, onPress }: { mode: ModeCardData; index: number;
         accessibilityRole="button"
         accessibilityLabel={mode.title}
         testID={`mode-${mode.key}`}
-        className="flex-row items-center gap-4 overflow-hidden rounded-2xl border border-hair bg-bg-raised p-5"
+        className="flex-row items-center gap-4 overflow-hidden border border-hair bg-bg-raised p-4"
       >
-        <View className="h-12 w-1.5 rounded-full" style={{ backgroundColor: mode.colour }} />
+        <IconPlaque glyph={mode.icon} />
         <View className="flex-1">
           <Text className="text-lg font-bold text-ink-primary">{mode.title}</Text>
           <Text className="text-sm text-ink-secondary">{mode.description}</Text>
         </View>
-        <Text className="text-xl" style={{ color: mode.colour }}>
-          ›
-        </Text>
+        <Text className="text-xl text-ink-muted">›</Text>
       </Pressable>
     </Animated.View>
   );
@@ -91,10 +114,14 @@ function CategoryCard({
         accessibilityRole="button"
         accessibilityLabel={`Play ${category.name} questions`}
         testID={`category-${category.id}`}
-        className="gap-2 overflow-hidden rounded-2xl border border-hair bg-bg-raised p-4"
+        className="gap-2 overflow-hidden border border-hair bg-bg-raised p-4"
       >
-        <View className="h-1.5 w-10 rounded-full" style={{ backgroundColor: category.colour }} />
-        <Text className="text-base font-bold text-ink-primary">{category.name}</Text>
+        <View className="flex-row items-center gap-2.5">
+          <IconPlaque glyph={categoryIcon(category.icon)} size="md" />
+          <Text numberOfLines={2} className="flex-1 text-base font-bold leading-tight text-ink-primary">
+            {category.name}
+          </Text>
+        </View>
         <Text numberOfLines={2} className="text-xs text-ink-secondary">
           {category.description}
         </Text>
@@ -115,9 +142,8 @@ export function HomeHub() {
         showsVerticalScrollIndicator={false}
       >
         <View className="mb-2 flex-row items-start justify-between">
-          <View className="flex-1 pr-3">
+          <View className="flex-1 justify-center pr-3">
             <Text className="text-3xl font-extrabold text-ink-primary">History Date Guesser</Text>
-            <Text className="text-base text-ink-secondary">When did it happen?</Text>
           </View>
           <Pressable
             onPress={toggle}
@@ -125,7 +151,7 @@ export function HomeHub() {
             accessibilityLabel={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
             hitSlop={10}
             testID="theme-toggle"
-            className="h-10 w-10 items-center justify-center rounded-full border border-hair bg-bg-raised"
+            className="h-10 w-10 items-center justify-center border border-hair bg-bg-raised"
           >
             <Text className="text-lg">{mode === 'dark' ? '☀️' : '🌙'}</Text>
           </Pressable>

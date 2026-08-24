@@ -12,7 +12,7 @@ interface CardProps extends ViewProps {
 export function Card({ children, className, ...rest }: CardProps) {
   return (
     <View
-      className={cn('rounded-2xl border border-hair bg-bg-raised p-5', className)}
+      className={cn('border border-hair bg-bg-raised p-5', className)}
       {...rest}
     >
       {children}

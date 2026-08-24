@@ -34,17 +34,23 @@ function Hearts({ lives, total }: { lives: number; total: number }) {
 /** A slim status bar above the prompt: progress on the left, lives/score on the right. */
 export function ModeHud({ progressLabel, score, lives, startingLives, onBack }: ModeHudProps) {
   return (
-    <View className="mb-3 flex-row items-center justify-between px-1">
-      <View className="flex-row items-center gap-2">
+    <View className="flex-row items-center justify-between py-1">
+      <View className="flex-row items-center gap-3">
         {onBack !== undefined && (
           <Pressable
             onPress={onBack}
             accessibilityRole="button"
             accessibilityLabel="Exit mode"
-            hitSlop={12}
+            hitSlop={10}
             testID="hud-back"
+            className="h-10 w-10 items-center justify-center border border-hair bg-bg-raised"
           >
-            <Text className="text-lg text-ink-muted">‹</Text>
+            {/* A drawn chevron (rotated bordered square) renders crisply at any
+                font scale, unlike a text glyph. Nudged right so it reads centred. */}
+            <View
+              className="h-3 w-3 border-b-2 border-l-2 border-ink-primary"
+              style={{ transform: [{ rotate: '45deg' }], marginLeft: 3 }}
+            />
           </Pressable>
         )}
         <Text className="text-xs font-semibold uppercase tracking-wide text-ink-muted">

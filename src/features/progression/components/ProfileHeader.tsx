@@ -24,7 +24,7 @@ export function ProfileHeader() {
       accessibilityLabel="View achievements"
       testID="profile-header"
       onPress={() => router.push('/achievements')}
-      className="flex-row items-center gap-4 rounded-2xl border border-hair bg-bg-raised p-4"
+      className="flex-row items-center gap-4 border border-hair bg-bg-raised p-4"
     >
       <View
         className="h-12 w-12 items-center justify-center rounded-full"

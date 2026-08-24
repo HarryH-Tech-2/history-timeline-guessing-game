@@ -7,7 +7,7 @@ import { palette } from '@/theme/tokens';
 
 import { ModeHud } from '../components/ModeHud';
 import { HintButton } from '../hints/HintButton';
-import { RunSummary, type SummaryRow } from '../components/RunSummary';
+import { roundDetail, RunSummary, type SummaryRow } from '../components/RunSummary';
 import { isOutOfLives } from './survivalRules';
 import { useSurvivalSession } from './useSurvivalSession';
 
@@ -27,7 +27,7 @@ function SurvivalPlay({ onHome, onRetry }: { onHome: () => void; onRetry: () => 
       key: `${i}`,
       label: r.question.title,
       score: r.score.total,
-      detail: `${r.errorYears} yrs off`,
+      detail: roundDetail(r.errorYears, r.guessYear),
     }));
 
     return (

@@ -22,6 +22,8 @@ export const DailyRoundSchema = z.object({
   questionId: z.string(),
   errorYears: z.number().nonnegative(),
   score: z.number().nonnegative(),
+  /** Added later; absent on records saved by earlier builds. */
+  guessYear: z.number().optional(),
 });
 
 export const DailyRecordSchema = z.object({

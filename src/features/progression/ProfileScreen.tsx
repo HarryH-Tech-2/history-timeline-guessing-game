@@ -35,7 +35,7 @@ function SectionTitle({ children }: { children: string }) {
 
 function StatTile({ label, value }: { label: string; value: string }) {
   return (
-    <View className="min-w-[45%] flex-1 rounded-2xl border border-hair bg-bg-raised p-4">
+    <View className="min-w-[45%] flex-1 border border-hair bg-bg-raised p-4">
       <Text className="text-2xl font-extrabold text-ink-primary">{value}</Text>
       <Text className="mt-0.5 text-xs text-ink-muted">{label}</Text>
     </View>
@@ -61,7 +61,7 @@ function StreakCard({
   const canBuy = coins >= STREAK_FREEZE_COST && streak.freezes < MAX_STREAK_FREEZES;
 
   return (
-    <View className="gap-3 rounded-2xl border border-hair bg-bg-raised p-4" testID="streak-card">
+    <View className="gap-3 border border-hair bg-bg-raised p-4" testID="streak-card">
       <View className="flex-row items-center justify-between">
         <View>
           <Text className="text-2xl font-extrabold text-ink-primary">
@@ -112,7 +112,7 @@ function MasteryGrid({ collection }: { collection: Readonly<Record<string, numbe
           <View
             key={category.id}
             testID={`mastery-${category.id}`}
-            className="min-w-[45%] flex-1 rounded-2xl border border-hair bg-bg-raised p-4"
+            className="min-w-[45%] flex-1 border border-hair bg-bg-raised p-4"
           >
             <View className="flex-row items-center justify-between">
               <Text className="flex-1 text-sm font-bold text-ink-primary" numberOfLines={1}>
@@ -149,7 +149,7 @@ function AchievementRow({
     <Animated.View entering={FadeInUp.delay(index * 30).springify().damping(18)}>
       <View
         testID={`achievement-${achievement.id}`}
-        className="flex-row items-center gap-4 rounded-2xl border border-hair bg-bg-raised p-4"
+        className="flex-row items-center gap-4 border border-hair bg-bg-raised p-4"
         style={{ opacity: earned ? 1 : 0.45 }}
       >
         <Text className="text-3xl">{earned ? achievement.icon : '🔒'}</Text>
@@ -204,7 +204,7 @@ export function ProfileScreen() {
         {/* Identity card: avatar, name, sign-in state, coins */}
         <View
           testID="profile-identity"
-          className="flex-row items-center gap-4 rounded-2xl border border-hair bg-bg-raised p-4"
+          className="flex-row items-center gap-4 border border-hair bg-bg-raised p-4"
         >
           <View
             className="h-14 w-14 items-center justify-center rounded-full"
@@ -226,7 +226,7 @@ export function ProfileScreen() {
         </View>
 
         {/* Level progress */}
-        <View className="rounded-2xl border border-hair bg-bg-raised p-4">
+        <View className="border border-hair bg-bg-raised p-4">
           <View className="flex-row items-center justify-between">
             <Text className="text-sm font-bold text-ink-primary">Level {level}</Text>
             <Text className="text-xs text-ink-muted">
@@ -282,7 +282,7 @@ export function ProfileScreen() {
 
         <SectionTitle>Account</SectionTitle>
         {hasAccount ? (
-          <View className="gap-3 rounded-2xl border border-hair bg-bg-raised p-4">
+          <View className="gap-3 border border-hair bg-bg-raised p-4">
             <View>
               <Text className="text-base font-bold text-ink-primary" numberOfLines={1}>
                 {user?.email ?? displayName}
@@ -303,7 +303,7 @@ export function ProfileScreen() {
             />
           </View>
         ) : (
-          <View className="gap-3 rounded-2xl border border-hair bg-bg-raised p-4">
+          <View className="gap-3 border border-hair bg-bg-raised p-4">
             <Text className="text-sm text-ink-secondary">
               {isSignedIn
                 ? 'You are playing as a guest. Sign in to keep your progress safe across devices.'
@@ -325,14 +325,14 @@ export function ProfileScreen() {
           accessibilityRole="button"
           accessibilityLabel={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
           testID="profile-theme-toggle"
-          className="flex-row items-center justify-between rounded-2xl border border-hair bg-bg-raised p-4"
+          className="flex-row items-center justify-between border border-hair bg-bg-raised p-4"
         >
           <Text className="text-base font-semibold text-ink-primary">Appearance</Text>
           <Text className="text-base text-ink-secondary">
             {mode === 'dark' ? 'Dark 🌙' : 'Light ☀️'}
           </Text>
         </Pressable>
-        <View className="flex-row items-center justify-between rounded-2xl border border-hair bg-bg-raised p-4">
+        <View className="flex-row items-center justify-between border border-hair bg-bg-raised p-4">
           <Text className="text-base font-semibold text-ink-primary">Version</Text>
           <Text className="text-base text-ink-secondary">{version}</Text>
         </View>

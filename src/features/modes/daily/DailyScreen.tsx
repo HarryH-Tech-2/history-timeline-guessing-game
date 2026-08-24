@@ -10,7 +10,7 @@ import { palette } from '@/theme/tokens';
 import { dateKey } from '@/utils/date';
 
 import { ModeHud } from '../components/ModeHud';
-import { RunSummary, type SummaryRow } from '../components/RunSummary';
+import { roundDetail, RunSummary, type SummaryRow } from '../components/RunSummary';
 import type { DailyRecord } from '../persistence';
 import { useDailySession } from './useDailySession';
 
@@ -21,7 +21,7 @@ function DailySummary({ record, onHome }: { record: DailyRecord; onHome: () => v
     key: `${i}`,
     label: getQuestionById(r.questionId)?.title ?? 'Question',
     score: r.score,
-    detail: `${r.errorYears} yrs off`,
+    detail: roundDetail(r.errorYears, r.guessYear),
   }));
 
   return (

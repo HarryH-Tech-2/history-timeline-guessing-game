@@ -71,8 +71,8 @@ const BandChip = memo(function BandChip({
       testID={`century-${band.start}`}
       className={
         active
-          ? 'items-center justify-center rounded-full bg-accent px-3 py-1.5'
-          : 'items-center justify-center rounded-full border border-hair bg-bg-raised px-3 py-1.5'
+          ? 'items-center justify-center border border-accent bg-accent px-3 py-1.5'
+          : 'items-center justify-center border border-hair bg-bg-overlay px-3 py-1.5'
       }
     >
       <Text
@@ -89,7 +89,7 @@ const BandChip = memo(function BandChip({
 });
 
 /**
- * A horizontal strip of century chips under the timeline. Tapping one re-frames
+ * A horizontal strip of century chips inside the timeline container. Tapping one re-frames
  * the timeline to that 100-year window; the chip covering the crosshair year
  * stays highlighted as the user pans.
  */
@@ -122,8 +122,8 @@ export function CenturyJumpBar({ controller }: CenturyJumpBarProps) {
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
-      className="mt-3 max-h-11"
-      contentContainerClassName="items-center gap-2 px-1"
+      className="max-h-12"
+      contentContainerClassName="items-center gap-2 px-2 py-2"
     >
       {BANDS.map((band) => (
         <BandChip

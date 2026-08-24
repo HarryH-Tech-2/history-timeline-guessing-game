@@ -52,7 +52,7 @@ export function RevealSheet({
   return (
     <Animated.View
       entering={FadeInDown.springify().damping(18)}
-      className="rounded-t-3xl border-t border-hair bg-bg-overlay p-6"
+      className="border-t border-hair bg-bg-overlay p-6"
     >
       <View className="mb-4 flex-row items-end justify-between">
         <View>
@@ -76,13 +76,13 @@ export function RevealSheet({
 
       {reward !== undefined && reward !== null && (reward.xp > 0 || reward.coins > 0) && (
         <View className="mb-3 flex-row gap-2" accessibilityLabel={`Earned ${reward.xp} XP and ${reward.coins} coins`}>
-          <View className="rounded-full bg-bg-raised px-3 py-1">
+          <View className="border border-hair bg-bg-raised px-3 py-1">
             <Text className="text-xs font-bold" style={{ color: palette.accent.default }}>
               +{reward.xp} XP
             </Text>
           </View>
           {reward.coins > 0 && (
-            <View className="rounded-full bg-bg-raised px-3 py-1">
+            <View className="border border-hair bg-bg-raised px-3 py-1">
               <Text className="text-xs font-bold" style={{ color: palette.warning }}>
                 +{reward.coins} 🪙
               </Text>

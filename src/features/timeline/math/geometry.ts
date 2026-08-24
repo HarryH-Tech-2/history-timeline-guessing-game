@@ -49,3 +49,51 @@ export function transformToFit(
   const translateX = -left * scale;
   return { translateX, scale };
 }
+
+/** Translate range that keeps the screen centre inside [MIN_YEAR, PRESENT_YEAR]. */
+export function translateBounds(scale: number, screenWidth: number): [number, number] {
+  'worklet';
+  return [screenWidth / 2 - BASE_WIDTH * scale, screenWidth / 2];
+}
+
+/** Screen margin (px) a revealed marker keeps from the track's edges. */
+export const REVEAL_MARGIN_PX = 48;
+
+/**
+ * The least disruptive transform that shows both `minYear` and `maxYear`
+ * (guess and answer) on a reveal, starting from the player's `current` view:
+ *
+ * - both already on screen (inside the margin)  → unchanged, nothing moves;
+ * - both fit at the current zoom                 → pan only, zoom untouched;
+ * - too far apart for the current zoom           → zoom out just enough.
+ *
+ * Keeps the timeline where the player left it whenever possible, so the
+ * reveal reads as "the answer appears" rather than "the timeline resets".
+ */
+export function transformToReveal(
+  minYear: number,
+  maxYear: number,
+  screenWidth: number,
+  current: Transform,
+  marginPx = REVEAL_MARGIN_PX,
+): Transform {
+  const margin = Math.min(marginPx, screenWidth / 4);
+  const { scale, translateX } = current;
+  const lo = worldXForYear(Math.min(minYear, maxYear));
+  const hi = worldXForYear(Math.max(minYear, maxYear));
+
+  const left = lo * scale + translateX;
+  const right = hi * scale + translateX;
+  if (left >= margin && right <= screenWidth - margin) return current;
+
+  const usable = screenWidth - 2 * margin;
+  if ((hi - lo) * scale <= usable) {
+    const next = left < margin ? margin - lo * scale : screenWidth - margin - hi * scale;
+    const [tMin, tMax] = translateBounds(scale, screenWidth);
+    return { scale, translateX: Math.min(tMax, Math.max(tMin, next)) };
+  }
+
+  const span = Math.max(minYear, maxYear) - Math.min(minYear, maxYear);
+  const pad = Math.max(10, span * (margin / usable));
+  return transformToFit(Math.min(minYear, maxYear) - pad, Math.max(minYear, maxYear) + pad, screenWidth);
+}

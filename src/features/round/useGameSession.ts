@@ -49,13 +49,16 @@ export function useGameSession(config: GameSessionConfig): GameSession {
 
   const submit = useCallback(
     (guessYear: number): RoundResult => {
+      // A double-tap on Submit must not score the same question twice (which
+      // would also skip the next question in a fixed queue).
+      if (phase === 'revealed' && result !== null) return result;
       const evaluated = evaluateGuess(question, guessYear, modifiers?.(results));
       setResult(evaluated);
       setResults((prev) => [...prev, evaluated]);
       setPhase('revealed');
       return evaluated;
     },
-    [question, results, modifiers],
+    [question, results, modifiers, phase, result],
   );
 
   const advance = useCallback(() => {

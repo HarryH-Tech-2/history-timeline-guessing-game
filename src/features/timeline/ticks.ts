@@ -14,8 +14,10 @@ export interface Tick {
  * pan/zoom transform moves them on the UI thread, so this list never rebuilds.
  *
  * - Major ticks (labelled) every century across the whole range.
- * - Minor ticks every decade from 1000 CE onward, where they are visually
- *   distinct; earlier eras are dense enough that centuries suffice.
+ * - Minor ticks every decade across the whole range, so the pre-1000 stretch
+ *   has the same separators as the modern era. They only fade in once the
+ *   zoom is tight enough for decades to be legible (see TimelineTick), so the
+ *   extra views cost nothing visually when zoomed out.
  */
 function buildTicks(): readonly Tick[] {
   const ticks: Tick[] = [];
@@ -29,7 +31,7 @@ function buildTicks(): readonly Tick[] {
     });
   }
 
-  for (let year = 1000; year <= PRESENT_YEAR; year += 10) {
+  for (let year = MIN_YEAR; year <= PRESENT_YEAR; year += 10) {
     if (year % 100 === 0) continue; // already a major tick
     ticks.push({ year, worldX: worldXForYear(year), major: false });
   }

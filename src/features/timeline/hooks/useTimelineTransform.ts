@@ -4,6 +4,7 @@ import * as Haptics from 'expo-haptics';
 import { Gesture, type ComposedGesture } from 'react-native-gesture-handler';
 import {
   Easing,
+  cancelAnimation,
   useAnimatedReaction,
   useDerivedValue,
   useSharedValue,
@@ -19,6 +20,7 @@ import {
   MIN_SCALE,
   clampYear,
   transformToFit,
+  transformToReveal,
   unwarp,
   warp,
   yearForWorldX,
@@ -47,6 +49,12 @@ export interface TimelineController {
   readGuessYear: () => number;
   /** Re-frame the timeline to a year range (e.g. to reset between rounds). */
   fitTo: (minYear: number, maxYear: number) => void;
+  /**
+   * Bring two years (guess and answer) into view with the least movement:
+   * nothing if both are visible, a pan if they fit at the current zoom, and a
+   * zoom-out only as a last resort. Keeps the player's framing on reveal.
+   */
+  reveal: (yearA: number, yearB: number) => void;
   /** Nudge the crosshair year by a whole-year delta (the +/- fine controls). */
   stepYear: (delta: number) => void;
   /** Whether the timeline has been laid out and initialised. */
@@ -178,7 +186,24 @@ export function useTimelineTransform(options: Options = {}): TimelineController 
     [initialRange.max, initialRange.min, ready, scale, translateX, width],
   );
 
+  const reveal = useCallback(
+    (yearA: number, yearB: number) => {
+      const w = widthRef.current;
+      if (w <= 0) return;
+      const current = { translateX: translateX.value, scale: scale.value };
+      const t = transformToReveal(yearA, yearB, w, current);
+      if (t === current) return;
+      translateX.value = withTiming(t.translateX, FRAME_TIMING);
+      scale.value = withTiming(t.scale, FRAME_TIMING);
+    },
+    [scale, translateX],
+  );
+
   const readGuessYear = useCallback(() => {
+    // Freeze any fling/step still in flight so the year the player sees at
+    // the moment of tapping submit is exactly the year that gets scored.
+    cancelAnimation(translateX);
+    cancelAnimation(scale);
     const w = widthRef.current;
     const worldX = (w / 2 - translateX.value) / scale.value;
     return clampYear(yearForWorldX(worldX));
@@ -204,6 +229,7 @@ export function useTimelineTransform(options: Options = {}): TimelineController 
     onLayout,
     readGuessYear,
     fitTo,
+    reveal,
     stepYear,
     ready,
   };

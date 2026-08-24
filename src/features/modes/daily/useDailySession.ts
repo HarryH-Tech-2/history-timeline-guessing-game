@@ -17,6 +17,7 @@ function buildRecord(date: string, results: readonly RoundResult[]): DailyRecord
       questionId: r.question.id,
       errorYears: r.errorYears,
       score: r.score.total,
+      guessYear: r.guessYear,
     })),
   };
 }

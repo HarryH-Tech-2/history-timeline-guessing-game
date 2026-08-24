@@ -53,7 +53,7 @@ export function ReviewPromptModal() {
     >
       <View className="flex-1 items-center justify-center bg-black/60 px-6">
         <View
-          className="w-full max-w-sm items-center gap-4 rounded-3xl border border-hair bg-bg-raised p-6"
+          className="w-full max-w-sm items-center gap-4 border border-hair bg-bg-raised p-6"
           testID="review-prompt"
         >
           <Image

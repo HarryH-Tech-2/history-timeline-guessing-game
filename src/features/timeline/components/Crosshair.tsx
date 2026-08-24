@@ -53,20 +53,20 @@ function YearReadout({ centreYear }: CrosshairProps) {
 export function Crosshair({ centreYear }: CrosshairProps) {
   // The needle starts from the measured bottom of the pill rather than a fixed
   // offset, so it never overlaps the year readout at large font scales.
-  const [needleTop, setNeedleTop] = useState(64);
+  const [needleTop, setNeedleTop] = useState(52);
 
   return (
     <View pointerEvents="none" className="absolute inset-0 items-center">
-      {/* Readout pill above the crosshair */}
+      {/* Readout plaque above the crosshair */}
       <View
-        className="absolute top-2 rounded-full border border-accent/40 bg-accent/15 px-4 py-1.5"
-        onLayout={(e) => setNeedleTop(8 + e.nativeEvent.layout.height + 10)}
+        className="absolute top-2 border border-accent/40 bg-accent/15 px-4 py-1"
+        onLayout={(e) => setNeedleTop(8 + e.nativeEvent.layout.height + 6)}
       >
         <YearReadout centreYear={centreYear} />
       </View>
 
-      {/* Glow, needle and cap dot run from below the pill down to the baseline */}
-      <View className="absolute bottom-8 w-8 rounded-full bg-accent/10" style={{ top: needleTop }} />
+      {/* Glow, needle and cap dot run from below the plaque down to the baseline */}
+      <View className="absolute bottom-8 w-6 bg-accent/10" style={{ top: needleTop }} />
       <View className="absolute bottom-8 w-0.5 bg-accent" style={{ top: needleTop }} />
       <View className="absolute bottom-8 -mb-1.5 h-3 w-3 rounded-full border-2 border-bg-raised bg-accent" />
     </View>

@@ -74,7 +74,7 @@ export function Button({
       onPress={handlePress}
       style={animatedStyle}
       className={cn(
-        'h-14 items-center justify-center rounded-2xl px-6',
+        'h-14 items-center justify-center px-6',
         CONTAINER[variant],
         disabled && 'opacity-40',
         className,

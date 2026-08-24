@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { Text, View } from 'react-native';
+import { Text } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   type SharedValue,
@@ -48,17 +48,37 @@ function tierOf(tick: Tick): number {
 }
 
 /**
- * A single gridline rising from the track's baseline, with its date centred
+ * A decade gridline: one animated view, no label. There are ~500 of these
+ * across the range, so it is kept to the bare minimum — position and opacity
+ * are folded into a single animated style.
+ */
+function MinorTickComponent({ tick, scale }: TimelineTickProps) {
+  const [lineFrom, lineTo] = LINE_RAMPS[3]!;
+  const style = useAnimatedStyle(() => ({
+    transform: [{ translateX: tick.worldX * scale.value }],
+    opacity: rampOpacity(scale.value, lineFrom, lineTo),
+  }));
+  return (
+    <Animated.View
+      pointerEvents="none"
+      style={style}
+      className="absolute bottom-8 left-0 h-7 w-px bg-ink-primary/15"
+    />
+  );
+}
+
+/**
+ * A century gridline rising from the track's baseline, with its date centred
  * beneath it. Horizontal position depends only on the zoom scale — the parent
  * layer applies the pan translation — so ticks cost nothing while panning.
  * The label itself is never scaled, so text stays crisp at any zoom; instead,
  * whole tiers of ticks fade out as the view widens so lines and labels never
  * overlap however far the timeline is zoomed out.
  */
-function TimelineTickComponent({ tick, scale }: TimelineTickProps) {
+function MajorTickComponent({ tick, scale }: TimelineTickProps) {
   const tier = tierOf(tick);
   const [lineFrom, lineTo] = LINE_RAMPS[tier]!;
-  const [labelFrom, labelTo] = tick.major ? LABEL_RAMPS[tier]! : ALWAYS;
+  const [labelFrom, labelTo] = LABEL_RAMPS[tier]!;
 
   const style = useAnimatedStyle(() => ({
     transform: [{ translateX: tick.worldX * scale.value - TICK_WIDTH / 2 }],
@@ -78,28 +98,19 @@ function TimelineTickComponent({ tick, scale }: TimelineTickProps) {
       style={[style, { width: TICK_WIDTH }]}
       className="absolute bottom-0 top-0 left-0 items-center justify-end"
     >
-      <Animated.View
-        style={lineStyle}
-        className={
-          tick.major ? 'h-14 w-px bg-ink-primary/40' : 'h-7 w-px bg-ink-primary/15'
-        }
-      />
-      {/* Fixed-height date strip below the baseline; empty for minor ticks so
-          every gridline's foot lands on the same baseline. */}
-      <View className="h-8 items-center justify-center">
-        {tick.major && (
-          <Animated.View style={labelStyle}>
-            <Text
-              numberOfLines={1}
-              className="w-24 text-center text-xs font-medium text-ink-muted"
-            >
-              {tick.label}
-            </Text>
-          </Animated.View>
-        )}
-      </View>
+      <Animated.View style={lineStyle} className="h-14 w-px bg-ink-primary/40" />
+      {/* Fixed-height date strip below the baseline. */}
+      <Animated.View style={labelStyle} className="h-8 items-center justify-center">
+        <Text numberOfLines={1} className="w-24 text-center text-xs font-medium text-ink-muted">
+          {tick.label}
+        </Text>
+      </Animated.View>
     </Animated.View>
   );
+}
+
+function TimelineTickComponent(props: TimelineTickProps) {
+  return props.tick.major ? <MajorTickComponent {...props} /> : <MinorTickComponent {...props} />;
 }
 
 export const TimelineTick = memo(TimelineTickComponent);

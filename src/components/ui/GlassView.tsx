@@ -17,7 +17,7 @@ export function GlassView({ children, className, ...rest }: GlassViewProps) {
   return (
     <View
       className={cn(
-        'rounded-2xl border border-hair bg-white/5',
+        'border border-hair bg-white/5',
         className,
       )}
       {...rest}

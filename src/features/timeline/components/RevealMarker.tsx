@@ -58,7 +58,7 @@ export function RevealMarker({
       testID={testID}
     >
       <View
-        className="rounded-full px-3 py-1"
+        className="px-2.5 py-1"
         style={{ backgroundColor: colour, marginTop: stagger }}
       >
         <Text className="text-xs font-bold" style={{ color: textColour }}>

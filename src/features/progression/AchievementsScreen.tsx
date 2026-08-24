@@ -22,7 +22,7 @@ function AchievementRow({
     <Animated.View entering={FadeInUp.delay(index * 40).springify().damping(18)}>
       <View
         testID={`achievement-${achievement.id}`}
-        className="flex-row items-center gap-4 rounded-2xl border border-hair bg-bg-raised p-4"
+        className="flex-row items-center gap-4 border border-hair bg-bg-raised p-4"
         style={{ opacity: earned ? 1 : 0.45 }}
       >
         <Text className="text-3xl">{earned ? achievement.icon : '🔒'}</Text>
