@@ -15,6 +15,7 @@ export interface ScopedStore<T> {
   /**
    * A `Store<T>` for one uid. Reads/writes hit the local key `${key}:${uid}`;
    * writes are also mirrored to the cloud (debounced, last write wins).
+   * Hold onto the returned instance per uid — each call owns its own debounce state.
    */
   forUser(uid: string): Store<T>;
   /**
@@ -78,7 +79,11 @@ export function createScopedStore<T>({
 
       return {
         read: () => local.read(),
-        clear: () => local.clear(),
+        clear: async () => {
+          if (timer !== null) clearTimeout(timer);
+          pending = undefined;
+          return local.clear();
+        },
         async write(value) {
           await local.write(value);
           pending = value;
@@ -91,6 +96,15 @@ export function createScopedStore<T>({
     async hydrate(uid) {
       const target = scopedKey(key, uid);
 
+      // Read and remove legacy data at the start (unconditionally).
+      let legacyData: unknown = null;
+      const legacy = await storage.getItem(key);
+      if (legacy !== null) {
+        await storage.removeItem(key);
+        legacyData = parseJson(schema, legacy);
+      }
+
+      // Branch 1: Cloud wins.
       if (cloud) {
         let remote: unknown = null;
         try {
@@ -107,19 +121,18 @@ export function createScopedStore<T>({
         }
       }
 
+      // Branch 2: Local kept.
       if ((await storage.getItem(target)) !== null) return;
 
-      const legacy = await storage.getItem(key);
-      if (legacy === null) return;
-      await storage.removeItem(key);
-      const adopted = parseJson(schema, legacy);
-      if (adopted === null) return;
-      await storage.setItem(target, JSON.stringify(adopted));
-      if (cloud) {
-        try {
-          await cloud.save(uid, key, adopted);
-        } catch {
-          // Will be retried by the next write of this key.
+      // Branch 3: Legacy adopted.
+      if (legacyData !== null) {
+        await storage.setItem(target, JSON.stringify(legacyData));
+        if (cloud) {
+          try {
+            await cloud.save(uid, key, legacyData);
+          } catch {
+            // Will be retried by the next write of this key.
+          }
         }
       }
     },

@@ -178,4 +178,44 @@ describe('createScopedStore', () => {
     await expect(store.forUser('a').read()).resolves.toEqual(fallback);
     await expect(store.forUser('b').read()).resolves.toEqual({ count: 2 });
   });
+
+  it('clear: cancels pending cloud flush', async () => {
+    const storage = memoryStorage();
+    const cloud = fakeCloud();
+    const user = make(storage, cloud).forUser('a');
+    await user.write({ count: 1 });
+    await user.clear();
+    await new Promise((r) => setTimeout(r, 30));
+    expect(cloud.saves).toBe(0);
+  });
+
+  it('hydrate: cloud wins and legacy is discarded, second uid gets fallback', async () => {
+    const storage = memoryStorage();
+    await storage.setItem(key, JSON.stringify({ count: 7 }));
+    const cloud = fakeCloud({ 'a/test.save': { count: 9 } });
+    const store = make(storage, cloud);
+
+    await store.hydrate('a');
+    await expect(store.forUser('a').read()).resolves.toEqual({ count: 9 });
+    expect(storage.map.has(key)).toBe(false);
+
+    // Legacy key was removed, so second uid gets fallback.
+    await store.hydrate('b');
+    await expect(store.forUser('b').read()).resolves.toEqual(fallback);
+  });
+
+  it('hydrate: local kept and legacy is discarded, second uid gets fallback', async () => {
+    const storage = memoryStorage();
+    await storage.setItem(key, JSON.stringify({ count: 7 }));
+    const store = make(storage);
+    await store.forUser('a').write({ count: 3 });
+
+    await store.hydrate('a');
+    await expect(store.forUser('a').read()).resolves.toEqual({ count: 3 });
+    expect(storage.map.has(key)).toBe(false);
+
+    // Legacy key was removed, so second uid gets fallback.
+    await store.hydrate('b');
+    await expect(store.forUser('b').read()).resolves.toEqual(fallback);
+  });
 });
