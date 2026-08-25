@@ -3,9 +3,10 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 
 import { Screen } from '@/components/ui';
+import { useSaves } from '@/features/save';
 import { useThemeColors } from '@/theme';
 
-import { campaignStore, type CampaignProgress } from '../persistence';
+import type { CampaignProgress } from '../persistence';
 import {
   CAMPAIGN,
   isStageUnlocked,
@@ -90,18 +91,20 @@ function WorldSection({
 /** The campaign map: worlds and their stages, gated by star progress. */
 export function CampaignMapScreen() {
   const router = useRouter();
+  const { isReady, campaign } = useSaves();
   const [progress, setProgress] = useState<CampaignProgress>({});
 
   useFocusEffect(
     useCallback(() => {
+      if (!isReady) return;
       let active = true;
-      void campaignStore.read().then((p) => {
+      void campaign.read().then((p) => {
         if (active) setProgress(p);
       });
       return () => {
         active = false;
       };
-    }, []),
+    }, [isReady, campaign]),
   );
 
   return (

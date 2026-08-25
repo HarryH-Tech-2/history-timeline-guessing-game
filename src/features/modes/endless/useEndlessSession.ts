@@ -2,9 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { getRandomQuestion } from '@/data';
 import { useGameSession, type GameSession } from '@/features/round';
+import { useSaves } from '@/features/save';
 import { comboModifiers } from '@/features/timeline/math';
-
-import { bestScoresStore } from '../persistence';
 
 export interface EndlessSession {
   session: GameSession;
@@ -31,19 +30,19 @@ export function useEndlessSession(): EndlessSession {
 
   const session = useGameSession({ first, next, modifiers: comboModifiers });
 
+  const { isReady, bestScores } = useSaves();
   const [best, setBest] = useState(0);
   useEffect(() => {
-    void bestScoresStore.read().then((b) => setBest(b.endless));
-  }, []);
+    if (!isReady) return;
+    void bestScores.read().then((b) => setBest(b.endless));
+  }, [isReady, bestScores]);
 
   // Keep the persisted best in step as the run climbs.
   useEffect(() => {
-    if (session.totalScore <= best) return;
+    if (!isReady || session.totalScore <= best) return;
     setBest(session.totalScore);
-    void bestScoresStore
-      .read()
-      .then((b) => bestScoresStore.write({ ...b, endless: session.totalScore }));
-  }, [session.totalScore, best]);
+    void bestScores.read().then((b) => bestScores.write({ ...b, endless: session.totalScore }));
+  }, [isReady, bestScores, session.totalScore, best]);
 
   return { session, best };
 }

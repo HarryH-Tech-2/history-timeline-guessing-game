@@ -1,6 +1,8 @@
 import { z } from 'zod';
 
-import { createStore } from '@/storage';
+import { isFirebaseConfigured } from '@/config/env';
+import { cloudSaves } from '@/storage/cloudSaves';
+import { createScopedStore } from '@/storage';
 
 /** Best scores for the endurance modes. */
 export const BestScoresSchema = z.object({
@@ -44,20 +46,25 @@ export type StageProgress = z.infer<typeof StageProgressSchema>;
 export const CampaignProgressSchema = z.record(z.string(), StageProgressSchema);
 export type CampaignProgress = z.infer<typeof CampaignProgressSchema>;
 
-export const bestScoresStore = createStore<BestScores>({
+const cloud = isFirebaseConfigured ? cloudSaves : undefined;
+
+export const bestScoresSaves = createScopedStore<BestScores>({
   key: 'chronos.bestScores',
   schema: BestScoresSchema,
   fallback: BEST_SCORES_FALLBACK,
+  cloud,
 });
 
-export const dailyStore = createStore<DailyRecord | null>({
+export const dailySaves = createScopedStore<DailyRecord | null>({
   key: 'chronos.daily',
   schema: DailyRecordSchema.nullable(),
   fallback: null,
+  cloud,
 });
 
-export const campaignStore = createStore<CampaignProgress>({
+export const campaignSaves = createScopedStore<CampaignProgress>({
   key: 'chronos.campaign',
   schema: CampaignProgressSchema,
   fallback: {},
+  cloud,
 });

@@ -4,9 +4,10 @@ import { getDailyQuestions } from '@/data';
 import type { RoundResult } from '@/domain';
 import { useProgression } from '@/features/progression';
 import { useGameSession, type GameSession } from '@/features/round';
+import { useSaves } from '@/features/save';
 import { dateKey } from '@/utils/date';
 
-import { dailyStore, type DailyRecord } from '../persistence';
+import type { DailyRecord } from '../persistence';
 
 function buildRecord(date: string, results: readonly RoundResult[]): DailyRecord {
   return {
@@ -46,16 +47,18 @@ export function useDailySession(): DailySession {
 
   const session = useGameSession({ first, next });
 
+  const { isReady, daily } = useSaves();
   const [record, setRecord] = useState<DailyRecord | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Was today already played on a previous visit?
   useEffect(() => {
-    void dailyStore.read().then((stored) => {
+    if (!isReady) return;
+    void daily.read().then((stored) => {
       if (stored && stored.date === today) setRecord(stored);
       setLoading(false);
     });
-  }, [today]);
+  }, [isReady, daily, today]);
 
   // Persist the run the moment it finishes, and feed the Daily streak
   // (idempotent per calendar day, so a re-render can't double-count).
@@ -64,10 +67,10 @@ export function useDailySession(): DailySession {
     if (session.status !== 'finished' || saved.current) return;
     saved.current = true;
     const rec = buildRecord(today, session.results);
-    void dailyStore.write(rec);
+    void daily.write(rec);
     setRecord(rec);
     recordDailyCompleted();
-  }, [session.status, session.results, today, recordDailyCompleted]);
+  }, [session.status, session.results, today, daily, recordDailyCompleted]);
 
   return {
     session,

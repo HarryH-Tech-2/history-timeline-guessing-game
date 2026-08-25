@@ -5,7 +5,7 @@ export {
   newlyEarnedAchievements,
   type Achievement,
 } from './achievements';
-export { progressionStore } from './persistence';
+export { LOCAL_UID, progressionSaves, progressionStore } from './persistence';
 export {
   applyDailyComplete,
   applyGameComplete,

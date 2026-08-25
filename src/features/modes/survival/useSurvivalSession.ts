@@ -2,9 +2,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { getRandomQuestion } from '@/data';
 import { useGameSession, type GameSession } from '@/features/round';
+import { useSaves } from '@/features/save';
 import { comboModifiers } from '@/features/timeline/math';
 
-import { bestScoresStore } from '../persistence';
 import { STARTING_LIVES, isOutOfLives, livesRemaining } from './survivalRules';
 
 export interface SurvivalSession {
@@ -41,27 +41,29 @@ export function useSurvivalSession(): SurvivalSession {
   });
   const lives = livesRemaining(session.results);
 
+  const { isReady, bestScores } = useSaves();
   const [best, setBest] = useState<{ rounds: number; score: number } | null>(null);
   useEffect(() => {
-    void bestScoresStore.read().then((b) => setBest(b.survival));
-  }, []);
+    if (!isReady) return;
+    void bestScores.read().then((b) => setBest(b.survival));
+  }, [isReady, bestScores]);
 
   // Record the finished run if it beats the stored best (by rounds, then score).
   const saved = useRef(false);
   useEffect(() => {
-    if (session.status !== 'finished' || saved.current) return;
+    if (!isReady || session.status !== 'finished' || saved.current) return;
     saved.current = true;
     const run = { rounds: session.results.length, score: session.totalScore };
-    void bestScoresStore.read().then((b) => {
+    void bestScores.read().then((b) => {
       const beaten =
         run.rounds > b.survival.rounds ||
         (run.rounds === b.survival.rounds && run.score > b.survival.score);
       if (beaten) {
-        bestScoresStore.write({ ...b, survival: run });
+        void bestScores.write({ ...b, survival: run });
         setBest(run);
       }
     });
-  }, [session.status, session.results.length, session.totalScore]);
+  }, [isReady, bestScores, session.status, session.results.length, session.totalScore]);
 
   return { session, lives, startingLives: STARTING_LIVES, best };
 }

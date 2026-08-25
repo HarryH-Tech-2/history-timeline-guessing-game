@@ -16,7 +16,7 @@ import { handleForUid, MAX_DISPLAY_NAME } from './types';
  */
 export function useLeaderboardSync(): void {
   const { uid, isSignedIn, user } = useAuth();
-  const { state } = useProgression();
+  const { state, isLoading } = useProgression();
   const lastPublished = useRef<string | null>(null);
 
   // Real accounts show their own name on the board; guests keep the stable
@@ -27,7 +27,7 @@ export function useLeaderboardSync(): void {
   );
 
   useEffect(() => {
-    if (!isFirebaseConfigured || !isSignedIn || uid === null) return;
+    if (!isFirebaseConfigured || !isSignedIn || uid === null || isLoading) return;
     const key = `${uid}:${state.xp}:${displayName}`;
     if (key === lastPublished.current) return;
     lastPublished.current = key;
@@ -37,5 +37,5 @@ export function useLeaderboardSync(): void {
       level: levelForXp(state.xp),
       updatedAt: Date.now(),
     });
-  }, [uid, isSignedIn, state.xp, displayName]);
+  }, [uid, isSignedIn, isLoading, state.xp, displayName]);
 }

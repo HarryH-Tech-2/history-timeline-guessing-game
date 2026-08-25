@@ -3,8 +3,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getQuestionById } from '@/data';
 import type { Question, RoundResult } from '@/domain';
 import { useGameSession, type GameSession } from '@/features/round';
+import { useSaves } from '@/features/save';
 
-import { campaignStore } from '../persistence';
 import { getStage, starsForResults, type CampaignStage } from './campaignMap';
 
 export interface CampaignSession {
@@ -37,6 +37,7 @@ export function useCampaignSession(stage: CampaignStage): CampaignSession {
 
   const session = useGameSession({ first, next });
 
+  const { campaign } = useSaves();
   const [earnedStars, setEarnedStars] = useState(0);
   const saved = useRef(false);
   useEffect(() => {
@@ -44,17 +45,16 @@ export function useCampaignSession(stage: CampaignStage): CampaignSession {
     saved.current = true;
     const stars = starsForResults(session.results);
     setEarnedStars(stars);
-    void campaignStore.read().then((progress) => {
-      const prev = progress[stage.id];
-      campaignStore.write({
+    void campaign.read().then((progress) => {
+      void campaign.write({
         ...progress,
         [stage.id]: {
-          stars: Math.max(stars, prev?.stars ?? 0),
-          bestScore: Math.max(session.totalScore, prev?.bestScore ?? 0),
+          stars: Math.max(stars, progress[stage.id]?.stars ?? 0),
+          bestScore: Math.max(session.totalScore, progress[stage.id]?.bestScore ?? 0),
         },
       });
     });
-  }, [session.status, session.results, session.totalScore, stage.id]);
+  }, [campaign, session.status, session.results, session.totalScore, stage.id]);
 
   return { session, stage, totalQuestions: questions.length, earnedStars };
 }

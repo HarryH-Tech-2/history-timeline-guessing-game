@@ -10,9 +10,9 @@ import {
 } from 'react';
 
 import { INITIAL_PROGRESSION, type ProgressionState, type RoundResult } from '@/domain';
+import { useSaves } from '@/features/save';
 import { dateKey } from '@/utils/date';
 
-import { progressionStore } from './persistence';
 import {
   applyDailyComplete,
   applyGameComplete,
@@ -57,19 +57,27 @@ const OFFLINE_API: ProgressionApi = {
 const ProgressionContext = createContext<ProgressionApi>(OFFLINE_API);
 
 /**
- * Owns the player's persisted progression and exposes mutators that keep React
- * state, a synchronous ref mirror, and AsyncStorage in step. The ref lets
+ * Owns the signed-in account's persisted progression and exposes mutators that keep
+ * React state, a synchronous ref mirror, and AsyncStorage in step. The ref lets
  * mutators fold onto the freshest value even when several fire in one tick
  * (a round award immediately followed by a game-complete, say).
  */
 export function ProgressionProvider({ children }: { children: ReactNode }) {
+  const { uid, isReady, progression: store } = useSaves();
   const [state, setState] = useState<ProgressionState>(INITIAL_PROGRESSION);
   const [isLoading, setIsLoading] = useState(true);
   const ref = useRef<ProgressionState>(INITIAL_PROGRESSION);
 
+  // (Re)load whenever the account changes. Reset first so a screen can never
+  // show the previous account's numbers while the new one is being read.
   useEffect(() => {
+    ref.current = INITIAL_PROGRESSION;
+    setState(INITIAL_PROGRESSION);
+    setIsLoading(true);
+    if (!isReady) return;
+
     let cancelled = false;
-    void progressionStore.read().then((loaded) => {
+    void store.read().then((loaded) => {
       if (cancelled) return;
       ref.current = loaded;
       setState(loaded);
@@ -78,13 +86,16 @@ export function ProgressionProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [uid, isReady, store]);
 
-  const commit = useCallback((next: ProgressionState) => {
-    ref.current = next;
-    setState(next);
-    void progressionStore.write(next);
-  }, []);
+  const commit = useCallback(
+    (next: ProgressionState) => {
+      ref.current = next;
+      setState(next);
+      void store.write(next);
+    },
+    [store],
+  );
 
   const awardRound = useCallback(
     (result: RoundResult, streak: number): RoundOutcome => {

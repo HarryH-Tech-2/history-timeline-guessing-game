@@ -9,6 +9,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useLeaderboardSync } from '@/features/leaderboard';
 import { ProgressionProvider } from '@/features/progression';
 import { ReviewPromptModal } from '@/features/review';
+import { SaveProvider } from '@/features/save';
 import { syncRemoteContent } from '@/services/content';
 import { AuthProvider } from '@/services/firebase/auth';
 import { warmUpPlayGames } from '@/services/playGames';
@@ -48,9 +49,11 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <ThemeProvider>
           <AuthProvider>
-            <ProgressionProvider>
-              <ThemedNavigator />
-            </ProgressionProvider>
+            <SaveProvider>
+              <ProgressionProvider>
+                <ThemedNavigator />
+              </ProgressionProvider>
+            </SaveProvider>
           </AuthProvider>
         </ThemeProvider>
       </SafeAreaProvider>
