@@ -25,13 +25,27 @@ export interface SaveContextValue {
   campaign: Store<CampaignProgress>;
 }
 
-function storesFor(uid: string) {
-  return {
+type Stores = Pick<SaveContextValue, 'progression' | 'bestScores' | 'daily' | 'campaign'>;
+
+/**
+ * One set of store instances per uid, for the lifetime of the process. Each
+ * `forUser` call owns its own write debounce, and a fresh identity on every
+ * render would restart consumers' load effects (and strand pending flushes),
+ * so the same objects must come back for the same uid.
+ */
+const storeCache = new Map<string, Stores>();
+
+function storesFor(uid: string): Stores {
+  const cached = storeCache.get(uid);
+  if (cached) return cached;
+  const created: Stores = {
     progression: progressionSaves.forUser(uid),
     bestScores: bestScoresSaves.forUser(uid),
     daily: dailySaves.forUser(uid),
     campaign: campaignSaves.forUser(uid),
   };
+  storeCache.set(uid, created);
+  return created;
 }
 
 /** Default when no provider is mounted (isolated tests, storybook-style renders). */

@@ -21,8 +21,8 @@ export const cloudSaves: CloudSaves = {
     ]);
     const snapshot = await getDoc(doc(getFirebaseDb(), COLLECTION, uid, SUBCOLLECTION, key));
     if (!snapshot.exists()) return null;
-    const stored = snapshot.data() as { data?: unknown } | undefined;
-    return stored?.data ?? null;
+    const stored = snapshot.data() as { data?: unknown };
+    return stored.data ?? null;
   },
 
   async save(uid, key, value) {

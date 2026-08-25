@@ -1,10 +1,10 @@
 import { INITIAL_PROGRESSION, ProgressionStateSchema, type ProgressionState } from '@/domain';
 import { isFirebaseConfigured } from '@/config/env';
 import { cloudSaves } from '@/storage/cloudSaves';
-import { createScopedStore, type Store } from '@/storage';
+import { createScopedStore, LOCAL_UID, type Store } from '@/storage';
 
-/** The uid every save is filed under when Firebase is not configured. */
-export const LOCAL_UID = 'local';
+/** Re-exported for the many callers that reach for it through this module. */
+export { LOCAL_UID };
 
 /**
  * A player's XP, coins, achievements, and lifetime stats, kept per uid so an

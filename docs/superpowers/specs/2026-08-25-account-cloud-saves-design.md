@@ -55,6 +55,8 @@ interface ScopedStoreConfig<T> {
   fallback: T;
   storage?: Storage;      // defaults to asyncStorage
   cloud?: CloudSaves;     // absent → local-only (offline builds, tests)
+  debounceMs?: number;    // write → cloud trailing debounce, default 1000
+  hydrateTimeoutMs?: number; // cloud read bound, default 4000
 }
 
 interface ScopedStore<T> {
@@ -68,25 +70,45 @@ interface ScopedStore<T> {
 }
 ```
 
-`forUser(uid).write(v)` writes the local scoped key first, then schedules a
-cloud `save(uid, key, v)` with a ~1 s trailing debounce per (uid, key);
-last write wins. Cloud failures are swallowed (same policy as
+`forUser(uid).write(v)` writes the local scoped key first, sets a **dirty
+marker** at `${key}:${uid}:dirty`, then schedules a cloud `save(uid, key, v)`
+with a ~1 s trailing debounce per (uid, key); last write wins. The marker is
+cleared only when `cloud.save` resolves, so a rejected flush — or the app being
+killed inside the debounce — leaves durable evidence that the cloud is behind.
+Cloud failures are otherwise swallowed (same policy as
 `leaderboard/publishEntry`): the local copy is always the source of truth for
 this session.
 
+`uid === 'local'` (`LOCAL_UID`, exported from `createScopedStore`) is the
+no-account uid: unconfigured builds, and configured builds whose anonymous
+sign-in failed. Its saves are **never** mirrored — `forUser('local')` returns
+the plain local store even when a `cloud` adapter is configured — so progress
+can't be filed against a cloud document nobody owns and then orphaned.
+
 `hydrate(uid)`:
 
-1. `cloud.load(uid, key)` → if a doc exists and validates against `schema`,
-   write it to the local scoped key. **Cloud wins.**
-2. Else if the local scoped key exists → keep it (offline, or a cloud write
+0. Read and remove the adoption sources: the **legacy unscoped key** (`key`),
+   and — for a real uid — any `${key}:local` copy left by a session that ran
+   without an account. Both are removed whichever (if either) is used, so a
+   later uid on the same device can never inherit them. Legacy unscoped data
+   takes precedence when both exist.
+1. If the dirty marker is set **and** a local scoped copy exists → push that
+   copy to the cloud (clearing the marker on success) and stop. **Unflushed
+   local writes win**; pulling here would silently discard a whole offline
+   session.
+2. Else `cloud.load(uid, key)`, raced against `hydrateTimeoutMs` (4 s) → if a
+   doc exists and validates against `schema`, write it to the local scoped key.
+   **Cloud wins.**
+3. Else if the local scoped key exists → keep it (offline, or a cloud write
    that never landed).
-3. Else if the **legacy unscoped key** (`key`) exists and validates → copy it
-   to the scoped key, push it to the cloud, then delete the legacy key. This
-   runs at most once per device per key because the legacy key is removed.
-4. Else → nothing; `read()` returns `fallback`.
+4. Else if step 0 captured valid data → copy it to the scoped key, mark it
+   dirty and push it to the cloud (clearing the marker on success). This runs
+   at most once per device per key because the sources were removed.
+5. Else → nothing; `read()` returns `fallback`.
 
-Cloud reads that fail (offline) fall through to step 2, so an offline launch
-still loads the last local state.
+Cloud reads that fail, or that are slower than the 4 s bound, fall through to
+step 3, so an offline launch still loads the last local state promptly. A late
+result from a timed-out read is ignored.
 
 A `CloudSaves` adapter (`src/storage/cloudSaves.ts`) wraps Firestore:
 
@@ -156,10 +178,18 @@ the key suffix (handled by the legacy adoption step).
 ### 5. Failure handling
 
 - Cloud unreachable on hydrate → local scoped copy (or fallback). Play continues.
-- Cloud write fails → ignored; retried naturally on the next write of that key.
+- Cloud slow on hydrate → after 4 s the read is abandoned (its late result is
+  ignored) and hydration continues offline. Launch is never blocked on the network.
+- Cloud write fails → ignored, and the dirty marker stays set; retried on the
+  next write of that key *and* pushed by the next `hydrate` for that uid, so an
+  offline session, a flush rejected at sign-out, or a kill inside the debounce
+  is not lost.
 - Malformed cloud doc → ignored (Zod), local used. Never overwrite a good local
   copy with an invalid cloud one.
 - Firestore denies (rules) → treated as unreachable.
+- Anonymous sign-in fails in a configured build → the session runs under
+  `'local'` with no cloud mirror at all; the first real uid adopts that copy
+  once (moving it to its own key and pushing it) rather than leaving it stranded.
 
 ### 6. Testing
 

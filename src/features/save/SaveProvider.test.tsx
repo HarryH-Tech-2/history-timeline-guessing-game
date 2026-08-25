@@ -91,6 +91,29 @@ describe('SaveProvider', () => {
     });
   });
 
+  it('hands consumers one stable store instance per uid', async () => {
+    auth.uid = 'user-a';
+    auth.isLoading = false;
+    const seen = new Set<unknown>();
+
+    function IdentityProbe() {
+      const { progression, isReady } = useSaves();
+      seen.add(progression);
+      return <Text>{`ready:${isReady}`}</Text>;
+    }
+
+    render(
+      <SaveProvider>
+        <IdentityProbe />
+      </SaveProvider>,
+    );
+    await screen.findByText('ready:true');
+
+    // The isReady flip must not hand out a new store: consumers key their
+    // load effects on it, and each instance owns its own write debounce.
+    expect(seen.size).toBe(1);
+  });
+
   it('falls back to the local uid when auth finished without a user', async () => {
     auth.uid = null;
     auth.isLoading = false;
