@@ -37,11 +37,15 @@ export function useCampaignSession(stage: CampaignStage): CampaignSession {
 
   const session = useGameSession({ first, next });
 
-  const { campaign } = useSaves();
+  const { isReady, campaign } = useSaves();
   const [earnedStars, setEarnedStars] = useState(0);
   const saved = useRef(false);
   useEffect(() => {
     if (session.status !== 'finished' || saved.current) return;
+    // Wait for the account's store to be ready without marking this saved —
+    // the effect re-runs (isReady is a dep) and saves once it is, instead of
+    // silently dropping a stage cleared mid account-switch.
+    if (!isReady) return;
     saved.current = true;
     const stars = starsForResults(session.results);
     setEarnedStars(stars);
@@ -54,7 +58,7 @@ export function useCampaignSession(stage: CampaignStage): CampaignSession {
         },
       });
     });
-  }, [campaign, session.status, session.results, session.totalScore, stage.id]);
+  }, [isReady, campaign, session.status, session.results, session.totalScore, stage.id]);
 
   return { session, stage, totalQuestions: questions.length, earnedStars };
 }

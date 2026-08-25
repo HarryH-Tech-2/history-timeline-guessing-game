@@ -67,6 +67,12 @@ export function ProgressionProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<ProgressionState>(INITIAL_PROGRESSION);
   const [isLoading, setIsLoading] = useState(true);
   const ref = useRef<ProgressionState>(INITIAL_PROGRESSION);
+  // Mirrors `isLoading` synchronously for `commit` to read. `isLoading` state
+  // only updates on the next render, so a mutator that fires in the window
+  // between the uid-change reset and the read landing would otherwise still
+  // see the stale `isLoading` closure and persist a write built on
+  // `INITIAL_PROGRESSION` over the new account's real save.
+  const loadingRef = useRef(true);
 
   // (Re)load whenever the account changes. Reset first so a screen can never
   // show the previous account's numbers while the new one is being read.
@@ -74,6 +80,7 @@ export function ProgressionProvider({ children }: { children: ReactNode }) {
     ref.current = INITIAL_PROGRESSION;
     setState(INITIAL_PROGRESSION);
     setIsLoading(true);
+    loadingRef.current = true;
     if (!isReady) return;
 
     let cancelled = false;
@@ -82,6 +89,7 @@ export function ProgressionProvider({ children }: { children: ReactNode }) {
       ref.current = loaded;
       setState(loaded);
       setIsLoading(false);
+      loadingRef.current = false;
     });
     return () => {
       cancelled = true;
@@ -92,6 +100,11 @@ export function ProgressionProvider({ children }: { children: ReactNode }) {
     (next: ProgressionState) => {
       ref.current = next;
       setState(next);
+      // Never persist a mutation computed before the account's real save has
+      // loaded — it would be built on INITIAL_PROGRESSION and clobber the
+      // save that's about to be revealed. The in-memory state above still
+      // updates so callers get a correct outcome; only the write is skipped.
+      if (loadingRef.current) return;
       void store.write(next);
     },
     [store],

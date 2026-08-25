@@ -65,12 +65,16 @@ export function useDailySession(): DailySession {
   const saved = useRef(false);
   useEffect(() => {
     if (session.status !== 'finished' || saved.current) return;
+    // Wait for the account's store to be ready without marking this saved —
+    // the effect re-runs (isReady is a dep) and banks the run once it is,
+    // instead of silently dropping a Daily finished mid account-switch.
+    if (!isReady) return;
     saved.current = true;
     const rec = buildRecord(today, session.results);
     void daily.write(rec);
     setRecord(rec);
     recordDailyCompleted();
-  }, [session.status, session.results, today, daily, recordDailyCompleted]);
+  }, [isReady, session.status, session.results, today, daily, recordDailyCompleted]);
 
   return {
     session,
