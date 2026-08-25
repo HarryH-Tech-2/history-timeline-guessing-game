@@ -35,7 +35,7 @@ export interface DailySession {
 
 /** Daily: a fixed, date-seeded set of questions, one attempt per calendar day. */
 export function useDailySession(): DailySession {
-  const { recordDailyCompleted } = useProgression();
+  const { recordDailyCompleted, isLoading: progressionLoading } = useProgression();
   const today = useMemo(() => dateKey(), []);
   const questions = useMemo(() => getDailyQuestions(today), [today]);
 
@@ -51,13 +51,23 @@ export function useDailySession(): DailySession {
   const [record, setRecord] = useState<DailyRecord | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Was today already played on a previous visit?
+  // Was today already played on a previous visit? Reset first: on an account
+  // switch the previous uid's record must never survive into the new one's
+  // view, not even for the render before its store has been read.
   useEffect(() => {
+    setRecord(null);
+    setLoading(true);
     if (!isReady) return;
+
+    let active = true;
     void daily.read().then((stored) => {
+      if (!active) return;
       if (stored && stored.date === today) setRecord(stored);
       setLoading(false);
     });
+    return () => {
+      active = false;
+    };
   }, [isReady, daily, today]);
 
   // Persist the run the moment it finishes, and feed the Daily streak
@@ -65,16 +75,27 @@ export function useDailySession(): DailySession {
   const saved = useRef(false);
   useEffect(() => {
     if (session.status !== 'finished' || saved.current) return;
-    // Wait for the account's store to be ready without marking this saved —
-    // the effect re-runs (isReady is a dep) and banks the run once it is,
-    // instead of silently dropping a Daily finished mid account-switch.
-    if (!isReady) return;
+    // Wait for the account's store *and* its progression to be ready without
+    // marking this saved — the effect re-runs (both are deps) and banks the
+    // run once they are. Banking while the provider is still loading would
+    // write the record but drop the streak credit: the provider refuses to
+    // persist mutations computed before the account's save has landed, and
+    // child effects run before its own.
+    if (!isReady || progressionLoading) return;
     saved.current = true;
     const rec = buildRecord(today, session.results);
     void daily.write(rec);
     setRecord(rec);
     recordDailyCompleted();
-  }, [isReady, session.status, session.results, today, daily, recordDailyCompleted]);
+  }, [
+    isReady,
+    progressionLoading,
+    session.status,
+    session.results,
+    today,
+    daily,
+    recordDailyCompleted,
+  ]);
 
   return {
     session,
