@@ -29,3 +29,10 @@ Guess the year of historic events on a timeline. Score, streak, and climb.
 - Game icon: `game-icon-512.png` (512×512 PNG)
 - Feature graphic: `feature-graphic-1024x500.png` (1024×500 PNG)
 - Category: Trivia
+
+## Phone screenshots (Google Play)
+
+`assets/store/screenshots/phone/01..07-*.png` — 1080x1920, 24-bit PNG, no alpha (Play: 320–3840 px, max side <= 2x min side).
+Raw captures come from the device via `adb exec-out screencap -p` with the Expo dev-menu FAB hidden
+(`showFab=false` in the dev client shared prefs); frames are composed by
+`python scripts/compose_store_screenshots.py <raw-shots-dir> assets/store/screenshots/phone`.
