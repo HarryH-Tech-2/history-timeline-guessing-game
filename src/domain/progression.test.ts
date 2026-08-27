@@ -52,14 +52,14 @@ describe('round rewards', () => {
   });
 
   it('tiers coins by accuracy', () => {
-    expect(coinsForRound(roundResult(0, 1000))).toBe(10);
-    expect(coinsForRound(roundResult(2, 900))).toBe(5);
-    expect(coinsForRound(roundResult(10, 650))).toBe(3);
-    expect(coinsForRound(roundResult(20, 450))).toBe(1);
+    expect(coinsForRound(roundResult(0, 1000))).toBe(5);
+    expect(coinsForRound(roundResult(1, 950))).toBe(3);
+    expect(coinsForRound(roundResult(5, 800))).toBe(1);
+    expect(coinsForRound(roundResult(6, 780))).toBe(0);
     expect(coinsForRound(roundResult(40, 200))).toBe(0);
   });
 
   it('bundles xp and coins together', () => {
-    expect(rewardForRound(roundResult(0, 1000))).toEqual({ xp: 150, coins: 10 });
+    expect(rewardForRound(roundResult(0, 1000))).toEqual({ xp: 150, coins: 5 });
   });
 });

@@ -58,7 +58,7 @@ export const CATEGORIES = [
     description: 'Masterpieces, premieres and cultural icons.',
     difficulty: 'medium',
     active: true,
-    premiumOnly: false,
+    premiumOnly: true,
     displayOrder: 4,
   },
 ] satisfies readonly Category[];

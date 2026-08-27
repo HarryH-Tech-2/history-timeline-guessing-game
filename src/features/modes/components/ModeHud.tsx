@@ -10,8 +10,23 @@ interface ModeHudProps {
   /** Remaining lives (Survival) — renders a row of hearts. */
   lives?: number;
   startingLives?: number;
+  /** The global hearts meter (modes that spend hearts). */
+  hearts?: { count: number; unlimited: boolean };
   /** Renders a back affordance that exits the mode. */
   onBack?: () => void;
+}
+
+function HeartsMeter({ count, unlimited }: { count: number; unlimited: boolean }) {
+  return (
+    <View
+      className="flex-row items-center gap-1 border border-hair bg-bg-raised px-2 py-0.5"
+      accessibilityLabel={unlimited ? 'Unlimited hearts' : `${count} hearts`}
+      testID="hud-hearts"
+    >
+      <Text className="text-sm">❤️</Text>
+      <Text className="text-sm font-bold text-ink-primary">{unlimited ? '∞' : count}</Text>
+    </View>
+  );
 }
 
 function Hearts({ lives, total }: { lives: number; total: number }) {
@@ -32,7 +47,14 @@ function Hearts({ lives, total }: { lives: number; total: number }) {
 }
 
 /** A slim status bar above the prompt: progress on the left, lives/score on the right. */
-export function ModeHud({ progressLabel, score, lives, startingLives, onBack }: ModeHudProps) {
+export function ModeHud({
+  progressLabel,
+  score,
+  lives,
+  startingLives,
+  hearts,
+  onBack,
+}: ModeHudProps) {
   return (
     <View className="flex-row items-center justify-between py-1">
       <View className="flex-row items-center gap-3">
@@ -58,6 +80,7 @@ export function ModeHud({ progressLabel, score, lives, startingLives, onBack }: 
         </Text>
       </View>
       <View className="flex-row items-center gap-3">
+        {hearts !== undefined && <HeartsMeter count={hearts.count} unlimited={hearts.unlimited} />}
         {lives !== undefined && startingLives !== undefined && (
           <Hearts lives={lives} total={startingLives} />
         )}

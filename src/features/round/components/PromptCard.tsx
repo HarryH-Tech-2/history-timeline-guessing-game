@@ -77,17 +77,6 @@ export function PromptCard({ questionId, title, subtitle, compact = false }: Pro
             style={{ aspectRatio: 1 }}
             testID="prompt-image"
           />
-          <View
-            pointerEvents="none"
-            className="absolute bottom-2 right-2 h-9 w-9 items-center justify-center border border-ink-primary/20 bg-bg-raised"
-          >
-            <Text
-              className="text-xl font-extrabold text-ink-primary"
-              style={{ includeFontPadding: false, textAlignVertical: 'center' }}
-            >
-              ⤢
-            </Text>
-          </View>
         </Pressable>
       )}
 

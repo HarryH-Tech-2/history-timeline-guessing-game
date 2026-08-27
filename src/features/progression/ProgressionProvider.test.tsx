@@ -42,7 +42,7 @@ describe('ProgressionProvider', () => {
       api.awardRound(perfectRound(), 1);
     });
 
-    await screen.findByText('xp:150 coins:10');
+    await screen.findByText('xp:150 coins:5');
     await waitFor(async () => {
       expect((await progressionStore.read()).xp).toBe(150);
     });
@@ -64,10 +64,10 @@ describe('ProgressionProvider', () => {
     expect(ok).toBe(false);
 
     act(() => {
-      api.awardRound(perfectRound(), 1); // +10 coins
+      api.awardRound(perfectRound(), 1); // +5 coins
     });
     act(() => {
-      ok = api.spend(10);
+      ok = api.spend(5);
     });
     expect(ok).toBe(true);
     await screen.findByText('xp:150 coins:0');

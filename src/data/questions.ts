@@ -508,7 +508,7 @@ export const QUESTIONS = [
     longitude: -0.6266,
     shortDescription: 'Formulated the laws of motion and gravity.',
     longDescription:
-      'Isaac Newton described universal gravitation and the three laws of motion, invented calculus alongside Leibniz, and laid the foundations of classical physics in his Principia Mathematica.',
+      'Born on 4 January 1643 by the modern calendar (25 December 1642 in the old style then used in England), Isaac Newton described universal gravitation and the three laws of motion, invented calculus alongside Leibniz, and laid the foundations of classical physics in his Principia Mathematica.',
     source: 'https://en.wikipedia.org/wiki/Isaac_Newton',
     tags: ['science', 'physics', 'england'],
     verified: true,
@@ -521,7 +521,7 @@ export const QUESTIONS = [
     subtitle: 'England’s greatest playwright',
     year: 1564,
     month: 4,
-    day: 26,
+    day: 23,
     difficulty: 'medium',
     country: 'England',
     region: 'Stratford-upon-Avon',

@@ -9,14 +9,21 @@ import {
   type ReactNode,
 } from 'react';
 
-import { INITIAL_PROGRESSION, type ProgressionState, type RoundResult } from '@/domain';
+import {
+  INITIAL_PROGRESSION,
+  MAX_HEARTS,
+  type ProgressionState,
+  type RoundResult,
+} from '@/domain';
 import { useSaves } from '@/features/save';
 import { dateKey } from '@/utils/date';
 
 import {
   applyDailyComplete,
   applyGameComplete,
+  applyHeartLoss,
   applyRound,
+  buyHeartRefill,
   buyStreakFreeze,
   spendCoins,
   type DailyCompleteOutcome,
@@ -37,6 +44,10 @@ export interface ProgressionApi {
   buyFreeze: () => boolean;
   /** Attempt to spend coins; false if unaffordable. */
   spend: (amount: number) => boolean;
+  /** Spend one heart (a loose guess). Returns hearts remaining. */
+  loseHeart: () => number;
+  /** Buy a full heart refill with coins; false if broke or already full. */
+  refillHearts: () => boolean;
 }
 
 /**
@@ -52,6 +63,8 @@ const OFFLINE_API: ProgressionApi = {
   recordDailyCompleted: () => applyDailyComplete(INITIAL_PROGRESSION, dateKey()),
   buyFreeze: () => false,
   spend: () => false,
+  loseHeart: () => MAX_HEARTS,
+  refillHearts: () => false,
 };
 
 const ProgressionContext = createContext<ProgressionApi>(OFFLINE_API);
@@ -146,9 +159,41 @@ export function ProgressionProvider({ children }: { children: ReactNode }) {
     [commit],
   );
 
+  const loseHeart = useCallback((): number => {
+    const next = applyHeartLoss(ref.current, Date.now());
+    commit(next);
+    return next.hearts.count;
+  }, [commit]);
+
+  const refillHearts = useCallback((): boolean => {
+    const { state: next, ok } = buyHeartRefill(ref.current, Date.now());
+    if (ok) commit(next);
+    return ok;
+  }, [commit]);
+
   const value = useMemo<ProgressionApi>(
-    () => ({ state, isLoading, awardRound, completeGame, recordDailyCompleted, buyFreeze, spend }),
-    [state, isLoading, awardRound, completeGame, recordDailyCompleted, buyFreeze, spend],
+    () => ({
+      state,
+      isLoading,
+      awardRound,
+      completeGame,
+      recordDailyCompleted,
+      buyFreeze,
+      spend,
+      loseHeart,
+      refillHearts,
+    }),
+    [
+      state,
+      isLoading,
+      awardRound,
+      completeGame,
+      recordDailyCompleted,
+      buyFreeze,
+      spend,
+      loseHeart,
+      refillHearts,
+    ],
   );
 
   return <ProgressionContext.Provider value={value}>{children}</ProgressionContext.Provider>;

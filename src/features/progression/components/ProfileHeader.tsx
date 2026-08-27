@@ -1,7 +1,8 @@
 import { Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { levelForXp, levelProgress } from '@/domain';
+import { heartsAvailable, levelForXp, levelProgress } from '@/domain';
+import { usePremium } from '@/features/premium';
 import { palette } from '@/theme/tokens';
 
 import { useProgression } from '../ProgressionProvider';
@@ -13,6 +14,13 @@ import { useProgression } from '../ProgressionProvider';
 export function ProfileHeader() {
   const router = useRouter();
   const { state } = useProgression();
+  const { isPremium } = usePremium();
+  // Computed inline (not via useHearts) to keep progression free of a cycle
+  // with the hearts feature; the header re-renders on every profile change.
+  const hearts = {
+    unlimited: isPremium,
+    count: heartsAvailable(state.hearts, Date.now()),
+  };
 
   const level = levelForXp(state.xp);
   const progress = levelProgress(state.xp);
@@ -38,9 +46,18 @@ export function ProfileHeader() {
       <View className="flex-1">
         <View className="flex-row items-center justify-between">
           <Text className="text-sm font-bold text-ink-primary">Level {level}</Text>
-          <Text className="text-sm font-bold" style={{ color: palette.warning }}>
-            {state.coins.toLocaleString()} 🪙
-          </Text>
+          <View className="flex-row items-center gap-3">
+            <Text
+              className="text-sm font-bold text-ink-primary"
+              accessibilityLabel={hearts.unlimited ? 'Unlimited hearts' : `${hearts.count} hearts`}
+              testID="header-hearts"
+            >
+              ❤️ {hearts.unlimited ? '∞' : hearts.count}
+            </Text>
+            <Text className="text-sm font-bold" style={{ color: palette.warning }}>
+              {state.coins.toLocaleString()} 🪙
+            </Text>
+          </View>
         </View>
 
         <View className="mt-2 h-2 overflow-hidden rounded-full bg-bg-overlay">

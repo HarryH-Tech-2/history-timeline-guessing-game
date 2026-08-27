@@ -1,2 +1,1 @@
-export { ReviewPromptModal } from './ReviewPromptModal';
-export { recordRoundPlayed } from './reviewPrompt';
+export { requestReviewAfterFirstPurchase } from './reviewPrompt';

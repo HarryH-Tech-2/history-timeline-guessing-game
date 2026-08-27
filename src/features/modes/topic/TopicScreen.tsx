@@ -1,31 +1,20 @@
 import { useState } from 'react';
-import { Text } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
 
 import { Button, Screen } from '@/components/ui';
-import { getCategoryById } from '@/data';
+import { getTopicOfTheDay, isTopicAvailable } from '@/data';
 import { OutOfHeartsSheet, useHearts } from '@/features/hearts';
 import { RoundView, useRoundRewards } from '@/features/round';
-import { palette } from '@/theme/tokens';
+import { dateKey } from '@/utils/date';
 
 import { ModeHud } from '../components/ModeHud';
-import { HintButton } from '../hints/HintButton';
 import { roundDetail, RunSummary, type SummaryRow } from '../components/RunSummary';
-import { getStage, type CampaignStage } from './campaignMap';
-import { useCampaignSession } from './useCampaignSession';
+import { HintButton } from '../hints/HintButton';
+import { useTopicSession } from './useTopicSession';
 
-function StagePlay({
-  stage,
-  colour,
-  onHome,
-  onRetry,
-}: {
-  stage: CampaignStage;
-  colour: string;
-  onHome: () => void;
-  onRetry: () => void;
-}) {
-  const { session, totalQuestions, earnedStars } = useCampaignSession(stage);
+function TopicPlay({ onHome, onRetry }: { onHome: () => void; onRetry: () => void }) {
+  const { session, topic, totalQuestions } = useTopicSession();
   const { reward, unlockedTitles, acquired } = useRoundRewards(session);
   const hearts = useHearts();
 
@@ -36,15 +25,13 @@ function StagePlay({
       score: r.score.total,
       detail: roundDetail(r.errorYears, r.guessYear),
     }));
-
     return (
       <RunSummary
-        title={`${stage.title} — cleared`}
+        title={`${topic.icon} ${topic.name} — complete`}
+        subtitle="Today’s topic. A new one arrives tomorrow."
         totalScore={session.totalScore}
-        accent={colour}
-        stars={earnedStars}
         rounds={rounds}
-        primaryLabel="Back to map"
+        primaryLabel="Home"
         onPrimary={onHome}
         secondaryLabel="Replay"
         onSecondary={onRetry}
@@ -69,7 +56,7 @@ function StagePlay({
         actions={<HintButton question={session.question} />}
         hud={
           <ModeHud
-            progressLabel={`Question ${session.roundNumber} of ${totalQuestions}`}
+            progressLabel={`${topic.name} · ${session.roundNumber} of ${totalQuestions}`}
             score={session.totalScore}
             hearts={hearts}
             onBack={onHome}
@@ -81,30 +68,33 @@ function StagePlay({
   );
 }
 
-/** Play a single campaign stage identified by the route's world/stage params. */
-export function CampaignStageScreen() {
+/** Topic of the day: five themed questions, replayable. Remounts on replay. */
+export function TopicScreen() {
   const router = useRouter();
-  const { world, stage: stageId } = useLocalSearchParams<{ world: string; stage: string }>();
   const [runId, setRunId] = useState(0);
+  const topic = getTopicOfTheDay(dateKey());
 
-  const stage = getStage(world, stageId);
-
-  if (!stage) {
+  if (!isTopicAvailable(topic)) {
     return (
-      <Screen className="items-center justify-center gap-4 px-5">
-        <Text className="text-center text-ink-secondary">This stage could not be found.</Text>
-        <Button label="Back to map" onPress={() => router.back()} />
+      <Screen>
+        <View className="flex-1 items-center justify-center gap-4 px-8" testID="topic-locked">
+          <Text className="text-4xl">🔒</Text>
+          <Text className="text-center text-xl font-bold text-ink-primary">
+            {topic.icon} {topic.name} is a Premium topic
+          </Text>
+          <Text className="text-center text-base text-ink-secondary">
+            Today’s topic draws on premium categories. Subscribe to play it — plus unlimited hearts.
+          </Text>
+          <Button label="See Premium" onPress={() => router.push('/paywall')} />
+          <Button label="Back" variant="ghost" onPress={() => router.back()} />
+        </View>
       </Screen>
     );
   }
 
-  const colour = getCategoryById(stage.worldId)?.colour ?? palette.accent.default;
-
   return (
-    <StagePlay
+    <TopicPlay
       key={runId}
-      stage={stage}
-      colour={colour}
       onHome={() => router.back()}
       onRetry={() => setRunId((n) => n + 1)}
     />

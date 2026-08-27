@@ -48,6 +48,21 @@ function storesFor(uid: string): Stores {
   return created;
 }
 
+/**
+ * Erase every on-device save for `uid` and cancel any flush still waiting in a
+ * debounce, so nothing can be re-mirrored after the account is deleted. The
+ * cached instances stay registered (a deleted uid never comes back).
+ */
+export async function forgetUser(uid: string): Promise<void> {
+  const stores = storesFor(uid);
+  await Promise.all([
+    stores.progression.clear(),
+    stores.bestScores.clear(),
+    stores.daily.clear(),
+    stores.campaign.clear(),
+  ]);
+}
+
 /** Default when no provider is mounted (isolated tests, storybook-style renders). */
 const LOCAL_VALUE: SaveContextValue = { uid: LOCAL_UID, isReady: true, ...storesFor(LOCAL_UID) };
 

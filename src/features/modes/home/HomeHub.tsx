@@ -3,10 +3,12 @@ import { useRouter, type Href } from 'expo-router';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
 import { Screen } from '@/components/ui';
-import { getCategories } from '@/data';
+import { getCategories, getTopicOfTheDay, isTopicAvailable, TOPIC_RUN_SIZE } from '@/data';
 import type { Category } from '@/domain';
+import { usePremium } from '@/features/premium';
 import { ProfileHeader } from '@/features/progression';
 import { useTheme } from '@/theme';
+import { dateKey } from '@/utils/date';
 
 interface ModeCardData {
   key: string;
@@ -73,6 +75,41 @@ function IconPlaque({ glyph, size = 'lg' }: { glyph: string; size?: 'lg' | 'md' 
   );
 }
 
+/** Today's featured topic: a short themed run, the same for everyone. */
+function TopicOfTheDayCard({
+  locked,
+  onPress,
+}: {
+  /** Today's topic lives in premium categories and the player isn't subscribed. */
+  locked: boolean;
+  onPress: () => void;
+}) {
+  const topic = getTopicOfTheDay(dateKey());
+  return (
+    <Animated.View entering={FadeInUp.springify().damping(18)}>
+      <Pressable
+        onPress={onPress}
+        accessibilityRole="button"
+        accessibilityLabel={`Topic of the day: ${topic.name}${locked ? ', Premium' : ''}`}
+        testID="topic-of-the-day"
+        className="flex-row items-center gap-4 overflow-hidden border border-accent bg-accent/10 p-4"
+      >
+        <IconPlaque glyph={locked ? '🔒' : topic.icon} />
+        <View className="flex-1">
+          <Text className="text-xs font-semibold uppercase tracking-wide text-accent">
+            Topic of the day{locked ? ' · Premium' : ''}
+          </Text>
+          <Text className="text-lg font-bold text-ink-primary">{topic.name}</Text>
+          <Text numberOfLines={1} className="text-sm text-ink-secondary">
+            {locked ? 'Subscribe to play today’s topic' : `${TOPIC_RUN_SIZE} questions · ${topic.blurb}`}
+          </Text>
+        </View>
+        <Text className="text-xl text-ink-muted">›</Text>
+      </Pressable>
+    </Animated.View>
+  );
+}
+
 function ModeCard({ mode, index, onPress }: { mode: ModeCardData; index: number; onPress: () => void }) {
   return (
     <Animated.View entering={FadeInUp.delay(index * 60).springify().damping(18)}>
@@ -98,10 +135,13 @@ function ModeCard({ mode, index, onPress }: { mode: ModeCardData; index: number;
 function CategoryCard({
   category,
   index,
+  locked,
   onPress,
 }: {
   category: Category;
   index: number;
+  /** Premium-only and the player isn't subscribed: shows a lock, opens the paywall. */
+  locked: boolean;
   onPress: () => void;
 }) {
   return (
@@ -112,16 +152,21 @@ function CategoryCard({
       <Pressable
         onPress={onPress}
         accessibilityRole="button"
-        accessibilityLabel={`Play ${category.name} questions`}
+        accessibilityLabel={
+          locked ? `${category.name}, Premium category` : `Play ${category.name} questions`
+        }
         testID={`category-${category.id}`}
         className="gap-2 overflow-hidden border border-hair bg-bg-raised p-4"
       >
         <View className="flex-row items-center gap-2.5">
-          <IconPlaque glyph={categoryIcon(category.icon)} size="md" />
+          <IconPlaque glyph={locked ? '🔒' : categoryIcon(category.icon)} size="md" />
           <Text numberOfLines={2} className="flex-1 text-base font-bold leading-tight text-ink-primary">
             {category.name}
           </Text>
         </View>
+        {locked && (
+          <Text className="text-[11px] font-bold uppercase tracking-wide text-accent">Premium</Text>
+        )}
         <Text numberOfLines={2} className="text-xs text-ink-secondary">
           {category.description}
         </Text>
@@ -134,6 +179,7 @@ function CategoryCard({
 export function HomeHub() {
   const router = useRouter();
   const { mode, toggle } = useTheme();
+  const { isPremium } = usePremium();
 
   return (
     <Screen>
@@ -159,6 +205,13 @@ export function HomeHub() {
 
         <ProfileHeader />
 
+        <TopicOfTheDayCard
+          locked={!isTopicAvailable(getTopicOfTheDay(dateKey()))}
+          onPress={() =>
+            router.push(isTopicAvailable(getTopicOfTheDay(dateKey())) ? '/topic' : '/paywall')
+          }
+        />
+
         {MODES.map((mode, index) => (
           <ModeCard
             key={mode.key}
@@ -174,14 +227,20 @@ export function HomeHub() {
         <View className="flex-row flex-wrap gap-3">
           {getCategories()
             .filter((c) => c.active)
-            .map((category, index) => (
-              <CategoryCard
-                key={category.id}
-                category={category}
-                index={index}
-                onPress={() => router.push(`/category/${category.id}`)}
-              />
-            ))}
+            .map((category, index) => {
+              const locked = category.premiumOnly && !isPremium;
+              return (
+                <CategoryCard
+                  key={category.id}
+                  category={category}
+                  index={index}
+                  locked={locked}
+                  onPress={() =>
+                    router.push(locked ? '/paywall' : `/category/${category.id}`)
+                  }
+                />
+              );
+            })}
         </View>
       </ScrollView>
     </Screen>

@@ -1,10 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { costsHeart } from '@/domain';
+import { usePremium } from '@/features/premium';
 import { achievementById, useProgression } from '@/features/progression';
-import { recordRoundPlayed } from '@/features/review';
 import { streakLength } from '@/features/timeline/math';
 
 import type { GameSession } from './useGameSession';
+
+export interface RoundRewardsOptions {
+  /**
+   * Whether loose guesses in this session cost hearts. Survival opts out: it
+   * has its own lives and would otherwise punish a miss twice.
+   */
+  usesHearts?: boolean;
+}
 
 export interface RoundReward {
   xp: number;
@@ -27,8 +36,12 @@ export interface RoundRewards {
  * is idempotent per round via a high-water-mark ref, so re-renders don't
  * double-credit. With no ProgressionProvider mounted this degrades to a no-op.
  */
-export function useRoundRewards(session: GameSession): RoundRewards {
-  const { awardRound, completeGame } = useProgression();
+export function useRoundRewards(
+  session: GameSession,
+  { usesHearts = true }: RoundRewardsOptions = {},
+): RoundRewards {
+  const { awardRound, completeGame, loseHeart } = useProgression();
+  const { isPremium } = usePremium();
   const awardedCount = useRef(0);
   const finished = useRef(false);
   const [reward, setReward] = useState<RoundReward | null>(null);
@@ -52,9 +65,10 @@ export function useRoundRewards(session: GameSession): RoundRewards {
     setReward(outcome.reward);
     setAcquired(outcome.acquired);
     addUnlocked(outcome.unlocked);
-    // Every revealed round counts towards the (once-ever) review ask.
-    void recordRoundPlayed();
-  }, [session.results, awardRound]);
+    // A loose guess costs a heart — unless this mode has its own lives or the
+    // player holds Premium (unlimited hearts).
+    if (usesHearts && !isPremium && costsHeart(latest)) loseHeart();
+  }, [session.results, awardRound, loseHeart, usesHearts, isPremium]);
 
   useEffect(() => {
     if (session.status !== 'finished' || finished.current) return;

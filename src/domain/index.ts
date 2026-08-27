@@ -6,3 +6,4 @@ export * from './round';
 export * from './progression';
 export * from './streak';
 export * from './collection';
+export * from './hearts';

@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router';
 
 import { Screen } from '@/components/ui';
+import { OutOfHeartsSheet, useHearts } from '@/features/hearts';
 import { RoundView, useRoundRewards } from '@/features/round';
 
 import { ModeHud } from '../components/ModeHud';
@@ -12,6 +13,7 @@ export function EndlessScreen() {
   const router = useRouter();
   const { session } = useEndlessSession();
   const { reward, unlockedTitles, acquired } = useRoundRewards(session);
+  const hearts = useHearts();
 
   return (
     <Screen>
@@ -29,10 +31,14 @@ export function EndlessScreen() {
           <ModeHud
             progressLabel={`Round ${session.roundNumber}`}
             score={session.totalScore}
+            hearts={hearts}
             onBack={() => router.back()}
           />
         }
       />
+      {hearts.empty && session.phase === 'guessing' && (
+        <OutOfHeartsSheet onLeave={() => router.back()} />
+      )}
     </Screen>
   );
 }

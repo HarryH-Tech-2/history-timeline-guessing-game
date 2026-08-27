@@ -40,3 +40,32 @@ function buildTicks(): readonly Tick[] {
 }
 
 export const TICKS = buildTicks();
+
+/** The ~50 labelled century ticks, always mounted. */
+export const MAJOR_TICKS: readonly Tick[] = TICKS.filter((t) => t.major);
+
+/**
+ * Decade ticks are only legible once the view spans a few centuries, so they
+ * are mounted lazily in 500-year blocks around the crosshair (see
+ * TimelineTrack). Mounting all ~500 up front made the quiz screen take
+ * noticeably long to appear after tapping a mode.
+ */
+export const DECADE_BLOCK_YEARS = 500;
+
+export const MINOR_TICKS_BY_BLOCK: ReadonlyMap<number, readonly Tick[]> = (() => {
+  const blocks = new Map<number, Tick[]>();
+  for (const tick of TICKS) {
+    if (tick.major) continue;
+    const block = Math.floor(tick.year / DECADE_BLOCK_YEARS);
+    const list = blocks.get(block);
+    if (list) list.push(tick);
+    else blocks.set(block, [tick]);
+  }
+  return blocks;
+})();
+
+/** Index of the 500-year block containing `year`; safe on the UI thread. */
+export function decadeBlockOf(year: number): number {
+  'worklet';
+  return Math.floor(year / DECADE_BLOCK_YEARS);
+}

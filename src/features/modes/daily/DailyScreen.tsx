@@ -9,6 +9,8 @@ import { RoundView, useRoundRewards } from '@/features/round';
 import { palette } from '@/theme/tokens';
 import { dateKey } from '@/utils/date';
 
+import { OutOfHeartsSheet, useHearts } from '@/features/hearts';
+
 import { ModeHud } from '../components/ModeHud';
 import { roundDetail, RunSummary, type SummaryRow } from '../components/RunSummary';
 import type { DailyRecord } from '../persistence';
@@ -48,6 +50,7 @@ export function DailyScreen() {
   const router = useRouter();
   const { session, totalQuestions, loading, locked, record } = useDailySession();
   const { reward, unlockedTitles, acquired } = useRoundRewards(session);
+  const hearts = useHearts();
 
   if (loading) {
     return (
@@ -80,10 +83,14 @@ export function DailyScreen() {
             <ModeHud
               progressLabel={`Question ${session.roundNumber} of ${totalQuestions}`}
               score={session.totalScore}
+              hearts={hearts}
               onBack={() => router.back()}
             />
           }
         />
+        {hearts.empty && session.phase === 'guessing' && (
+          <OutOfHeartsSheet onLeave={() => router.back()} />
+        )}
       </View>
     </Screen>
   );

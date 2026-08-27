@@ -7,9 +7,9 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { useLeaderboardSync } from '@/features/leaderboard';
-import { ProgressionProvider } from '@/features/progression';
-import { ReviewPromptModal } from '@/features/review';
+import { PremiumProvider } from '@/features/premium';
 import { SaveProvider } from '@/features/save';
+import { ProgressionProvider } from '@/features/progression';
 import { syncRemoteContent } from '@/services/content';
 import { AuthProvider } from '@/services/firebase/auth';
 import { warmUpPlayGames } from '@/services/playGames';
@@ -28,8 +28,9 @@ function ThemedNavigator() {
           contentStyle: { backgroundColor: colors.bg.base },
           animation: 'fade',
         }}
-      />
-      <ReviewPromptModal />
+      >
+        <Stack.Screen name="paywall" options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
+      </Stack>
     </>
   );
 }
@@ -50,9 +51,11 @@ export default function RootLayout() {
         <ThemeProvider>
           <AuthProvider>
             <SaveProvider>
-              <ProgressionProvider>
-                <ThemedNavigator />
-              </ProgressionProvider>
+              <PremiumProvider>
+                <ProgressionProvider>
+                  <ThemedNavigator />
+                </ProgressionProvider>
+              </PremiumProvider>
             </SaveProvider>
           </AuthProvider>
         </ThemeProvider>

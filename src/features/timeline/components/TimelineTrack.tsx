@@ -1,11 +1,23 @@
+import { useMemo, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { GestureDetector } from 'react-native-gesture-handler';
-import Animated, { FadeIn, useAnimatedStyle } from 'react-native-reanimated';
+import Animated, {
+  FadeIn,
+  runOnJS,
+  useAnimatedReaction,
+  useAnimatedStyle,
+} from 'react-native-reanimated';
 
 import type { TimelineController } from '@/features/timeline/hooks/useTimelineTransform';
-import { worldXForYear } from '@/features/timeline/math';
-import { TICKS } from '@/features/timeline/ticks';
+import { BASE_WIDTH, MIN_YEAR, PRESENT_YEAR, worldXForYear } from '@/features/timeline/math';
+import {
+  DECADE_BLOCK_YEARS,
+  decadeBlockOf,
+  MAJOR_TICKS,
+  MINOR_TICKS_BY_BLOCK,
+  type Tick,
+} from '@/features/timeline/ticks';
 import { palette } from '@/theme/tokens';
 
 import { CenturyJumpBar } from './CenturyJumpBar';
@@ -63,6 +75,51 @@ function YearStepButton({
   );
 }
 
+/** Decade lines start fading in at scale 0.7 (see TimelineTick); mount them a
+ * little earlier so they never pop in late. */
+const DECADE_MIN_SCALE = 0.55;
+const PX_PER_YEAR = BASE_WIDTH / (PRESENT_YEAR - MIN_YEAR);
+/** Blocks either side of the crosshair's block to keep mounted. */
+const BLOCK_REACH = 1;
+
+/**
+ * The decade ticks worth having mounted right now: none while zoomed out
+ * (they would be invisible anyway), otherwise the 500-year blocks around the
+ * crosshair. Mounting all ~500 decades up front is what made the quiz screen
+ * slow to appear; this keeps it to ≤ ~150 and only re-renders when the
+ * crosshair crosses a block boundary or the zoom crosses the threshold.
+ */
+function useVisibleDecadeTicks(controller: TimelineController): readonly Tick[] {
+  // Destructured so the worklet captures only shared values, never the
+  // controller (whose composed gesture cannot be copied to the UI thread).
+  const { centreYear, scale, width } = controller;
+  const [block, setBlock] = useState<number | null>(null);
+
+  useAnimatedReaction(
+    () => {
+      // On wide screens the blocks either side must still cover the view, so
+      // decades wait for a tighter zoom there; phones use the base threshold.
+      const coverYears = (BLOCK_REACH + 0.5) * DECADE_BLOCK_YEARS;
+      const minScale = Math.max(DECADE_MIN_SCALE, width.value / 2 / (coverYears * PX_PER_YEAR));
+      if (width.value <= 0 || scale.value < minScale) return null;
+      return decadeBlockOf(centreYear.value);
+    },
+    (current, previous) => {
+      if (current !== previous) runOnJS(setBlock)(current);
+    },
+  );
+
+  return useMemo(() => {
+    if (block === null) return [];
+    const ticks: Tick[] = [];
+    for (let b = block - BLOCK_REACH; b <= block + BLOCK_REACH; b += 1) {
+      const list = MINOR_TICKS_BY_BLOCK.get(b);
+      if (list) ticks.push(...list);
+    }
+    return ticks;
+  }, [block]);
+}
+
 /**
  * Translucent band between the guess and the answer, so the size of the miss
  * reads at a glance. Lives in the panning layer, anchored in world space.
@@ -113,6 +170,7 @@ export function TimelineTrack({
 }: TimelineTrackProps) {
   const { translateX, scale } = controller;
   const revealed = revealYear !== undefined;
+  const minorTicks = useVisibleDecadeTicks(controller);
 
   const panStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value }],
@@ -132,7 +190,10 @@ export function TimelineTrack({
                   colour={revealColour}
                 />
               )}
-              {TICKS.map((tick) => (
+              {MAJOR_TICKS.map((tick) => (
+                <TimelineTick key={tick.year} tick={tick} scale={scale} />
+              ))}
+              {minorTicks.map((tick) => (
                 <TimelineTick key={tick.year} tick={tick} scale={scale} />
               ))}
               {revealed && guessYear !== undefined && (

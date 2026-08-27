@@ -5,7 +5,7 @@ import { Text } from 'react-native';
 import { INITIAL_PROGRESSION } from '@/domain';
 import { progressionSaves } from '@/features/progression/persistence';
 
-import { SaveProvider, useSaves } from './SaveProvider';
+import { forgetUser, SaveProvider, useSaves } from './SaveProvider';
 
 // Pretend Firebase is configured so SaveProvider follows the auth uid...
 jest.mock('@/config/env', () => ({ isFirebaseConfigured: true, firebaseConfig: {} }));
@@ -130,5 +130,19 @@ describe('useSaves without a provider', () => {
   it('serves the local uid, ready immediately', () => {
     render(<Probe />);
     expect(screen.getByText('uid:local ready:true')).toBeOnTheScreen();
+  });
+});
+
+describe('forgetUser', () => {
+  it('drops the local copies for that uid without touching another uid', async () => {
+    const AsyncStorage = require('@react-native-async-storage/async-storage');
+    await progressionSaves.forUser('gone').write({ ...INITIAL_PROGRESSION, xp: 5 });
+    await progressionSaves.forUser('kept').write({ ...INITIAL_PROGRESSION, xp: 7 });
+
+    await forgetUser('gone');
+
+    await expect(AsyncStorage.getItem('chronos.progression:gone')).resolves.toBeNull();
+    await expect(AsyncStorage.getItem('chronos.progression:gone:dirty')).resolves.toBeNull();
+    await expect(progressionSaves.forUser('kept').read()).resolves.toMatchObject({ xp: 7 });
   });
 });

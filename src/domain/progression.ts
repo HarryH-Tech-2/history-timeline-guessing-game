@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { HeartsStateSchema, INITIAL_HEARTS } from './hearts';
 import type { RoundResult } from './round';
 import { INITIAL_STREAK, StreakStateSchema } from './streak';
 
@@ -64,12 +65,16 @@ export function xpForRound(result: RoundResult): number {
   return base + (result.isPerfect ? PERFECT_XP_BONUS : 0);
 }
 
-/** Coins are tiered by accuracy — sharp rewards for being close, nothing for wild guesses. */
+/**
+ * Coins are tiered by accuracy — only sharp guesses pay, and modestly: a
+ * bullseye is worth 5, within a year 3, within five 1. Coins are the currency
+ * for hints (10), heart refills (100) and streak freezes (150), so they are
+ * meant to feel scarce.
+ */
 const COIN_TIERS: ReadonlyArray<readonly [maxErrorYears: number, coins: number]> = [
-  [0, 10],
-  [2, 5],
-  [10, 3],
-  [20, 1],
+  [0, 5],
+  [1, 3],
+  [5, 1],
 ];
 
 export function coinsForRound(result: RoundResult): number {
@@ -114,6 +119,8 @@ export const ProgressionStateSchema = z.object({
    * acquired it. An entry's existence IS the acquisition (see domain/collection).
    */
   collection: z.record(z.string(), z.number().nonnegative()).default({}),
+  /** Play-energy meter; defaulted so older profiles start full. */
+  hearts: HeartsStateSchema.default(INITIAL_HEARTS),
 });
 export type ProgressionState = z.infer<typeof ProgressionStateSchema>;
 
@@ -124,4 +131,5 @@ export const INITIAL_PROGRESSION: ProgressionState = {
   stats: { rounds: 0, perfectRounds: 0, gamesPlayed: 0, bestStreak: 0, bestDailyStreak: 0 },
   streak: INITIAL_STREAK,
   collection: {},
+  hearts: INITIAL_HEARTS,
 };

@@ -43,6 +43,8 @@ export interface TimelineController {
   scale: SharedValue<number>;
   /** Live year under the crosshair (UI thread). */
   centreYear: SharedValue<number>;
+  /** Laid-out track width in px (0 until the first layout). */
+  width: SharedValue<number>;
   gesture: ComposedGesture;
   onLayout: (event: LayoutChangeEvent) => void;
   /** Read the current guess (whole-ish year, clamped to range) on the JS thread. */
@@ -225,6 +227,7 @@ export function useTimelineTransform(options: Options = {}): TimelineController 
     translateX,
     scale,
     centreYear,
+    width,
     gesture,
     onLayout,
     readGuessYear,

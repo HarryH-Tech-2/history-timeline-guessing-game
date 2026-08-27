@@ -13,7 +13,8 @@ import { useSurvivalSession } from './useSurvivalSession';
 
 function SurvivalPlay({ onHome, onRetry }: { onHome: () => void; onRetry: () => void }) {
   const { session, lives, startingLives, best } = useSurvivalSession();
-  const { reward, unlockedTitles, acquired } = useRoundRewards(session);
+  // Survival has its own lives, so a miss must not also cost a heart.
+  const { reward, unlockedTitles, acquired } = useRoundRewards(session, { usesHearts: false });
 
   if (session.status === 'finished') {
     const stats = [{ label: 'Rounds survived', value: String(session.results.length) }];

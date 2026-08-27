@@ -17,6 +17,7 @@ import {
   streakMultiplier,
 } from '@/domain';
 import { handleForUid } from '@/features/leaderboard';
+import { usePremium } from '@/features/premium';
 import { useAuth } from '@/services/firebase/auth';
 import { useTheme } from '@/theme';
 import { palette } from '@/theme/tokens';
@@ -174,6 +175,7 @@ function AchievementRow({
 export function ProfileScreen() {
   const router = useRouter();
   const { state, buyFreeze } = useProgression();
+  const { isPremium, priceLabel } = usePremium();
   const { uid, isSignedIn, user, hasAccount, signOutToGuest } = useAuth();
   const { mode, toggle } = useTheme();
   const [signingOut, setSigningOut] = useState(false);
@@ -241,6 +243,80 @@ export function ProfileScreen() {
           </View>
         </View>
 
+        <SectionTitle>Premium</SectionTitle>
+        <View
+          className="flex-row items-center justify-between gap-3 border border-hair bg-bg-raised p-4"
+          testID="premium-card"
+        >
+          <View className="flex-1">
+            <Text className="text-sm font-bold text-ink-primary">
+              {isPremium ? 'Premium active' : 'Go Premium'}
+            </Text>
+            <Text className="text-xs text-ink-muted">
+              {isPremium
+                ? 'Unlimited hearts · all categories unlocked'
+                : `Unlimited hearts & every category · ${priceLabel}`}
+            </Text>
+          </View>
+          <Button
+            label={isPremium ? 'Manage' : 'Subscribe'}
+            variant={isPremium ? 'ghost' : 'primary'}
+            onPress={() => router.push('/paywall')}
+            className="h-10 px-4"
+            testID="premium-cta"
+          />
+        </View>
+
+        <SectionTitle>Account</SectionTitle>
+        {hasAccount ? (
+          <View className="gap-3 border border-hair bg-bg-raised p-4">
+            <View>
+              <Text className="text-base font-bold text-ink-primary" numberOfLines={1}>
+                {user?.email ?? displayName}
+              </Text>
+              <Text className="text-xs text-ink-muted">
+                Signed in{user?.displayName ? ` as ${user.displayName}` : ''}
+              </Text>
+            </View>
+            <Button
+              label={signingOut ? 'Signing out…' : 'Sign out'}
+              variant="ghost"
+              disabled={signingOut}
+              testID="sign-out"
+              onPress={() => {
+                setSigningOut(true);
+                void signOutToGuest().finally(() => setSigningOut(false));
+              }}
+            />
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => router.push('/delete-account')}
+              disabled={signingOut}
+              testID="open-delete-account"
+              className="self-center py-1"
+            >
+              <Text className="text-sm font-semibold" style={{ color: palette.danger }}>
+                Delete account
+              </Text>
+            </Pressable>
+          </View>
+        ) : (
+          <View className="gap-3 border border-hair bg-bg-raised p-4">
+            <Text className="text-sm text-ink-secondary">
+              {isSignedIn
+                ? 'You are playing as a guest. Sign in to keep your progress safe across devices.'
+                : 'Accounts are not available in this offline build.'}
+            </Text>
+            {isSignedIn && (
+              <Button
+                label="Sign in"
+                testID="open-sign-in"
+                onPress={() => router.push('/sign-in')}
+              />
+            )}
+          </View>
+        )}
+
         <SectionTitle>Daily streak</SectionTitle>
         <StreakCard
           streak={state.streak}
@@ -279,45 +355,6 @@ export function ProfileScreen() {
             index={index}
           />
         ))}
-
-        <SectionTitle>Account</SectionTitle>
-        {hasAccount ? (
-          <View className="gap-3 border border-hair bg-bg-raised p-4">
-            <View>
-              <Text className="text-base font-bold text-ink-primary" numberOfLines={1}>
-                {user?.email ?? displayName}
-              </Text>
-              <Text className="text-xs text-ink-muted">
-                Signed in{user?.displayName ? ` as ${user.displayName}` : ''}
-              </Text>
-            </View>
-            <Button
-              label={signingOut ? 'Signing out…' : 'Sign out'}
-              variant="ghost"
-              disabled={signingOut}
-              testID="sign-out"
-              onPress={() => {
-                setSigningOut(true);
-                void signOutToGuest().finally(() => setSigningOut(false));
-              }}
-            />
-          </View>
-        ) : (
-          <View className="gap-3 border border-hair bg-bg-raised p-4">
-            <Text className="text-sm text-ink-secondary">
-              {isSignedIn
-                ? 'You are playing as a guest. Sign in to keep your progress safe across devices.'
-                : 'Accounts are not available in this offline build.'}
-            </Text>
-            {isSignedIn && (
-              <Button
-                label="Sign in"
-                testID="open-sign-in"
-                onPress={() => router.push('/sign-in')}
-              />
-            )}
-          </View>
-        )}
 
         <SectionTitle>Settings</SectionTitle>
         <Pressable

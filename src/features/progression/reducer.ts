@@ -1,8 +1,13 @@
 import {
   activeStreakCount,
   applyDailyCompletion,
+  HEART_REFILL_COST,
+  heartsAvailable,
   isAcquiringGuess,
+  loseHeart,
+  MAX_HEARTS,
   MAX_STREAK_FREEZES,
+  refillHearts,
   rewardForRound,
   STREAK_FREEZE_COST,
   streakMultiplier,
@@ -129,6 +134,24 @@ export function buyStreakFreeze(state: ProgressionState): {
       coins: state.coins - STREAK_FREEZE_COST,
       streak: { ...state.streak, freezes: state.streak.freezes + 1 },
     },
+    ok: true,
+  };
+}
+
+/** Spend one heart at `now` (a loose guess). No-op when already empty. */
+export function applyHeartLoss(state: ProgressionState, now: number): ProgressionState {
+  return { ...state, hearts: loseHeart(state.hearts, now) };
+}
+
+/** Buy a full refill with coins; refuses when broke or already full. */
+export function buyHeartRefill(
+  state: ProgressionState,
+  now: number,
+): { state: ProgressionState; ok: boolean } {
+  if (state.coins < HEART_REFILL_COST) return { state, ok: false };
+  if (heartsAvailable(state.hearts, now) >= MAX_HEARTS) return { state, ok: false };
+  return {
+    state: { ...state, coins: state.coins - HEART_REFILL_COST, hearts: refillHearts(now) },
     ok: true,
   };
 }

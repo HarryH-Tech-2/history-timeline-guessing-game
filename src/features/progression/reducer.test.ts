@@ -28,9 +28,9 @@ function roundResult(errorYears: number, total: number): RoundResult {
 describe('applyRound', () => {
   it('banks rewards and bumps counters', () => {
     const { state, reward } = applyRound(INITIAL_PROGRESSION, roundResult(0, 1000), 1, TODAY);
-    expect(reward).toEqual({ xp: 150, coins: 10 });
+    expect(reward).toEqual({ xp: 150, coins: 5 });
     expect(state.xp).toBe(150);
-    expect(state.coins).toBe(10);
+    expect(state.coins).toBe(5);
     expect(state.stats.rounds).toBe(1);
     expect(state.stats.perfectRounds).toBe(1);
     expect(state.stats.bestStreak).toBe(1);
@@ -58,7 +58,7 @@ describe('applyRound', () => {
     const { reward } = applyRound(streaky, roundResult(0, 1000), 1, TODAY);
     // 150 base XP × 1.25 for a 7-day streak.
     expect(reward.xp).toBe(188);
-    expect(reward.coins).toBe(10);
+    expect(reward.coins).toBe(5);
   });
 
   it('does not multiply XP once the streak has lapsed', () => {
