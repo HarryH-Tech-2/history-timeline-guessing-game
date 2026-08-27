@@ -44,7 +44,10 @@ service cloud.firestore {
     // inflating fields or spoofing another entry).
     match /leaderboard/{uid} {
       allow read: if true;
-      allow write: if isOwner(uid)
+      // Account deletion removes the row; `request.resource` is null on a
+      // delete, so it must not go through the shape checks below.
+      allow delete: if isOwner(uid);
+      allow create, update: if isOwner(uid)
         && request.resource.data.keys().hasOnly(['displayName', 'xp', 'level', 'updatedAt'])
         && request.resource.data.displayName is string
         && request.resource.data.displayName.size() > 0

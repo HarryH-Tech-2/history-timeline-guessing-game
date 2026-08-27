@@ -52,7 +52,7 @@ Synced data is stored with Google Firebase (Firestore and Authentication). Googl
 ## Data retention and deletion
 
 - **On-device data:** deleted when you uninstall the app.
-- **Account and leaderboard data:** kept while your account exists. You can request deletion of your account and all associated data at any time by emailing us (address below); we will complete the deletion within 30 days.
+- **Account and leaderboard data:** kept while your account exists. You can delete your account and all associated data at any time from inside the app (**Profile → Account → Delete account**); the deletion is immediate and removes your sign-in, cloud saves and leaderboard entry. If you no longer have the app, follow the steps at <https://history-date-timeline-guesser.web.app/delete-account> or email us (address below) from your sign-in address; we will complete the deletion within 30 days.
 
 ## Children
 

@@ -19,6 +19,8 @@ export interface AuthUser {
   displayName: string | null;
   photoURL: string | null;
   isAnonymous: boolean;
+  /** Firebase provider ids linked to the account, e.g. 'password', 'google.com'. */
+  providerIds: string[];
 }
 
 /** What the rest of the app knows about the signed-in player. */
@@ -47,6 +49,18 @@ export interface AuthApi extends AuthState {
   sendPasswordReset: (email: string) => Promise<void>;
   /** Sign out of the account and fall back to a fresh guest session. */
   signOutToGuest: () => Promise<void>;
+  /**
+   * Prove the current session is fresh, as Firebase demands before sensitive
+   * operations. Password accounts must supply their password; Google accounts
+   * are re-verified silently (falling back to the account picker).
+   */
+  reauthenticate: (password?: string) => Promise<void>;
+  /**
+   * Permanently delete the signed-in account: its cloud saves, leaderboard
+   * row and the Firebase user. Call `reauthenticate` first. On success the
+   * auth listener starts a fresh guest session.
+   */
+  deleteAccount: () => Promise<void>;
 }
 
 const OFFLINE_ERROR = new Error(
@@ -68,6 +82,8 @@ const OFFLINE_API: AuthApi = {
   signInWithGoogle: () => Promise.reject(OFFLINE_ERROR),
   sendPasswordReset: () => Promise.reject(OFFLINE_ERROR),
   signOutToGuest: () => Promise.resolve(),
+  reauthenticate: () => Promise.reject(OFFLINE_ERROR),
+  deleteAccount: () => Promise.reject(OFFLINE_ERROR),
 };
 
 const AuthContext = createContext<AuthApi>(OFFLINE_API);
@@ -102,6 +118,8 @@ function friendlyAuthError(error: unknown): Error {
     case 'auth/wrong-password':
     case 'auth/invalid-credential':
       return new Error('Email or password is incorrect.');
+    case 'auth/requires-recent-login':
+      return new Error('Please sign in again before deleting your account.');
     case 'auth/too-many-requests':
       return new Error('Too many attempts — wait a moment and try again.');
     case 'auth/network-request-failed':
@@ -156,6 +174,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             displayName: user.displayName,
             photoURL: user.photoURL,
             isAnonymous: user.isAnonymous,
+            providerIds: user.providerData.map((p) => p.providerId),
           },
           hasAccount: !user.isAnonymous,
         });
@@ -186,6 +205,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         displayName: user.displayName,
         photoURL: user.photoURL,
         isAnonymous: user.isAnonymous,
+        providerIds: user.providerData.map((p) => p.providerId),
       },
       hasAccount: !user.isAnonymous,
     });
@@ -323,6 +343,75 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const reauthenticate = useCallback(async (password?: string) => {
+    if (!isFirebaseConfigured) throw OFFLINE_ERROR;
+    const { auth, authModule } = await loadAuth();
+    const user = auth.currentUser;
+    if (user === null || user.isAnonymous) throw new Error('No account is signed in.');
+
+    const providers = user.providerData.map((p) => p.providerId);
+    try {
+      if (providers.includes('password')) {
+        if (!password || user.email === null) {
+          throw new Error('Enter your password to continue.');
+        }
+        const credential = authModule.EmailAuthProvider.credential(user.email, password);
+        await authModule.reauthenticateWithCredential(user, credential);
+        return;
+      }
+      if (providers.includes('google.com')) {
+        const GoogleSignin = await loadGoogleSignin();
+        if (GoogleSignin === null) {
+          throw new Error('Google sign-in needs a development or production build of the app.');
+        }
+        const webClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+        if (!webClientId) throw new Error('Google sign-in is not configured for this build.');
+        GoogleSignin.configure({ webClientId });
+        let idToken: string | null | undefined;
+        try {
+          idToken = (await GoogleSignin.signInSilently()).data?.idToken;
+        } catch {
+          // No cached Google session - fall through to an interactive prompt.
+        }
+        if (!idToken) {
+          const response = await GoogleSignin.signIn();
+          if (response.type !== 'success') throw new Error('Google sign-in was cancelled.');
+          idToken = response.data.idToken;
+        }
+        if (!idToken) throw new Error('Google sign-in did not return a token.');
+        const credential = authModule.GoogleAuthProvider.credential(idToken);
+        await authModule.reauthenticateWithCredential(user, credential);
+        return;
+      }
+      throw new Error('This account cannot be verified from the app.');
+    } catch (error) {
+      throw friendlyAuthError(error);
+    }
+  }, []);
+
+  const deleteAccount = useCallback(async () => {
+    if (!isFirebaseConfigured) throw OFFLINE_ERROR;
+    const { auth, authModule } = await loadAuth();
+    const user = auth.currentUser;
+    if (user === null || user.isAnonymous) throw new Error('No account is signed in.');
+
+    // Cloud data first: if this fails the account survives and nothing is orphaned.
+    const { deleteCloudAccountData } = await import('./accountData');
+    try {
+      await deleteCloudAccountData(user.uid);
+      await authModule.deleteUser(user);
+    } catch (error) {
+      throw friendlyAuthError(error);
+    }
+    try {
+      const GoogleSignin = await loadGoogleSignin();
+      if (GoogleSignin !== null) await GoogleSignin.signOut();
+    } catch {
+      // No Google session - nothing to do.
+    }
+    // onAuthStateChanged sees the null user and starts a fresh guest session.
+  }, []);
+
   const signOutToGuest = useCallback(async () => {
     if (!isFirebaseConfigured) return;
     const { auth, authModule } = await loadAuth();
@@ -344,8 +433,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signInWithGoogle,
       sendPasswordReset,
       signOutToGuest,
+      reauthenticate,
+      deleteAccount,
     }),
-    [state, signUpWithEmail, signInWithEmail, signInWithGoogle, sendPasswordReset, signOutToGuest],
+    [
+      state,
+      signUpWithEmail,
+      signInWithEmail,
+      signInWithGoogle,
+      sendPasswordReset,
+      signOutToGuest,
+      reauthenticate,
+      deleteAccount,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
