@@ -19,6 +19,8 @@ export interface CampaignWorld {
   name: string;
   colour: string;
   icon: string;
+  /** Display label for the era's year span, e.g. "1500 – 1800". */
+  period: string;
   /** 1-based position in the campaign. */
   index: number;
   stages: readonly CampaignStage[];
@@ -30,20 +32,51 @@ interface EraSpec {
   name: string;
   colour: string;
   icon: string;
+  /** Display label for the era's year span. */
+  period: string;
   /** Inclusive last year of the era (signed; the previous era's max bounds the start). */
   maxYear: number;
 }
 
 const ERAS: readonly EraSpec[] = [
-  { id: 'ancient', name: 'The Ancient World', colour: '#E7B84C', icon: 'flag', maxYear: 500 },
-  { id: 'medieval', name: 'The Middle Ages', colour: '#B07BD9', icon: 'swords', maxYear: 1499 },
-  { id: 'early-modern', name: 'The Early Modern Age', colour: '#57BE8F', icon: 'person', maxYear: 1799 },
-  { id: 'nineteenth', name: 'The 19th Century', colour: '#E8564E', icon: 'cpu', maxYear: 1899 },
+  {
+    id: 'ancient',
+    name: 'The Ancient World',
+    colour: '#E7B84C',
+    icon: 'flag',
+    period: 'Up to 500',
+    maxYear: 500,
+  },
+  {
+    id: 'medieval',
+    name: 'The Middle Ages',
+    colour: '#B07BD9',
+    icon: 'swords',
+    period: '500 – 1500',
+    maxYear: 1499,
+  },
+  {
+    id: 'early-modern',
+    name: 'The Early Modern Age',
+    colour: '#57BE8F',
+    icon: 'person',
+    period: '1500 – 1800',
+    maxYear: 1799,
+  },
+  {
+    id: 'nineteenth',
+    name: 'The 19th Century',
+    colour: '#E8564E',
+    icon: 'cpu',
+    period: '1800 – 1900',
+    maxYear: 1899,
+  },
   {
     id: 'modern',
     name: 'The Modern Era',
     colour: '#A9B6C2',
     icon: 'cpu',
+    period: '1900 – Today',
     maxYear: Number.POSITIVE_INFINITY,
   },
 ];
@@ -98,6 +131,7 @@ function buildCampaign(): readonly CampaignWorld[] {
       name: era.name,
       colour: era.colour,
       icon: era.icon,
+      period: era.period,
       index: worldIndex + 1,
       stages,
     };

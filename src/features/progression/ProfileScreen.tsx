@@ -369,6 +369,43 @@ export function ProfileScreen() {
             {mode === 'dark' ? 'Dark 🌙' : 'Light ☀️'}
           </Text>
         </Pressable>
+        {hasAccount ? (
+          <View
+            className="flex-row items-center justify-between border border-hair bg-bg-raised p-4"
+            testID="settings-backup"
+          >
+            <View className="flex-1 pr-3">
+              <Text className="text-base font-semibold text-ink-primary">Progress backup</Text>
+              <Text className="mt-0.5 text-xs text-ink-muted">
+                Your progress is saved to your account and follows you to any device.
+              </Text>
+            </View>
+            <Text className="text-sm font-bold" style={{ color: palette.success }}>
+              On ✓
+            </Text>
+          </View>
+        ) : (
+          <Pressable
+            onPress={() => router.push('/sign-in')}
+            accessibilityRole="button"
+            accessibilityLabel="Sign in with Google to back up your progress"
+            disabled={!isSignedIn}
+            testID="settings-backup"
+            className="flex-row items-center justify-between border border-hair bg-bg-raised p-4"
+          >
+            <View className="flex-1 pr-3">
+              <Text className="text-base font-semibold text-ink-primary">
+                Back up your progress
+              </Text>
+              <Text className="mt-0.5 text-xs text-ink-muted">
+                {isSignedIn
+                  ? 'Sign in with Google and your XP, coins, museum and campaign follow you to any device.'
+                  : 'Accounts need a connection and aren’t available in this build.'}
+              </Text>
+            </View>
+            <Text className="text-xl text-ink-muted">›</Text>
+          </Pressable>
+        )}
         <View className="flex-row items-center justify-between border border-hair bg-bg-raised p-4">
           <Text className="text-base font-semibold text-ink-primary">Version</Text>
           <Text className="text-base text-ink-secondary">{version}</Text>
