@@ -12,31 +12,50 @@ import {
 
 import { ImageLightbox, Screen } from '@/components/ui';
 import { getCategories, getQuestionsByCategory, imageForQuestion } from '@/data';
-import {
-  MASTERY_BADGES,
-  masteryTier,
-  type Category,
-  type Question,
-} from '@/domain';
+import { MASTERY_BADGES, masteryTier, type Category, type Question } from '@/domain';
 import { useProgression } from '@/features/progression';
+import { formatYear } from '@/features/timeline/math';
 
 /** Artefact grid: fixed column count with a fixed gutter, sized from the
  * measured shelf width so every tile is an exact square (flex-1 + aspect
  * ratio inside a wrapping row does not lay out reliably on Android). */
 const COLUMNS = 3;
 const GUTTER = 8;
-/** Height reserved under every tile for a two-line caption, so rows align. */
-const CAPTION_HEIGHT = 34;
+/** Height reserved under every tile for a two-line caption plus the event's
+ * year, so rows align. */
+const CAPTION_HEIGHT = 52;
 
 interface Zoomed {
   source: ImageSourcePropType;
   title: string;
 }
 
+/** Title and year beneath an acquired artefact. The year only ever shows on
+ * acquired tiles, so undiscovered ones stay spoiler-free. */
+function Caption({ question }: { question: Question }) {
+  return (
+    <View style={{ height: CAPTION_HEIGHT }} className="justify-center">
+      <Text
+        numberOfLines={2}
+        className="text-center text-xs font-medium leading-4 text-ink-primary"
+      >
+        {question.title}
+      </Text>
+      <Text
+        className="text-center text-[11px] font-semibold text-ink-muted"
+        testID={`artefact-year-${question.id}`}
+      >
+        {formatYear(question.year)}
+      </Text>
+    </View>
+  );
+}
+
 /**
- * One artefact slot. Acquired shows the question's illustration and opens it
- * full-screen on tap; unacquired stays a mystery tile so the wing reads as a
- * collection to finish.
+ * One artefact slot. Acquired shows the question's illustration (opened
+ * full-screen on tap) with its title and date; acquired-but-unillustrated
+ * shows a plain exhibit tile; unacquired stays a mystery tile so the wing
+ * reads as a collection to finish.
  */
 function ArtefactTile({
   question,
@@ -51,7 +70,7 @@ function ArtefactTile({
 }) {
   const image = imageForQuestion(question.id);
 
-  if (!acquired || !image) {
+  if (!acquired) {
     return (
       <View testID={`artefact-locked-${question.id}`} style={{ width: size }}>
         <View
@@ -72,12 +91,30 @@ function ArtefactTile({
     );
   }
 
+  if (!image) {
+    // Acquired, but no illustration has been generated for this question yet:
+    // a plain exhibit tile so the artefact still reads as collected.
+    return (
+      <View testID={`artefact-${question.id}`} style={{ width: size }}>
+        <View
+          style={{ width: size, height: size }}
+          className="items-center justify-center border border-hair bg-bg-overlay"
+        >
+          <Text className="text-2xl" style={{ includeFontPadding: false }}>
+            🏺
+          </Text>
+        </View>
+        <Caption question={question} />
+      </View>
+    );
+  }
+
   return (
     <Pressable
       testID={`artefact-${question.id}`}
       onPress={() => onZoom({ source: image, title: question.title })}
       accessibilityRole="imagebutton"
-      accessibilityLabel={question.title}
+      accessibilityLabel={`${question.title}, ${formatYear(question.year)}`}
       style={{ width: size }}
     >
       <Image
@@ -87,14 +124,7 @@ function ArtefactTile({
         style={{ width: size, height: size }}
         className="bg-bg-overlay"
       />
-      <View style={{ height: CAPTION_HEIGHT }} className="justify-center">
-        <Text
-          numberOfLines={2}
-          className="text-center text-xs font-medium leading-4 text-ink-primary"
-        >
-          {question.title}
-        </Text>
-      </View>
+      <Caption question={question} />
     </Pressable>
   );
 }
@@ -155,8 +185,8 @@ function Wing({
 
 /**
  * The player's museum: every question is an artefact slot, earned by guessing
- * within its difficulty's threshold. Wings map
- * to categories; filling a wing earns its mastery badge.
+ * within its difficulty's acquisition threshold. Wings map to categories;
+ * filling a wing earns its mastery badge.
  */
 export function MuseumScreen() {
   const { state } = useProgression();
