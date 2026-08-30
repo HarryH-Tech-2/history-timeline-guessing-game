@@ -64,11 +64,47 @@ async function seedCollection(
   return items.length;
 }
 
+/**
+ * Remove documents no longer present in the local seed (e.g. questions culled
+ * because their dates are uncertain), so the deployed catalogue never keeps
+ * serving content the app has dropped.
+ */
+async function deleteStale(
+  name: string,
+  items: readonly { id: string }[],
+): Promise<number> {
+  const keep = new Set(items.map((item) => item.id));
+  const snapshot = await db.collection(name).get();
+  let batch = db.batch();
+  let pending = 0;
+  let removed = 0;
+
+  for (const doc of snapshot.docs) {
+    if (keep.has(doc.id)) continue;
+    batch.delete(doc.ref);
+    pending += 1;
+    removed += 1;
+    if (pending === MAX_BATCH) {
+      await batch.commit();
+      batch = db.batch();
+      pending = 0;
+    }
+  }
+
+  if (pending > 0) await batch.commit();
+  return removed;
+}
+
 async function main(): Promise<void> {
   console.log(`Seeding Firestore project "${projectId}"...`);
   const categoryCount = await seedCollection('categories', categories);
   const questionCount = await seedCollection('questions', questions);
+  const staleCategories = await deleteStale('categories', categories);
+  const staleQuestions = await deleteStale('questions', questions);
   console.log(`Done. Uploaded ${categoryCount} categories and ${questionCount} questions.`);
+  console.log(
+    `Removed ${staleCategories} stale categories and ${staleQuestions} stale questions.`,
+  );
 }
 
 main()

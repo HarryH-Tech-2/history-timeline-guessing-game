@@ -61,4 +61,15 @@ export const CATEGORIES = [
     premiumOnly: true,
     displayOrder: 4,
   },
+  {
+    id: 'philosophy',
+    name: 'Philosophy',
+    icon: 'owl',
+    colour: '#4FA3A5',
+    description: 'The thinkers and ideas that questioned everything.',
+    difficulty: 'hard',
+    active: true,
+    premiumOnly: true,
+    displayOrder: 5,
+  },
 ] satisfies readonly Category[];

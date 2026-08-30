@@ -9,7 +9,7 @@ import type { RoundResult } from './round';
  * unit-testable and the provider decides what "now" is.
  */
 
-export const MAX_HEARTS = 5;
+export const MAX_HEARTS = 10;
 
 /** One heart regenerates every 30 minutes. */
 export const HEART_REGEN_MS = 30 * 60 * 1000;

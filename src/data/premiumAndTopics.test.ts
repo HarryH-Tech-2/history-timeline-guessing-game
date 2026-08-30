@@ -20,9 +20,10 @@ afterEach(() => setPremiumUnlocked(false));
 describe('premium gating of question pools', () => {
   const premiumIds = getCategories().filter((c) => c.premiumOnly).map((c) => c.id);
 
-  it('flags only Arts & Culture as premium', () => {
-    expect(premiumIds).toEqual(['arts']);
+  it('flags Arts & Culture and Philosophy as premium', () => {
+    expect(premiumIds).toEqual(['arts', 'philosophy']);
     expect(isPremiumCategory('arts')).toBe(true);
+    expect(isPremiumCategory('philosophy')).toBe(true);
     expect(isPremiumCategory('technology')).toBe(false);
     expect(isPremiumCategory('events')).toBe(false);
   });
@@ -46,7 +47,7 @@ describe('premium gating of question pools', () => {
     const free = getDailyQuestions('2026-08-24').map((q) => q.id);
     setPremiumUnlocked(true);
     expect(getDailyQuestions('2026-08-24').map((q) => q.id)).toEqual(free);
-    expect(free.some((id) => id.startsWith('art-'))).toBe(false);
+    expect(free.some((id) => id.startsWith('art-') || id.startsWith('phi-'))).toBe(false);
   });
 });
 

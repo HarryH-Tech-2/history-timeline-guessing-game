@@ -13,7 +13,6 @@ import {
 import { ImageLightbox, Screen } from '@/components/ui';
 import { getCategories, getQuestionsByCategory, imageForQuestion } from '@/data';
 import {
-  acquireThreshold,
   MASTERY_BADGES,
   masteryTier,
   type Category,
@@ -156,7 +155,7 @@ function Wing({
 
 /**
  * The player's museum: every question is an artefact slot, earned by guessing
- * within its difficulty's threshold (see {@link acquireThreshold}). Wings map
+ * within its difficulty's threshold. Wings map
  * to categories; filling a wing earns its mastery badge.
  */
 export function MuseumScreen() {

@@ -37,7 +37,9 @@ export function PaywallScreen() {
   const [notice, setNotice] = useState<string | null>(null);
 
   const premiumCategories = getCategories().filter((c) => c.active && c.premiumOnly);
-  const categoryNames = premiumCategories.map((c) => c.name).join(' & ');
+  const names = premiumCategories.map((c) => c.name);
+  const categoryNames =
+    names.length > 1 ? `${names.slice(0, -1).join(', ')} & ${names.at(-1)}` : (names[0] ?? '');
 
   const onSubscribe = async () => {
     setBusy(true);
@@ -105,7 +107,7 @@ export function PaywallScreen() {
             <Benefit
               icon="🔓"
               title={`${categoryNames} unlocked`}
-              detail="Every premium category, in practice runs, Endless, Survival and the campaign."
+              detail="Every premium category, in practice runs, Endless and Survival."
             />
             <Benefit
               icon="🏛️"

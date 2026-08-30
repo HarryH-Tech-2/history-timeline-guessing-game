@@ -3,7 +3,6 @@ import { Text } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Button, Screen } from '@/components/ui';
-import { getCategoryById } from '@/data';
 import { OutOfHeartsSheet, useHearts } from '@/features/hearts';
 import { RoundView, useRoundRewards } from '@/features/round';
 import { palette } from '@/theme/tokens';
@@ -11,7 +10,7 @@ import { palette } from '@/theme/tokens';
 import { ModeHud } from '../components/ModeHud';
 import { HintButton } from '../hints/HintButton';
 import { roundDetail, RunSummary, type SummaryRow } from '../components/RunSummary';
-import { getStage, type CampaignStage } from './campaignMap';
+import { getStage, getWorld, type CampaignStage } from './campaignMap';
 import { useCampaignSession } from './useCampaignSession';
 
 function StagePlay({
@@ -98,7 +97,7 @@ export function CampaignStageScreen() {
     );
   }
 
-  const colour = getCategoryById(stage.worldId)?.colour ?? palette.accent.default;
+  const colour = getWorld(stage.worldId)?.colour ?? palette.accent.default;
 
   return (
     <StagePlay

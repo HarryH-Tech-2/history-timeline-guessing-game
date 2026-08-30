@@ -34,7 +34,7 @@ function Backdrop({ children }: { children: ReactNode }) {
       resizeMode="cover"
       className="flex-1"
     >
-      <View className="absolute inset-0 bg-bg-base/60" />
+      <View className="absolute inset-0 bg-bg-base/85" />
       {children}
     </ImageBackground>
   );
@@ -87,14 +87,14 @@ function PodiumColumn({
       <View className="items-center">
         <Text
           numberOfLines={1}
-          className={`max-w-[110px] text-center text-sm font-bold ${
+          className={`max-w-[120px] text-center text-base font-bold ${
             isMe ? 'text-accent' : 'text-ink-primary'
           }`}
         >
           {entry.displayName}
           {isMe ? ' (You)' : ''}
         </Text>
-        <Text className="text-xs font-semibold" style={{ color: metal.tint }}>
+        <Text className="text-sm font-semibold" style={{ color: metal.tint }}>
           {entry.xp.toLocaleString()} XP
         </Text>
       </View>
@@ -165,10 +165,10 @@ function Row({
             {entry.displayName}
             {isMe ? ' (You)' : ''}
           </Text>
-          <Text className="text-xs text-ink-muted">Level {entry.level}</Text>
+          <Text className="text-sm text-ink-muted">Level {entry.level}</Text>
         </View>
         <Text
-          className="text-sm font-bold text-accent"
+          className="text-base font-bold text-accent"
           style={{ fontVariant: ['tabular-nums'] }}
         >
           {entry.xp.toLocaleString()} XP

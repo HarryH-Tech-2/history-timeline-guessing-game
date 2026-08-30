@@ -1,3 +1,4 @@
+import { getQuestionById, isPremiumCategory } from '@/data';
 import type { Question, RoundResult } from '@/domain';
 
 import type { CampaignProgress } from '../persistence';
@@ -19,14 +20,25 @@ function roundScoring(total: number): RoundResult {
 }
 
 describe('campaign map', () => {
-  it('builds one world per active category with unique, non-empty stages', () => {
-    expect(CAMPAIGN.length).toBeGreaterThan(0);
+  it('builds chronological era worlds of free questions with unique stages', () => {
+    expect(CAMPAIGN.map((w) => w.id)).toEqual([
+      'ancient',
+      'medieval',
+      'early-modern',
+      'nineteenth',
+      'modern',
+    ]);
     const stageIds = allStages().map((s) => s.id);
     expect(new Set(stageIds).size).toBe(stageIds.length);
     for (const world of CAMPAIGN) {
       expect(world.stages.length).toBeGreaterThan(0);
       for (const stage of world.stages) {
         expect(stage.questionIds.length).toBeGreaterThan(0);
+        for (const id of stage.questionIds) {
+          const question = getQuestionById(id);
+          expect(question).toBeDefined();
+          expect(isPremiumCategory(question!.categoryId)).toBe(false);
+        }
       }
     }
   });

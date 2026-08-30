@@ -1,4 +1,4 @@
-import { useCallback, useEffect, type ReactNode } from 'react';
+import { useCallback, type ReactNode } from 'react';
 import { View } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { useReducedMotion } from 'react-native-reanimated';
@@ -59,14 +59,6 @@ export function RoundView({
   const category = getCategoryById(question.categoryId);
   const colour = category?.colour ?? palette.accent.default;
   const revealed = phase === 'revealed';
-
-  // Reset the framing whenever a fresh question arrives. Depends on the stable
-  // `fitTo` only: the controller object is rebuilt every render, and keying on
-  // it re-ran this after submit and undid the reveal's guess/answer framing.
-  const { fitTo } = controller;
-  useEffect(() => {
-    fitTo(DEFAULT_RANGE.min, DEFAULT_RANGE.max);
-  }, [question.id, fitTo]);
 
   const handleSubmit = useCallback(() => {
     const guessYear = controller.readGuessYear();

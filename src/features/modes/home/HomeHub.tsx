@@ -56,6 +56,7 @@ const CATEGORY_ICONS: Record<string, string> = {
   person: '👤',
   cpu: '⚙️',
   palette: '🎨',
+  owl: '🦉',
 };
 
 export function categoryIcon(icon: string): string {

@@ -1,5 +1,5 @@
-import { getCategories, getQuestionsByCategory } from '@/data';
-import { DIFFICULTY_ORDER, type RoundResult } from '@/domain';
+import { getFreeQuestions } from '@/data';
+import { DIFFICULTY_ORDER, type Question, type RoundResult } from '@/domain';
 
 import type { CampaignProgress } from '../persistence';
 
@@ -16,13 +16,40 @@ export interface CampaignStage {
 
 export interface CampaignWorld {
   id: string;
-  categoryId: string;
   name: string;
   colour: string;
   icon: string;
   /** 1-based position in the campaign. */
   index: number;
   stages: readonly CampaignStage[];
+}
+
+/** One campaign world per era of history, played oldest to newest. */
+interface EraSpec {
+  id: string;
+  name: string;
+  colour: string;
+  icon: string;
+  /** Inclusive last year of the era (signed; the previous era's max bounds the start). */
+  maxYear: number;
+}
+
+const ERAS: readonly EraSpec[] = [
+  { id: 'ancient', name: 'The Ancient World', colour: '#E7B84C', icon: 'flag', maxYear: 500 },
+  { id: 'medieval', name: 'The Middle Ages', colour: '#B07BD9', icon: 'swords', maxYear: 1499 },
+  { id: 'early-modern', name: 'The Early Modern Age', colour: '#57BE8F', icon: 'person', maxYear: 1799 },
+  { id: 'nineteenth', name: 'The 19th Century', colour: '#E8564E', icon: 'cpu', maxYear: 1899 },
+  {
+    id: 'modern',
+    name: 'The Modern Era',
+    colour: '#A9B6C2',
+    icon: 'cpu',
+    maxYear: Number.POSITIVE_INFINITY,
+  },
+];
+
+function eraOf(question: Question): EraSpec {
+  return ERAS.find((era) => question.year <= era.maxYear) ?? ERAS[ERAS.length - 1]!;
 }
 
 function difficultyRank(difficulty: string): number {
@@ -39,39 +66,42 @@ function chunk<T>(items: readonly T[], size: number): T[][] {
 }
 
 /**
- * The campaign is one world per category. Each category's questions are ordered
- * easy→hard (then by year) and split into fixed stages, so progression feels
- * like a gentle difficulty ramp. Built once from the seed data.
+ * The campaign is one world per time period, played in chronological order.
+ * Within an era the questions are ordered easy→hard (then by year) and split
+ * into fixed stages, so progression still feels like a gentle difficulty
+ * ramp. Premium-only categories are excluded: era worlds mix categories, so a
+ * single premium stage would break the star-gated unlock chain for free
+ * players — premium content lives in practice runs, Endless and Survival.
+ * Built once from the seed data.
  */
 function buildCampaign(): readonly CampaignWorld[] {
-  const categories = [...getCategories()]
-    .filter((c) => c.active)
-    .sort((a, b) => a.displayOrder - b.displayOrder);
+  const questions = getFreeQuestions();
 
-  return categories.map((category, worldIndex) => {
-    const ordered = [...getQuestionsByCategory(category.id)].sort((a, b) => {
-      const byDifficulty = difficultyRank(a.difficulty) - difficultyRank(b.difficulty);
-      return byDifficulty !== 0 ? byDifficulty : a.year - b.year;
-    });
+  return ERAS.map((era, worldIndex) => {
+    const ordered = questions
+      .filter((q) => eraOf(q).id === era.id)
+      .sort((a, b) => {
+        const byDifficulty = difficultyRank(a.difficulty) - difficultyRank(b.difficulty);
+        return byDifficulty !== 0 ? byDifficulty : a.year - b.year;
+      });
 
     const stages: CampaignStage[] = chunk(ordered, STAGE_SIZE).map((group, stageIndex) => ({
-      id: `${category.id}-s${stageIndex + 1}`,
-      worldId: category.id,
+      id: `${era.id}-s${stageIndex + 1}`,
+      worldId: era.id,
       index: stageIndex + 1,
-      title: `${category.name} · Stage ${stageIndex + 1}`,
+      title: `${era.name} · Stage ${stageIndex + 1}`,
       questionIds: group.map((q) => q.id),
     }));
 
     return {
-      id: category.id,
-      categoryId: category.id,
-      name: category.name,
-      colour: category.colour,
-      icon: category.icon,
+      id: era.id,
+      name: era.name,
+      colour: era.colour,
+      icon: era.icon,
       index: worldIndex + 1,
       stages,
     };
-  });
+  }).filter((world) => world.stages.length > 0);
 }
 
 export const CAMPAIGN: readonly CampaignWorld[] = buildCampaign();
@@ -100,7 +130,7 @@ export function starsForResults(results: readonly RoundResult[]): number {
 
 /**
  * A stage is playable if it's the very first stage, or the previous stage in
- * play order has earned at least one star. This naturally gates later worlds
+ * play order has earned at least one star. This naturally gates later eras
  * behind earlier ones.
  */
 export function isStageUnlocked(stageId: string, progress: CampaignProgress): boolean {

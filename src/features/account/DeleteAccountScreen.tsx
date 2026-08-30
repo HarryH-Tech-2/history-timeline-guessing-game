@@ -38,6 +38,7 @@ export function DeleteAccountScreen() {
 
   const needsPassword = user?.providerIds.includes('password') ?? false;
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -130,18 +131,32 @@ export function DeleteAccountScreen() {
         </View>
 
         {needsPassword && (
-          <TextInput
-            value={password}
-            onChangeText={setPassword}
-            placeholder="Confirm your password"
-            placeholderTextColor={colors.ink.muted}
-            autoCapitalize="none"
-            autoComplete="current-password"
-            secureTextEntry
-            editable={!busy}
-            className="h-14 border border-hair bg-bg-raised px-4 text-base text-ink-primary"
-            testID="delete-password-input"
-          />
+          <View className="relative">
+            <TextInput
+              value={password}
+              onChangeText={setPassword}
+              placeholder="Confirm your password"
+              placeholderTextColor={colors.ink.muted}
+              autoCapitalize="none"
+              autoComplete="current-password"
+              secureTextEntry={!showPassword}
+              editable={!busy}
+              className="h-14 border border-hair bg-bg-raised px-4 pr-16 text-base text-ink-primary"
+              testID="delete-password-input"
+            />
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
+              onPress={() => setShowPassword((v) => !v)}
+              hitSlop={8}
+              className="absolute bottom-0 right-0 top-0 justify-center px-4"
+              testID="delete-password-visibility"
+            >
+              <Text className="text-sm font-semibold text-accent">
+                {showPassword ? 'Hide' : 'Show'}
+              </Text>
+            </Pressable>
+          </View>
         )}
 
         {error && (

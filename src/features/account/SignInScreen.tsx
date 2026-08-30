@@ -31,6 +31,7 @@ export function SignInScreen() {
   const [mode, setMode] = useState<Mode>('sign-in');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -152,18 +153,32 @@ export function SignInScreen() {
           className={inputClass}
           testID="email-input"
         />
-        <TextInput
-          value={password}
-          onChangeText={setPassword}
-          placeholder={mode === 'create' ? 'Password (6+ characters)' : 'Password'}
-          placeholderTextColor={colors.ink.muted}
-          autoCapitalize="none"
-          autoComplete={mode === 'create' ? 'new-password' : 'current-password'}
-          secureTextEntry
-          editable={!busy}
-          className={inputClass}
-          testID="password-input"
-        />
+        <View className="relative">
+          <TextInput
+            value={password}
+            onChangeText={setPassword}
+            placeholder={mode === 'create' ? 'Password (6+ characters)' : 'Password'}
+            placeholderTextColor={colors.ink.muted}
+            autoCapitalize="none"
+            autoComplete={mode === 'create' ? 'new-password' : 'current-password'}
+            secureTextEntry={!showPassword}
+            editable={!busy}
+            className={`${inputClass} pr-16`}
+            testID="password-input"
+          />
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
+            onPress={() => setShowPassword((v) => !v)}
+            hitSlop={8}
+            className="absolute bottom-0 right-0 top-0 justify-center px-4"
+            testID="password-visibility"
+          >
+            <Text className="text-sm font-semibold text-accent">
+              {showPassword ? 'Hide' : 'Show'}
+            </Text>
+          </Pressable>
+        </View>
 
         {error && (
           <Text className="text-sm font-medium" style={{ color: palette.danger }}>
