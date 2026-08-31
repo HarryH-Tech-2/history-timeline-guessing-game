@@ -21,6 +21,12 @@ describe('billing adapter selection', () => {
     expect(await revenueCatBilling.checkActive()).toBeNull();
     expect(await unavailableBilling.purchaseMonthly()).toBe('unavailable');
   });
+
+  it('reports no localized price without a store, so the fallback label shows', async () => {
+    expect(await revenueCatBilling.localizedPrice()).toBeNull();
+    expect(await devBilling.localizedPrice()).toBeNull();
+    expect(await unavailableBilling.localizedPrice()).toBeNull();
+  });
 });
 
 describe('store identity', () => {

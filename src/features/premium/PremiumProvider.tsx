@@ -48,7 +48,22 @@ const PremiumContext = createContext<PremiumApi>(OFFLINE_API);
 export function PremiumProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<PremiumState>(INITIAL_PREMIUM);
   const [isLoading, setIsLoading] = useState(true);
+  const [priceLabel, setPriceLabel] = useState(PREMIUM_PRICE_LABEL);
   const { uid } = useAuth();
+
+  // Show the store's own localized price ("£2.49 / month", "₹99.00 / month")
+  // so Play Console stays the single source of pricing truth. The hardcoded
+  // label is only the placeholder while offerings load or without a store.
+  useEffect(() => {
+    if (!billing.available || billing === devBilling) return;
+    let cancelled = false;
+    void billing.localizedPrice().then((price) => {
+      if (!cancelled && price) setPriceLabel(`${price} / month`);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -145,12 +160,12 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
       isPremium: state.active,
       isLoading,
       billingAvailable: billing.available,
-      priceLabel: PREMIUM_PRICE_LABEL,
+      priceLabel,
       purchase,
       restore,
       revokeForTesting,
     }),
-    [state.active, isLoading, purchase, restore, revokeForTesting],
+    [state.active, isLoading, priceLabel, purchase, restore, revokeForTesting],
   );
 
   return <PremiumContext.Provider value={value}>{children}</PremiumContext.Provider>;

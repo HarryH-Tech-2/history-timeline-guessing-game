@@ -48,6 +48,12 @@ export interface BillingAdapter {
    * account across installs. `null` returns the store to an anonymous user.
    */
   identify(uid: string | null): Promise<void>;
+  /**
+   * The store's localized price string for the monthly plan (e.g. "£2.49",
+   * "₹99.00"), exactly as Google Play will charge this user. `null` when the
+   * store can't say (offline, no store in this build) — show the fallback.
+   */
+  localizedPrice(): Promise<string | null>;
 }
 
 /** No store configured: every attempt reports "unavailable". */
@@ -58,6 +64,7 @@ export const unavailableBilling: BillingAdapter = {
   checkActive: async () => null,
   onChange: () => () => undefined,
   identify: async () => undefined,
+  localizedPrice: async () => null,
 };
 
 /** Dev-only stand-in that "sells" the subscription instantly. */
@@ -68,6 +75,7 @@ export const devBilling: BillingAdapter = {
   checkActive: async () => null,
   onChange: () => () => undefined,
   identify: async () => undefined,
+  localizedPrice: async () => null,
 };
 
 /* ------------------------------------------------------------------------ */
@@ -176,6 +184,21 @@ export const revenueCatBilling: BillingAdapter = {
       else await P.logOut();
     } catch {
       // Identity is best-effort; the anonymous store user keeps working.
+    }
+  },
+
+  async localizedPrice() {
+    const P = purchases();
+    if (!P) return null;
+    try {
+      // Same package the purchase flow buys, so the label can never disagree
+      // with the sheet Google shows.
+      const offerings = await P.getOfferings();
+      const current = offerings.current;
+      const pkg = current?.monthly ?? current?.availablePackages[0];
+      return pkg?.product.priceString ?? null;
+    } catch {
+      return null;
     }
   },
 };

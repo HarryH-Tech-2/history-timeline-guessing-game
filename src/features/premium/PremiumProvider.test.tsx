@@ -17,6 +17,7 @@ jest.mock('./billing', () => ({
     checkActive: jest.fn(async () => false),
     onChange: jest.fn(() => () => undefined),
     identify: jest.fn(async () => undefined),
+    localizedPrice: jest.fn(async () => null),
   },
   devBilling: { available: true },
 }));
