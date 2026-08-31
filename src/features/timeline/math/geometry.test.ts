@@ -1,4 +1,6 @@
+import { MAX_YEAR, MIN_YEAR } from './constants';
 import {
+  BASE_WIDTH,
   MAX_SCALE,
   MIN_SCALE,
   transformToFit,
@@ -8,6 +10,12 @@ import {
 } from './geometry';
 
 describe('geometry', () => {
+  it('keeps one year ≈ 1px at scale 1, whatever the year range', () => {
+    // The tick fade ramps are calibrated against this density; if it drifts,
+    // dividers fade out at framings where they used to be visible.
+    expect(BASE_WIDTH / (MAX_YEAR - MIN_YEAR)).toBeCloseTo(1, 5);
+  });
+
   it('round-trips year <-> worldX', () => {
     for (const year of [-3000, -50, 1066, 1969, 2026]) {
       expect(yearForWorldX(worldXForYear(year))).toBeCloseTo(year, 4);

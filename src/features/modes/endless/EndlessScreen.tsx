@@ -1,19 +1,51 @@
+import { useState } from 'react';
+import { Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { Screen } from '@/components/ui';
-import { OutOfHeartsSheet, useHearts } from '@/features/hearts';
+import { Button, Screen } from '@/components/ui';
+import { usePremium } from '@/features/premium';
 import { RoundView, useRoundRewards } from '@/features/round';
+import { palette } from '@/theme/tokens';
 
 import { ModeHud } from '../components/ModeHud';
 import { HintButton } from '../hints/HintButton';
+import { roundDetail, RunSummary, type SummaryRow } from '../components/RunSummary';
+import { isOutOfEndlessLives } from './endlessRules';
 import { useEndlessSession } from './useEndlessSession';
 
-/** Endless mode: keep guessing for as long as you like; best score is kept. */
-export function EndlessScreen() {
-  const router = useRouter();
-  const { session } = useEndlessSession();
-  const { reward, unlockedTitles, acquired } = useRoundRewards(session);
-  const hearts = useHearts();
+function EndlessPlay({ onHome, onRetry }: { onHome: () => void; onRetry: () => void }) {
+  const { session, lives, startingLives, best } = useEndlessSession();
+  // Endless has its own lives, so a miss must not also cost a heart.
+  const { reward, unlockedTitles, acquired } = useRoundRewards(session, { usesHearts: false });
+
+  if (session.status === 'finished') {
+    const stats = [
+      { label: 'Rounds played', value: String(session.results.length) },
+      { label: 'Best score', value: best.toLocaleString() },
+    ];
+    const rounds: SummaryRow[] = session.results.map((r, i) => ({
+      key: `${i}`,
+      label: r.question.title,
+      score: r.score.total,
+      detail: roundDetail(r.errorYears, r.guessYear),
+    }));
+
+    return (
+      <RunSummary
+        title="Out of lives"
+        totalScore={session.totalScore}
+        accent={palette.danger}
+        stats={stats}
+        rounds={rounds}
+        primaryLabel="Play again"
+        onPrimary={onRetry}
+        secondaryLabel="Home"
+        onSecondary={onHome}
+      />
+    );
+  }
+
+  const nextLabel = isOutOfEndlessLives(session.results) ? 'See results' : 'Next';
 
   return (
     <Screen>
@@ -23,6 +55,7 @@ export function EndlessScreen() {
         result={session.result}
         onSubmit={session.submit}
         onNext={session.advance}
+        nextLabel={nextLabel}
         reward={reward}
         unlockedTitles={unlockedTitles}
         acquired={acquired}
@@ -31,14 +64,45 @@ export function EndlessScreen() {
           <ModeHud
             progressLabel={`Round ${session.roundNumber}`}
             score={session.totalScore}
-            hearts={hearts}
-            onBack={() => router.back()}
+            lives={lives}
+            startingLives={startingLives}
+            onBack={onHome}
           />
         }
       />
-      {hearts.empty && session.phase === 'guessing' && (
-        <OutOfHeartsSheet onLeave={() => router.back()} />
-      )}
     </Screen>
+  );
+}
+
+/** Endless mode: a Premium run of random questions on five lives. */
+export function EndlessScreen() {
+  const router = useRouter();
+  const { isPremium } = usePremium();
+  const [runId, setRunId] = useState(0);
+
+  if (!isPremium) {
+    return (
+      <Screen>
+        <View className="flex-1 items-center justify-center gap-4 px-8" testID="endless-locked">
+          <Text className="text-4xl">🔒</Text>
+          <Text className="text-center text-xl font-bold text-ink-primary">
+            Endless is a Premium mode
+          </Text>
+          <Text className="text-center text-base text-ink-secondary">
+            Subscribe to chase a high score on five lives — plus unlimited hearts everywhere else.
+          </Text>
+          <Button label="See Premium" onPress={() => router.push('/paywall')} />
+          <Button label="Back" variant="ghost" onPress={() => router.back()} />
+        </View>
+      </Screen>
+    );
+  }
+
+  return (
+    <EndlessPlay
+      key={runId}
+      onHome={() => router.back()}
+      onRetry={() => setRunId((n) => n + 1)}
+    />
   );
 }

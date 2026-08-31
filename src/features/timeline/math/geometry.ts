@@ -1,11 +1,14 @@
+import { MAX_YEAR, MIN_YEAR } from './constants';
 import { unwarp, warp } from './warp';
 
 /**
  * Pixel width of the entire warped axis (coord 0..1) at scale = 1. The pinch
- * scale multiplies this. A large base keeps arithmetic comfortably away from
- * sub-pixel rounding when zoomed in.
+ * scale multiplies this. Derived from the year span so one year is always
+ * ~1px at scale 1: the tick fade ramps (TimelineTick) and zoom thresholds are
+ * calibrated in scale units under that assumption, so a fixed base would
+ * silently detune them whenever MIN_YEAR changes.
  */
-export const BASE_WIDTH = 5000;
+export const BASE_WIDTH = MAX_YEAR - MIN_YEAR;
 
 /** Min/max pinch scale. Below MIN the whole of history is a smear; above MAX
  * single years are absurdly wide. */

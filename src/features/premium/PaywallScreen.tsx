@@ -4,8 +4,8 @@ import { useRouter } from 'expo-router';
 
 import { Button, Card, Screen } from '@/components/ui';
 import { getCategories } from '@/data';
-import { Mascot } from '@/features/modes/components/Mascot';
 
+import { FounderNote } from './FounderNote';
 import { usePremium } from './PremiumProvider';
 
 function Benefit({ icon, title, detail }: { icon: string; title: string; detail: string }) {
@@ -86,7 +86,13 @@ export function PaywallScreen() {
           </Pressable>
         </View>
 
-        <Mascot line={isPremium ? 'You have the keys to the whole archive.' : 'Unlock the whole archive, scholar.'} />
+        <FounderNote
+          line={
+            isPremium
+              ? 'Thank you so much for supporting an indie developer — enjoy the whole archive!'
+              : 'Hi, I’m Harry 👋 I’m an indie developer and I make this game on my own. I’d really appreciate it if you signed up and supported me.'
+          }
+        />
 
         <Card className="gap-5">
           <View className="gap-1">
@@ -103,6 +109,11 @@ export function PaywallScreen() {
               icon="❤️"
               title="Unlimited hearts"
               detail="Miss as often as you like — no cooldowns, no coin refills."
+            />
+            <Benefit
+              icon="♾️"
+              title="Endless mode"
+              detail="An unlimited run of the full catalogue on five lives."
             />
             <Benefit
               icon="🔓"

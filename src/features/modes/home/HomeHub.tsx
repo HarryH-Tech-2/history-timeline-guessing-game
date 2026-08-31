@@ -16,6 +16,8 @@ interface ModeCardData {
   description: string;
   icon: string;
   route: Href;
+  /** Behind the paywall: free players see a lock and land on the paywall. */
+  premiumOnly?: boolean;
 }
 
 const MODES: readonly ModeCardData[] = [
@@ -29,9 +31,10 @@ const MODES: readonly ModeCardData[] = [
   {
     key: 'endless',
     title: 'Endless',
-    description: 'Keep guessing. Chase a high score.',
+    description: 'Five lives. Chase a high score.',
     icon: '♾️',
     route: '/endless',
+    premiumOnly: true,
   },
   {
     key: 'survival',
@@ -57,6 +60,7 @@ const CATEGORY_ICONS: Record<string, string> = {
   cpu: '⚙️',
   palette: '🎨',
   owl: '🦉',
+  globe: '🌍',
 };
 
 export function categoryIcon(icon: string): string {
@@ -111,19 +115,37 @@ function TopicOfTheDayCard({
   );
 }
 
-function ModeCard({ mode, index, onPress }: { mode: ModeCardData; index: number; onPress: () => void }) {
+function ModeCard({
+  mode,
+  index,
+  locked,
+  onPress,
+}: {
+  mode: ModeCardData;
+  index: number;
+  /** Premium-only and the player isn't subscribed: shows a lock, opens the paywall. */
+  locked: boolean;
+  onPress: () => void;
+}) {
   return (
     <Animated.View entering={FadeInUp.delay(index * 60).springify().damping(18)}>
       <Pressable
         onPress={onPress}
         accessibilityRole="button"
-        accessibilityLabel={mode.title}
+        accessibilityLabel={locked ? `${mode.title}, Premium mode` : mode.title}
         testID={`mode-${mode.key}`}
         className="flex-row items-center gap-4 overflow-hidden border border-hair bg-bg-raised p-4"
       >
-        <IconPlaque glyph={mode.icon} />
+        <IconPlaque glyph={locked ? '🔒' : mode.icon} />
         <View className="flex-1">
-          <Text className="text-lg font-bold text-ink-primary">{mode.title}</Text>
+          <View className="flex-row items-center gap-2">
+            <Text className="text-lg font-bold text-ink-primary">{mode.title}</Text>
+            {locked && (
+              <Text className="text-[11px] font-bold uppercase tracking-wide text-accent">
+                Premium
+              </Text>
+            )}
+          </View>
           <Text className="text-sm text-ink-secondary">{mode.description}</Text>
         </View>
         <Text className="text-xl text-ink-muted">›</Text>
@@ -213,14 +235,18 @@ export function HomeHub() {
           }
         />
 
-        {MODES.map((mode, index) => (
-          <ModeCard
-            key={mode.key}
-            mode={mode}
-            index={index}
-            onPress={() => router.push(mode.route)}
-          />
-        ))}
+        {MODES.map((mode, index) => {
+          const locked = mode.premiumOnly === true && !isPremium;
+          return (
+            <ModeCard
+              key={mode.key}
+              mode={mode}
+              index={index}
+              locked={locked}
+              onPress={() => router.push(locked ? '/paywall' : mode.route)}
+            />
+          );
+        })}
 
         <Text className="mt-4 text-xs font-semibold uppercase tracking-wide text-ink-muted">
           Categories
@@ -228,6 +254,7 @@ export function HomeHub() {
         <View className="flex-row flex-wrap gap-3">
           {getCategories()
             .filter((c) => c.active)
+            .sort((a, b) => a.displayOrder - b.displayOrder)
             .map((category, index) => {
               const locked = category.premiumOnly && !isPremium;
               return (

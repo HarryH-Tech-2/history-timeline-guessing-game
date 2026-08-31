@@ -51,6 +51,18 @@ export const CATEGORIES = [
     displayOrder: 3,
   },
   {
+    id: 'continents',
+    name: 'Continents',
+    icon: 'globe',
+    colour: '#4C8FE7',
+    description: 'Landmark moments from every corner of the globe.',
+    difficulty: 'medium',
+    active: true,
+    premiumOnly: false,
+    displayOrder: 4,
+  },
+  // Premium categories sit at the end so the free list reads uninterrupted.
+  {
     id: 'arts',
     name: 'Arts & Culture',
     icon: 'palette',
@@ -59,7 +71,7 @@ export const CATEGORIES = [
     difficulty: 'medium',
     active: true,
     premiumOnly: true,
-    displayOrder: 4,
+    displayOrder: 5,
   },
   {
     id: 'philosophy',
@@ -70,6 +82,6 @@ export const CATEGORIES = [
     difficulty: 'hard',
     active: true,
     premiumOnly: true,
-    displayOrder: 5,
+    displayOrder: 6,
   },
 ] satisfies readonly Category[];

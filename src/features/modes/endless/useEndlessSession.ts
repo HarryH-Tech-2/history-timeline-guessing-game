@@ -5,13 +5,18 @@ import { useGameSession, type GameSession } from '@/features/round';
 import { useSaves } from '@/features/save';
 import { comboModifiers } from '@/features/timeline/math';
 
+import { ENDLESS_LIVES, endlessLivesRemaining, isOutOfEndlessLives } from './endlessRules';
+
 export interface EndlessSession {
   session: GameSession;
+  /** Lives left right now. */
+  lives: number;
+  startingLives: number;
   /** Highest total ever reached in Endless. */
   best: number;
 }
 
-/** Endless: an unbounded stream of random questions. The player exits via nav. */
+/** Endless: a stream of random questions until five loose guesses end the run. */
 export function useEndlessSession(): EndlessSession {
   const seen = useRef<Set<string>>(new Set());
 
@@ -28,7 +33,13 @@ export function useEndlessSession(): EndlessSession {
     return q;
   }, []);
 
-  const session = useGameSession({ first, next, modifiers: comboModifiers });
+  const session = useGameSession({
+    first,
+    next,
+    shouldEnd: isOutOfEndlessLives,
+    modifiers: comboModifiers,
+  });
+  const lives = endlessLivesRemaining(session.results);
 
   const { isReady, bestScores } = useSaves();
   const [best, setBest] = useState(0);
@@ -40,9 +51,12 @@ export function useEndlessSession(): EndlessSession {
   // Keep the persisted best in step as the run climbs.
   useEffect(() => {
     if (!isReady || session.totalScore <= best) return;
-    setBest(session.totalScore);
-    void bestScores.read().then((b) => bestScores.write({ ...b, endless: session.totalScore }));
+    const score = session.totalScore;
+    void bestScores.read().then((b) => {
+      setBest(score);
+      return bestScores.write({ ...b, endless: score });
+    });
   }, [isReady, bestScores, session.totalScore, best]);
 
-  return { session, best };
+  return { session, lives, startingLives: ENDLESS_LIVES, best };
 }

@@ -1,10 +1,11 @@
 import { getCategories, getQuestions, getQuestionsByCategory, getRandomQuestion } from './index';
 
 describe('seed data', () => {
-  it('loads and validates the six launch categories', () => {
+  it('loads and validates the seven launch categories', () => {
     expect(getCategories().map((c) => c.id).sort()).toEqual([
       'arts',
       'battles',
+      'continents',
       'events',
       'people',
       'philosophy',
