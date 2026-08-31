@@ -29,14 +29,6 @@ const MODES: readonly ModeCardData[] = [
     route: '/daily',
   },
   {
-    key: 'endless',
-    title: 'Endless',
-    description: 'Five lives. Chase a high score.',
-    icon: '♾️',
-    route: '/endless',
-    premiumOnly: true,
-  },
-  {
     key: 'survival',
     title: 'Survival',
     description: 'Three lives. How far can you get?',
@@ -50,6 +42,15 @@ const MODES: readonly ModeCardData[] = [
     icon: '🗺️',
     route: '/campaign',
   },
+  // Premium mode last, mirroring the premium categories at the end of their list.
+  {
+    key: 'endless',
+    title: 'Endless',
+    description: 'Ten lives. Chase a high score.',
+    icon: '♾️',
+    route: '/endless',
+    premiumOnly: true,
+  },
 ];
 
 /** Glyph for each category's `icon` key (the seed data names them abstractly). */
@@ -61,6 +62,7 @@ const CATEGORY_ICONS: Record<string, string> = {
   palette: '🎨',
   owl: '🦉',
   globe: '🌍',
+  compass: '🧭',
 };
 
 export function categoryIcon(icon: string): string {
@@ -235,6 +237,9 @@ export function HomeHub() {
           }
         />
 
+        <Text className="mt-4 text-xs font-semibold uppercase tracking-wide text-ink-muted">
+          Game modes
+        </Text>
         {MODES.map((mode, index) => {
           const locked = mode.premiumOnly === true && !isPremium;
           return (

@@ -74,7 +74,7 @@ function EndlessPlay({ onHome, onRetry }: { onHome: () => void; onRetry: () => v
   );
 }
 
-/** Endless mode: a Premium run of random questions on five lives. */
+/** Endless mode: a Premium run of random questions on ten lives. */
 export function EndlessScreen() {
   const router = useRouter();
   const { isPremium } = usePremium();
@@ -89,7 +89,7 @@ export function EndlessScreen() {
             Endless is a Premium mode
           </Text>
           <Text className="text-center text-base text-ink-secondary">
-            Subscribe to chase a high score on five lives — plus unlimited hearts everywhere else.
+            Subscribe to chase a high score on ten lives — plus unlimited hearts everywhere else.
           </Text>
           <Button label="See Premium" onPress={() => router.push('/paywall')} />
           <Button label="Back" variant="ghost" onPress={() => router.back()} />

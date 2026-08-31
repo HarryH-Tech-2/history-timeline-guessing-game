@@ -3,7 +3,7 @@
     "name": "Date Guesser",
     "slug": "history-date-guessing-timeline-slider-game-",
     "owner": "harryhh",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "scheme": "chronos",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

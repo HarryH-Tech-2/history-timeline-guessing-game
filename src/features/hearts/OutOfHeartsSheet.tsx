@@ -32,8 +32,8 @@ export function OutOfHeartsSheet({ onLeave }: OutOfHeartsSheetProps) {
             <Text className="text-2xl font-extrabold text-ink-primary">Out of hearts</Text>
             <Text className="text-base text-ink-secondary">
               {hearts.nextIn
-                ? `Your next heart arrives in ${hearts.nextIn}. Hearts refill one every 30 minutes.`
-                : 'Hearts refill one every 30 minutes.'}
+                ? `Your next heart arrives in ${hearts.nextIn}. Hearts refill one every 15 minutes.`
+                : 'Hearts refill one every 15 minutes.'}
             </Text>
           </View>
 

@@ -61,6 +61,17 @@ export const CATEGORIES = [
     premiumOnly: false,
     displayOrder: 4,
   },
+  {
+    id: 'exploration',
+    name: 'Exploration & Discovery',
+    icon: 'compass',
+    colour: '#3EB8C9',
+    description: 'Voyages and firsts that redrew the map.',
+    difficulty: 'medium',
+    active: true,
+    premiumOnly: false,
+    displayOrder: 5,
+  },
   // Premium categories sit at the end so the free list reads uninterrupted.
   {
     id: 'arts',
@@ -71,7 +82,7 @@ export const CATEGORIES = [
     difficulty: 'medium',
     active: true,
     premiumOnly: true,
-    displayOrder: 5,
+    displayOrder: 6,
   },
   {
     id: 'philosophy',
@@ -82,6 +93,6 @@ export const CATEGORIES = [
     difficulty: 'hard',
     active: true,
     premiumOnly: true,
-    displayOrder: 6,
+    displayOrder: 7,
   },
 ] satisfies readonly Category[];

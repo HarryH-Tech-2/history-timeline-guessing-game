@@ -35,8 +35,16 @@ export function FounderNote({ line }: { line: string }) {
         }}
         className="border border-hair"
       />
-      <View className="flex-1 border border-hair bg-bg-raised px-4 py-3">
-        <Text className="text-base font-semibold leading-snug text-ink-primary">{line}</Text>
+      <View className="relative flex-1">
+        <View className="rounded-2xl border border-hair bg-bg-raised px-4 py-3">
+          <Text className="text-base font-semibold leading-snug text-ink-primary">{line}</Text>
+        </View>
+        {/* Speech-bubble tail: a rotated square over the bubble's left border,
+            so only its two outward edges read as the tail's outline. */}
+        <View
+          className="absolute h-3 w-3 border-b border-l border-hair bg-bg-raised"
+          style={{ left: -6, top: '50%', marginTop: -6, transform: [{ rotate: '45deg' }] }}
+        />
       </View>
     </Animated.View>
   );

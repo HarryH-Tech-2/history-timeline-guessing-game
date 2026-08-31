@@ -11,8 +11,8 @@ import type { RoundResult } from './round';
 
 export const MAX_HEARTS = 10;
 
-/** One heart regenerates every 30 minutes. */
-export const HEART_REGEN_MS = 30 * 60 * 1000;
+/** One heart regenerates every 15 minutes. */
+export const HEART_REGEN_MS = 15 * 60 * 1000;
 
 /** A guess further off than this (in years) costs a heart — the same bar as a
  * Survival life, so "a miss" means one thing everywhere. */

@@ -90,7 +90,7 @@ export function PaywallScreen() {
           line={
             isPremium
               ? 'Thank you so much for supporting an indie developer — enjoy the whole archive!'
-              : 'Hi, I’m Harry 👋 I’m an indie developer and I make this game on my own. I’d really appreciate it if you signed up and supported me.'
+              : 'Hi, I’m Harry 👋 I’m an indie developer and I maintain this app on my own. I’d really appreciate it if you signed up and supported me.'
           }
         />
 
@@ -113,7 +113,7 @@ export function PaywallScreen() {
             <Benefit
               icon="♾️"
               title="Endless mode"
-              detail="An unlimited run of the full catalogue on five lives."
+              detail="An unlimited run of the full catalogue on ten lives."
             />
             <Benefit
               icon="🔓"

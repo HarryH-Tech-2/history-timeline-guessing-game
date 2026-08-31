@@ -3,7 +3,7 @@ import type { RoundResult } from '@/domain';
 import { costLife } from '../survival/survivalRules';
 
 /** Endless runs on its own lives (like Survival), just more forgiving. */
-export const ENDLESS_LIVES = 5;
+export const ENDLESS_LIVES = 10;
 
 /** Lives left after the rounds played so far (never below 0). */
 export function endlessLivesRemaining(results: readonly RoundResult[]): number {

@@ -26,16 +26,12 @@ import {
 } from './campaignMap';
 
 /**
- * The campaign map is drawn as one continuous timeline — the game's own
- * metaphor. A vertical rail runs down the screen through every era; stages sit
- * on it as medallions, era headers are museum plaques the rail passes behind,
- * and the rail takes each era's colour as its stages are cleared.
+ * The campaign map: full-width era plaques introduce each period, with the
+ * era's stages listed beneath as tappable medallions.
  */
 
-/** Medallion diameter; the rail runs through its centre. */
+/** Medallion diameter. */
 const NODE = 48;
-const RAIL_W = 2;
-const RAIL_X = NODE / 2 - RAIL_W / 2;
 /** Ink dark enough to read on every era colour fill. */
 const INK_ON_COLOUR = '#1D1712';
 
@@ -87,23 +83,10 @@ function EraBanner({
   earned: number;
   total: number;
 }) {
-  const colors = useThemeColors();
   return (
-    <View className="relative pb-3 pt-6" testID={`world-${world.id}`}>
-      {/* The rail continues behind the plaque so the timeline never breaks. */}
+    <View className="pb-3 pt-6" testID={`world-${world.id}`}>
       <View
-        pointerEvents="none"
-        style={{
-          position: 'absolute',
-          left: RAIL_X,
-          top: 0,
-          bottom: 0,
-          width: RAIL_W,
-          backgroundColor: colors.hair,
-        }}
-      />
-      <View
-        className="ml-16 border border-hair bg-bg-raised px-4 py-3"
+        className="border border-hair bg-bg-raised px-4 py-3"
         style={{ borderLeftWidth: 4, borderLeftColor: world.colour }}
       >
         <Text
@@ -129,8 +112,6 @@ function StageRow({
   unlocked,
   frontier,
   stars,
-  first,
-  last,
   index,
   onPress,
 }: {
@@ -140,9 +121,6 @@ function StageRow({
   /** The next stage to play: pulsing ring and a Play chip. */
   frontier: boolean;
   stars: number;
-  /** Very first / very last stage of the campaign: trims the rail's ends. */
-  first: boolean;
-  last: boolean;
   index: number;
   onPress: () => void;
 }) {
@@ -160,34 +138,7 @@ function StageRow({
         testID={`stage-${stage.id}`}
         className="relative flex-row items-center gap-4 py-3"
       >
-        {!first && (
-          <View
-            pointerEvents="none"
-            style={{
-              position: 'absolute',
-              left: RAIL_X,
-              top: 0,
-              height: '50%',
-              width: RAIL_W,
-              backgroundColor: unlocked ? colour : colors.hair,
-            }}
-          />
-        )}
-        {!last && (
-          <View
-            pointerEvents="none"
-            style={{
-              position: 'absolute',
-              left: RAIL_X,
-              top: '50%',
-              bottom: 0,
-              width: RAIL_W,
-              backgroundColor: done ? colour : colors.hair,
-            }}
-          />
-        )}
-
-        {/* Medallion on the rail */}
+        {/* Stage medallion */}
         <View
           className="items-center justify-center"
           style={{
@@ -271,8 +222,7 @@ export function CampaignMapScreen() {
     (s) => isStageUnlocked(s.id, progress) && (progress[s.id]?.stars ?? 0) === 0,
   )?.id;
   const totalStars = stages.reduce((n, s) => n + (progress[s.id]?.stars ?? 0), 0);
-  const lastStageId = stages[stages.length - 1]?.id;
-  /** Global play-order position of each stage, for rail ends and stagger. */
+  /** Global play-order position of each stage, for the entrance stagger. */
   const orderOf = new Map(stages.map((s, i) => [s.id, i]));
 
   return (
@@ -317,8 +267,6 @@ export function CampaignMapScreen() {
                     unlocked={isStageUnlocked(stage.id, progress)}
                     frontier={stage.id === frontierId}
                     stars={progress[stage.id]?.stars ?? 0}
-                    first={index === 0}
-                    last={stage.id === lastStageId}
                     index={index}
                     onPress={() =>
                       router.push({

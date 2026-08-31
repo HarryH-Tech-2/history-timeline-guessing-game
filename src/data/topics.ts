@@ -27,6 +27,7 @@ export const TOPICS: readonly Topic[] = [
   { id: 'science', name: 'Science & Discovery', icon: '🔬', blurb: 'The people who explained the universe.', tags: ['science', 'physics', 'astronomy', 'medicine'] },
   { id: 'disasters', name: 'Disasters', icon: '🌋', blurb: 'Fires, floods and eruptions.', tags: ['disaster'] },
   { id: 'naval', name: 'War at Sea', icon: '⚓', blurb: 'Fleets that decided the fate of nations.', tags: ['naval', 'maritime'] },
+  { id: 'explorers', name: 'Explorers', icon: '🧭', blurb: 'Voyages and firsts that redrew the map.', tags: ['exploration'] },
   { id: 'politics', name: 'Politics & Power', icon: '🗳️', blurb: 'Treaties, revolutions and reformers.', tags: ['politics', 'revolution'] },
   { id: 'literature', name: 'Literature', icon: '📚', blurb: 'Epics, novels and the writers behind them.', tags: ['literature'] },
   { id: 'music', name: 'Music', icon: '🎵', blurb: 'From the Ninth Symphony to Thriller.', tags: ['music'] },

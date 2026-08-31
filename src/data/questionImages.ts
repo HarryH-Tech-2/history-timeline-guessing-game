@@ -191,6 +191,21 @@ export const QUESTION_IMAGES: Record<string, ImageSourcePropType> = {
   'con-antarctica-sighted': require('../../assets/questions/con-antarctica-sighted.jpg'),
   'con-amundsen-pole': require('../../assets/questions/con-amundsen-pole.jpg'),
   'con-treaty-of-rome': require('../../assets/questions/con-treaty-of-rome.jpg'),
+  'exp-marco-polo': require('../../assets/questions/exp-marco-polo.jpg'),
+  'exp-ibn-battuta': require('../../assets/questions/exp-ibn-battuta.jpg'),
+  'exp-zheng-he': require('../../assets/questions/exp-zheng-he.jpg'),
+  'exp-vasco-da-gama': require('../../assets/questions/exp-vasco-da-gama.jpg'),
+  'exp-magellan': require('../../assets/questions/exp-magellan.jpg'),
+  'exp-drake': require('../../assets/questions/exp-drake.jpg'),
+  'exp-cook-botany-bay': require('../../assets/questions/exp-cook-botany-bay.jpg'),
+  'exp-lewis-clark': require('../../assets/questions/exp-lewis-clark.jpg'),
+  'exp-livingstone-stanley': require('../../assets/questions/exp-livingstone-stanley.jpg'),
+  'exp-shackleton': require('../../assets/questions/exp-shackleton.jpg'),
+  'exp-lindbergh': require('../../assets/questions/exp-lindbergh.jpg'),
+  'exp-earhart': require('../../assets/questions/exp-earhart.jpg'),
+  'exp-everest': require('../../assets/questions/exp-everest.jpg'),
+  'exp-trieste': require('../../assets/questions/exp-trieste.jpg'),
+  'exp-gagarin': require('../../assets/questions/exp-gagarin.jpg'),
 };
 
 export function imageForQuestion(id: string): ImageSourcePropType | undefined {
