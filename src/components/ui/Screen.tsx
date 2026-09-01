@@ -17,7 +17,9 @@ export function Screen({
   edges = ['top', 'bottom'],
 }: ScreenProps) {
   return (
-    <SafeAreaView edges={edges} className="flex-1 bg-bg-base">
+    // Left/right always honoured: in landscape the display cutout sits on a
+    // side edge, and without these the HUD/back controls hide under it.
+    <SafeAreaView edges={[...edges, 'left', 'right']} className="flex-1 bg-bg-base">
       <View className={cn('flex-1', className)}>{children}</View>
     </SafeAreaView>
   );

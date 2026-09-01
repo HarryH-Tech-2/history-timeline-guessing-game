@@ -12,8 +12,8 @@ import { setPremiumUnlocked } from '@/data';
 import { requestReviewAfterFirstPurchase } from '@/features/review';
 import { useAuth } from '@/services/firebase/auth';
 
-import { billing, devBilling, type PurchaseResult } from './billing';
-import { INITIAL_PREMIUM, PREMIUM_PRICE_LABEL, premiumStore, type PremiumState } from './entitlement';
+import { billing, devBilling, type PremiumPlan, type PurchaseResult } from './billing';
+import { INITIAL_PREMIUM, PREMIUM_PLAN_LABELS, premiumStore, type PremiumState } from './entitlement';
 
 export interface PremiumApi {
   isPremium: boolean;
@@ -21,8 +21,9 @@ export interface PremiumApi {
   isLoading: boolean;
   /** Whether this build can actually take payment. */
   billingAvailable: boolean;
-  priceLabel: string;
-  purchase: () => Promise<PurchaseResult>;
+  /** Display price per plan; the store's localized price once it loads. */
+  priceLabels: Record<PremiumPlan, string>;
+  purchase: (plan: PremiumPlan) => Promise<PurchaseResult>;
   restore: () => Promise<boolean>;
   /** Dev builds only: drop the entitlement to test the free experience. */
   revokeForTesting: () => void;
@@ -32,10 +33,17 @@ const OFFLINE_API: PremiumApi = {
   isPremium: false,
   isLoading: false,
   billingAvailable: false,
-  priceLabel: PREMIUM_PRICE_LABEL,
+  priceLabels: PREMIUM_PLAN_LABELS,
   purchase: async () => 'unavailable',
   restore: async () => false,
   revokeForTesting: () => undefined,
+};
+
+/** How a plan's bare store price ("£2.49") reads as a cadence label. */
+const PLAN_SUFFIX: Record<PremiumPlan, string> = {
+  monthly: ' / month',
+  yearly: ' / year',
+  lifetime: ' once',
 };
 
 const PremiumContext = createContext<PremiumApi>(OFFLINE_API);
@@ -48,17 +56,25 @@ const PremiumContext = createContext<PremiumApi>(OFFLINE_API);
 export function PremiumProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<PremiumState>(INITIAL_PREMIUM);
   const [isLoading, setIsLoading] = useState(true);
-  const [priceLabel, setPriceLabel] = useState(PREMIUM_PRICE_LABEL);
+  const [priceLabels, setPriceLabels] = useState(PREMIUM_PLAN_LABELS);
   const { uid } = useAuth();
 
-  // Show the store's own localized price ("£2.49 / month", "₹99.00 / month")
+  // Show the store's own localized prices ("£2.49 / month", "₹499.00 once")
   // so Play Console stays the single source of pricing truth. The hardcoded
-  // label is only the placeholder while offerings load or without a store.
+  // labels are only placeholders while offerings load or without a store.
   useEffect(() => {
     if (!billing.available || billing === devBilling) return;
     let cancelled = false;
-    void billing.localizedPrice().then((price) => {
-      if (!cancelled && price) setPriceLabel(`${price} / month`);
+    void billing.localizedPrices().then((prices) => {
+      if (cancelled) return;
+      setPriceLabels((fallback) => {
+        const next = { ...fallback };
+        for (const plan of Object.keys(PLAN_SUFFIX) as PremiumPlan[]) {
+          const price = prices[plan];
+          if (price) next[plan] = `${price}${PLAN_SUFFIX[plan]}`;
+        }
+        return next;
+      });
     });
     return () => {
       cancelled = true;
@@ -135,8 +151,8 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
     void premiumStore.write(next);
   }, []);
 
-  const purchase = useCallback(async (): Promise<PurchaseResult> => {
-    const result = await billing.purchaseMonthly();
+  const purchase = useCallback(async (plan: PremiumPlan): Promise<PurchaseResult> => {
+    const result = await billing.purchase(plan);
     if (result === 'purchased') {
       commit({ active: true, source: billing === devBilling ? 'dev' : 'store' });
       // Google's in-app review sheet, once, on the first successful purchase.
@@ -160,12 +176,12 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
       isPremium: state.active,
       isLoading,
       billingAvailable: billing.available,
-      priceLabel,
+      priceLabels,
       purchase,
       restore,
       revokeForTesting,
     }),
-    [state.active, isLoading, priceLabel, purchase, restore, revokeForTesting],
+    [state.active, isLoading, priceLabels, purchase, restore, revokeForTesting],
   );
 
   return <PremiumContext.Provider value={value}>{children}</PremiumContext.Provider>;

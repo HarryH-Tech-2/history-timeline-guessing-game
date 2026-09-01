@@ -57,6 +57,7 @@ function TopicPlay({ onHome, onRetry }: { onHome: () => void; onRetry: () => voi
         hud={
           <ModeHud
             progressLabel={`${topic.name} · ${session.roundNumber} of ${totalQuestions}`}
+            progress={{ current: session.roundNumber, total: totalQuestions }}
             score={session.totalScore}
             hearts={hearts}
             onBack={onHome}

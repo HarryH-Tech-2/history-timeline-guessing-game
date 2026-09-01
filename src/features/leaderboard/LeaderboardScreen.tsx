@@ -50,8 +50,25 @@ const METALS: Record<Place, { tint: string; label: string }> = {
 
 const PODIUM_HEIGHTS: Record<Place, number> = { 1: 112, 2: 84, 3: 64 };
 
+/** Ink dark enough to read on the accent-filled "You" chip. */
+const INK_ON_ACCENT = '#1D1712';
+
 function initialOf(name: string): string {
   return (name.trim()[0] ?? '?').toUpperCase();
+}
+
+/** Solid accent tag marking the player's own entry, so it can't be missed. */
+function YouChip() {
+  return (
+    <View className="bg-accent px-1.5 py-0.5" testID="leaderboard-you-chip">
+      <Text
+        className="text-[10px] font-extrabold uppercase tracking-wide"
+        style={{ color: INK_ON_ACCENT, includeFontPadding: false }}
+      >
+        You
+      </Text>
+    </View>
+  );
 }
 
 function PodiumColumn({
@@ -84,7 +101,8 @@ function PodiumColumn({
         </Text>
       </View>
 
-      <View className="items-center">
+      <View className="items-center gap-0.5">
+        {isMe && <YouChip />}
         <Text
           numberOfLines={1}
           className={`max-w-[120px] text-center text-base font-bold ${
@@ -92,7 +110,6 @@ function PodiumColumn({
           }`}
         >
           {entry.displayName}
-          {isMe ? ' (You)' : ''}
         </Text>
         <Text className="text-sm font-semibold" style={{ color: metal.tint }}>
           {entry.xp.toLocaleString()} XP
@@ -145,26 +162,35 @@ function Row({
         testID={`leaderboard-row-${rank}`}
         className={
           isMe
-            ? 'flex-row items-center gap-3 border border-accent bg-accent/10 px-4 py-3'
+            ? 'flex-row items-center gap-3 border-2 border-accent bg-accent/20 px-4 py-3'
             : 'flex-row items-center gap-3 border border-hair bg-bg-raised px-4 py-3'
         }
       >
         <Text
-          className="w-7 text-center text-sm font-bold text-ink-muted"
+          className={`w-7 text-center text-sm font-bold ${isMe ? 'text-accent' : 'text-ink-muted'}`}
           style={{ fontVariant: ['tabular-nums'] }}
         >
           {rank}
         </Text>
-        <View className="h-9 w-9 items-center justify-center rounded-full bg-bg-overlay">
-          <Text className="text-sm font-bold text-ink-secondary">
+        <View
+          className={`h-9 w-9 items-center justify-center rounded-full ${
+            isMe ? 'border-2 border-accent bg-accent/20' : 'bg-bg-overlay'
+          }`}
+        >
+          <Text className={`text-sm font-bold ${isMe ? 'text-accent' : 'text-ink-secondary'}`}>
             {initialOf(entry.displayName)}
           </Text>
         </View>
         <View className="flex-1">
-          <Text className="text-base font-bold text-ink-primary" numberOfLines={1}>
-            {entry.displayName}
-            {isMe ? ' (You)' : ''}
-          </Text>
+          <View className="flex-row items-center gap-2">
+            <Text
+              className={`shrink text-base font-bold ${isMe ? 'text-accent' : 'text-ink-primary'}`}
+              numberOfLines={1}
+            >
+              {entry.displayName}
+            </Text>
+            {isMe && <YouChip />}
+          </View>
           <Text className="text-sm text-ink-muted">Level {entry.level}</Text>
         </View>
         <Text

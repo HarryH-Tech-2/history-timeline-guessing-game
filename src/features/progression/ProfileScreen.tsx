@@ -175,7 +175,7 @@ function AchievementRow({
 export function ProfileScreen() {
   const router = useRouter();
   const { state, buyFreeze } = useProgression();
-  const { isPremium, priceLabel } = usePremium();
+  const { isPremium, priceLabels } = usePremium();
   const { uid, isSignedIn, user, hasAccount, signOutToGuest } = useAuth();
   const { mode, toggle } = useTheme();
   const [signingOut, setSigningOut] = useState(false);
@@ -255,7 +255,7 @@ export function ProfileScreen() {
             <Text className="text-xs text-ink-muted">
               {isPremium
                 ? 'Unlimited hearts · all categories unlocked'
-                : `Unlimited hearts & every category · ${priceLabel}`}
+                : `Unlimited hearts & every category · from ${priceLabels.monthly}`}
             </Text>
           </View>
           <Button

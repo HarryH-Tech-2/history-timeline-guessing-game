@@ -69,6 +69,7 @@ function StagePlay({
         hud={
           <ModeHud
             progressLabel={`Question ${session.roundNumber} of ${totalQuestions}`}
+            progress={{ current: session.roundNumber, total: totalQuestions }}
             score={session.totalScore}
             hearts={hearts}
             onBack={onHome}

@@ -16,16 +16,19 @@ describe('billing adapter selection', () => {
 
   it('never grants access without a store when unconfigured', async () => {
     // No key in the test environment, so the RevenueCat adapter must fail closed.
-    expect(await revenueCatBilling.purchaseMonthly()).toBe('unavailable');
+    expect(await revenueCatBilling.purchase('monthly')).toBe('unavailable');
+    expect(await revenueCatBilling.purchase('yearly')).toBe('unavailable');
+    expect(await revenueCatBilling.purchase('lifetime')).toBe('unavailable');
     expect(await revenueCatBilling.restore()).toBe(false);
     expect(await revenueCatBilling.checkActive()).toBeNull();
-    expect(await unavailableBilling.purchaseMonthly()).toBe('unavailable');
+    expect(await unavailableBilling.purchase('monthly')).toBe('unavailable');
+    expect(await unavailableBilling.purchase('lifetime')).toBe('unavailable');
   });
 
-  it('reports no localized price without a store, so the fallback label shows', async () => {
-    expect(await revenueCatBilling.localizedPrice()).toBeNull();
-    expect(await devBilling.localizedPrice()).toBeNull();
-    expect(await unavailableBilling.localizedPrice()).toBeNull();
+  it('reports no localized prices without a store, so the fallback labels show', async () => {
+    expect(await revenueCatBilling.localizedPrices()).toEqual({});
+    expect(await devBilling.localizedPrices()).toEqual({});
+    expect(await unavailableBilling.localizedPrices()).toEqual({});
   });
 });
 

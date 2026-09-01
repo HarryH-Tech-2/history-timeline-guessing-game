@@ -6,7 +6,7 @@ import type { Question } from '@/domain';
 import { useProgression } from '@/features/progression';
 import { palette } from '@/theme/tokens';
 
-import { centuryHint, HINT_COST } from './hint';
+import { centuryHint, HINT_COST, hintTemplate } from './hint';
 
 /**
  * A coin-gated hint that reveals the century a question falls in. Spends coins
@@ -22,11 +22,15 @@ export function HintButton({ question }: { question: Question }) {
   }, [question.id]);
 
   if (revealed) {
+    // The template is one sentence with a {band} slot; split it so the band
+    // (the actual information) renders bold inside the flavour copy.
+    const [before = '', after = ''] = hintTemplate(question.id).split('{band}');
     return (
       <View className="border border-hair bg-bg-raised px-4 py-3">
         <Text className="text-center text-sm text-ink-secondary">
-          Hint: this happened in{' '}
+          {before}
           <Text className="font-bold text-ink-primary">{centuryHint(question.year)}</Text>
+          {after}
         </Text>
       </View>
     );

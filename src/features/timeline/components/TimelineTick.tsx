@@ -21,13 +21,19 @@ const TICK_WIDTH = 96;
  * Chosen so that neighbouring visible labels are always ≥ ~80px apart and
  * gridlines never bunch into a smear: when the timeline is framed wide (e.g.
  * the reveal fitting 551 BCE and 1863 on one screen) only millennium and
- * 500-year marks survive; centuries appear as you zoom in, then decades.
+ * 500-year labels survive, though century gridlines linger faintly; century
+ * labels appear as you zoom in, then decade lines.
  */
 type Ramp = readonly [number, number];
 const ALWAYS: Ramp = [0, 0];
 
-/** Line fade-in per tier: millennium / half-millennium / century / decade. */
-const LINE_RAMPS: readonly Ramp[] = [ALWAYS, [0.08, 0.14], [0.3, 0.5], [0.7, 1.1]];
+/** Line fade-in per tier: millennium / half-millennium / century / decade.
+ * Century lines start far earlier than their labels: a reveal that zooms out
+ * to frame a big miss lands around scale 0.15–0.45, and with the old ramp
+ * ([0.3, 0.5]) that stretch of the track showed almost no dividers at all —
+ * the gridlines seemed to vanish exactly when the player needed context. Thin
+ * 1px lines stay legible well below the point labels would collide. */
+const LINE_RAMPS: readonly Ramp[] = [ALWAYS, [0.08, 0.14], [0.12, 0.28], [0.7, 1.1]];
 
 /** Label fade-in per labelled tier (decades have no label). */
 const LABEL_RAMPS: readonly Ramp[] = [[0.04, 0.07], [0.16, 0.24], [0.8, 1.1]];

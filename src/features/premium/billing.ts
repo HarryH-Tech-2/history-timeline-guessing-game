@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 import type PurchasesType from 'react-native-purchases';
-import type { CustomerInfo } from 'react-native-purchases';
+import type { CustomerInfo, PurchasesOffering, PurchasesPackage } from 'react-native-purchases';
 
 /**
  * Billing adapter boundary. The app only ever talks to `billing`; the store
@@ -11,10 +11,16 @@ import type { CustomerInfo } from 'react-native-purchases';
  * the build (`EXPO_PUBLIC_REVENUECAT_ANDROID_KEY`, set in the EAS environment).
  * The RevenueCat dashboard must define:
  *   - entitlement  `premium`
- *   - product      `premium_monthly` (Play subscription, base plan `monthly`)
- *   - offering     `default` with a Monthly package pointing at that product
- * RevenueCat validates receipts server-side, so the app never trusts a client
- * purchase on its own — `entitlements.active.premium` is the source of truth.
+ *   - products     `premium_monthly` (Play subscription, base plan `monthly`),
+ *                  `premium_yearly` (Play subscription, base plan `yearly`),
+ *                  `premium_lifetime` (Play one-time in-app product)
+ *   - offering     `default` with Monthly, Annual and Lifetime packages
+ *                  pointing at those products
+ * A plan whose package is missing from the offering simply reports
+ * 'unavailable', so the app keeps working while the store catalogue catches
+ * up. RevenueCat validates receipts server-side, so the app never trusts a
+ * client purchase on its own — `entitlements.active.premium` is the source of
+ * truth (the lifetime product grants the same entitlement, forever).
  *
  * Without a key: dev builds simulate an instant purchase so the gated
  * experience can be tested end to end; production builds report purchases as
@@ -23,17 +29,22 @@ import type { CustomerInfo } from 'react-native-purchases';
 
 export type PurchaseResult = 'purchased' | 'cancelled' | 'unavailable' | 'error';
 
+/** The ways Premium can be bought. `lifetime` is a one-off, the rest renew. */
+export type PremiumPlan = 'monthly' | 'yearly' | 'lifetime';
+
+export const PREMIUM_PLANS: readonly PremiumPlan[] = ['monthly', 'yearly', 'lifetime'];
+
 export const ENTITLEMENT_ID = 'premium';
 
 export interface BillingAdapter {
   /** False when no store is wired up in this build. */
   readonly available: boolean;
-  /** Start the monthly subscription purchase flow. */
-  purchaseMonthly(): Promise<PurchaseResult>;
-  /** Re-check the store for an existing subscription; true if one is active. */
+  /** Start the purchase flow for one of the premium plans. */
+  purchase(plan: PremiumPlan): Promise<PurchaseResult>;
+  /** Re-check the store for an existing entitlement; true if one is active. */
   restore(): Promise<boolean>;
   /**
-   * Whether the subscription is active right now according to the store;
+   * Whether the entitlement is active right now according to the store;
    * `null` when the store can't be reached (keep the cached answer).
    */
   checkActive(): Promise<boolean | null>;
@@ -49,33 +60,34 @@ export interface BillingAdapter {
    */
   identify(uid: string | null): Promise<void>;
   /**
-   * The store's localized price string for the monthly plan (e.g. "£2.49",
-   * "₹99.00"), exactly as Google Play will charge this user. `null` when the
-   * store can't say (offline, no store in this build) — show the fallback.
+   * The store's localized price strings per plan (e.g. "£2.49", "₹99.00"),
+   * exactly as Google Play will charge this user. A plan is absent when the
+   * store can't say (offline, no store in this build, package not configured
+   * yet) — show the fallback label for it.
    */
-  localizedPrice(): Promise<string | null>;
+  localizedPrices(): Promise<Partial<Record<PremiumPlan, string>>>;
 }
 
 /** No store configured: every attempt reports "unavailable". */
 export const unavailableBilling: BillingAdapter = {
   available: false,
-  purchaseMonthly: async () => 'unavailable',
+  purchase: async () => 'unavailable',
   restore: async () => false,
   checkActive: async () => null,
   onChange: () => () => undefined,
   identify: async () => undefined,
-  localizedPrice: async () => null,
+  localizedPrices: async () => ({}),
 };
 
-/** Dev-only stand-in that "sells" the subscription instantly. */
+/** Dev-only stand-in that "sells" any plan instantly. */
 export const devBilling: BillingAdapter = {
   available: true,
-  purchaseMonthly: async () => 'purchased',
+  purchase: async () => 'purchased',
   restore: async () => false,
   checkActive: async () => null,
   onChange: () => () => undefined,
   identify: async () => undefined,
-  localizedPrice: async () => null,
+  localizedPrices: async () => ({}),
 };
 
 /* ------------------------------------------------------------------------ */
@@ -127,16 +139,28 @@ function isActive(info: CustomerInfo): boolean {
   return info.entitlements.active[ENTITLEMENT_ID] !== undefined;
 }
 
+/** The offering package that sells `plan`, or null when not configured. */
+function packageFor(offering: PurchasesOffering | null, plan: PremiumPlan): PurchasesPackage | null {
+  if (!offering) return null;
+  switch (plan) {
+    case 'monthly':
+      return offering.monthly ?? null;
+    case 'yearly':
+      return offering.annual ?? null;
+    case 'lifetime':
+      return offering.lifetime ?? null;
+  }
+}
+
 export const revenueCatBilling: BillingAdapter = {
   available: true,
 
-  async purchaseMonthly() {
+  async purchase(plan) {
     const P = purchases();
     if (!P) return 'unavailable';
     try {
       const offerings = await P.getOfferings();
-      const current = offerings.current;
-      const pkg = current?.monthly ?? current?.availablePackages[0];
+      const pkg = packageFor(offerings.current, plan);
       if (!pkg) return 'unavailable';
       const { customerInfo } = await P.purchasePackage(pkg);
       return isActive(customerInfo) ? 'purchased' : 'error';
@@ -187,18 +211,21 @@ export const revenueCatBilling: BillingAdapter = {
     }
   },
 
-  async localizedPrice() {
+  async localizedPrices() {
     const P = purchases();
-    if (!P) return null;
+    if (!P) return {};
     try {
-      // Same package the purchase flow buys, so the label can never disagree
-      // with the sheet Google shows.
+      // The same packages the purchase flow buys, so the labels can never
+      // disagree with the sheet Google shows.
       const offerings = await P.getOfferings();
-      const current = offerings.current;
-      const pkg = current?.monthly ?? current?.availablePackages[0];
-      return pkg?.product.priceString ?? null;
+      const prices: Partial<Record<PremiumPlan, string>> = {};
+      for (const plan of PREMIUM_PLANS) {
+        const price = packageFor(offerings.current, plan)?.product.priceString;
+        if (price) prices[plan] = price;
+      }
+      return prices;
     } catch {
-      return null;
+      return {};
     }
   },
 };

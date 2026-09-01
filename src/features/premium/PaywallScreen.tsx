@@ -5,8 +5,88 @@ import { useRouter } from 'expo-router';
 import { Button, Card, Screen } from '@/components/ui';
 import { getCategories } from '@/data';
 
+import type { PremiumPlan } from './billing';
 import { FounderNote } from './FounderNote';
 import { usePremium } from './PremiumProvider';
+
+/** Paywall copy per plan; prices come from the store via `priceLabels`. */
+const PLAN_COPY: Record<
+  PremiumPlan,
+  { title: string; badge?: string; cta: string; footer: string }
+> = {
+  monthly: {
+    title: 'Monthly',
+    cta: 'Subscribe',
+    footer: 'Billed monthly through Google Play. Cancel anytime in your Play subscriptions.',
+  },
+  yearly: {
+    title: 'Yearly',
+    badge: 'Best value',
+    cta: 'Subscribe',
+    footer: 'Billed yearly through Google Play. Cancel anytime in your Play subscriptions.',
+  },
+  lifetime: {
+    title: 'Lifetime',
+    badge: 'Pay once',
+    cta: 'Buy once',
+    footer: 'A one-time purchase through Google Play. Yours forever — nothing renews.',
+  },
+};
+
+const PLAN_ORDER: readonly PremiumPlan[] = ['monthly', 'yearly', 'lifetime'];
+
+/** One selectable plan row: name and badge on the left, price on the right. */
+function PlanOption({
+  plan,
+  price,
+  selected,
+  onSelect,
+}: {
+  plan: PremiumPlan;
+  price: string;
+  selected: boolean;
+  onSelect: () => void;
+}) {
+  const copy = PLAN_COPY[plan];
+  return (
+    <Pressable
+      onPress={onSelect}
+      accessibilityRole="radio"
+      accessibilityState={{ selected }}
+      accessibilityLabel={`${copy.title}, ${price}`}
+      testID={`paywall-plan-${plan}`}
+      className={
+        selected
+          ? 'flex-row items-center gap-3 border-2 border-accent bg-accent/10 px-4 py-3'
+          : 'flex-row items-center gap-3 border border-hair bg-bg-overlay px-4 py-3'
+      }
+    >
+      <View
+        className={`h-4 w-4 items-center justify-center rounded-full border-2 ${
+          selected ? 'border-accent' : 'border-hair'
+        }`}
+      >
+        {selected && <View className="h-2 w-2 rounded-full bg-accent" />}
+      </View>
+      <View className="flex-1 flex-row items-center gap-2">
+        <Text className="text-base font-bold text-ink-primary">{copy.title}</Text>
+        {copy.badge !== undefined && (
+          <View className={selected ? 'bg-accent px-1.5 py-0.5' : 'bg-bg-raised px-1.5 py-0.5'}>
+            <Text
+              className={`text-[10px] font-extrabold uppercase tracking-wide ${
+                selected ? '' : 'text-ink-muted'
+              }`}
+              style={{ includeFontPadding: false, ...(selected ? { color: '#1D1712' } : {}) }}
+            >
+              {copy.badge}
+            </Text>
+          </View>
+        )}
+      </View>
+      <Text className="text-sm font-bold text-ink-primary">{price}</Text>
+    </Pressable>
+  );
+}
 
 function Benefit({ icon, title, detail }: { icon: string; title: string; detail: string }) {
   return (
@@ -31,10 +111,11 @@ function Benefit({ icon, title, detail }: { icon: string; title: string; detail:
  */
 export function PaywallScreen() {
   const router = useRouter();
-  const { isPremium, billingAvailable, priceLabel, purchase, restore, revokeForTesting } =
+  const { isPremium, billingAvailable, priceLabels, purchase, restore, revokeForTesting } =
     usePremium();
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const [plan, setPlan] = useState<PremiumPlan>('yearly');
 
   const premiumCategories = getCategories().filter((c) => c.active && c.premiumOnly);
   const names = premiumCategories.map((c) => c.name);
@@ -44,7 +125,7 @@ export function PaywallScreen() {
   const onSubscribe = async () => {
     setBusy(true);
     setNotice(null);
-    const result = await purchase();
+    const result = await purchase(plan);
     setBusy(false);
     if (result === 'purchased') {
       router.back();
@@ -146,8 +227,19 @@ export function PaywallScreen() {
             </View>
           ) : (
             <View className="gap-3">
+              <View className="gap-2" accessibilityRole="radiogroup">
+                {PLAN_ORDER.map((p) => (
+                  <PlanOption
+                    key={p}
+                    plan={p}
+                    price={priceLabels[p]}
+                    selected={p === plan}
+                    onSelect={() => setPlan(p)}
+                  />
+                ))}
+              </View>
               <Button
-                label={busy ? 'Please wait…' : `Subscribe · ${priceLabel}`}
+                label={busy ? 'Please wait…' : `${PLAN_COPY[plan].cta} · ${priceLabels[plan]}`}
                 onPress={() => void onSubscribe()}
                 disabled={busy}
                 testID="paywall-subscribe"
@@ -165,7 +257,7 @@ export function PaywallScreen() {
                 </Text>
               )}
               <Text className="text-center text-xs text-ink-muted">
-                Billed monthly through Google Play. Cancel anytime in your Play subscriptions.
+                {PLAN_COPY[plan].footer}
               </Text>
             </View>
           )}

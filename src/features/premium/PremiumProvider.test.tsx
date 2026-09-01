@@ -12,12 +12,12 @@ jest.mock('@/services/firebase/auth', () => ({
 jest.mock('./billing', () => ({
   billing: {
     available: true,
-    purchaseMonthly: jest.fn(async () => 'cancelled'),
+    purchase: jest.fn(async () => 'cancelled'),
     restore: jest.fn(async () => false),
     checkActive: jest.fn(async () => false),
     onChange: jest.fn(() => () => undefined),
     identify: jest.fn(async () => undefined),
-    localizedPrice: jest.fn(async () => null),
+    localizedPrices: jest.fn(async () => ({})),
   },
   devBilling: { available: true },
 }));
@@ -30,7 +30,7 @@ const mockRequestReview = jest.requireMock('@/features/review')
 const mockBilling = jest.requireMock('./billing').billing as {
   checkActive: jest.Mock;
   identify: jest.Mock;
-  purchaseMonthly: jest.Mock;
+  purchase: jest.Mock;
   restore: jest.Mock;
 };
 
@@ -77,7 +77,7 @@ describe('PremiumProvider review ask', () => {
   beforeEach(() => {
     mockAuth.uid = null;
     mockBilling.checkActive.mockReset().mockResolvedValue(false);
-    mockBilling.purchaseMonthly.mockReset().mockResolvedValue('purchased');
+    mockBilling.purchase.mockReset().mockResolvedValue('purchased');
     mockBilling.restore.mockReset().mockResolvedValue(true);
     mockRequestReview.mockClear();
   });
@@ -87,7 +87,7 @@ describe('PremiumProvider review ask', () => {
     const { purchase, restore } = usePremium();
     return (
       <>
-        <Text onPress={() => void purchase()}>buy</Text>
+        <Text onPress={() => void purchase('monthly')}>buy</Text>
         <Text onPress={() => void restore()}>restore</Text>
       </>
     );
@@ -111,7 +111,7 @@ describe('PremiumProvider review ask', () => {
   });
 
   it('does not ask after a cancelled purchase or a restore', async () => {
-    mockBilling.purchaseMonthly.mockResolvedValue('cancelled');
+    mockBilling.purchase.mockResolvedValue('cancelled');
     render(
       <PremiumProvider>
         <Probe />

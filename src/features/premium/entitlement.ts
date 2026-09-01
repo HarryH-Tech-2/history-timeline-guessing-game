@@ -2,9 +2,23 @@ import { z } from 'zod';
 
 import { createStore } from '@/storage';
 
-/** Store-facing price copy. Keep in step with the Play Console product. */
-export const PREMIUM_PRICE_LABEL = '$2.99 / month';
-export const PREMIUM_PRODUCT_ID = 'premium_monthly';
+import type { PremiumPlan } from './billing';
+
+/**
+ * Store-facing fallback price copy, shown until the store's own localized
+ * prices load. Keep in step with the Play Console products.
+ */
+export const PREMIUM_PLAN_LABELS: Record<PremiumPlan, string> = {
+  monthly: '$2.99 / month',
+  yearly: '$17.99 / year',
+  lifetime: '$49.99 once',
+};
+
+export const PREMIUM_PRODUCT_IDS: Record<PremiumPlan, string> = {
+  monthly: 'premium_monthly',
+  yearly: 'premium_yearly',
+  lifetime: 'premium_lifetime',
+};
 
 /**
  * The locally cached entitlement. The store (billing provider) is the source

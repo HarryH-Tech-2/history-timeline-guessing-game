@@ -5,7 +5,7 @@
     "owner": "harryhh",
     "version": "1.1.0",
     "scheme": "chronos",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
     "backgroundColor": "#0A0908",
