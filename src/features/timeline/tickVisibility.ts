@@ -17,12 +17,14 @@ export type Ramp = readonly [number, number];
 const ALWAYS: Ramp = [0, 0];
 
 /** Line fade-in per tier: millennium / half-millennium / century / decade.
- * Century lines start far earlier than their labels: a reveal that zooms out
- * to frame a big miss lands around scale 0.15–0.45, and with the old ramp
- * ([0.3, 0.5]) that stretch of the track showed almost no dividers at all —
- * the gridlines seemed to vanish exactly when the player needed context. Thin
- * 1px lines stay legible well below the point labels would collide. */
-export const LINE_RAMPS: readonly Ramp[] = [ALWAYS, [0.08, 0.14], [0.12, 0.28], [0.7, 1.1]];
+ * Century lines are fully on across the entire reveal range: a big-miss
+ * reveal lands anywhere down to ~scale 0.1 (verified on-device — a 2,081-year
+ * miss on a 390dp track reveals at ~0.15), and two earlier ramps ([0.3, 0.5],
+ * then [0.12, 0.28]) both left that stretch looking stripped bare. At 0.1 the
+ * century comb is 10px spacing — the same density as the decade comb in
+ * normal play, so there is no smear risk before the ramp floor; only a manual
+ * pinch below ~0.1 fades centuries out. Labels still wait for room. */
+export const LINE_RAMPS: readonly Ramp[] = [ALWAYS, [0.04, 0.08], [0.05, 0.1], [0.7, 1.1]];
 
 /** Label fade-in per labelled tier (decades have no label). */
 export const LABEL_RAMPS: readonly Ramp[] = [[0.04, 0.07], [0.16, 0.24], [0.8, 1.1]];

@@ -34,18 +34,20 @@ describe('tick visibility across reveal zooms', () => {
       const t = transformToReveal(1990, 1990 - miss, WIDTH, start);
       const spacing = finestLegibleSpacing(t.scale);
       expect(spacing).not.toBeNull();
-      // ≤130px between lines: sparse at worst, but never an empty track.
-      expect(spacing!).toBeLessThanOrEqual(130);
+      // ≤100px between lines: the track must always read as a ruler.
+      expect(spacing!).toBeLessThanOrEqual(100);
     }
   });
 
-  it('keeps century gridlines visible in the 0.3–0.5 zoom band (the old bug)', () => {
-    // The original ramp faded century lines in over [0.3, 0.5]: a ~700-year
-    // miss reveals at ~scale 0.35, where centuries were near-invisible and
-    // 500-year marks sat ~175px apart — the track looked stripped bare.
+  it('keeps century gridlines FULLY visible across the whole reveal range (the old bug)', () => {
+    // Two earlier ramps ([0.3, 0.5], then [0.12, 0.28]) both left big-miss
+    // reveals looking stripped bare: verified on-device, a 2,081-year miss on
+    // a 390dp-wide track reveals at ~scale 0.15, where a partially-faded
+    // century line is effectively invisible. Centuries must be at full
+    // opacity from scale 0.1 (the deepest a reveal can zoom) upward.
     const centuryTier = tierOf({ major: true, year: 1900 });
     const [from, to] = LINE_RAMPS[centuryTier]!;
-    for (const scale of [0.3, 0.35, 0.4, 0.45, 0.5]) {
+    for (const scale of [0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.7, 1]) {
       expect(rampOpacity(scale, from, to)).toBe(1);
     }
   });
