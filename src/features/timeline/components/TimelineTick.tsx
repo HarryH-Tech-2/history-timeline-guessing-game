@@ -6,6 +6,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import type { Tick } from '@/features/timeline/ticks';
+import { LABEL_RAMPS, LINE_RAMPS, rampOpacity, tierOf } from '@/features/timeline/tickVisibility';
 
 interface TimelineTickProps {
   tick: Tick;
@@ -15,43 +16,6 @@ interface TimelineTickProps {
 /** Fixed tick-box width; the box is shifted left by half so its centre (the
  * gridline and label) sits exactly on the tick's world position. */
 const TICK_WIDTH = 96;
-
-/**
- * Zoom ranges over which each tier of tick fades in, as [from, to] scale.
- * Chosen so that neighbouring visible labels are always ≥ ~80px apart and
- * gridlines never bunch into a smear: when the timeline is framed wide (e.g.
- * the reveal fitting 551 BCE and 1863 on one screen) only millennium and
- * 500-year labels survive, though century gridlines linger faintly; century
- * labels appear as you zoom in, then decade lines.
- */
-type Ramp = readonly [number, number];
-const ALWAYS: Ramp = [0, 0];
-
-/** Line fade-in per tier: millennium / half-millennium / century / decade.
- * Century lines start far earlier than their labels: a reveal that zooms out
- * to frame a big miss lands around scale 0.15–0.45, and with the old ramp
- * ([0.3, 0.5]) that stretch of the track showed almost no dividers at all —
- * the gridlines seemed to vanish exactly when the player needed context. Thin
- * 1px lines stay legible well below the point labels would collide. */
-const LINE_RAMPS: readonly Ramp[] = [ALWAYS, [0.08, 0.14], [0.12, 0.28], [0.7, 1.1]];
-
-/** Label fade-in per labelled tier (decades have no label). */
-const LABEL_RAMPS: readonly Ramp[] = [[0.04, 0.07], [0.16, 0.24], [0.8, 1.1]];
-
-function rampOpacity(scale: number, from: number, to: number): number {
-  'worklet';
-  if (to <= from) return 1;
-  if (scale <= from) return 0;
-  if (scale >= to) return 1;
-  return (scale - from) / (to - from);
-}
-
-function tierOf(tick: Tick): number {
-  if (!tick.major) return 3;
-  if (tick.year % 1000 === 0) return 0;
-  if (tick.year % 500 === 0) return 1;
-  return 2;
-}
 
 /**
  * A decade gridline: one animated view, no label. There are ~500 of these

@@ -18,6 +18,9 @@ import {
   MINOR_TICKS_BY_BLOCK,
   type Tick,
 } from '@/features/timeline/ticks';
+// Decade lines start fading in at scale 0.7 (see tickVisibility); they are
+// mounted from DECADE_MIN_SCALE, a little earlier, so they never pop in late.
+import { DECADE_MIN_SCALE } from '@/features/timeline/tickVisibility';
 import { palette } from '@/theme/tokens';
 
 import { CenturyJumpBar } from './CenturyJumpBar';
@@ -75,9 +78,6 @@ function YearStepButton({
   );
 }
 
-/** Decade lines start fading in at scale 0.7 (see TimelineTick); mount them a
- * little earlier so they never pop in late. */
-const DECADE_MIN_SCALE = 0.55;
 const PX_PER_YEAR = BASE_WIDTH / (PRESENT_YEAR - MIN_YEAR);
 /** Blocks either side of the crosshair's block to keep mounted. */
 const BLOCK_REACH = 1;
