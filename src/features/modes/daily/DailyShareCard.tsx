@@ -1,6 +1,8 @@
 import { forwardRef } from 'react';
 import { Image, Text, View } from 'react-native';
 
+import { getQuestionById } from '@/data';
+import { formatYear } from '@/features/timeline/math';
 import { lightPalette as p } from '@/theme/tokens';
 
 import type { DailyRecord } from '../persistence';
@@ -23,8 +25,13 @@ interface DailyShareCardProps {
   record: DailyRecord;
 }
 
+/** Width of each year column; wide enough for "1000 BCE" at the row font size. */
+const YEAR_COLUMN = 60;
+
 /**
- * The square image version of the Daily share card. Rendered off-screen and
+ * The square image version of the Daily share card: the puzzle number and
+ * score up top, then one row per round — the event, the year guessed and the
+ * real year, colour-coded by how close the guess was. Rendered off-screen and
  * captured to a PNG, so it uses inline styles on the fixed parchment palette
  * (never the live theme) and no animation — what you see is what gets shared.
  */
@@ -32,9 +39,7 @@ export const DailyShareCard = forwardRef<View, DailyShareCardProps>(function Dai
   { record },
   ref,
 ) {
-  const { totalScore, exact, rounds, avgError } = summariseRecord(record);
-  const tiles = record.rounds.map((r) => tierForError(r.errorYears));
-  const tileSize = Math.floor((SHARE_CARD_SIZE - 48 - (tiles.length - 1) * 8) / Math.max(tiles.length, 1));
+  const { totalScore, exact, rounds } = summariseRecord(record);
 
   return (
     <View
@@ -45,19 +50,19 @@ export const DailyShareCard = forwardRef<View, DailyShareCardProps>(function Dai
         width: SHARE_CARD_SIZE,
         height: SHARE_CARD_SIZE,
         backgroundColor: p.bg.base,
-        padding: 24,
+        padding: 18,
         justifyContent: 'space-between',
         borderWidth: 4,
         borderColor: p.accent.default,
       }}
     >
-      {/* Header: owl + title */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-        <Image source={OWL} style={{ width: 56, height: 56 }} resizeMode="contain" />
+      {/* Header: owl, title and the score */}
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+        <Image source={OWL} style={{ width: 44, height: 44 }} resizeMode="contain" />
         <View style={{ flex: 1 }}>
           <Text
             style={{
-              fontSize: 11,
+              fontSize: 10,
               fontWeight: '700',
               letterSpacing: 2,
               textTransform: 'uppercase',
@@ -66,42 +71,68 @@ export const DailyShareCard = forwardRef<View, DailyShareCardProps>(function Dai
           >
             Date Guesser
           </Text>
-          <Text style={{ fontSize: 26, fontWeight: '800', color: p.ink.primary }}>
+          <Text style={{ fontSize: 20, fontWeight: '800', color: p.ink.primary, lineHeight: 24 }}>
             Daily #{dailyNumber(record.date)}
           </Text>
-          <Text style={{ fontSize: 12, color: p.ink.secondary }}>{prettyDate(record.date)}</Text>
+          <Text style={{ fontSize: 11, color: p.ink.secondary }}>{prettyDate(record.date)}</Text>
+        </View>
+        <View style={{ alignItems: 'flex-end' }}>
+          <Text
+            style={{ fontSize: 28, fontWeight: '800', color: p.accent.default, lineHeight: 32 }}
+          >
+            {totalScore.toLocaleString()}
+          </Text>
+          <Text style={{ fontSize: 11, fontWeight: '600', color: p.ink.secondary }}>
+            {exact}/{rounds} exact
+          </Text>
         </View>
       </View>
 
-      {/* Tiles: one square per round, graded by how close the guess was */}
-      <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'center' }}>
-        {tiles.map((tier, i) => (
-          <View
-            key={i}
-            style={{
-              width: tileSize,
-              height: tileSize,
-              borderRadius: 6,
-              backgroundColor: TIER_COLOURS[tier],
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            {tier === 'exact' && (
-              <Text style={{ fontSize: Math.round(tileSize * 0.55) }}>🎯</Text>
-            )}
-          </View>
-        ))}
-      </View>
-
-      {/* Score */}
-      <View style={{ alignItems: 'center' }}>
-        <Text style={{ fontSize: 44, fontWeight: '800', color: p.accent.default, lineHeight: 50 }}>
-          {totalScore.toLocaleString()}
-        </Text>
-        <Text style={{ fontSize: 13, fontWeight: '600', color: p.ink.secondary }}>
-          {exact}/{rounds} exact · avg {avgError} {avgError === 1 ? 'yr' : 'yrs'} off
-        </Text>
+      {/* Rounds: event, guessed year, real year */}
+      <View style={{ gap: 3 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingBottom: 2 }}>
+          <View style={{ width: 10 }} />
+          <Text style={{ flex: 1, fontSize: 9, fontWeight: '700', color: p.ink.muted }}>
+            EVENT
+          </Text>
+          <Text style={columnHeader}>YOU</Text>
+          <Text style={columnHeader}>ACTUAL</Text>
+        </View>
+        {record.rounds.map((round, i) => {
+          const question = getQuestionById(round.questionId);
+          const tier = tierForError(round.errorYears);
+          return (
+            <View
+              key={`${round.questionId}-${i}`}
+              testID={`share-card-row-${i}`}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
+            >
+              <View
+                style={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: 3,
+                  backgroundColor: TIER_COLOURS[tier],
+                }}
+              />
+              <Text
+                numberOfLines={1}
+                style={{ flex: 1, fontSize: 11, fontWeight: '600', color: p.ink.primary }}
+              >
+                {question?.title ?? 'Question'}
+              </Text>
+              <Text numberOfLines={1} style={[yearCell, { color: p.ink.secondary }]}>
+                {round.guessYear === undefined ? '—' : formatYear(round.guessYear)}
+              </Text>
+              <Text
+                numberOfLines={1}
+                style={[yearCell, { fontWeight: '700', color: p.ink.primary }]}
+              >
+                {question ? formatYear(question.year) : '—'}
+              </Text>
+            </View>
+          );
+        })}
       </View>
 
       {/* Footer */}
@@ -109,7 +140,7 @@ export const DailyShareCard = forwardRef<View, DailyShareCardProps>(function Dai
         style={{
           borderTopWidth: 1,
           borderTopColor: p.hair,
-          paddingTop: 10,
+          paddingTop: 8,
           flexDirection: 'row',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -123,3 +154,17 @@ export const DailyShareCard = forwardRef<View, DailyShareCardProps>(function Dai
     </View>
   );
 });
+
+const columnHeader = {
+  width: YEAR_COLUMN,
+  fontSize: 9,
+  fontWeight: '700' as const,
+  color: p.ink.muted,
+  textAlign: 'right' as const,
+};
+
+const yearCell = {
+  width: YEAR_COLUMN,
+  fontSize: 11,
+  textAlign: 'right' as const,
+};

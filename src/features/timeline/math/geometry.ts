@@ -53,6 +53,42 @@ export function transformToFit(
   return { translateX, scale };
 }
 
+/**
+ * The framing a fresh question should start from, given the `current` view
+ * the last reveal left behind: unchanged if it is at least as tight as the
+ * default `spanYears` framing (the player's own zoom is respected), otherwise
+ * a default-span window centred on `year` — the answer just revealed — kept
+ * inside the timeline's range.
+ *
+ * Why: a big-miss reveal zooms out to fit guess and answer (thousands of
+ * years on a phone), and the framing is deliberately carried into the next
+ * question so era campaigns stay in their period. At that width the decade
+ * dividers are unmounted and century labels faded, so every following
+ * question looked stripped bare until the player pinched back in.
+ */
+export function transformToRefocus(
+  year: number,
+  spanYears: number,
+  screenWidth: number,
+  current: Transform,
+): Transform {
+  const fitScale = transformToFit(0, spanYears, screenWidth).scale;
+  // Tolerance: the default framing itself lands a rounding error under this.
+  if (current.scale >= fitScale * (1 - 1e-9)) return current;
+
+  let minYear = year - spanYears / 2;
+  let maxYear = year + spanYears / 2;
+  if (minYear < MIN_YEAR) {
+    maxYear += MIN_YEAR - minYear;
+    minYear = MIN_YEAR;
+  }
+  if (maxYear > MAX_YEAR) {
+    minYear -= maxYear - MAX_YEAR;
+    maxYear = MAX_YEAR;
+  }
+  return transformToFit(Math.max(MIN_YEAR, minYear), maxYear, screenWidth);
+}
+
 /** Translate range that keeps the screen centre inside [MIN_YEAR, PRESENT_YEAR]. */
 export function translateBounds(scale: number, screenWidth: number): [number, number] {
   'worklet';

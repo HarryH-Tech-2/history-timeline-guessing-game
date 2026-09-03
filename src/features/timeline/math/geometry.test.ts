@@ -4,6 +4,7 @@ import {
   MAX_SCALE,
   MIN_SCALE,
   transformToFit,
+  transformToRefocus,
   worldXForYear,
   yearAtScreenCentre,
   yearForWorldX,
@@ -39,5 +40,32 @@ describe('geometry', () => {
     expect(tiny.scale).toBeLessThanOrEqual(MAX_SCALE);
     const huge = transformToFit(-3000, 2026, 400); // would demand a tiny scale
     expect(huge.scale).toBeGreaterThanOrEqual(MIN_SCALE);
+  });
+
+  describe('transformToRefocus', () => {
+    const width = 400;
+    const span = 326;
+
+    it('leaves the view alone when it is at least as tight as the default span', () => {
+      const current = transformToFit(1700, 2026, width);
+      expect(transformToRefocus(121, span, width, current)).toBe(current);
+      const tighter = transformToFit(1900, 1950, width);
+      expect(transformToRefocus(121, span, width, tighter)).toBe(tighter);
+    });
+
+    it('zooms a wide view back to the default span centred on the year', () => {
+      const wide = transformToFit(-200, 1900, width); // a big-miss reveal framing
+      const t = transformToRefocus(121, span, width, wide);
+      expect(t).toEqual(transformToFit(121 - span / 2, 121 + span / 2, width));
+      expect(yearAtScreenCentre(t, width)).toBeCloseTo(121, 4);
+    });
+
+    it('keeps the window inside the timeline at either end', () => {
+      const wide = transformToFit(-1000, 2026, width);
+      const ancient = transformToRefocus(-950, span, width, wide);
+      expect(ancient).toEqual(transformToFit(MIN_YEAR, MIN_YEAR + span, width));
+      const modern = transformToRefocus(2020, span, width, wide);
+      expect(modern).toEqual(transformToFit(MAX_YEAR - span, MAX_YEAR, width));
+    });
   });
 });

@@ -1,4 +1,4 @@
-import { useCallback, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, type ReactNode } from 'react';
 import { ScrollView, useWindowDimensions, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { useReducedMotion } from 'react-native-reanimated';
@@ -64,6 +64,21 @@ export function RoundView({
   const category = getCategoryById(question.categoryId);
   const colour = category?.colour ?? palette.accent.default;
   const revealed = phase === 'revealed';
+
+  // The framing carries over between questions on purpose (era campaigns stay
+  // in their period), but a big-miss reveal leaves it zoomed out to thousands
+  // of years, where decade dividers and century labels don't show. So a fresh
+  // question zooms back to the default span around the answer just revealed —
+  // and does nothing if the view is already that tight. Keyed on the stable
+  // `refocus` only: the controller object is rebuilt every render.
+  const lastAnswerYear = useRef<number | null>(null);
+  useEffect(() => {
+    if (revealed) lastAnswerYear.current = question.year;
+  }, [revealed, question.year]);
+  const { refocus } = controller;
+  useEffect(() => {
+    if (lastAnswerYear.current !== null) refocus(lastAnswerYear.current);
+  }, [question.id, refocus]);
 
   const handleSubmit = useCallback(() => {
     const guessYear = controller.readGuessYear();

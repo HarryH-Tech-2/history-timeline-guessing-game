@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { act, fireEvent, render, screen } from '@testing-library/react-native';
 
 import { QuestionSchema, type Question } from '@/domain';
 import { SoundContext } from '@/features/sound';
@@ -87,5 +87,77 @@ describe('RoundView answer feedback', () => {
     const expected = isRightAnswer(Math.round(guessYear) - question.year) ? 'right' : 'wrong';
     expect(play).toHaveBeenCalledTimes(1);
     expect(play).toHaveBeenCalledWith(expected);
+  });
+});
+
+describe('RoundView framing between questions', () => {
+  const ancient: Question = QuestionSchema.parse({
+    ...question,
+    id: 'q-ancient',
+    title: 'The Birth of Marcus Aurelius',
+    year: 121,
+  });
+  const next: Question = QuestionSchema.parse({ ...question, id: 'q-next', year: -490 });
+
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  const readout = () => screen.getByLabelText('Selected year').props.value as string;
+
+  it('zooms a big-miss reveal back in around the answer for the next question', () => {
+    const { rerender } = render(
+      <RoundView
+        question={ancient}
+        phase="guessing"
+        result={null}
+        onSubmit={jest.fn()}
+        onNext={jest.fn()}
+      />,
+    );
+    // Lay the track out so the transform is live; the default framing is
+    // 1700–2026, so the crosshair starts in the 1800s.
+    act(() => {
+      fireEvent(screen.getByTestId('timeline-pan-layer'), 'layout', {
+        nativeEvent: { layout: { width: 390, height: 160 } },
+      });
+    });
+    act(() => {
+      jest.advanceTimersByTime(500);
+    });
+    expect(readout()).toBe('1863');
+
+    // A 1,742-year miss: the reveal zooms out to fit guess and answer.
+    fireEvent.press(screen.getByTestId('submit-button'));
+    rerender(
+      <RoundView
+        question={ancient}
+        phase="revealed"
+        result={evaluateGuess(ancient, 1863)}
+        onSubmit={jest.fn()}
+        onNext={jest.fn()}
+      />,
+    );
+    act(() => {
+      jest.advanceTimersByTime(1000);
+    });
+
+    rerender(
+      <RoundView
+        question={next}
+        phase="guessing"
+        result={null}
+        onSubmit={jest.fn()}
+        onNext={jest.fn()}
+      />,
+    );
+    act(() => {
+      jest.advanceTimersByTime(1000);
+    });
+    // The next question starts at the default zoom, centred on the last answer.
+    expect(readout()).toBe('121');
   });
 });

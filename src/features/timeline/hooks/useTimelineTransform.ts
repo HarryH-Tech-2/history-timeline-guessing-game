@@ -20,6 +20,7 @@ import {
   MIN_SCALE,
   clampYear,
   transformToFit,
+  transformToRefocus,
   transformToReveal,
   unwarp,
   warp,
@@ -87,6 +88,12 @@ export interface TimelineController {
    * zoom-out only as a last resort. Keeps the player's framing on reveal.
    */
   reveal: (yearA: number, yearB: number) => void;
+  /**
+   * Start a fresh question from a sensible zoom: if the view is wider than the
+   * initial range's span (a big-miss reveal zoomed it out), zoom back to that
+   * span centred on `year`; otherwise leave the player's framing alone.
+   */
+  refocus: (year: number) => void;
   /** Nudge the crosshair year by a whole-year delta (the +/- fine controls). */
   stepYear: (delta: number) => void;
   /** Whether the timeline has been laid out and initialised. */
@@ -262,6 +269,20 @@ export function useTimelineTransform(options: Options = {}): TimelineController 
     [scale, translateX],
   );
 
+  const refocus = useCallback(
+    (year: number) => {
+      const w = widthRef.current;
+      if (w <= 0) return;
+      const current = { translateX: translateX.value, scale: scale.value };
+      const span = initialRange.max - initialRange.min;
+      const t = transformToRefocus(year, span, w, current);
+      if (t === current) return;
+      translateX.value = withTiming(t.translateX, FRAME_TIMING);
+      scale.value = withTiming(t.scale, FRAME_TIMING);
+    },
+    [initialRange.max, initialRange.min, scale, translateX],
+  );
+
   const readGuessYear = useCallback(() => {
     // Freeze any fling/step still in flight so the year the player sees at
     // the moment of tapping submit is exactly the year that gets scored.
@@ -295,6 +316,7 @@ export function useTimelineTransform(options: Options = {}): TimelineController 
     readGuessYear,
     fitTo,
     reveal,
+    refocus,
     stepYear,
     ready,
   };

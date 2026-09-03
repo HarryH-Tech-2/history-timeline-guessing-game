@@ -96,8 +96,8 @@ describe('DailyScreen', () => {
       expect(screen.getByTestId('summary-primary')).toBeOnTheScreen();
     });
 
-    // Sharing captures the off-screen image card and hands the OS sheet both
-    // the PNG and the emoji text for today's puzzle.
+    // Sharing captures the off-screen image card and hands the OS sheet the
+    // PNG plus the store link; the card itself carries the result.
     expect(screen.getByTestId('daily-share-card')).toBeOnTheScreen();
     fireEvent.press(screen.getByText('Share result'));
     await waitFor(() => expect(RNShare.open).toHaveBeenCalledTimes(1));
@@ -108,9 +108,10 @@ describe('DailyScreen', () => {
     };
     expect(options.url).toBe('file:///tmp/capture.png');
     expect(options.type).toBe('image/png');
-    expect(options.message).toMatch(/^📜 Date Guesser Daily #\d+\n/);
-    expect(options.message.split('\n')[1]).toMatch(/^[🎯🟩🟨🟧🟥⬛]{2}$/u); // one tile per round
-    expect(options.message).toContain('play.google.com');
+    // The picture is the whole message: only the store link rides along.
+    expect(options.message).toBe(
+      'https://play.google.com/store/apps/details?id=com.harryhh.historydateguesser',
+    );
     expect(screen.getByText('Home')).toBeOnTheScreen();
   });
 });

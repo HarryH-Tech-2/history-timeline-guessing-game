@@ -5,19 +5,19 @@ import { captureRef } from 'react-native-view-shot';
 
 import type { DailyRecord } from '../persistence';
 import { SHARE_CARD_PIXELS } from './DailyShareCard';
-import { buildShareMessage } from './shareCard';
+import { buildShareMessage, STORE_URL } from './shareCard';
 
 /**
- * Share today's result as an image plus the emoji text. Captures the
- * off-screen card to a PNG and hands both to the OS share sheet; if the
- * capture or the native sheet fails for any reason, falls back to the plain
- * text share so the player is never left with nothing.
+ * Share today's result as the image card plus the store link — nothing else,
+ * so the picture is the whole message. Captures the off-screen card to a PNG
+ * and hands it to the OS share sheet; only if the capture or the native sheet
+ * fails does it fall back to the emoji text card, so the player is never left
+ * with a bare link.
  */
 export async function shareDailyResult(
   cardRef: RefObject<View | null>,
   record: DailyRecord,
 ): Promise<void> {
-  const message = buildShareMessage(record);
   try {
     const view = cardRef.current;
     if (!view) throw new Error('share card not mounted');
@@ -31,10 +31,10 @@ export async function shareDailyResult(
     await RNShare.open({
       url: uri.startsWith('file://') ? uri : `file://${uri}`,
       type: 'image/png',
-      message,
+      message: STORE_URL,
       failOnCancel: false,
     });
   } catch {
-    await Share.share({ message }).catch(() => {});
+    await Share.share({ message: buildShareMessage(record) }).catch(() => {});
   }
 }
