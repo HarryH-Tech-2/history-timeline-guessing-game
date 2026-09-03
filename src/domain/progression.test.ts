@@ -2,9 +2,11 @@ import type { RoundResult } from './round';
 import {
   BASE_XP_PER_LEVEL,
   coinsForRound,
+  INITIAL_PROGRESSION,
   levelForXp,
   levelProgress,
   PERFECT_XP_BONUS,
+  ProgressionStateSchema,
   rewardForRound,
   xpForRound,
   xpToReachLevel,
@@ -61,5 +63,18 @@ describe('round rewards', () => {
 
   it('bundles xp and coins together', () => {
     expect(rewardForRound(roundResult(0, 1000))).toEqual({ xp: 150, coins: 5 });
+  });
+});
+
+describe('ProgressionStateSchema displayName', () => {
+  it('migrates saves written before the field existed to "no chosen name"', () => {
+    const { displayName: _omitted, ...legacy } = INITIAL_PROGRESSION;
+    const parsed = ProgressionStateSchema.parse(legacy);
+    expect(parsed.displayName).toBeNull();
+  });
+
+  it('round-trips a chosen name', () => {
+    const parsed = ProgressionStateSchema.parse({ ...INITIAL_PROGRESSION, displayName: 'Harry' });
+    expect(parsed.displayName).toBe('Harry');
   });
 });

@@ -1,7 +1,8 @@
-import { render, screen } from '@testing-library/react-native';
+import { fireEvent, render, screen } from '@testing-library/react-native';
 
 import { QuestionSchema, type Question } from '@/domain';
-import { evaluateGuess } from '@/features/timeline/math';
+import { SoundContext } from '@/features/sound';
+import { evaluateGuess, isRightAnswer } from '@/features/timeline/math';
 
 import { RoundView } from './RoundView';
 
@@ -58,5 +59,33 @@ describe('RoundView reveal state', () => {
     );
     expect(screen.getByLabelText('Selected year')).toBeOnTheScreen();
     expect(screen.queryByTestId('reveal-marker-guess')).toBeNull();
+  });
+});
+
+describe('RoundView answer feedback', () => {
+  it('plays the sting that matches the shared right/wrong threshold on submit', () => {
+    const play = jest.fn();
+    const onSubmit = jest.fn();
+    render(
+      <SoundContext.Provider
+        value={{ enabled: true, setEnabled: jest.fn(), toggle: jest.fn(), play }}
+      >
+        <RoundView
+          question={question}
+          phase="guessing"
+          result={null}
+          onSubmit={onSubmit}
+          onNext={jest.fn()}
+        />
+      </SoundContext.Provider>,
+    );
+
+    fireEvent.press(screen.getByTestId('submit-button'));
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    const guessYear = onSubmit.mock.calls[0]![0] as number;
+    const expected = isRightAnswer(Math.round(guessYear) - question.year) ? 'right' : 'wrong';
+    expect(play).toHaveBeenCalledTimes(1);
+    expect(play).toHaveBeenCalledWith(expected);
   });
 });

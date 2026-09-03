@@ -29,3 +29,17 @@ describe('warmUpPlayGames', () => {
     await expect(warmUpPlayGames()).resolves.toBe(false);
   });
 });
+
+describe('achievements helpers', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('report "unavailable" (false) on Android when the native module is absent', async () => {
+    jest.replaceProperty(Platform, 'OS', 'android');
+    const { unlockPlayGamesAchievement, showPlayGamesAchievements } =
+      jest.requireActual<typeof import('./playGames')>('./playGames');
+    await expect(unlockPlayGamesAchievement('CgkI-any')).resolves.toBe(false);
+    await expect(showPlayGamesAchievements()).resolves.toBe(false);
+  });
+});

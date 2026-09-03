@@ -16,14 +16,16 @@ import {
   STREAK_FREEZE_COST,
   streakMultiplier,
 } from '@/domain';
-import { handleForUid } from '@/features/leaderboard';
+import { resolveDisplayName } from '@/features/leaderboard/playerName';
 import { usePremium } from '@/features/premium';
+import { useSound } from '@/features/sound';
 import { useAuth } from '@/services/firebase/auth';
 import { useTheme } from '@/theme';
 import { palette } from '@/theme/tokens';
 import { dateKey } from '@/utils/date';
 
 import { ACHIEVEMENTS, type Achievement } from './achievements';
+import { PlayerNameSheet } from './components/PlayerNameSheet';
 import { useProgression } from './ProgressionProvider';
 
 function SectionTitle({ children }: { children: string }) {
@@ -174,18 +176,22 @@ function AchievementRow({
  */
 export function ProfileScreen() {
   const router = useRouter();
-  const { state, buyFreeze } = useProgression();
+  const { state, buyFreeze, setDisplayName } = useProgression();
   const { isPremium, priceLabels } = usePremium();
   const { uid, isSignedIn, user, hasAccount, signOutToGuest } = useAuth();
   const { mode, toggle } = useTheme();
+  const { enabled: soundOn, toggle: toggleSound } = useSound();
   const [signingOut, setSigningOut] = useState(false);
+  const [editingName, setEditingName] = useState(false);
 
   const level = levelForXp(state.xp);
   const progress = levelProgress(state.xp);
   const pct = Math.round(progress.fraction * 100);
 
-  const displayName =
-    user?.displayName?.trim() || user?.email || (uid ? handleForUid(uid) : 'Local Player');
+  // The public name: the player's chosen one or their generated handle. The
+  // Google/email name on the account is deliberately never shown here.
+  const generatedName = resolveDisplayName(null, uid);
+  const displayName = resolveDisplayName(state.displayName, uid);
   const statusLine = !isSignedIn
     ? 'Offline · progress saved on device'
     : hasAccount
@@ -216,16 +222,35 @@ export function ProfileScreen() {
               {level}
             </Text>
           </View>
-          <View className="flex-1">
-            <Text className="text-lg font-bold text-ink-primary" numberOfLines={1}>
-              {displayName}
+          <Pressable
+            className="flex-1"
+            onPress={() => setEditingName(true)}
+            accessibilityRole="button"
+            accessibilityLabel="Edit your name"
+            testID="edit-name"
+          >
+            <View className="flex-row items-center gap-2">
+              <Text className="shrink text-lg font-bold text-ink-primary" numberOfLines={1}>
+                {displayName}
+              </Text>
+              <Text className="text-sm text-ink-muted">✏️</Text>
+            </View>
+            <Text className="text-xs text-ink-muted">
+              {state.displayName === null ? 'Tap to choose your name · ' : ''}
+              {statusLine}
             </Text>
-            <Text className="text-xs text-ink-muted">{statusLine}</Text>
-          </View>
+          </Pressable>
           <Text className="text-sm font-bold" style={{ color: palette.warning }}>
             {state.coins.toLocaleString()} 🪙
           </Text>
         </View>
+        <PlayerNameSheet
+          visible={editingName}
+          currentName={state.displayName}
+          fallbackName={generatedName}
+          onSave={setDisplayName}
+          onClose={() => setEditingName(false)}
+        />
 
         {/* Level progress */}
         <View className="border border-hair bg-bg-raised p-4">
@@ -368,6 +393,22 @@ export function ProfileScreen() {
           <Text className="text-base text-ink-secondary">
             {mode === 'dark' ? 'Dark 🌙' : 'Light ☀️'}
           </Text>
+        </Pressable>
+        <Pressable
+          onPress={toggleSound}
+          accessibilityRole="switch"
+          accessibilityState={{ checked: soundOn }}
+          accessibilityLabel={soundOn ? 'Turn sound effects off' : 'Turn sound effects on'}
+          testID="profile-sound-toggle"
+          className="flex-row items-center justify-between border border-hair bg-bg-raised p-4"
+        >
+          <View className="flex-1 pr-3">
+            <Text className="text-base font-semibold text-ink-primary">Sound effects</Text>
+            <Text className="mt-0.5 text-xs text-ink-muted">
+              A short sting when an answer lands right or wrong.
+            </Text>
+          </View>
+          <Text className="text-base text-ink-secondary">{soundOn ? 'On 🔊' : 'Off 🔇'}</Text>
         </Pressable>
         {hasAccount ? (
           <View

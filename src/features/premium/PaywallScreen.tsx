@@ -194,7 +194,7 @@ export function PaywallScreen() {
             <Benefit
               icon="♾️"
               title="Endless mode"
-              detail="An unlimited run of the full catalogue on ten lives."
+              detail="An unlimited run of the full catalogue, with unlimited lives."
             />
             <Benefit
               icon="🔓"

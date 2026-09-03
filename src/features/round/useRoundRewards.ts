@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { costsHeart } from '@/domain';
 import { usePremium } from '@/features/premium';
 import { achievementById, useProgression } from '@/features/progression';
+import { requestReviewAfterStrongRun } from '@/features/review';
 import { streakLength } from '@/features/timeline/math';
 
 import type { GameSession } from './useGameSession';
@@ -74,7 +75,10 @@ export function useRoundRewards(
     if (session.status !== 'finished' || finished.current) return;
     finished.current = true;
     addUnlocked(completeGame());
-  }, [session.status, completeGame]);
+    // A strong finish (over 75% of the maximum score) in any mode is the
+    // moment to ask for a Play review — once per install.
+    void requestReviewAfterStrongRun(session.results);
+  }, [session.status, session.results, completeGame]);
 
   const unlockedTitles = unlocked
     .map((id) => achievementById(id)?.title)

@@ -42,7 +42,7 @@ const SWING = 0.72;
 /** Dots drawn between consecutive medallions. */
 const TRAIL_DOTS = 5;
 
-const MAP_BG = require('../../../../assets/campaign-map-bg.jpg');
+const MAP_BG = require('../../../../assets/campaign-map-bg.webp');
 /** Aspect ratio (h/w) of the parchment artwork, for seamless-ish tiling. */
 const MAP_TILE_RATIO = 2061 / 1080;
 

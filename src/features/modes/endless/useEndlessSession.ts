@@ -5,18 +5,17 @@ import { useGameSession, type GameSession } from '@/features/round';
 import { useSaves } from '@/features/save';
 import { comboModifiers } from '@/features/timeline/math';
 
-import { ENDLESS_LIVES, endlessLivesRemaining, isOutOfEndlessLives } from './endlessRules';
-
 export interface EndlessSession {
   session: GameSession;
-  /** Lives left right now. */
-  lives: number;
-  startingLives: number;
   /** Highest total ever reached in Endless. */
   best: number;
 }
 
-/** Endless: a stream of random questions until five loose guesses end the run. */
+/**
+ * Endless: an open-ended stream of random questions with no lives to lose.
+ * The run only ends when the player leaves; the best score is banked live as
+ * the total climbs, so nothing is lost by walking away mid-run.
+ */
 export function useEndlessSession(): EndlessSession {
   const seen = useRef<Set<string>>(new Set());
 
@@ -36,10 +35,8 @@ export function useEndlessSession(): EndlessSession {
   const session = useGameSession({
     first,
     next,
-    shouldEnd: isOutOfEndlessLives,
     modifiers: comboModifiers,
   });
-  const lives = endlessLivesRemaining(session.results);
 
   const { isReady, bestScores } = useSaves();
   const [best, setBest] = useState(0);
@@ -58,5 +55,5 @@ export function useEndlessSession(): EndlessSession {
     });
   }, [isReady, bestScores, session.totalScore, best]);
 
-  return { session, lives, startingLives: ENDLESS_LIVES, best };
+  return { session, best };
 }

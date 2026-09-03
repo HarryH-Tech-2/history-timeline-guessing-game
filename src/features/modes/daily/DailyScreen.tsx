@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
@@ -14,10 +15,13 @@ import { OutOfHeartsSheet, useHearts } from '@/features/hearts';
 import { ModeHud } from '../components/ModeHud';
 import { roundDetail, RunSummary, type SummaryRow } from '../components/RunSummary';
 import type { DailyRecord } from '../persistence';
+import { DailyShareCard, SHARE_CARD_SIZE } from './DailyShareCard';
+import { shareDailyResult } from './shareImage';
 import { useDailySession } from './useDailySession';
 
 function DailySummary({ record, onHome }: { record: DailyRecord; onHome: () => void }) {
   const { state } = useProgression();
+  const cardRef = useRef<View>(null);
   const streak = activeStreakCount(state.streak, dateKey());
   const rounds: SummaryRow[] = record.rounds.map((r, i) => ({
     key: `${i}`,
@@ -27,21 +31,33 @@ function DailySummary({ record, onHome }: { record: DailyRecord; onHome: () => v
   }));
 
   return (
-    <RunSummary
-      title="Daily complete"
-      subtitle={
-        streak > 0
-          ? `🔥 ${streak}-day streak — come back tomorrow to keep it alive.`
-          : 'Come back tomorrow for a fresh set.'
-      }
-      totalScore={record.totalScore}
-      stats={[
-        { label: 'Perfect answers', value: `${record.perfectCount} / ${record.rounds.length}` },
-      ]}
-      rounds={rounds}
-      primaryLabel="Home"
-      onPrimary={onHome}
-    />
+    <>
+      <RunSummary
+        title="Daily complete"
+        subtitle={
+          streak > 0
+            ? `🔥 ${streak}-day streak — come back tomorrow to keep it alive.`
+            : 'Come back tomorrow for a fresh set.'
+        }
+        totalScore={record.totalScore}
+        stats={[
+          { label: 'Perfect answers', value: `${record.perfectCount} / ${record.rounds.length}` },
+        ]}
+        rounds={rounds}
+        primaryLabel="Share result"
+        onPrimary={() => void shareDailyResult(cardRef, record)}
+        secondaryLabel="Home"
+        onSecondary={onHome}
+      />
+      {/* The image card lives just off the left edge, laid out at full size so
+          it can be captured on demand without ever being visible. */}
+      <View
+        pointerEvents="none"
+        style={{ position: 'absolute', left: -SHARE_CARD_SIZE * 2, top: 0 }}
+      >
+        <DailyShareCard ref={cardRef} record={record} />
+      </View>
+    </>
   );
 }
 
@@ -82,7 +98,11 @@ export function DailyScreen() {
           hud={
             <ModeHud
               progressLabel={`Question ${session.roundNumber} of ${totalQuestions}`}
-              progress={{ current: session.roundNumber, total: totalQuestions }}
+              progress={{
+                current: session.roundNumber,
+                total: totalQuestions,
+                results: session.results,
+              }}
               score={session.totalScore}
               hearts={hearts}
               onBack={() => router.back()}

@@ -13,7 +13,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 /** Minerva, the game's owl scholar — laurel wreath, toga, scroll. */
-const OWL = require('../../../../assets/mascot/owl.png');
+const OWL = require('../../../../assets/mascot/owl.webp');
 
 interface MascotProps {
   /** What the owl says in its speech plaque. */

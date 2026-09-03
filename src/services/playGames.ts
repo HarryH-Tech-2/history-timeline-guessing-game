@@ -47,3 +47,31 @@ export async function signInToPlayGames(): Promise<boolean> {
     return false;
   }
 }
+
+/**
+ * Unlock a Play Games achievement by its Console id. Resolves true only once
+ * Play has accepted it, so callers can remember not to send it again; false
+ * when Play Games is unavailable or the player has no session (retry later).
+ */
+export async function unlockPlayGamesAchievement(playId: string): Promise<boolean> {
+  const playGames = await loadPlayGames();
+  if (playGames === null) return false;
+  try {
+    await playGames.unlockAchievement(playId);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** Open Play Games' own achievements screen (false when unavailable). */
+export async function showPlayGamesAchievements(): Promise<boolean> {
+  const playGames = await loadPlayGames();
+  if (playGames === null) return false;
+  try {
+    await playGames.showAchievements();
+    return true;
+  } catch {
+    return false;
+  }
+}

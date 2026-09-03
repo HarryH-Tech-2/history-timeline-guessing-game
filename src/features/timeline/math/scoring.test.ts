@@ -6,8 +6,11 @@ import {
   buildScore,
   COMBO_MAX_STACKS,
   COMBO_STEP,
+  COMBO_THRESHOLD_YEARS,
   comboModifiers,
   evaluateGuess,
+  isRightAnswer,
+  RIGHT_ANSWER_THRESHOLD_YEARS,
   scoreForError,
   streakLength,
 } from './scoring';
@@ -115,5 +118,15 @@ describe('evaluateGuess', () => {
     expect(result.errorYears).toBe(5);
     expect(result.isPerfect).toBe(false);
     expect(result.score.total).toBe(800);
+  });
+});
+
+describe('isRightAnswer', () => {
+  it('treats anything within the combo threshold as right, in either direction', () => {
+    expect(RIGHT_ANSWER_THRESHOLD_YEARS).toBe(COMBO_THRESHOLD_YEARS);
+    expect(isRightAnswer(0)).toBe(true);
+    expect(isRightAnswer(RIGHT_ANSWER_THRESHOLD_YEARS)).toBe(true);
+    expect(isRightAnswer(-RIGHT_ANSWER_THRESHOLD_YEARS)).toBe(true);
+    expect(isRightAnswer(RIGHT_ANSWER_THRESHOLD_YEARS + 1)).toBe(false);
   });
 });

@@ -5,26 +5,24 @@ import { levelForXp } from '@/domain';
 import { useProgression } from '@/features/progression';
 import { useAuth } from '@/services/firebase/auth';
 
+import { resolveDisplayName } from './playerName';
 import { publishEntry } from './service';
-import { handleForUid, MAX_DISPLAY_NAME } from './types';
 
 /**
- * Publishes the player's XP to the leaderboard whenever it changes (and once the
- * anonymous sign-in has a uid). Mounted once near the app root so a score is
- * banked to the board no matter which mode earned it. A transparent no-op
- * offline or in unconfigured builds.
+ * Publishes the player's XP to the leaderboard whenever it (or their name)
+ * changes, once the anonymous sign-in has a uid. Mounted once near the app
+ * root so a score is banked to the board no matter which mode earned it. A
+ * transparent no-op offline or in unconfigured builds.
+ *
+ * The published name is the player's chosen name or their generated handle —
+ * never the Google/email name on the account.
  */
 export function useLeaderboardSync(): void {
-  const { uid, isSignedIn, user } = useAuth();
+  const { uid, isSignedIn } = useAuth();
   const { state, isLoading } = useProgression();
   const lastPublished = useRef<string | null>(null);
 
-  // Real accounts show their own name on the board; guests keep the stable
-  // generated handle. Length is capped to what the security rules accept.
-  const displayName = (user?.displayName?.trim() || (uid ? handleForUid(uid) : '')).slice(
-    0,
-    MAX_DISPLAY_NAME,
-  );
+  const displayName = resolveDisplayName(state.displayName, uid);
 
   useEffect(() => {
     if (!isFirebaseConfigured || !isSignedIn || uid === null || isLoading) return;

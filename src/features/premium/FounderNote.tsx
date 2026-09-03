@@ -6,7 +6,7 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
  * change it — the round crop and layout stay the same. (The current file is a
  * placeholder monogram until a photo is dropped in.)
  */
-const FOUNDER_PHOTO = require('../../../assets/founder.jpg');
+const FOUNDER_PHOTO = require('../../../assets/founder.webp');
 
 const PHOTO_SIZE = 88;
 

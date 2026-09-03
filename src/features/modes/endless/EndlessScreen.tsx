@@ -1,51 +1,23 @@
-import { useState } from 'react';
 import { Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { Button, Screen } from '@/components/ui';
 import { usePremium } from '@/features/premium';
 import { RoundView, useRoundRewards } from '@/features/round';
-import { palette } from '@/theme/tokens';
 
 import { ModeHud } from '../components/ModeHud';
 import { HintButton } from '../hints/HintButton';
-import { roundDetail, RunSummary, type SummaryRow } from '../components/RunSummary';
-import { isOutOfEndlessLives } from './endlessRules';
 import { useEndlessSession } from './useEndlessSession';
 
-function EndlessPlay({ onHome, onRetry }: { onHome: () => void; onRetry: () => void }) {
-  const { session, lives, startingLives, best } = useEndlessSession();
-  // Endless has its own lives, so a miss must not also cost a heart.
+function EndlessPlay({ onHome }: { onHome: () => void }) {
+  const { session, best } = useEndlessSession();
+  // Endless has no lives at all, so a miss must not cost a heart either.
   const { reward, unlockedTitles, acquired } = useRoundRewards(session, { usesHearts: false });
 
-  if (session.status === 'finished') {
-    const stats = [
-      { label: 'Rounds played', value: String(session.results.length) },
-      { label: 'Best score', value: best.toLocaleString() },
-    ];
-    const rounds: SummaryRow[] = session.results.map((r, i) => ({
-      key: `${i}`,
-      label: r.question.title,
-      score: r.score.total,
-      detail: roundDetail(r.errorYears, r.guessYear),
-    }));
-
-    return (
-      <RunSummary
-        title="Out of lives"
-        totalScore={session.totalScore}
-        accent={palette.danger}
-        stats={stats}
-        rounds={rounds}
-        primaryLabel="Play again"
-        onPrimary={onRetry}
-        secondaryLabel="Home"
-        onSecondary={onHome}
-      />
-    );
-  }
-
-  const nextLabel = isOutOfEndlessLives(session.results) ? 'See results' : 'Next';
+  // There is no end-of-run summary (the run never ends), so the best score
+  // lives in the HUD where the player can see it climb.
+  const progressLabel =
+    best > 0 ? `Round ${session.roundNumber} · Best ${best.toLocaleString()}` : `Round ${session.roundNumber}`;
 
   return (
     <Screen>
@@ -55,30 +27,20 @@ function EndlessPlay({ onHome, onRetry }: { onHome: () => void; onRetry: () => v
         result={session.result}
         onSubmit={session.submit}
         onNext={session.advance}
-        nextLabel={nextLabel}
         reward={reward}
         unlockedTitles={unlockedTitles}
         acquired={acquired}
         actions={<HintButton question={session.question} />}
-        hud={
-          <ModeHud
-            progressLabel={`Round ${session.roundNumber}`}
-            score={session.totalScore}
-            lives={lives}
-            startingLives={startingLives}
-            onBack={onHome}
-          />
-        }
+        hud={<ModeHud progressLabel={progressLabel} score={session.totalScore} onBack={onHome} />}
       />
     </Screen>
   );
 }
 
-/** Endless mode: a Premium run of random questions on ten lives. */
+/** Endless mode: a Premium run of random questions with unlimited lives. */
 export function EndlessScreen() {
   const router = useRouter();
   const { isPremium } = usePremium();
-  const [runId, setRunId] = useState(0);
 
   if (!isPremium) {
     return (
@@ -89,7 +51,8 @@ export function EndlessScreen() {
             Endless is a Premium mode
           </Text>
           <Text className="text-center text-base text-ink-secondary">
-            Subscribe to chase a high score on ten lives — plus unlimited hearts everywhere else.
+            Subscribe to chase a high score with unlimited lives — plus unlimited hearts
+            everywhere else.
           </Text>
           <Button label="See Premium" onPress={() => router.push('/paywall')} />
           <Button label="Back" variant="ghost" onPress={() => router.back()} />
@@ -98,11 +61,5 @@ export function EndlessScreen() {
     );
   }
 
-  return (
-    <EndlessPlay
-      key={runId}
-      onHome={() => router.back()}
-      onRetry={() => setRunId((n) => n + 1)}
-    />
-  );
+  return <EndlessPlay onHome={() => router.back()} />;
 }

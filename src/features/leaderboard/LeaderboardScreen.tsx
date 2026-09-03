@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   FlatList,
   ImageBackground,
+  Pressable,
   RefreshControl,
   Text,
   View,
@@ -12,9 +13,12 @@ import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 
 import { Screen } from '@/components/ui';
 import { isFirebaseConfigured } from '@/config/env';
+import { PlayerNameSheet } from '@/features/progression/components/PlayerNameSheet';
+import { useProgression } from '@/features/progression';
 import { useAuth } from '@/services/firebase/auth';
 import { useThemeColors } from '@/theme';
 
+import { resolveDisplayName } from './playerName';
 import { fetchTop } from './service';
 import type { LeaderboardEntry } from './types';
 
@@ -30,7 +34,7 @@ import type { LeaderboardEntry } from './types';
 function Backdrop({ children }: { children: ReactNode }) {
   return (
     <ImageBackground
-      source={require('../../../assets/leaderboard-bg.jpg')}
+      source={require('../../../assets/leaderboard-bg.webp')}
       resizeMode="cover"
       className="flex-1"
     >
@@ -207,7 +211,9 @@ function Row({
 /** Global ranking by XP. Degrades to a friendly notice offline. */
 export function LeaderboardScreen() {
   const { uid } = useAuth();
+  const { state, setDisplayName } = useProgression();
   const colors = useThemeColors();
+  const [editingName, setEditingName] = useState(false);
   const [entries, setEntries] = useState<readonly LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -250,6 +256,23 @@ export function LeaderboardScreen() {
       <Text className="mb-5 text-center text-base text-ink-secondary">
         Top history buffs by XP
       </Text>
+      {uid !== null && state.displayName === null && (
+        <Pressable
+          onPress={() => setEditingName(true)}
+          accessibilityRole="button"
+          accessibilityLabel="Choose your leaderboard name"
+          testID="leaderboard-name-nudge"
+          className="mb-5 w-full flex-row items-center justify-between gap-3 border border-hair bg-bg-raised p-4"
+        >
+          <View className="flex-1">
+            <Text className="text-sm font-bold text-ink-primary">Choose your name</Text>
+            <Text className="mt-0.5 text-xs text-ink-muted">
+              You appear as {resolveDisplayName(null, uid)}. Tap to pick a name.
+            </Text>
+          </View>
+          <Text className="text-xl text-ink-muted">›</Text>
+        </Pressable>
+      )}
       {hasPodium && <Podium entries={entries} myUid={uid ?? undefined} />}
     </View>
   );
@@ -309,6 +332,13 @@ export function LeaderboardScreen() {
               </Text>
             )
           }
+        />
+        <PlayerNameSheet
+          visible={editingName}
+          currentName={state.displayName}
+          fallbackName={resolveDisplayName(null, uid)}
+          onSave={setDisplayName}
+          onClose={() => setEditingName(false)}
         />
       </Backdrop>
     </Screen>

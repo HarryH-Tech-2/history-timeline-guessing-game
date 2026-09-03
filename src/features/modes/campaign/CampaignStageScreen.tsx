@@ -3,6 +3,7 @@ import { Text } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Button, Screen } from '@/components/ui';
+import { SignInNudge } from '@/features/account/SignInNudge';
 import { OutOfHeartsSheet, useHearts } from '@/features/hearts';
 import { RoundView, useRoundRewards } from '@/features/round';
 import { palette } from '@/theme/tokens';
@@ -47,6 +48,9 @@ function StagePlay({
         onPrimary={onHome}
         secondaryLabel="Replay"
         onSecondary={onRetry}
+        // A guest's first cleared stage is the moment their progress starts
+        // being worth keeping — the one time we suggest signing in mid-flow.
+        notice={<SignInNudge milestone="campaign-first-stage" active />}
       />
     );
   }
@@ -69,7 +73,11 @@ function StagePlay({
         hud={
           <ModeHud
             progressLabel={`Question ${session.roundNumber} of ${totalQuestions}`}
-            progress={{ current: session.roundNumber, total: totalQuestions }}
+            progress={{
+              current: session.roundNumber,
+              total: totalQuestions,
+              results: session.results,
+            }}
             score={session.totalScore}
             hearts={hearts}
             onBack={onHome}

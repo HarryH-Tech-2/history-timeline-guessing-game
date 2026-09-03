@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import RNShare from 'react-native-share';
 
 import type { Category, Question } from '@/domain';
 
@@ -94,5 +95,22 @@ describe('DailyScreen', () => {
       expect(screen.getByText('Daily complete')).toBeOnTheScreen();
       expect(screen.getByTestId('summary-primary')).toBeOnTheScreen();
     });
+
+    // Sharing captures the off-screen image card and hands the OS sheet both
+    // the PNG and the emoji text for today's puzzle.
+    expect(screen.getByTestId('daily-share-card')).toBeOnTheScreen();
+    fireEvent.press(screen.getByText('Share result'));
+    await waitFor(() => expect(RNShare.open).toHaveBeenCalledTimes(1));
+    const options = jest.mocked(RNShare.open).mock.calls[0]![0] as {
+      url: string;
+      type: string;
+      message: string;
+    };
+    expect(options.url).toBe('file:///tmp/capture.png');
+    expect(options.type).toBe('image/png');
+    expect(options.message).toMatch(/^📜 Date Guesser Daily #\d+\n/);
+    expect(options.message.split('\n')[1]).toMatch(/^[🎯🟩🟨🟧🟥⬛]{2}$/u); // one tile per round
+    expect(options.message).toContain('play.google.com');
+    expect(screen.getByText('Home')).toBeOnTheScreen();
   });
 });

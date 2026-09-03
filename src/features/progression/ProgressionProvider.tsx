@@ -18,6 +18,7 @@ import {
 import { useSaves } from '@/features/save';
 import { dateKey } from '@/utils/date';
 
+import { syncPlayGamesAchievements } from './playGamesSync';
 import {
   applyDailyComplete,
   applyGameComplete,
@@ -48,6 +49,8 @@ export interface ProgressionApi {
   loseHeart: () => number;
   /** Buy a full heart refill with coins; false if broke or already full. */
   refillHearts: () => boolean;
+  /** Set the player's chosen public name, or null to revert to the generated handle. */
+  setDisplayName: (name: string | null) => void;
 }
 
 /**
@@ -65,6 +68,7 @@ const OFFLINE_API: ProgressionApi = {
   spend: () => false,
   loseHeart: () => MAX_HEARTS,
   refillHearts: () => false,
+  setDisplayName: () => {},
 };
 
 const ProgressionContext = createContext<ProgressionApi>(OFFLINE_API);
@@ -108,6 +112,16 @@ export function ProgressionProvider({ children }: { children: ReactNode }) {
       cancelled = true;
     };
   }, [uid, isReady, store]);
+
+  // Mirror unlocks onto Play Games. Runs on load too, so achievements earned
+  // while Play Games was unavailable (or before this feature existed) catch
+  // up; the sync remembers what already took and skips it. Concurrent runs
+  // can at worst re-send an unlock, which Play treats as a no-op.
+  const unlocked = state.unlocked;
+  useEffect(() => {
+    if (isLoading || unlocked.length === 0) return;
+    void syncPlayGamesAchievements(unlocked);
+  }, [isLoading, unlocked]);
 
   const commit = useCallback(
     (next: ProgressionState) => {
@@ -171,6 +185,15 @@ export function ProgressionProvider({ children }: { children: ReactNode }) {
     return ok;
   }, [commit]);
 
+  const setDisplayName = useCallback(
+    (name: string | null) => {
+      const trimmed = name?.trim() || null;
+      if (trimmed === ref.current.displayName) return;
+      commit({ ...ref.current, displayName: trimmed });
+    },
+    [commit],
+  );
+
   const value = useMemo<ProgressionApi>(
     () => ({
       state,
@@ -182,6 +205,7 @@ export function ProgressionProvider({ children }: { children: ReactNode }) {
       spend,
       loseHeart,
       refillHearts,
+      setDisplayName,
     }),
     [
       state,
@@ -193,6 +217,7 @@ export function ProgressionProvider({ children }: { children: ReactNode }) {
       spend,
       loseHeart,
       refillHearts,
+      setDisplayName,
     ],
   );
 

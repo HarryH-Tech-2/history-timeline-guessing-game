@@ -45,6 +45,18 @@ export const COMBO_STEP = 0.1;
 /** Combos stop stacking past this many rounds (caps the multiplier). */
 export const COMBO_MAX_STACKS = 5;
 
+/**
+ * A guess within this many years is treated as "right" by the reveal feedback
+ * (success haptic + the right-answer sting); anything further is "wrong". It is
+ * deliberately the combo threshold so every signal agrees on what a good guess
+ * is — change this one constant to loosen or tighten it.
+ */
+export const RIGHT_ANSWER_THRESHOLD_YEARS = COMBO_THRESHOLD_YEARS;
+
+export function isRightAnswer(errorYears: number): boolean {
+  return Math.abs(errorYears) <= RIGHT_ANSWER_THRESHOLD_YEARS;
+}
+
 /** Length of the trailing run of "good" guesses (error within the threshold). */
 export function streakLength(results: readonly RoundResult[]): number {
   let n = 0;

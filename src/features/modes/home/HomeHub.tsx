@@ -46,7 +46,7 @@ const MODES: readonly ModeCardData[] = [
   {
     key: 'endless',
     title: 'Endless',
-    description: 'Ten lives. Chase a high score.',
+    description: 'Unlimited lives. Chase a high score.',
     icon: '♾️',
     route: '/endless',
     premiumOnly: true,

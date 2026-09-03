@@ -6,7 +6,9 @@ import { useReducedMotion } from 'react-native-reanimated';
 import { Button } from '@/components/ui';
 import { getCategoryById } from '@/data';
 import type { Question, RoundResult } from '@/domain';
+import { useSound } from '@/features/sound';
 import { TimelineTrack, useTimelineTransform } from '@/features/timeline';
+import { isRightAnswer } from '@/features/timeline/math';
 import { palette } from '@/theme/tokens';
 
 import { Confetti } from './components/Confetti';
@@ -55,6 +57,7 @@ export function RoundView({
 }: RoundViewProps) {
   const controller = useTimelineTransform({ initialRange: DEFAULT_RANGE });
   const reducedMotion = useReducedMotion();
+  const { play: playSound } = useSound();
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
 
@@ -64,20 +67,22 @@ export function RoundView({
 
   const handleSubmit = useCallback(() => {
     const guessYear = controller.readGuessYear();
-    const isPerfect = Math.round(guessYear) === question.year;
+    // "Right" is a single shared threshold so the haptic and the sting agree.
+    const right = isRightAnswer(Math.round(guessYear) - question.year);
 
     void Haptics.notificationAsync(
-      isPerfect
+      right
         ? Haptics.NotificationFeedbackType.Success
         : Haptics.NotificationFeedbackType.Warning,
     );
+    playSound(right ? 'right' : 'wrong');
 
     // Show the answer with the least movement: the timeline stays where the
     // player left it unless the true year is off screen.
     controller.reveal(guessYear, question.year);
 
     onSubmit(guessYear);
-  }, [controller, question.year, onSubmit]);
+  }, [controller, question.year, onSubmit, playSound]);
 
   const timeline = (
     <View className="flex-1 justify-center py-2">

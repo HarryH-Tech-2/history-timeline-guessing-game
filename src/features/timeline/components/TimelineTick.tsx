@@ -11,6 +11,14 @@ import { LABEL_RAMPS, LINE_RAMPS, rampOpacity, tierOf } from '@/features/timelin
 interface TimelineTickProps {
   tick: Tick;
   scale: SharedValue<number>;
+  /**
+   * The zoom as of the last time the view came to rest (see
+   * `TimelineController.resting`). Each animated style below is followed by a
+   * plain style computed from this, so the values React owns for the view are
+   * never stale — the fallback Reanimated snaps back to if its registry entry
+   * for the view has been collected.
+   */
+  restingScale: number;
 }
 
 /** Fixed tick-box width; the box is shifted left by half so its centre (the
@@ -22,7 +30,7 @@ const TICK_WIDTH = 96;
  * across the range, so it is kept to the bare minimum — position and opacity
  * are folded into a single animated style.
  */
-function MinorTickComponent({ tick, scale }: TimelineTickProps) {
+function MinorTickComponent({ tick, scale, restingScale }: TimelineTickProps) {
   const [lineFrom, lineTo] = LINE_RAMPS[3]!;
   const style = useAnimatedStyle(() => ({
     transform: [{ translateX: tick.worldX * scale.value }],
@@ -31,7 +39,13 @@ function MinorTickComponent({ tick, scale }: TimelineTickProps) {
   return (
     <Animated.View
       pointerEvents="none"
-      style={style}
+      style={[
+        style,
+        {
+          transform: [{ translateX: tick.worldX * restingScale }],
+          opacity: rampOpacity(restingScale, lineFrom, lineTo),
+        },
+      ]}
       className="absolute bottom-8 left-0 h-7 w-px bg-ink-primary/15"
     />
   );
@@ -45,7 +59,7 @@ function MinorTickComponent({ tick, scale }: TimelineTickProps) {
  * whole tiers of ticks fade out as the view widens so lines and labels never
  * overlap however far the timeline is zoomed out.
  */
-function MajorTickComponent({ tick, scale }: TimelineTickProps) {
+function MajorTickComponent({ tick, scale, restingScale }: TimelineTickProps) {
   const tier = tierOf(tick);
   const [lineFrom, lineTo] = LINE_RAMPS[tier]!;
   const [labelFrom, labelTo] = LABEL_RAMPS[tier]!;
@@ -65,12 +79,26 @@ function MajorTickComponent({ tick, scale }: TimelineTickProps) {
   return (
     <Animated.View
       pointerEvents="none"
-      style={[style, { width: TICK_WIDTH }]}
+      style={[
+        style,
+        {
+          width: TICK_WIDTH,
+          transform: [{ translateX: tick.worldX * restingScale - TICK_WIDTH / 2 }],
+        },
+      ]}
       className="absolute bottom-0 top-0 left-0 items-center justify-end"
+      testID={`timeline-tick-${tick.year}`}
     >
-      <Animated.View style={lineStyle} className="h-14 w-px bg-ink-primary/40" />
+      <Animated.View
+        style={[lineStyle, { opacity: rampOpacity(restingScale, lineFrom, lineTo) }]}
+        className="h-14 w-px bg-ink-primary/40"
+        testID={`timeline-tick-line-${tick.year}`}
+      />
       {/* Fixed-height date strip below the baseline. */}
-      <Animated.View style={labelStyle} className="h-8 items-center justify-center">
+      <Animated.View
+        style={[labelStyle, { opacity: rampOpacity(restingScale, labelFrom, labelTo) }]}
+        className="h-8 items-center justify-center"
+      >
         <Text numberOfLines={1} className="w-24 text-center text-xs font-medium text-ink-muted">
           {tick.label}
         </Text>

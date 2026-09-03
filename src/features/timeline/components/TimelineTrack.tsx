@@ -128,11 +128,13 @@ function ErrorBand({
   fromYear,
   toYear,
   scale,
+  restingScale,
   colour,
 }: {
   fromYear: number;
   toYear: number;
   scale: TimelineController['scale'];
+  restingScale: number;
   colour: string;
 }) {
   const lo = worldXForYear(Math.min(fromYear, toYear));
@@ -145,7 +147,15 @@ function ErrorBand({
     <Animated.View
       pointerEvents="none"
       entering={FadeIn.duration(400)}
-      style={[style, { backgroundColor: colour, opacity: 0.14 }]}
+      style={[
+        style,
+        {
+          transform: [{ translateX: lo * restingScale }],
+          width: Math.max(2, (hi - lo) * restingScale),
+          backgroundColor: colour,
+          opacity: 0.14,
+        },
+      ]}
       className="absolute bottom-8 top-0 left-0"
       testID="reveal-error-band"
     />
@@ -168,38 +178,57 @@ export function TimelineTrack({
   revealColour = '#E8862B',
   guessYear,
 }: TimelineTrackProps) {
-  const { translateX, scale } = controller;
+  const { translateX, scale, resting } = controller;
   const revealed = revealYear !== undefined;
   const minorTicks = useVisibleDecadeTicks(controller);
 
   const panStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value }],
   }));
+  // Plain twin of panStyle from the resting snapshot — see
+  // TimelineController.resting for why every animated view here carries one.
+  const restingPanStyle = { transform: [{ translateX: resting.translateX }] };
 
   return (
     <View className="overflow-hidden border border-hair bg-bg-raised" testID="timeline">
       <View onLayout={controller.onLayout} className="h-40">
         <GestureDetector gesture={controller.gesture}>
           <Animated.View className="flex-1 bg-transparent">
-            <Animated.View style={panStyle} className="absolute inset-0">
+            <Animated.View
+              style={[panStyle, restingPanStyle]}
+              className="absolute inset-0"
+              testID="timeline-pan-layer"
+            >
               {revealed && guessYear !== undefined && (
                 <ErrorBand
                   fromYear={guessYear}
                   toYear={revealYear}
                   scale={scale}
+                  restingScale={resting.scale}
                   colour={revealColour}
                 />
               )}
               {MAJOR_TICKS.map((tick) => (
-                <TimelineTick key={tick.year} tick={tick} scale={scale} />
+                <TimelineTick
+                  key={tick.year}
+                  tick={tick}
+                  scale={scale}
+                  restingScale={resting.scale}
+                />
               ))}
               {minorTicks.map((tick) => (
-                <TimelineTick key={tick.year} tick={tick} scale={scale} />
+                <TimelineTick
+                  key={tick.year}
+                  tick={tick}
+                  scale={scale}
+                  restingScale={resting.scale}
+                />
               ))}
               {revealed && guessYear !== undefined && (
                 <RevealMarker
                   year={guessYear}
                   scale={scale}
+                  restingScale={resting.scale}
                   colour={palette.accent.default}
                   label="You"
                   stagger={GUESS_PILL_STAGGER}
@@ -210,6 +239,7 @@ export function TimelineTrack({
                 <RevealMarker
                   year={revealYear}
                   scale={scale}
+                  restingScale={resting.scale}
                   colour={revealColour}
                   testID="reveal-marker-answer"
                 />

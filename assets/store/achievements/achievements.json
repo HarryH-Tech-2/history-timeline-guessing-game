@@ -1,0 +1,198 @@
+[
+  {
+    "id": "first-round",
+    "name": "First Steps",
+    "points": 5,
+    "emoji": "👣",
+    "playId": ""
+  },
+  {
+    "id": "bullseye",
+    "name": "Bullseye",
+    "points": 10,
+    "emoji": "🎯",
+    "playId": ""
+  },
+  {
+    "id": "sharpshooter",
+    "name": "Sharpshooter",
+    "points": 40,
+    "emoji": "🏹",
+    "playId": ""
+  },
+  {
+    "id": "on-a-roll",
+    "name": "On a Roll",
+    "points": 10,
+    "emoji": "🔥",
+    "playId": ""
+  },
+  {
+    "id": "unstoppable",
+    "name": "Unstoppable",
+    "points": 25,
+    "emoji": "⚡",
+    "playId": ""
+  },
+  {
+    "id": "centurion",
+    "name": "Centurion",
+    "points": 25,
+    "emoji": "💯",
+    "playId": ""
+  },
+  {
+    "id": "level-5",
+    "name": "Rising Historian",
+    "points": 20,
+    "emoji": "📚",
+    "playId": ""
+  },
+  {
+    "id": "level-10",
+    "name": "Master of Time",
+    "points": 40,
+    "emoji": "⏳",
+    "playId": ""
+  },
+  {
+    "id": "coin-hoarder",
+    "name": "Coin Hoarder",
+    "points": 20,
+    "emoji": "🪙",
+    "playId": ""
+  },
+  {
+    "id": "dedicated",
+    "name": "Dedicated",
+    "points": 25,
+    "emoji": "🎖️",
+    "playId": ""
+  },
+  {
+    "id": "warming-up",
+    "name": "Warming Up",
+    "points": 5,
+    "emoji": "🌅",
+    "playId": ""
+  },
+  {
+    "id": "deadeye",
+    "name": "Deadeye",
+    "points": 20,
+    "emoji": "🎪",
+    "playId": ""
+  },
+  {
+    "id": "time-lord",
+    "name": "Time Lord",
+    "points": 60,
+    "emoji": "🌀",
+    "playId": ""
+  },
+  {
+    "id": "flow-state",
+    "name": "Flow State",
+    "points": 40,
+    "emoji": "🌊",
+    "playId": ""
+  },
+  {
+    "id": "daily-streak-3",
+    "name": "Creature of Habit",
+    "points": 10,
+    "emoji": "🌱",
+    "playId": ""
+  },
+  {
+    "id": "daily-streak-7",
+    "name": "Week of Wisdom",
+    "points": 25,
+    "emoji": "📆",
+    "playId": ""
+  },
+  {
+    "id": "daily-streak-30",
+    "name": "Historian in Residence",
+    "points": 60,
+    "emoji": "🏵️",
+    "playId": ""
+  },
+  {
+    "id": "first-artefact",
+    "name": "First Exhibit",
+    "points": 10,
+    "emoji": "🏺",
+    "playId": ""
+  },
+  {
+    "id": "curator",
+    "name": "Curator",
+    "points": 30,
+    "emoji": "🏛️",
+    "playId": ""
+  },
+  {
+    "id": "grand-curator",
+    "name": "Grand Curator",
+    "points": 60,
+    "emoji": "🏰",
+    "playId": ""
+  },
+  {
+    "id": "scholar",
+    "name": "Scholar",
+    "points": 40,
+    "emoji": "🎓",
+    "playId": ""
+  },
+  {
+    "id": "chronicler",
+    "name": "Chronicler",
+    "points": 60,
+    "emoji": "📜",
+    "playId": ""
+  },
+  {
+    "id": "living-legend",
+    "name": "Living Legend",
+    "points": 80,
+    "emoji": "👑",
+    "playId": ""
+  },
+  {
+    "id": "marathoner",
+    "name": "Marathoner",
+    "points": 40,
+    "emoji": "🏃",
+    "playId": ""
+  },
+  {
+    "id": "completionist",
+    "name": "Completionist",
+    "points": 60,
+    "emoji": "🏆",
+    "playId": ""
+  },
+  {
+    "id": "treasure-vault",
+    "name": "Treasure Vault",
+    "points": 40,
+    "emoji": "💰",
+    "playId": ""
+  },
+  {
+    "id": "level-20",
+    "name": "Chronomancer",
+    "points": 60,
+    "emoji": "🔮",
+    "playId": ""
+  },
+  {
+    "id": "level-30",
+    "name": "Timeless",
+    "points": 80,
+    "emoji": "♾️",
+    "playId": ""
+  }
+]

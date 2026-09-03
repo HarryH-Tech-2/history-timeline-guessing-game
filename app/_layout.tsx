@@ -10,6 +10,7 @@ import { useLeaderboardSync } from '@/features/leaderboard';
 import { PremiumProvider } from '@/features/premium';
 import { SaveProvider } from '@/features/save';
 import { ProgressionProvider } from '@/features/progression';
+import { SoundProvider } from '@/features/sound';
 import { syncRemoteContent } from '@/services/content';
 import { AuthProvider } from '@/services/firebase/auth';
 import { warmUpPlayGames } from '@/services/playGames';
@@ -53,7 +54,9 @@ export default function RootLayout() {
             <SaveProvider>
               <PremiumProvider>
                 <ProgressionProvider>
-                  <ThemedNavigator />
+                  <SoundProvider>
+                    <ThemedNavigator />
+                  </SoundProvider>
                 </ProgressionProvider>
               </PremiumProvider>
             </SaveProvider>

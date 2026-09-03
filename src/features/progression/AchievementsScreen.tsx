@@ -1,9 +1,10 @@
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
 import { Screen } from '@/components/ui';
 import { levelForXp } from '@/domain';
+import { showPlayGamesAchievements } from '@/services/playGames';
 import { palette } from '@/theme/tokens';
 
 import { ACHIEVEMENTS, achievementProgress, type Achievement } from './achievements';
@@ -92,6 +93,26 @@ export function AchievementsScreen() {
             </Pressable>
           )}
         </View>
+
+        {Platform.OS === 'android' && (
+          <Pressable
+            onPress={() => {
+              void showPlayGamesAchievements();
+            }}
+            accessibilityRole="button"
+            accessibilityLabel="Open your achievements in Google Play Games"
+            testID="achievements-play-games"
+            className="mb-1 flex-row items-center justify-between border border-hair bg-bg-raised px-4 py-3"
+          >
+            <View className="flex-1 pr-3">
+              <Text className="text-sm font-semibold text-ink-primary">Google Play Games</Text>
+              <Text className="mt-0.5 text-xs text-ink-muted">
+                Everything you earn here unlocks on your Play Games profile too.
+              </Text>
+            </View>
+            <Text className="text-xl text-ink-muted">›</Text>
+          </Pressable>
+        )}
 
         {ACHIEVEMENTS.map((achievement, index) => (
           <AchievementRow

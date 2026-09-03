@@ -1,0 +1,29 @@
+In-app id,Name,Description,Points,Type,Initial state,Icon
+first-round,First Steps,Answer your first question.,5,Standard,Revealed,icons/first-round.png
+bullseye,Bullseye,Nail a year exactly.,10,Standard,Revealed,icons/bullseye.png
+sharpshooter,Sharpshooter,Land 25 perfect guesses.,40,Standard,Revealed,icons/sharpshooter.png
+on-a-roll,On a Roll,Reach a 5-guess combo.,10,Standard,Revealed,icons/on-a-roll.png
+unstoppable,Unstoppable,Reach a 10-guess combo.,25,Standard,Revealed,icons/unstoppable.png
+centurion,Centurion,Answer 100 questions.,25,Standard,Revealed,icons/centurion.png
+level-5,Rising Historian,Reach level 5.,20,Standard,Revealed,icons/level-5.png
+level-10,Master of Time,Reach level 10.,40,Standard,Revealed,icons/level-10.png
+coin-hoarder,Coin Hoarder,Bank 500 coins at once.,20,Standard,Revealed,icons/coin-hoarder.png
+dedicated,Dedicated,Finish 20 games.,25,Standard,Revealed,icons/dedicated.png
+warming-up,Warming Up,Finish your first game.,5,Standard,Revealed,icons/warming-up.png
+deadeye,Deadeye,Land 5 perfect guesses.,20,Standard,Revealed,icons/deadeye.png
+time-lord,Time Lord,Land 100 perfect guesses.,60,Standard,Revealed,icons/time-lord.png
+flow-state,Flow State,Reach a 20-guess combo.,40,Standard,Revealed,icons/flow-state.png
+daily-streak-3,Creature of Habit,Keep a 3-day Daily streak.,10,Standard,Revealed,icons/daily-streak-3.png
+daily-streak-7,Week of Wisdom,Keep a 7-day Daily streak.,25,Standard,Revealed,icons/daily-streak-7.png
+daily-streak-30,Historian in Residence,Keep a 30-day Daily streak.,60,Standard,Revealed,icons/daily-streak-30.png
+first-artefact,First Exhibit,Add your first artefact to the museum.,10,Standard,Revealed,icons/first-artefact.png
+curator,Curator,Collect 25 museum artefacts.,30,Standard,Revealed,icons/curator.png
+grand-curator,Grand Curator,Collect 100 museum artefacts.,60,Standard,Revealed,icons/grand-curator.png
+scholar,Scholar,Answer 250 questions.,40,Standard,Revealed,icons/scholar.png
+chronicler,Chronicler,Answer 500 questions.,60,Standard,Revealed,icons/chronicler.png
+living-legend,Living Legend,"Answer 1,000 questions.",80,Standard,Revealed,icons/living-legend.png
+marathoner,Marathoner,Finish 50 games.,40,Standard,Revealed,icons/marathoner.png
+completionist,Completionist,Finish 100 games.,60,Standard,Revealed,icons/completionist.png
+treasure-vault,Treasure Vault,"Hold 2,000 coins at once.",40,Standard,Revealed,icons/treasure-vault.png
+level-20,Chronomancer,Reach level 20.,60,Standard,Revealed,icons/level-20.png
+level-30,Timeless,Reach level 30.,80,Standard,Revealed,icons/level-30.png

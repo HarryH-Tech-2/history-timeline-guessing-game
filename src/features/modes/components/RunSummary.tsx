@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
@@ -35,6 +36,8 @@ interface RunSummaryProps {
   onPrimary: () => void;
   secondaryLabel?: string;
   onSecondary?: () => void;
+  /** Optional callout shown inside the card, just above the buttons. */
+  notice?: ReactNode;
 }
 
 /**
@@ -101,6 +104,7 @@ export function RunSummary({
   onPrimary,
   secondaryLabel,
   onSecondary,
+  notice,
 }: RunSummaryProps) {
   return (
     <Screen>
@@ -111,7 +115,7 @@ export function RunSummary({
         <Mascot line={mascotLine(stars, rounds)} />
 
         <Animated.View entering={FadeInDown.springify().damping(18)}>
-          <Card className="gap-5">
+          <Card className="gap-5" testID="summary-card">
             <View className="items-center gap-1">
               <Text className="text-center text-sm font-medium uppercase tracking-wide text-ink-muted">
                 {title}
@@ -159,6 +163,10 @@ export function RunSummary({
                   </View>
                 ))}
               </View>
+            )}
+
+            {notice !== undefined && notice !== null && (
+              <View testID="summary-notice">{notice}</View>
             )}
 
             <View className="gap-3">

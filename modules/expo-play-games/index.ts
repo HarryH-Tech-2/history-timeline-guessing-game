@@ -18,6 +18,13 @@ export interface ExpoPlayGamesNativeModule {
   signIn(): Promise<boolean>;
   /** Single-use server auth code for the given web OAuth client id. */
   requestServerSideAccess(webClientId: string): Promise<string>;
+  /**
+   * Unlock the achievement with this Play Console id. Resolves once Play has
+   * accepted it; rejects when there is no Play Games session or no Activity.
+   */
+  unlockAchievement(achievementId: string): Promise<void>;
+  /** Open Play Games' achievements UI over the app. */
+  showAchievements(): Promise<void>;
 }
 
 export default requireOptionalNativeModule<ExpoPlayGamesNativeModule>('ExpoPlayGames');

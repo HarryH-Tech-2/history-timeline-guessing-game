@@ -121,6 +121,11 @@ export const ProgressionStateSchema = z.object({
   collection: z.record(z.string(), z.number().nonnegative()).default({}),
   /** Play-energy meter; defaulted so older profiles start full. */
   hearts: HeartsStateSchema.default(INITIAL_HEARTS),
+  /**
+   * The name the player chose for the leaderboard and profile, or null to
+   * show the generated handle. Never a Google/email name — those stay private.
+   */
+  displayName: z.string().nullable().default(null),
 });
 export type ProgressionState = z.infer<typeof ProgressionStateSchema>;
 
@@ -132,4 +137,5 @@ export const INITIAL_PROGRESSION: ProgressionState = {
   streak: INITIAL_STREAK,
   collection: {},
   hearts: INITIAL_HEARTS,
+  displayName: null,
 };

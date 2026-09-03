@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { type LayoutChangeEvent } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { Gesture, type ComposedGesture } from 'react-native-gesture-handler';
@@ -38,9 +38,39 @@ const FRAME_TIMING = { duration: 420, easing: Easing.out(Easing.cubic) };
  * JS thread (and the vibration motor) with a call per decade crossed. */
 const HAPTIC_MIN_INTERVAL_MS = 80;
 
+/** Quiet time after the last transform change before it counts as at rest. */
+const SETTLE_MS = 120;
+
+/** A plain-number snapshot of the transform, taken whenever the view stops. */
+export interface RestingTransform {
+  scale: number;
+  translateX: number;
+}
+
 export interface TimelineController {
   translateX: SharedValue<number>;
   scale: SharedValue<number>;
+  /**
+   * The transform as of the last time the view came to rest, mirrored into
+   * React state. Every animated view on the track writes it into a plain style
+   * placed AFTER its animated style, so the view's React-owned props always
+   * describe where it really is.
+   *
+   * Why: Reanimated 4 keeps animated values in a native registry and re-applies
+   * them on every React commit, but its "settled props" collector deletes a
+   * view's entry ~2s after it stops moving — and it can do so without ever
+   * syncing the final value back to React if the JS thread stalls for a second
+   * (the collector polls every 500ms; it purges before it reads, and its source
+   * carries a TODO about exactly this). After that purge, the next React
+   * commit anywhere in the app snaps the view back to whatever React last
+   * rendered: for the ticks, their position from BEFORE the reveal zoom, i.e.
+   * off-screen — the "gridlines vanish after a big-miss reveal" bug. Keeping
+   * React's props current makes that fallback harmless. The collector is also
+   * disabled outright via `reanimated.staticFeatureFlags` in package.json,
+   * which takes effect on the next native build; this is the belt to that
+   * brace and works in the JS bundle alone.
+   */
+  resting: RestingTransform;
   /** Live year under the crosshair (UI thread). */
   centreYear: SharedValue<number>;
   /** Laid-out track width in px (0 until the first layout). */
@@ -113,6 +143,37 @@ export function useTimelineTransform(options: Options = {}): TimelineController 
       if (now - lastHapticAt.value < HAPTIC_MIN_INTERVAL_MS) return;
       lastHapticAt.value = now;
       runOnJS(tickHaptic)();
+    },
+  );
+
+  const [resting, setResting] = useState<RestingTransform>({ scale: 1, translateX: 0 });
+  const commitResting = useCallback((next: RestingTransform) => {
+    setResting((prev) =>
+      prev.scale === next.scale && prev.translateX === next.translateX ? prev : next,
+    );
+  }, []);
+
+  // Debounced on the UI thread: while a gesture, fling or re-frame is moving
+  // the view nothing crosses to JS; SETTLE_MS after the last change, one
+  // snapshot does. (-1 = no timer pending.)
+  const settleTimer = useSharedValue(-1);
+  useAnimatedReaction(
+    () => ({ scale: scale.value, translateX: translateX.value }),
+    (current, previous) => {
+      if (
+        previous !== null &&
+        current.scale === previous.scale &&
+        current.translateX === previous.translateX
+      ) {
+        return;
+      }
+      if (settleTimer.value !== -1) {
+        clearTimeout(settleTimer.value as unknown as ReturnType<typeof setTimeout>);
+      }
+      settleTimer.value = setTimeout(() => {
+        settleTimer.value = -1;
+        runOnJS(commitResting)(current);
+      }, SETTLE_MS) as unknown as number;
     },
   );
 
@@ -226,6 +287,7 @@ export function useTimelineTransform(options: Options = {}): TimelineController 
   return {
     translateX,
     scale,
+    resting,
     centreYear,
     width,
     gesture,

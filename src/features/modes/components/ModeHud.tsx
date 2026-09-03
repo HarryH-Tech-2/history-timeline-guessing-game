@@ -1,15 +1,30 @@
+import { useEffect } from 'react';
 import { Pressable, Text, View } from 'react-native';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withSpring,
+  withTiming,
+} from 'react-native-reanimated';
 
+import type { RoundResult } from '@/domain';
+import { isRightAnswer } from '@/features/timeline/math';
 import { useThemeColors } from '@/theme';
+import { palette } from '@/theme/tokens';
 
 interface ModeHudProps {
   /** Left-aligned progress label, e.g. "Question 3 of 8" or "Round 5". */
   progressLabel?: string;
   /**
-   * Position in a fixed-length run — draws a thin fill bar under the HUD so
-   * the distance to the end reads at a glance. Omit for open-ended modes.
+   * Position in a fixed-length run — draws one segment per question under the
+   * HUD, colouring the ones already answered by how they went. Omit for
+   * open-ended modes.
    */
-  progress?: { current: number; total: number };
+  progress?: { current: number; total: number; results?: readonly RoundResult[] };
   /** Running score, right-aligned. */
   score?: number;
   /** Remaining lives (Survival) — renders a row of hearts. */
@@ -51,16 +66,104 @@ function Hearts({ lives, total }: { lives: number; total: number }) {
   );
 }
 
-/** Thin track/fill pair showing how far through a fixed-length run we are. */
-function ProgressBar({ current, total }: { current: number; total: number }) {
-  const fraction = total > 0 ? Math.min(1, Math.max(0, current / total)) : 0;
+/** How an answered segment is coloured. */
+export type SegmentTier = 'perfect' | 'hit' | 'miss';
+
+export function segmentTier(result: RoundResult): SegmentTier {
+  if (result.isPerfect) return 'perfect';
+  return isRightAnswer(result.errorYears) ? 'hit' : 'miss';
+}
+
+type SegmentState = SegmentTier | 'current' | 'upcoming';
+
+/** One notch of the progress bar. Answered notches pop in; the live one breathes. */
+function Segment({ state, reducedMotion }: { state: SegmentState; reducedMotion: boolean }) {
+  const colors = useThemeColors();
+  const pop = useSharedValue(reducedMotion || state === 'upcoming' ? 1 : 0.6);
+  const glow = useSharedValue(1);
+
+  useEffect(() => {
+    if (reducedMotion) {
+      pop.value = 1;
+      glow.value = 1;
+      return;
+    }
+    pop.value = withSpring(1, { damping: 10, stiffness: 220, mass: 0.6 });
+    if (state === 'current') {
+      glow.value = withRepeat(
+        withSequence(
+          withTiming(0.45, { duration: 700, easing: Easing.inOut(Easing.quad) }),
+          withTiming(1, { duration: 700, easing: Easing.inOut(Easing.quad) }),
+        ),
+        -1,
+        true,
+      );
+    } else {
+      glow.value = withTiming(1, { duration: 150 });
+    }
+  }, [state, reducedMotion, pop, glow]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: glow.value,
+    transform: [{ scaleY: pop.value }],
+  }));
+
+  const fill: Record<SegmentState, string> = {
+    perfect: palette.warning, // gold for an exact year
+    hit: palette.success,
+    miss: colors.ink.muted,
+    current: palette.accent.default,
+    upcoming: colors.hair,
+  };
+
   return (
     <View
-      className="h-1 w-full overflow-hidden bg-bg-overlay"
+      className="h-2 flex-1 overflow-hidden rounded-full"
+      style={{ backgroundColor: colors.hair }}
+      testID={`hud-segment-${state}`}
+    >
+      <Animated.View
+        style={[
+          { flex: 1, borderRadius: 999, backgroundColor: fill[state] },
+          // Only the current notch shows a raised lip, so it reads as "live".
+          state === 'current' && { borderWidth: 1, borderColor: palette.accent.soft },
+          animatedStyle,
+        ]}
+      />
+    </View>
+  );
+}
+
+/**
+ * Segmented progress: one notch per question. Answered notches are coloured
+ * gold (exact), green (within the right-answer window) or muted (a miss); the
+ * question in play pulses copper; the rest wait as hairline slots.
+ */
+function ProgressBar({
+  current,
+  total,
+  results = [],
+}: {
+  current: number;
+  total: number;
+  results?: readonly RoundResult[];
+}) {
+  const reducedMotion = useReducedMotion();
+  const segments: SegmentState[] = Array.from({ length: Math.max(total, 0) }, (_, i) => {
+    const result = results[i];
+    if (result !== undefined) return segmentTier(result);
+    return i === current - 1 ? 'current' : 'upcoming';
+  });
+
+  return (
+    <View
+      className="w-full flex-row items-center gap-1"
       accessibilityLabel={`Question ${current} of ${total}`}
       testID="hud-progress-bar"
     >
-      <View className="h-full bg-accent" style={{ width: `${fraction * 100}%` }} />
+      {segments.map((state, i) => (
+        <Segment key={i} state={state} reducedMotion={reducedMotion} />
+      ))}
     </View>
   );
 }
@@ -113,7 +216,11 @@ export function ModeHud({
         </View>
       </View>
       {progress !== undefined && (
-        <ProgressBar current={progress.current} total={progress.total} />
+        <ProgressBar
+          current={progress.current}
+          total={progress.total}
+          results={progress.results}
+        />
       )}
     </View>
   );
