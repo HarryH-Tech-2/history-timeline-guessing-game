@@ -75,14 +75,26 @@ async function generateImage(apiKey: string, event: string): Promise<Buffer> {
   throw new Error('response contained no image data');
 }
 
-/** Rebuild the require-map from whatever images exist on disk. */
-function writeRequireMap(): number {
-  const ids = QUESTIONS.map((q) => q.id).filter((id) =>
-    existsSync(path.join(ASSETS_DIR, `${id}.jpg`)),
-  );
+/**
+ * Rebuild the require-map from whatever images exist on disk. Fresh renders
+ * land as .jpg; `python scripts/optimizeImages.py` later converts them to the
+ * smaller .webp (and rewrites this map), so both extensions are recognised.
+ */
+function imageFileFor(id: string): string | null {
+  for (const ext of ['webp', 'jpg']) {
+    if (existsSync(path.join(ASSETS_DIR, `${id}.${ext}`))) return `${id}.${ext}`;
+  }
+  return null;
+}
 
-  const entries = ids
-    .map((id) => `  '${id}': require('../../assets/questions/${id}.jpg'),`)
+function writeRequireMap(): number {
+  const files = QUESTIONS.map((q) => [q.id, imageFileFor(q.id)] as const).filter(
+    (pair): pair is readonly [string, string] => pair[1] !== null,
+  );
+  const ids = files.map(([id]) => id);
+
+  const entries = files
+    .map(([id, file]) => `  '${id}': require('../../assets/questions/${file}'),`)
     .join('\n');
 
   writeFileSync(

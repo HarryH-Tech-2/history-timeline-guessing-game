@@ -23,3 +23,9 @@ google-services.json
 
 # Firebase hosting cache
 .firebase/
+
+# Agent worktrees, promo video takes/frames, and the regenerable Play import bundle
+.claude/worktrees/
+promo/*.mp4
+promo/*.png
+assets/store/achievements/play-achievements-import.zip

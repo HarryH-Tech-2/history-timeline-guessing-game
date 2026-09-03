@@ -25,3 +25,7 @@ modules/*/android/build/
 
 # Local scratch
 SESSION-HANDOFF.txt
+
+# Not part of the app: agent worktrees and promo video takes.
+.claude/
+promo/

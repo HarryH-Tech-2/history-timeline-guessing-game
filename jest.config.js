@@ -6,6 +6,9 @@ module.exports = {
   // JS fallback instead of NativeWorklets.native.ts.
   resolver: '<rootDir>/node_modules/react-native-worklets/jest/resolver.js',
   setupFilesAfterEnv: ['<rootDir>/jest-setup.ts'],
+  // Agent worktrees are full checkouts inside the repo; never run their copies.
+  testPathIgnorePatterns: ['/node_modules/', '/\\.claude/'],
+  modulePathIgnorePatterns: ['<rootDir>/\\.claude/'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },

@@ -35,7 +35,29 @@
       "expo-router",
       "expo-status-bar",
       "@react-native-google-signin/google-signin",
-      ["./plugins/withPlayGames", { "appId": "192520909417" }]
+      [
+        "./plugins/withPlayGames",
+        {
+          "appId": "192520909417"
+        }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": false,
+          "recordAudioAndroid": false,
+          "enableBackgroundPlayback": false
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableProguardInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
