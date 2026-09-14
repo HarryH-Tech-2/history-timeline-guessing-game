@@ -7,6 +7,7 @@ import { useAuth } from '@/services/firebase/auth';
 
 import { resolveDisplayName } from './playerName';
 import { publishEntry } from './service';
+import { qualifiesForLeaderboard } from './types';
 
 /**
  * Publishes the player's XP to the leaderboard whenever it (or their name)
@@ -26,6 +27,8 @@ export function useLeaderboardSync(): void {
 
   useEffect(() => {
     if (!isFirebaseConfigured || !isSignedIn || uid === null || isLoading) return;
+    // Nobody appears on the board until they have earned a little XP.
+    if (!qualifiesForLeaderboard(state.xp)) return;
     const key = `${uid}:${state.xp}:${displayName}`;
     if (key === lastPublished.current) return;
     lastPublished.current = key;

@@ -20,7 +20,8 @@ function roundScoring(total: number): RoundResult {
 }
 
 describe('campaign map', () => {
-  it('builds chronological era worlds of free questions with unique stages', () => {
+  it('builds chronological era worlds from the whole catalogue with unique stages', () => {
+    const categoriesInCampaign = new Set<string>();
     expect(CAMPAIGN.map((w) => w.id)).toEqual([
       'ancient',
       'medieval',
@@ -37,10 +38,13 @@ describe('campaign map', () => {
         for (const id of stage.questionIds) {
           const question = getQuestionById(id);
           expect(question).toBeDefined();
-          expect(isPremiumCategory(question!.categoryId)).toBe(false);
+          categoriesInCampaign.add(question!.categoryId);
         }
       }
     }
+    // Every mode draws on every category (user decision 2026-09-03), premium
+    // ones included; Premium gates playing those categories on their own.
+    expect([...categoriesInCampaign].some((c) => isPremiumCategory(c))).toBe(true);
   });
 
   it('rates stages by average score', () => {

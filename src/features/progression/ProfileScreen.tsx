@@ -18,7 +18,9 @@ import {
 } from '@/domain';
 import { resolveDisplayName } from '@/features/leaderboard/playerName';
 import { usePremium } from '@/features/premium';
+import { openStoreListing } from '@/features/review';
 import { useSound } from '@/features/sound';
+import { useAnalyticsSettings } from '@/services/analytics';
 import { useAuth } from '@/services/firebase/auth';
 import { useTheme } from '@/theme';
 import { palette } from '@/theme/tokens';
@@ -96,6 +98,32 @@ function StreakCard({
         A freeze automatically covers one missed day so your streak survives.
       </Text>
     </View>
+  );
+}
+
+/** A friendly ask for a Play rating: one tap straight to the listing. */
+function RateUsCard() {
+  return (
+    <Pressable
+      onPress={() => {
+        void openStoreListing();
+      }}
+      accessibilityRole="button"
+      accessibilityLabel="Rate History Date Guesser on Google Play"
+      testID="rate-us"
+      className="mt-2 flex-row items-center gap-4 border border-accent bg-accent/10 p-4"
+    >
+      <Text className="text-3xl" style={{ includeFontPadding: false }}>
+        ⭐
+      </Text>
+      <View className="flex-1">
+        <Text className="text-base font-bold text-ink-primary">Enjoying the game?</Text>
+        <Text className="mt-0.5 text-xs text-ink-secondary">
+          A quick rating on Google Play helps other history fans find it. Thank you!
+        </Text>
+      </View>
+      <Text className="text-xl text-ink-muted">›</Text>
+    </Pressable>
   );
 }
 
@@ -181,6 +209,7 @@ export function ProfileScreen() {
   const { uid, isSignedIn, user, hasAccount, signOutToGuest } = useAuth();
   const { mode, toggle } = useTheme();
   const { enabled: soundOn, toggle: toggleSound } = useSound();
+  const { enabled: analyticsOn, toggle: toggleAnalytics } = useAnalyticsSettings();
   const [signingOut, setSigningOut] = useState(false);
   const [editingName, setEditingName] = useState(false);
 
@@ -342,6 +371,8 @@ export function ProfileScreen() {
           </View>
         )}
 
+        <RateUsCard />
+
         <SectionTitle>Daily streak</SectionTitle>
         <StreakCard
           streak={state.streak}
@@ -409,6 +440,22 @@ export function ProfileScreen() {
             </Text>
           </View>
           <Text className="text-base text-ink-secondary">{soundOn ? 'On 🔊' : 'Off 🔇'}</Text>
+        </Pressable>
+        <Pressable
+          onPress={toggleAnalytics}
+          accessibilityRole="switch"
+          accessibilityState={{ checked: analyticsOn }}
+          accessibilityLabel={analyticsOn ? 'Turn usage analytics off' : 'Turn usage analytics on'}
+          testID="profile-analytics-toggle"
+          className="flex-row items-center justify-between border border-hair bg-bg-raised p-4"
+        >
+          <View className="flex-1 pr-3">
+            <Text className="text-base font-semibold text-ink-primary">Usage analytics</Text>
+            <Text className="mt-0.5 text-xs text-ink-muted">
+              Anonymous play events that help us improve the game. Never your name or email.
+            </Text>
+          </View>
+          <Text className="text-base text-ink-secondary">{analyticsOn ? 'On 📊' : 'Off'}</Text>
         </Pressable>
         {hasAccount ? (
           <View

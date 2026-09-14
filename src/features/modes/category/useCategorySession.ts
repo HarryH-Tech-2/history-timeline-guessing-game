@@ -1,36 +1,43 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useState } from 'react';
 
-import { getRandomQuestionInCategory } from '@/data';
+import { getQuestionsByCategory } from '@/data';
+import type { RoundResult } from '@/domain';
 import { useGameSession, type GameSession } from '@/features/round';
 import { comboModifiers } from '@/features/timeline/math';
+import { pickDeterministic } from '@/utils/rng';
 
 export interface CategorySession {
   session: GameSession;
+  /** How many questions the run holds: every question in the category. */
+  totalQuestions: number;
 }
 
 /**
- * Category practice: an unbounded stream of random questions drawn from a
- * single category. Works like Endless — the player exits via navigation — but
- * every prompt matches the chosen topic. When the category runs dry the
- * seen-set resets and questions repeat.
+ * Category practice: one pass through every question in the chosen category,
+ * in a fresh random order each run. The run finishes when the category is
+ * exhausted — a proper "complete" summary, never recycled questions — and
+ * the screen remounts the hook to play again.
  */
 export function useCategorySession(categoryId: string): CategorySession {
-  const seen = useRef<Set<string>>(new Set());
+  // Dealt once per mount (the screen remounts the hook for a new run); a
+  // lazy initialiser keeps the random draw out of every render.
+  const [questions] = useState(() => {
+    const pool = getQuestionsByCategory(categoryId);
+    return pickDeterministic(pool, pool.length, Math.floor(Math.random() * 0xffffffff));
+  });
 
   const first = useCallback(() => {
-    const q = getRandomQuestionInCategory(categoryId);
-    seen.current.add(q.id);
+    const q = questions[0];
+    if (!q) throw new Error(`No questions available for category "${categoryId}"`);
     return q;
-  }, [categoryId]);
+  }, [questions, categoryId]);
 
-  const next = useCallback(() => {
-    const q = getRandomQuestionInCategory(categoryId, seen.current);
-    if (seen.current.has(q.id)) seen.current.clear();
-    seen.current.add(q.id);
-    return q;
-  }, [categoryId]);
+  const next = useCallback(
+    (results: readonly RoundResult[]) => questions[results.length] ?? null,
+    [questions],
+  );
 
-  const session = useGameSession({ first, next, modifiers: comboModifiers });
+  const session = useGameSession({ mode: 'category', first, next, modifiers: comboModifiers });
 
-  return { session };
+  return { session, totalQuestions: questions.length };
 }

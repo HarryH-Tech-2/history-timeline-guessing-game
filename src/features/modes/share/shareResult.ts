@@ -3,20 +3,19 @@ import { Share, type View } from 'react-native';
 import RNShare from 'react-native-share';
 import { captureRef } from 'react-native-view-shot';
 
-import type { DailyRecord } from '../persistence';
-import { SHARE_CARD_PIXELS } from './DailyShareCard';
-import { buildShareMessage, STORE_URL } from './shareCard';
+import { SHARE_CARD_PIXELS } from './ShareCard';
+import { buildShareMessage, STORE_URL, type ShareCardData } from './shareData';
 
 /**
- * Share today's result as the image card plus the store link — nothing else,
+ * Share a run's result as the image card plus the store link — nothing else,
  * so the picture is the whole message. Captures the off-screen card to a PNG
  * and hands it to the OS share sheet; only if the capture or the native sheet
  * fails does it fall back to the emoji text card, so the player is never left
  * with a bare link.
  */
-export async function shareDailyResult(
+export async function shareResult(
   cardRef: RefObject<View | null>,
-  record: DailyRecord,
+  data: ShareCardData,
 ): Promise<void> {
   try {
     const view = cardRef.current;
@@ -35,6 +34,6 @@ export async function shareDailyResult(
       failOnCancel: false,
     });
   } catch {
-    await Share.share({ message: buildShareMessage(record) }).catch(() => {});
+    await Share.share({ message: buildShareMessage(data) }).catch(() => {});
   }
 }

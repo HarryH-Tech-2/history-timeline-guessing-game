@@ -7,6 +7,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { useLeaderboardSync } from '@/features/leaderboard';
+import { AnalyticsProvider } from '@/services/analytics';
 import { PremiumProvider } from '@/features/premium';
 import { SaveProvider } from '@/features/save';
 import { ProgressionProvider } from '@/features/progression';
@@ -51,15 +52,17 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <ThemeProvider>
           <AuthProvider>
-            <SaveProvider>
-              <PremiumProvider>
-                <ProgressionProvider>
-                  <SoundProvider>
-                    <ThemedNavigator />
-                  </SoundProvider>
-                </ProgressionProvider>
-              </PremiumProvider>
-            </SaveProvider>
+            <AnalyticsProvider>
+              <SaveProvider>
+                <PremiumProvider>
+                  <ProgressionProvider>
+                    <SoundProvider>
+                      <ThemedNavigator />
+                    </SoundProvider>
+                  </ProgressionProvider>
+                </PremiumProvider>
+              </SaveProvider>
+            </AnalyticsProvider>
           </AuthProvider>
         </ThemeProvider>
       </SafeAreaProvider>

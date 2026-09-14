@@ -27,7 +27,7 @@ export function useTopicSession(): TopicSession {
     [questions],
   );
 
-  const session = useGameSession({ first, next });
+  const session = useGameSession({ mode: 'topic', first, next });
 
   return { session, topic, totalQuestions: questions.length };
 }

@@ -3,7 +3,7 @@ import { useRouter, type Href } from 'expo-router';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
 import { Screen } from '@/components/ui';
-import { getCategories, getTopicOfTheDay, isTopicAvailable, TOPIC_RUN_SIZE } from '@/data';
+import { getCategories, getTopicOfTheDay, TOPIC_RUN_SIZE } from '@/data';
 import type { Category } from '@/domain';
 import { usePremium } from '@/features/premium';
 import { ProfileHeader } from '@/features/progression';
@@ -83,32 +83,25 @@ function IconPlaque({ glyph, size = 'lg' }: { glyph: string; size?: 'lg' | 'md' 
 }
 
 /** Today's featured topic: a short themed run, the same for everyone. */
-function TopicOfTheDayCard({
-  locked,
-  onPress,
-}: {
-  /** Today's topic lives in premium categories and the player isn't subscribed. */
-  locked: boolean;
-  onPress: () => void;
-}) {
+function TopicOfTheDayCard({ onPress }: { onPress: () => void }) {
   const topic = getTopicOfTheDay(dateKey());
   return (
     <Animated.View entering={FadeInUp.springify().damping(18)}>
       <Pressable
         onPress={onPress}
         accessibilityRole="button"
-        accessibilityLabel={`Topic of the day: ${topic.name}${locked ? ', Premium' : ''}`}
+        accessibilityLabel={`Topic of the day: ${topic.name}`}
         testID="topic-of-the-day"
         className="flex-row items-center gap-4 overflow-hidden border border-accent bg-accent/10 p-4"
       >
-        <IconPlaque glyph={locked ? '🔒' : topic.icon} />
+        <IconPlaque glyph={topic.icon} />
         <View className="flex-1">
           <Text className="text-xs font-semibold uppercase tracking-wide text-accent">
-            Topic of the day{locked ? ' · Premium' : ''}
+            Topic of the day
           </Text>
           <Text className="text-lg font-bold text-ink-primary">{topic.name}</Text>
           <Text numberOfLines={1} className="text-sm text-ink-secondary">
-            {locked ? 'Subscribe to play today’s topic' : `${TOPIC_RUN_SIZE} questions · ${topic.blurb}`}
+            {TOPIC_RUN_SIZE} questions · {topic.blurb}
           </Text>
         </View>
         <Text className="text-xl text-ink-muted">›</Text>
@@ -200,6 +193,23 @@ function CategoryCard({
   );
 }
 
+/** Sits under the category grid: the catalogue is still growing. */
+function ComingSoonBanner() {
+  return (
+    <View
+      testID="categories-coming-soon"
+      className="mt-1 flex-row items-center gap-3 border border-dashed border-hair bg-bg-raised/60 px-4 py-3"
+    >
+      <Text className="text-xl" style={{ includeFontPadding: false }}>
+        🔭
+      </Text>
+      <View className="flex-1">
+        <Text className="text-sm font-bold text-ink-primary">More coming soon</Text>
+      </View>
+    </View>
+  );
+}
+
 /** The landing hub: pick a mode. Each card routes into that mode's flow. */
 export function HomeHub() {
   const router = useRouter();
@@ -230,12 +240,7 @@ export function HomeHub() {
 
         <ProfileHeader />
 
-        <TopicOfTheDayCard
-          locked={!isTopicAvailable(getTopicOfTheDay(dateKey()))}
-          onPress={() =>
-            router.push(isTopicAvailable(getTopicOfTheDay(dateKey())) ? '/topic' : '/paywall')
-          }
-        />
+        <TopicOfTheDayCard onPress={() => router.push('/topic')} />
 
         <Text className="mt-4 text-xs font-semibold uppercase tracking-wide text-ink-muted">
           Game modes
@@ -275,6 +280,7 @@ export function HomeHub() {
               );
             })}
         </View>
+        <ComingSoonBanner />
       </ScrollView>
     </Screen>
   );

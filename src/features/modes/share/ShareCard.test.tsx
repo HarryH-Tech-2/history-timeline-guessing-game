@@ -2,15 +2,15 @@ import { render, screen, within } from '@testing-library/react-native';
 
 import { getQuestionById, getQuestions } from '@/data';
 
-import type { DailyRecord } from '../persistence';
-import { DailyShareCard } from './DailyShareCard';
+import { MAX_SHARE_ROWS, ShareCard } from './ShareCard';
+import type { ShareCardData } from './shareData';
 
-describe('DailyShareCard', () => {
+describe('ShareCard', () => {
   const [first, second] = getQuestions();
-  const record: DailyRecord = {
-    date: '2026-09-03',
+  const data: ShareCardData = {
+    heading: 'Daily #3',
+    subheading: '3 Sep 2026',
     totalScore: 1234,
-    perfectCount: 1,
     rounds: [
       { questionId: first!.id, errorYears: 0, score: 1000, guessYear: first!.year },
       { questionId: second!.id, errorYears: 130, score: 0, guessYear: second!.year + 130 },
@@ -20,7 +20,7 @@ describe('DailyShareCard', () => {
   };
 
   it('lists every round with its event, the guess and the real year', () => {
-    render(<DailyShareCard record={record} />);
+    render(<ShareCard data={data} />);
 
     const row0 = within(screen.getByTestId('share-card-row-0'));
     expect(row0.getByText(first!.title)).toBeTruthy();
@@ -37,7 +37,25 @@ describe('DailyShareCard', () => {
     expect(row2.getByText(String(first!.year))).toBeTruthy();
 
     expect(screen.getByText('Daily #3')).toBeTruthy();
+    expect(screen.getByText('3 Sep 2026')).toBeTruthy();
     expect(screen.getByText('1,234')).toBeTruthy();
     expect(screen.getByText('1/3 exact')).toBeTruthy();
+    expect(screen.queryByTestId('share-card-more')).toBeNull();
+  });
+
+  it('caps a long run at the rows that fit and tallies the rest', () => {
+    const rounds = Array.from({ length: MAX_SHARE_ROWS + 5 }, () => ({
+      questionId: first!.id,
+      errorYears: 3,
+      score: 900,
+      guessYear: first!.year + 3,
+    }));
+    render(
+      <ShareCard data={{ heading: 'Survival · 13 rounds', subheading: 'Today', totalScore: 11700, rounds }} />,
+    );
+
+    expect(screen.getByTestId(`share-card-row-${MAX_SHARE_ROWS - 1}`)).toBeTruthy();
+    expect(screen.queryByTestId(`share-card-row-${MAX_SHARE_ROWS}`)).toBeNull();
+    expect(screen.getByTestId('share-card-more')).toHaveTextContent('+ 5 more rounds');
   });
 });

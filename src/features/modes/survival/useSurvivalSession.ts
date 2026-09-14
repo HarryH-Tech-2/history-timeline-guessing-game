@@ -34,6 +34,7 @@ export function useSurvivalSession(): SurvivalSession {
   }, []);
 
   const session = useGameSession({
+    mode: 'survival',
     first,
     next,
     shouldEnd: isOutOfLives,

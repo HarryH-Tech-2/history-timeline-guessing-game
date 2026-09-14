@@ -51,3 +51,15 @@ describe('resolveDisplayName', () => {
     expect(resolveDisplayName('x'.repeat(40), 'uid-1')).toHaveLength(24);
   });
 });
+
+describe('leaderboard eligibility', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { MIN_LEADERBOARD_XP, qualifiesForLeaderboard } = require('./types') as typeof import('./types');
+
+  it('needs 20 XP to appear on the board', () => {
+    expect(MIN_LEADERBOARD_XP).toBe(20);
+    expect(qualifiesForLeaderboard(0)).toBe(false);
+    expect(qualifiesForLeaderboard(19)).toBe(false);
+    expect(qualifiesForLeaderboard(20)).toBe(true);
+  });
+});

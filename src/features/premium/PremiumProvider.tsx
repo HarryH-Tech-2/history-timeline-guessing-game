@@ -8,8 +8,8 @@ import {
   type ReactNode,
 } from 'react';
 
-import { setPremiumUnlocked } from '@/data';
 import { requestReviewAfterFirstPurchase } from '@/features/review';
+import { track } from '@/services/analytics';
 import { useAuth } from '@/services/firebase/auth';
 
 import { billing, devBilling, type PremiumPlan, type PurchaseResult } from './billing';
@@ -119,10 +119,6 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  useEffect(() => {
-    setPremiumUnlocked(state.active);
-  }, [state.active]);
-
   // Keep the store's idea of "who" in step with the Firebase account, then
   // re-read the entitlement: signing into an account that already holds
   // Premium (a renewal on another device, or one granted in the RevenueCat
@@ -155,6 +151,7 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
     const result = await billing.purchase(plan);
     if (result === 'purchased') {
       commit({ active: true, source: billing === devBilling ? 'dev' : 'store' });
+      track('purchase_completed', { plan });
       // Google's in-app review sheet, once, on the first successful purchase.
       void requestReviewAfterFirstPurchase();
     }
@@ -163,7 +160,10 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
 
   const restore = useCallback(async (): Promise<boolean> => {
     const active = await billing.restore();
-    if (active) commit({ active: true, source: 'store' });
+    if (active) {
+      commit({ active: true, source: 'store' });
+      track('purchase_restored');
+    }
     return active;
   }, [commit]);
 

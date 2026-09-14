@@ -33,6 +33,8 @@ When you are signed in, your display name (or an auto-generated handle), XP, and
 
 Google services used by the app (Firebase) may collect standard diagnostic information such as device type, operating system version, crash data, and coarse usage events to keep the service reliable. This data is aggregated and is not used to identify you. See [Google's Privacy Policy](https://policies.google.com/privacy) for how Google processes this information.
 
+The app also records anonymous usage events with **PostHog** (an analytics service) so we can see which modes and questions are played, where runs are abandoned, and whether features such as hints, the paywall and the Daily share are used. Each event carries the play mode, the question involved, your guess and the true year, together with standard device information (device model, operating system version, app version, and coarse country derived from your IP address). Events are keyed by the same random identifier as your game progress; they never include your name, email address, or free text. PostHog processes this data on our behalf under the [PostHog Privacy Policy](https://posthog.com/privacy). You can switch this off at any time under Profile → Settings → Usage analytics; no further events are sent while it is off.
+
 ## What we do NOT collect
 
 - No advertising identifiers — the app contains no ads and no ad SDKs.

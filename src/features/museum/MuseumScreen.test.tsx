@@ -38,7 +38,9 @@ describe('MuseumScreen', () => {
   it('formats BCE years on acquired ancient artefacts', async () => {
     await progressionStore.write({
       ...INITIAL_PROGRESSION,
-      collection: { 'bat-thermopylae': 0 },
+      // In the first wing: the shelves are virtualised, so a test can only see
+      // the first screenful of tiles.
+      collection: { 'evt-caesar-assassination': 0 },
     });
 
     render(
@@ -48,7 +50,9 @@ describe('MuseumScreen', () => {
     );
 
     await waitFor(() =>
-      expect(screen.getByTestId('artefact-year-bat-thermopylae')).toHaveTextContent('480 BCE'),
+      expect(screen.getByTestId('artefact-year-evt-caesar-assassination')).toHaveTextContent(
+        '44 BCE',
+      ),
     );
   });
 });

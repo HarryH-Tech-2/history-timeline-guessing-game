@@ -5,6 +5,7 @@ import type { RoundResult } from '@/domain';
 import { useProgression } from '@/features/progression';
 import { useGameSession, type GameSession } from '@/features/round';
 import { useSaves } from '@/features/save';
+import { track } from '@/services/analytics';
 import { dateKey } from '@/utils/date';
 
 import type { DailyRecord } from '../persistence';
@@ -45,7 +46,7 @@ export function useDailySession(): DailySession {
     [questions],
   );
 
-  const session = useGameSession({ first, next });
+  const session = useGameSession({ mode: 'daily', first, next });
 
   const { isReady, daily } = useSaves();
   const [record, setRecord] = useState<DailyRecord | null>(null);
@@ -87,6 +88,7 @@ export function useDailySession(): DailySession {
     void daily.write(rec);
     setRecord(rec);
     recordDailyCompleted();
+    track('daily_completed', { total_score: rec.totalScore, exact: rec.perfectCount });
   }, [
     isReady,
     progressionLoading,

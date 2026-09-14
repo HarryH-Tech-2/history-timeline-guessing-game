@@ -1,9 +1,28 @@
 import { render, screen } from '@testing-library/react-native';
+import { cancelAnimation } from 'react-native-reanimated';
 
 import { QuestionSchema, type Question } from '@/domain';
 import { evaluateGuess } from '@/features/timeline/math';
 
 import { ModeHud, segmentTier } from './ModeHud';
+
+jest.mock('react-native-reanimated', () => {
+  const actual = jest.requireActual<typeof import('react-native-reanimated')>(
+    'react-native-reanimated',
+  );
+  return {
+    ...actual,
+    __esModule: true,
+    default: actual.default,
+    cancelAnimation: jest.fn(actual.cancelAnimation),
+  };
+});
+
+const cancelled = cancelAnimation as jest.MockedFunction<typeof cancelAnimation>;
+
+beforeEach(() => {
+  cancelled.mockClear();
+});
 
 const question: Question = QuestionSchema.parse({
   id: 'q1',
@@ -46,6 +65,16 @@ describe('ModeHud progress segments', () => {
     render(<ModeHud progress={{ current: 1, total: 3 }} />);
     expect(screen.getAllByTestId('hud-segment-current')).toHaveLength(1);
     expect(screen.getAllByTestId('hud-segment-upcoming')).toHaveLength(2);
+  });
+
+  it('cancels the live segment pulse when the bar unmounts so it cannot run forever', () => {
+    // Quitting a run mid-question unmounts a segment whose glow is an endless
+    // withRepeat; nothing stops a running animation with its component.
+    const { unmount } = render(<ModeHud progress={{ current: 1, total: 3 }} />);
+    expect(cancelled).not.toHaveBeenCalled();
+
+    unmount();
+    expect(cancelled).toHaveBeenCalled();
   });
 
   it('tiers a result by exactness then the shared right-answer threshold', () => {

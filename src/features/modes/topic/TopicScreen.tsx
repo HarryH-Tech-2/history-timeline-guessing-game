@@ -1,9 +1,7 @@
 import { useState } from 'react';
-import { Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { Button, Screen } from '@/components/ui';
-import { getTopicOfTheDay, isTopicAvailable } from '@/data';
+import { Screen } from '@/components/ui';
 import { OutOfHeartsSheet, useHearts } from '@/features/hearts';
 import { RoundView, useRoundRewards } from '@/features/round';
 import { dateKey } from '@/utils/date';
@@ -11,6 +9,7 @@ import { dateKey } from '@/utils/date';
 import { ModeHud } from '../components/ModeHud';
 import { roundDetail, RunSummary, type SummaryRow } from '../components/RunSummary';
 import { HintButton } from '../hints/HintButton';
+import { prettyDate, shareDataFromResults } from '../share';
 import { useTopicSession } from './useTopicSession';
 
 function TopicPlay({ onHome, onRetry }: { onHome: () => void; onRetry: () => void }) {
@@ -31,6 +30,14 @@ function TopicPlay({ onHome, onRetry }: { onHome: () => void; onRetry: () => voi
         subtitle="Today’s topic. A new one arrives tomorrow."
         totalScore={session.totalScore}
         rounds={rounds}
+        share={{
+          data: shareDataFromResults(
+            `${topic.icon} ${topic.name}`,
+            `Topic of the day · ${prettyDate(dateKey())}`,
+            session.results,
+          ),
+          mode: 'topic',
+        }}
         primaryLabel="Home"
         onPrimary={onHome}
         secondaryLabel="Replay"
@@ -77,26 +84,6 @@ function TopicPlay({ onHome, onRetry }: { onHome: () => void; onRetry: () => voi
 export function TopicScreen() {
   const router = useRouter();
   const [runId, setRunId] = useState(0);
-  const topic = getTopicOfTheDay(dateKey());
-
-  if (!isTopicAvailable(topic)) {
-    return (
-      <Screen>
-        <View className="flex-1 items-center justify-center gap-4 px-8" testID="topic-locked">
-          <Text className="text-4xl">🔒</Text>
-          <Text className="text-center text-xl font-bold text-ink-primary">
-            {topic.icon} {topic.name} is a Premium topic
-          </Text>
-          <Text className="text-center text-base text-ink-secondary">
-            Today’s topic draws on premium categories. Subscribe to play it — plus unlimited hearts.
-          </Text>
-          <Button label="See Premium" onPress={() => router.push('/paywall')} />
-          <Button label="Back" variant="ghost" onPress={() => router.back()} />
-        </View>
-      </Screen>
-    );
-  }
-
   return (
     <TopicPlay
       key={runId}

@@ -12,6 +12,7 @@ describe('useGameSession', () => {
     const queue = [q1, q2];
     const { result } = renderHook(() =>
       useGameSession({
+        mode: 'category',
         first: () => queue[0]!,
         next: (results) => queue[results.length] ?? null,
       }),
@@ -50,6 +51,7 @@ describe('useGameSession', () => {
     const queue = [q1, q2];
     const { result } = renderHook(() =>
       useGameSession({
+        mode: 'category',
         first: () => queue[0]!,
         next: (results) => queue[results.length] ?? null,
       }),
@@ -73,6 +75,7 @@ describe('useGameSession', () => {
   it('honours an early shouldEnd predicate', () => {
     const { result } = renderHook(() =>
       useGameSession({
+        mode: 'category',
         first: () => q1,
         next: () => q2,
         shouldEnd: (results: readonly RoundResult[]) => results.length >= 1,

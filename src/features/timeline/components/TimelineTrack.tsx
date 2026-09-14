@@ -23,7 +23,6 @@ import {
 import { DECADE_MIN_SCALE } from '@/features/timeline/tickVisibility';
 import { palette } from '@/theme/tokens';
 
-import { CenturyJumpBar } from './CenturyJumpBar';
 import { Crosshair } from './Crosshair';
 import { RevealMarker } from './RevealMarker';
 import { TimelineTick } from './TimelineTick';
@@ -36,6 +35,14 @@ interface TimelineTrackProps {
   revealColour?: string;
   /** The submitted guess, marked alongside the answer once revealed. */
   guessYear?: number;
+  /**
+   * A year whose decade dividers must be mounted regardless of where the
+   * crosshair is or whether the view is at rest — the answer just revealed,
+   * which the next question re-frames around. Mounting them with the question
+   * itself means they fade in with the zoom instead of popping in once the
+   * re-frame has settled.
+   */
+  anchorYear?: number;
 }
 
 /** Vertical offset for the guess pill so it sits below the answer pill when
@@ -89,14 +96,21 @@ const BLOCK_REACH = 1;
  * slow to appear; this keeps it to ≤ ~150 and only re-renders when the
  * crosshair crosses a block boundary or the zoom crosses the threshold.
  */
-function useVisibleDecadeTicks(controller: TimelineController): readonly Tick[] {
+function useVisibleDecadeTicks(
+  controller: TimelineController,
+  anchorYear: number | undefined,
+): readonly Tick[] {
   // Destructured so the worklet captures only shared values, never the
   // controller (whose composed gesture cannot be copied to the UI thread).
-  const { centreYear, scale, width } = controller;
+  const { centreYear, scale, width, atRest } = controller;
   const [block, setBlock] = useState<number | null>(null);
 
   useAnimatedReaction(
     () => {
+      // Swapping blocks mounts/unmounts ~100 views: a React commit, which
+      // pauses Reanimated's commits until it lands. Never mid-gesture (see
+      // TimelineController.atRest); undefined = hold what is mounted.
+      if (!atRest.value) return undefined;
       // On wide screens the blocks either side must still cover the view, so
       // decades wait for a tighter zoom there; phones use the base threshold.
       const coverYears = (BLOCK_REACH + 0.5) * DECADE_BLOCK_YEARS;
@@ -105,19 +119,25 @@ function useVisibleDecadeTicks(controller: TimelineController): readonly Tick[] 
       return decadeBlockOf(centreYear.value);
     },
     (current, previous) => {
-      if (current !== previous) runOnJS(setBlock)(current);
+      if (current === undefined || current === previous) return;
+      runOnJS(setBlock)(current);
     },
   );
 
+  const anchorBlock = anchorYear === undefined ? null : decadeBlockOf(anchorYear);
   return useMemo(() => {
-    if (block === null) return [];
+    const blocks = new Set<number>();
+    for (const centre of [block, anchorBlock]) {
+      if (centre === null) continue;
+      for (let b = centre - BLOCK_REACH; b <= centre + BLOCK_REACH; b += 1) blocks.add(b);
+    }
     const ticks: Tick[] = [];
-    for (let b = block - BLOCK_REACH; b <= block + BLOCK_REACH; b += 1) {
+    for (const b of blocks) {
       const list = MINOR_TICKS_BY_BLOCK.get(b);
       if (list) ticks.push(...list);
     }
     return ticks;
-  }, [block]);
+  }, [block, anchorBlock]);
 }
 
 /**
@@ -128,13 +148,11 @@ function ErrorBand({
   fromYear,
   toYear,
   scale,
-  restingScale,
   colour,
 }: {
   fromYear: number;
   toYear: number;
   scale: TimelineController['scale'];
-  restingScale: number;
   colour: string;
 }) {
   const lo = worldXForYear(Math.min(fromYear, toYear));
@@ -147,15 +165,7 @@ function ErrorBand({
     <Animated.View
       pointerEvents="none"
       entering={FadeIn.duration(400)}
-      style={[
-        style,
-        {
-          transform: [{ translateX: lo * restingScale }],
-          width: Math.max(2, (hi - lo) * restingScale),
-          backgroundColor: colour,
-          opacity: 0.14,
-        },
-      ]}
+      style={[style, { backgroundColor: colour, opacity: 0.14 }]}
       className="absolute bottom-8 top-0 left-0"
       testID="reveal-error-band"
     />
@@ -165,8 +175,7 @@ function ErrorBand({
 /**
  * The interactive timeline surface: a pan/pinch gesture region filled with
  * gridlines, a fixed centre crosshair, and (after submission) the correct-year
- * and guessed-year markers. The century quick-jump strip sits inside the same
- * bordered container beneath the date strip.
+ * and guessed-year markers.
  *
  * Panning translates a single parent layer, so a drag re-evaluates one
  * animated style per frame instead of one per tick; individual ticks only
@@ -177,17 +186,15 @@ export function TimelineTrack({
   revealYear,
   revealColour = '#E8862B',
   guessYear,
+  anchorYear,
 }: TimelineTrackProps) {
-  const { translateX, scale, resting } = controller;
+  const { translateX, scale } = controller;
   const revealed = revealYear !== undefined;
-  const minorTicks = useVisibleDecadeTicks(controller);
+  const minorTicks = useVisibleDecadeTicks(controller, anchorYear);
 
   const panStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value }],
   }));
-  // Plain twin of panStyle from the resting snapshot — see
-  // TimelineController.resting for why every animated view here carries one.
-  const restingPanStyle = { transform: [{ translateX: resting.translateX }] };
 
   return (
     <View className="overflow-hidden border border-hair bg-bg-raised" testID="timeline">
@@ -195,7 +202,7 @@ export function TimelineTrack({
         <GestureDetector gesture={controller.gesture}>
           <Animated.View className="flex-1 bg-transparent">
             <Animated.View
-              style={[panStyle, restingPanStyle]}
+              style={panStyle}
               className="absolute inset-0"
               testID="timeline-pan-layer"
             >
@@ -204,31 +211,19 @@ export function TimelineTrack({
                   fromYear={guessYear}
                   toYear={revealYear}
                   scale={scale}
-                  restingScale={resting.scale}
                   colour={revealColour}
                 />
               )}
               {MAJOR_TICKS.map((tick) => (
-                <TimelineTick
-                  key={tick.year}
-                  tick={tick}
-                  scale={scale}
-                  restingScale={resting.scale}
-                />
+                <TimelineTick key={tick.year} tick={tick} scale={scale} />
               ))}
               {minorTicks.map((tick) => (
-                <TimelineTick
-                  key={tick.year}
-                  tick={tick}
-                  scale={scale}
-                  restingScale={resting.scale}
-                />
+                <TimelineTick key={tick.year} tick={tick} scale={scale} />
               ))}
               {revealed && guessYear !== undefined && (
                 <RevealMarker
                   year={guessYear}
                   scale={scale}
-                  restingScale={resting.scale}
                   colour={palette.accent.default}
                   label="You"
                   stagger={GUESS_PILL_STAGGER}
@@ -239,7 +234,6 @@ export function TimelineTrack({
                 <RevealMarker
                   year={revealYear}
                   scale={scale}
-                  restingScale={resting.scale}
                   colour={revealColour}
                   testID="reveal-marker-answer"
                 />
@@ -256,18 +250,12 @@ export function TimelineTrack({
 
         {/* The crosshair is the live guess; once revealed the guess marker
             takes its place, so there is only ever one "your year" on screen. */}
-        {!revealed && <Crosshair centreYear={controller.centreYear} />}
+        {!revealed && <Crosshair centreYear={controller.centreYear} atRest={controller.atRest} />}
 
         {/* Single-year nudge buttons, centred on the track's left/right edges. */}
         {!revealed && <YearStepButton delta={-1} onStep={controller.stepYear} />}
         {!revealed && <YearStepButton delta={1} onStep={controller.stepYear} />}
       </View>
-
-      {!revealed && (
-        <View className="border-t border-hair">
-          <CenturyJumpBar controller={controller} />
-        </View>
-      )}
     </View>
   );
 }

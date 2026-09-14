@@ -43,6 +43,18 @@ describe('useLeaderboardSync', () => {
     );
   });
 
+  it('does not publish until the player has at least 20 XP', async () => {
+    mockState = { ...INITIAL_PROGRESSION, xp: 19, displayName: 'Chronos Fan' };
+    const { rerender } = renderHook(() => useLeaderboardSync());
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(mockPublish).not.toHaveBeenCalled();
+
+    mockState = { ...INITIAL_PROGRESSION, xp: 20, displayName: 'Chronos Fan' };
+    rerender(undefined);
+    await waitFor(() => expect(mockPublish).toHaveBeenCalledTimes(1));
+    expect(mockPublish).toHaveBeenCalledWith('uid-1', expect.objectContaining({ xp: 20 }));
+  });
+
   it('publishes the chosen name once one is set', async () => {
     mockState = { ...INITIAL_PROGRESSION, xp: 120, displayName: 'Chronos Fan' };
     renderHook(() => useLeaderboardSync());

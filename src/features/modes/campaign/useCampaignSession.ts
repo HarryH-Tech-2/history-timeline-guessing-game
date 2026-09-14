@@ -35,7 +35,7 @@ export function useCampaignSession(stage: CampaignStage): CampaignSession {
     [questions],
   );
 
-  const session = useGameSession({ first, next });
+  const session = useGameSession({ mode: 'campaign', first, next });
 
   const { isReady, campaign } = useSaves();
   const [earnedStars, setEarnedStars] = useState(0);

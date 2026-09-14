@@ -5,8 +5,7 @@ import { getQuestionById } from '@/data';
 import { formatYear } from '@/features/timeline/math';
 import { lightPalette as p } from '@/theme/tokens';
 
-import type { DailyRecord } from '../persistence';
-import { dailyNumber, summariseRecord, TIER_COLOURS, tierForError } from './shareCard';
+import { summariseRounds, TIER_COLOURS, tierForError, type ShareCardData } from './shareData';
 
 const OWL = require('../../../../assets/mascot/owl.webp');
 
@@ -14,38 +13,33 @@ const OWL = require('../../../../assets/mascot/owl.webp');
 export const SHARE_CARD_SIZE = 360;
 export const SHARE_CARD_PIXELS = 1080;
 
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-function prettyDate(dateKey: string): string {
-  const [y, m, d] = dateKey.split('-').map(Number) as [number, number, number];
-  return `${d} ${MONTHS[m - 1]} ${y}`;
-}
-
-interface DailyShareCardProps {
-  record: DailyRecord;
-}
+/** Rows that fit the square at the row font size; longer runs get a tally line. */
+export const MAX_SHARE_ROWS = 8;
 
 /** Width of each year column; wide enough for "1000 BCE" at the row font size. */
 const YEAR_COLUMN = 60;
 
+interface ShareCardProps {
+  data: ShareCardData;
+}
+
 /**
- * The square image version of the Daily share card: the puzzle number and
- * score up top, then one row per round — the event, the year guessed and the
- * real year, colour-coded by how close the guess was. Rendered off-screen and
+ * The square image version of a run's share card: the run's heading and score
+ * up top, then one row per round — the event, the year guessed and the real
+ * year, colour-coded by how close the guess was. Rendered off-screen and
  * captured to a PNG, so it uses inline styles on the fixed parchment palette
  * (never the live theme) and no animation — what you see is what gets shared.
  */
-export const DailyShareCard = forwardRef<View, DailyShareCardProps>(function DailyShareCard(
-  { record },
-  ref,
-) {
-  const { totalScore, exact, rounds } = summariseRecord(record);
+export const ShareCard = forwardRef<View, ShareCardProps>(function ShareCard({ data }, ref) {
+  const { totalScore, exact, rounds } = summariseRounds(data);
+  const shown = data.rounds.slice(0, MAX_SHARE_ROWS);
+  const hidden = data.rounds.length - shown.length;
 
   return (
     <View
       ref={ref}
       collapsable={false}
-      testID="daily-share-card"
+      testID="share-card"
       style={{
         width: SHARE_CARD_SIZE,
         height: SHARE_CARD_SIZE,
@@ -56,7 +50,7 @@ export const DailyShareCard = forwardRef<View, DailyShareCardProps>(function Dai
         borderColor: p.accent.default,
       }}
     >
-      {/* Header: owl, title and the score */}
+      {/* Header: owl, heading and the score */}
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
         <Image source={OWL} style={{ width: 44, height: 44 }} resizeMode="contain" />
         <View style={{ flex: 1 }}>
@@ -71,10 +65,15 @@ export const DailyShareCard = forwardRef<View, DailyShareCardProps>(function Dai
           >
             Date Guesser
           </Text>
-          <Text style={{ fontSize: 20, fontWeight: '800', color: p.ink.primary, lineHeight: 24 }}>
-            Daily #{dailyNumber(record.date)}
+          <Text
+            numberOfLines={1}
+            style={{ fontSize: 20, fontWeight: '800', color: p.ink.primary, lineHeight: 24 }}
+          >
+            {data.heading}
           </Text>
-          <Text style={{ fontSize: 11, color: p.ink.secondary }}>{prettyDate(record.date)}</Text>
+          <Text numberOfLines={1} style={{ fontSize: 11, color: p.ink.secondary }}>
+            {data.subheading}
+          </Text>
         </View>
         <View style={{ alignItems: 'flex-end' }}>
           <Text
@@ -98,7 +97,7 @@ export const DailyShareCard = forwardRef<View, DailyShareCardProps>(function Dai
           <Text style={columnHeader}>YOU</Text>
           <Text style={columnHeader}>ACTUAL</Text>
         </View>
-        {record.rounds.map((round, i) => {
+        {shown.map((round, i) => {
           const question = getQuestionById(round.questionId);
           const tier = tierForError(round.errorYears);
           return (
@@ -133,6 +132,14 @@ export const DailyShareCard = forwardRef<View, DailyShareCardProps>(function Dai
             </View>
           );
         })}
+        {hidden > 0 && (
+          <Text
+            testID="share-card-more"
+            style={{ fontSize: 10, fontWeight: '600', color: p.ink.muted, paddingLeft: 18 }}
+          >
+            + {hidden} more {hidden === 1 ? 'round' : 'rounds'}
+          </Text>
+        )}
       </View>
 
       {/* Footer */}

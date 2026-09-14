@@ -33,6 +33,7 @@ export function useEndlessSession(): EndlessSession {
   }, []);
 
   const session = useGameSession({
+    mode: 'endless',
     first,
     next,
     modifiers: comboModifiers,

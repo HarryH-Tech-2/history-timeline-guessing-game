@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Image, Text, View } from 'react-native';
 import Animated, {
   Easing,
+  cancelAnimation,
   useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
@@ -34,7 +35,15 @@ export function Mascot({ line, height = 120 }: MascotProps) {
   const bubble = useSharedValue(reducedMotion ? 1 : 0);
 
   useEffect(() => {
-    if (reducedMotion) return;
+    // A running animation outlives its component unless cancelled, and the
+    // bob is endless: without this every summary screen would leave one more
+    // loop ticking on the UI thread until the app restarts.
+    const stop = () => {
+      cancelAnimation(pop);
+      cancelAnimation(bubble);
+      cancelAnimation(bob);
+    };
+    if (reducedMotion) return stop;
     pop.value = withDelay(120, withSpring(1, { damping: 9, stiffness: 140, mass: 0.8 }));
     bubble.value = withDelay(520, withTiming(1, { duration: 260 }));
     bob.value = withDelay(
@@ -48,6 +57,7 @@ export function Mascot({ line, height = 120 }: MascotProps) {
         true,
       ),
     );
+    return stop;
   }, [bob, bubble, pop, reducedMotion]);
 
   const owlStyle = useAnimatedStyle(() => ({

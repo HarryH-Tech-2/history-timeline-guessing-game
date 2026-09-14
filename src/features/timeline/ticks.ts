@@ -18,11 +18,15 @@ export interface Tick {
  *   has the same separators as the modern era. They only fade in once the
  *   zoom is tight enough for decades to be legible (see TimelineTick), so the
  *   extra views cost nothing visually when zoomed out.
+ *
+ * Both run on past the playable floor (see TICK_OVERSCAN_YEARS): the
+ * crosshair stops at MIN_YEAR, but half the track is still visible to its
+ * left, and without ticks there the oldest end read as a blank void.
  */
 function buildTicks(): readonly Tick[] {
   const ticks: Tick[] = [];
 
-  for (let year = MIN_YEAR; year <= PRESENT_YEAR; year += 100) {
+  for (let year = FIRST_TICK_YEAR; year <= PRESENT_YEAR; year += 100) {
     ticks.push({
       year,
       worldX: worldXForYear(year),
@@ -31,7 +35,7 @@ function buildTicks(): readonly Tick[] {
     });
   }
 
-  for (let year = MIN_YEAR; year <= PRESENT_YEAR; year += 10) {
+  for (let year = FIRST_TICK_YEAR; year <= PRESENT_YEAR; year += 10) {
     if (year % 100 === 0) continue; // already a major tick
     ticks.push({ year, worldX: worldXForYear(year), major: false });
   }
@@ -39,9 +43,17 @@ function buildTicks(): readonly Tick[] {
   return ticks;
 }
 
+/**
+ * How far before MIN_YEAR the gridlines continue. Two millennia covers half a
+ * phone-width track down to ~scale 0.1, below which century labels have faded
+ * out anyway. Decorative only: the crosshair can never reach these years.
+ */
+export const TICK_OVERSCAN_YEARS = 2000;
+const FIRST_TICK_YEAR = MIN_YEAR - TICK_OVERSCAN_YEARS;
+
 export const TICKS = buildTicks();
 
-/** The ~50 labelled century ticks, always mounted. */
+/** The labelled century ticks (~30 playable + 20 overscan), always mounted. */
 export const MAJOR_TICKS: readonly Tick[] = TICKS.filter((t) => t.major);
 
 /**

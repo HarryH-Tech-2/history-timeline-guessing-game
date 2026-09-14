@@ -1,6 +1,5 @@
 import {
   masteryTier,
-  acquireThreshold,
   isAcquiringGuess,
 } from './collection';
 import {
@@ -90,11 +89,10 @@ describe('applyDailyCompletion', () => {
 
 describe('collection', () => {
   it('thresholds scale with difficulty', () => {
-    expect(acquireThreshold('easy')).toBeLessThan(acquireThreshold('medium'));
-    expect(acquireThreshold('medium')).toBeLessThan(acquireThreshold('hard'));
-    expect(acquireThreshold('hard')).toBeLessThan(acquireThreshold('expert'));
-    expect(isAcquiringGuess(10, 'medium')).toBe(true);
-    expect(isAcquiringGuess(11, 'medium')).toBe(false);
+    // Only the exact year earns the artefact, whatever the difficulty.
+    expect(isAcquiringGuess(0)).toBe(true);
+    expect(isAcquiringGuess(1)).toBe(false);
+    expect(isAcquiringGuess(10)).toBe(false);
   });
 
   it('tiers mastery by acquired fraction', () => {

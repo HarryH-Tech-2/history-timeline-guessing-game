@@ -93,12 +93,12 @@ describe('DailyScreen', () => {
     // The run is now complete and locked behind the summary.
     await waitFor(() => {
       expect(screen.getByText('Daily complete')).toBeOnTheScreen();
-      expect(screen.getByTestId('summary-primary')).toBeOnTheScreen();
+      expect(screen.getByTestId('summary-share')).toBeOnTheScreen();
     });
 
     // Sharing captures the off-screen image card and hands the OS sheet the
     // PNG plus the store link; the card itself carries the result.
-    expect(screen.getByTestId('daily-share-card')).toBeOnTheScreen();
+    expect(screen.getByTestId('share-card')).toBeOnTheScreen();
     fireEvent.press(screen.getByText('Share result'));
     await waitFor(() => expect(RNShare.open).toHaveBeenCalledTimes(1));
     const options = jest.mocked(RNShare.open).mock.calls[0]![0] as {

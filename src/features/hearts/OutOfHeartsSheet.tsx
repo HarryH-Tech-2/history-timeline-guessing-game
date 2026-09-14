@@ -1,8 +1,10 @@
+import { useEffect } from 'react';
 import { Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 
 import { Button, Card } from '@/components/ui';
+import { track } from '@/services/analytics';
 
 import { useHearts } from './useHearts';
 
@@ -18,6 +20,9 @@ interface OutOfHeartsSheetProps {
  */
 export function OutOfHeartsSheet({ onLeave }: OutOfHeartsSheetProps) {
   const router = useRouter();
+  useEffect(() => {
+    track('hearts_exhausted');
+  }, []);
   const hearts = useHearts();
 
   return (

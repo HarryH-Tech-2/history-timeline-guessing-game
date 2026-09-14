@@ -1,26 +1,13 @@
-import type { Difficulty } from './common';
-
 /**
- * Museum collection rules. A question's artefact is "acquired" when a guess
- * lands within its difficulty's threshold; the persisted collection maps
- * question id → best error among acquiring guesses, so an entry's existence
- * IS the acquisition. Pure helpers only — no storage, no React.
+ * Museum collection rules. A question's artefact is "acquired" only by naming
+ * the exact year; the persisted collection maps question id → error of the
+ * acquiring guess (always 0 now, kept for entries earned under the older
+ * per-difficulty thresholds), so an entry's existence IS the acquisition.
+ * Pure helpers only — no storage, no React.
  */
 
-/** Max years off that still acquires the artefact, by question difficulty. */
-const ACQUIRE_THRESHOLDS: Record<Difficulty, number> = {
-  easy: 5,
-  medium: 10,
-  hard: 25,
-  expert: 50,
-};
-
-export function acquireThreshold(difficulty: Difficulty): number {
-  return ACQUIRE_THRESHOLDS[difficulty];
-}
-
-export function isAcquiringGuess(errorYears: number, difficulty: Difficulty): boolean {
-  return errorYears <= acquireThreshold(difficulty);
+export function isAcquiringGuess(errorYears: number): boolean {
+  return errorYears === 0;
 }
 
 export type MasteryTier = 'bronze' | 'silver' | 'gold';

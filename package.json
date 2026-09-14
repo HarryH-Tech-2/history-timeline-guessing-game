@@ -17,6 +17,7 @@
     "expo-store-review": "~57.0.2",
     "firebase": "^12.16.0",
     "nativewind": "^4.2.6",
+    "posthog-react-native": "^4.67.0",
     "react": "19.2.3",
     "react-native": "0.86.0",
     "react-native-gesture-handler": "~2.32.0",

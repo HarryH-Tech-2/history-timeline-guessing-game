@@ -4,6 +4,7 @@ import { Text, View } from 'react-native';
 import { Button } from '@/components/ui';
 import type { Question } from '@/domain';
 import { useProgression } from '@/features/progression';
+import { track } from '@/services/analytics';
 import { palette } from '@/theme/tokens';
 
 import { centuryHint, HINT_COST, hintTemplate } from './hint';
@@ -45,7 +46,10 @@ export function HintButton({ question }: { question: Question }) {
       disabled={!canAfford}
       testID="hint-button"
       onPress={() => {
-        if (spend(HINT_COST)) setRevealed(true);
+        if (spend(HINT_COST)) {
+          track('hint_used', { question_id: question.id });
+          setRevealed(true);
+        }
       }}
     />
   );

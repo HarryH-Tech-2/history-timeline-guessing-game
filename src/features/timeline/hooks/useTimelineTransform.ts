@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { type LayoutChangeEvent } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { Gesture, type ComposedGesture } from 'react-native-gesture-handler';
@@ -11,6 +11,7 @@ import {
   withDecay,
   withTiming,
   runOnJS,
+  runOnUI,
   type SharedValue,
 } from 'react-native-reanimated';
 
@@ -39,39 +40,28 @@ const FRAME_TIMING = { duration: 420, easing: Easing.out(Easing.cubic) };
  * JS thread (and the vibration motor) with a call per decade crossed. */
 const HAPTIC_MIN_INTERVAL_MS = 80;
 
-/** Quiet time after the last transform change before it counts as at rest. */
-const SETTLE_MS = 120;
-
-/** A plain-number snapshot of the transform, taken whenever the view stops. */
-export interface RestingTransform {
-  scale: number;
-  translateX: number;
-}
+/**
+ * Quiet time after the last transform change (with no finger on the track)
+ * before the view counts as at rest (`TimelineController.atRest`).
+ *
+ * Long enough that a hand-adjusted drag, which stalls for a few hundred ms at
+ * a time, never counts as rest mid-interaction; short enough that the
+ * React-side updates waiting on it (century highlight, decade block) land
+ * promptly once the player stops.
+ */
+export const SETTLE_MS = 700;
 
 export interface TimelineController {
   translateX: SharedValue<number>;
   scale: SharedValue<number>;
   /**
-   * The transform as of the last time the view came to rest, mirrored into
-   * React state. Every animated view on the track writes it into a plain style
-   * placed AFTER its animated style, so the view's React-owned props always
-   * describe where it really is.
-   *
-   * Why: Reanimated 4 keeps animated values in a native registry and re-applies
-   * them on every React commit, but its "settled props" collector deletes a
-   * view's entry ~2s after it stops moving — and it can do so without ever
-   * syncing the final value back to React if the JS thread stalls for a second
-   * (the collector polls every 500ms; it purges before it reads, and its source
-   * carries a TODO about exactly this). After that purge, the next React
-   * commit anywhere in the app snaps the view back to whatever React last
-   * rendered: for the ticks, their position from BEFORE the reveal zoom, i.e.
-   * off-screen — the "gridlines vanish after a big-miss reveal" bug. Keeping
-   * React's props current makes that fallback harmless. The collector is also
-   * disabled outright via `reanimated.staticFeatureFlags` in package.json,
-   * which takes effect on the next native build; this is the belt to that
-   * brace and works in the JS bundle alone.
+   * True while nothing has moved the view for SETTLE_MS and no finger is on
+   * the track (UI thread). Anything on the track that mirrors the transform
+   * into React state waits for this: a React commit anywhere pauses
+   * Reanimated's own commits until it has mounted (ReanimatedCommitHook), so a
+   * commit fired mid-pan drops frames — the "timeline is jumpy" reports.
    */
-  resting: RestingTransform;
+  atRest: SharedValue<boolean>;
   /** Live year under the crosshair (UI thread). */
   centreYear: SharedValue<number>;
   /** Laid-out track width in px (0 until the first layout). */
@@ -153,36 +143,68 @@ export function useTimelineTransform(options: Options = {}): TimelineController 
     },
   );
 
-  const [resting, setResting] = useState<RestingTransform>({ scale: 1, translateX: 0 });
-  const commitResting = useCallback((next: RestingTransform) => {
-    setResting((prev) =>
-      prev.scale === next.scale && prev.translateX === next.translateX ? prev : next,
-    );
-  }, []);
-
-  // Debounced on the UI thread: while a gesture, fling or re-frame is moving
-  // the view nothing crosses to JS; SETTLE_MS after the last change, one
-  // snapshot does. (-1 = no timer pending.)
+  const atRest = useSharedValue(true);
+  // Debounced on the UI thread: while a finger is down, or a fling or re-frame
+  // is moving the view, the view counts as moving; SETTLE_MS after the last
+  // change (and the last finger lifting) it comes to rest. (-1 = no timer.)
   const settleTimer = useSharedValue(-1);
+  /** Fingers currently on the track (pan and pinch each count one). */
+  const activeTouches = useSharedValue(0);
+
+  const cancelSettle = () => {
+    'worklet';
+    if (settleTimer.value === -1) return;
+    clearTimeout(settleTimer.value as unknown as ReturnType<typeof setTimeout>);
+    settleTimer.value = -1;
+  };
+
+  const markMoving = () => {
+    'worklet';
+    atRest.value = false;
+    cancelSettle();
+    if (activeTouches.value > 0) return;
+    settleTimer.value = setTimeout(() => {
+      settleTimer.value = -1;
+      atRest.value = true;
+    }, SETTLE_MS) as unknown as number;
+  };
+
   useAnimatedReaction(
-    () => ({ scale: scale.value, translateX: translateX.value }),
+    () => ({ scale: scale.value, translateX: translateX.value, ready: ready.value }),
     (current, previous) => {
-      if (
-        previous !== null &&
-        current.scale === previous.scale &&
-        current.translateX === previous.translateX
-      ) {
+      // The first framing (set by onLayout, before `ready` flips) is a start
+      // position, not motion: the view is at rest from the moment it appears.
+      if (previous === null || !previous.ready) return;
+      if (current.scale === previous.scale && current.translateX === previous.translateX) {
         return;
       }
-      if (settleTimer.value !== -1) {
-        clearTimeout(settleTimer.value as unknown as ReturnType<typeof setTimeout>);
-      }
-      settleTimer.value = setTimeout(() => {
-        settleTimer.value = -1;
-        runOnJS(commitResting)(current);
-      }, SETTLE_MS) as unknown as number;
+      markMoving();
     },
   );
+
+  // A timer left pending at unmount would flip a shared value nobody reads;
+  // harmless, but keep the UI thread clean.
+  useEffect(() => {
+    return () => {
+      runOnUI(cancelSettle)();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const touchBegan = () => {
+    'worklet';
+    activeTouches.value += 1;
+    atRest.value = false;
+    cancelSettle();
+  };
+
+  const touchFinalized = () => {
+    'worklet';
+    activeTouches.value = Math.max(0, activeTouches.value - 1);
+    // A lift with nothing left moving never changes the transform, so the
+    // reaction above would not fire; start the settle window from here too.
+    markMoving();
+  };
 
   const translateBounds = useCallback((currentScale: number): [number, number] => {
     'worklet';
@@ -193,8 +215,13 @@ export function useTimelineTransform(options: Options = {}): TimelineController 
   }, [width]);
 
   const pan = Gesture.Pan()
+    .withTestId('timeline-pan')
     .onBegin(() => {
+      touchBegan();
       startTranslateX.value = translateX.value;
+    })
+    .onFinalize(() => {
+      touchFinalized();
     })
     .onUpdate((event) => {
       // Hard stop at both ends: the crosshair can never leave
@@ -212,9 +239,14 @@ export function useTimelineTransform(options: Options = {}): TimelineController 
     });
 
   const pinch = Gesture.Pinch()
+    .withTestId('timeline-pinch')
     .onBegin(() => {
+      touchBegan();
       startScale.value = scale.value;
       startTranslateX.value = translateX.value;
+    })
+    .onFinalize(() => {
+      touchFinalized();
     })
     .onUpdate((event) => {
       const nextScale = clampScale(startScale.value * event.scale);
@@ -308,7 +340,7 @@ export function useTimelineTransform(options: Options = {}): TimelineController 
   return {
     translateX,
     scale,
-    resting,
+    atRest,
     centreYear,
     width,
     gesture,

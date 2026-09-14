@@ -70,25 +70,32 @@ describe('applyRound', () => {
     expect(reward.xp).toBe(150);
   });
 
-  it('acquires the artefact when the guess is inside the threshold', () => {
-    // Medium threshold is 10 years.
-    const close = applyRound(INITIAL_PROGRESSION, roundResult(10, 500), 1, TODAY);
-    expect(close.acquired).toBe(true);
-    expect(close.state.collection['q-test']).toBe(10);
+  it('acquires the artefact only when the guess is the exact year', () => {
+    const exact = applyRound(INITIAL_PROGRESSION, roundResult(0, 500), 1, TODAY);
+    expect(exact.acquired).toBe(true);
+    expect(exact.state.collection['q-test']).toBe(0);
 
-    const far = applyRound(INITIAL_PROGRESSION, roundResult(11, 500), 1, TODAY);
-    expect(far.acquired).toBe(false);
-    expect(far.state.collection['q-test']).toBeUndefined();
+    const oneOff = applyRound(INITIAL_PROGRESSION, roundResult(1, 500), 1, TODAY);
+    expect(oneOff.acquired).toBe(false);
+    expect(oneOff.state.collection['q-test']).toBeUndefined();
   });
 
-  it('reports acquisition once but keeps improving the best error', () => {
-    const first = applyRound(INITIAL_PROGRESSION, roundResult(8, 500), 1, TODAY);
+  it('reports acquisition once and keeps an entry earned under the old thresholds', () => {
+    const first = applyRound(INITIAL_PROGRESSION, roundResult(0, 500), 1, TODAY);
     expect(first.acquired).toBe(true);
-    const again = applyRound(first.state, roundResult(3, 500), 1, TODAY);
+    const again = applyRound(first.state, roundResult(0, 500), 1, TODAY);
     expect(again.acquired).toBe(false);
-    expect(again.state.collection['q-test']).toBe(3);
-    const worse = applyRound(again.state, roundResult(9, 500), 1, TODAY);
-    expect(worse.state.collection['q-test']).toBe(3);
+    expect(again.state.collection['q-test']).toBe(0);
+
+    // A collection saved by an earlier build may hold a non-zero best error;
+    // an exact guess now tightens it, a miss leaves it alone.
+    const legacy = { ...INITIAL_PROGRESSION, collection: { 'q-test': 8 } };
+    const miss = applyRound(legacy, roundResult(3, 500), 1, TODAY);
+    expect(miss.acquired).toBe(false);
+    expect(miss.state.collection['q-test']).toBe(8);
+    const exact = applyRound(legacy, roundResult(0, 500), 1, TODAY);
+    expect(exact.acquired).toBe(false);
+    expect(exact.state.collection['q-test']).toBe(0);
   });
 });
 

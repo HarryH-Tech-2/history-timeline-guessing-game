@@ -1,13 +1,26 @@
-import type { ReactNode } from 'react';
+import { useRef, type ReactNode } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { Button, Card, Screen } from '@/components/ui';
 import { formatYear } from '@/features/timeline/math';
+import { track, type GameMode } from '@/services/analytics';
 import { useThemeColors } from '@/theme';
 import { palette } from '@/theme/tokens';
 
+import { SHARE_CARD_SIZE, ShareCard, shareResult, type ShareCardData } from '../share';
 import { Mascot } from './Mascot';
+
+export interface SummaryShare {
+  data: ShareCardData;
+  /** Which mode the share is reported under. */
+  mode: GameMode;
+  /**
+   * Make Share the primary button and demote `primaryLabel` to a ghost. The
+   * Daily does this: its card is the game's main word-of-mouth lever.
+   */
+  primary?: boolean;
+}
 
 export interface SummaryRow {
   key: string;
@@ -38,6 +51,8 @@ interface RunSummaryProps {
   onSecondary?: () => void;
   /** Optional callout shown inside the card, just above the buttons. */
   notice?: ReactNode;
+  /** When set, the run can be shared as an image card (plus the store link). */
+  share?: SummaryShare;
 }
 
 /**
@@ -91,7 +106,8 @@ function Stars({ count, colour }: { count: number; colour: string }) {
 }
 
 /** The end-of-run panel shared by every mode: mascot, score, optional stars,
- * and the full per-round breakdown (never clipped — the page scrolls). */
+ * the full per-round breakdown (never clipped — the page scrolls), and an
+ * optional Share button backed by an off-screen image card. */
 export function RunSummary({
   title,
   subtitle,
@@ -105,7 +121,22 @@ export function RunSummary({
   secondaryLabel,
   onSecondary,
   notice,
+  share,
 }: RunSummaryProps) {
+  const cardRef = useRef<View>(null);
+  const shareButton =
+    share === undefined ? null : (
+      <Button
+        label="Share result"
+        variant={share.primary ? 'primary' : 'ghost'}
+        onPress={() => {
+          track('share_tapped', { mode: share.mode });
+          void shareResult(cardRef, share.data);
+        }}
+        testID="summary-share"
+      />
+    );
+
   return (
     <Screen>
       <ScrollView
@@ -170,7 +201,14 @@ export function RunSummary({
             )}
 
             <View className="gap-3">
-              <Button label={primaryLabel} onPress={onPrimary} testID="summary-primary" />
+              {share?.primary && shareButton}
+              <Button
+                label={primaryLabel}
+                onPress={onPrimary}
+                variant={share?.primary ? 'ghost' : 'primary'}
+                testID="summary-primary"
+              />
+              {!share?.primary && shareButton}
               {secondaryLabel !== undefined && onSecondary !== undefined && (
                 <Button
                   label={secondaryLabel}
@@ -183,6 +221,16 @@ export function RunSummary({
           </Card>
         </Animated.View>
       </ScrollView>
+      {/* The image card lives just off the left edge, laid out at full size so
+          it can be captured on demand without ever being visible. */}
+      {share !== undefined && (
+        <View
+          pointerEvents="none"
+          style={{ position: 'absolute', left: -SHARE_CARD_SIZE * 2, top: 0 }}
+        >
+          <ShareCard ref={cardRef} data={share.data} />
+        </View>
+      )}
     </Screen>
   );
 }

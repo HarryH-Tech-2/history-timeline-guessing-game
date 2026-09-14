@@ -1,6 +1,11 @@
 import { isFirebaseConfigured } from '@/config/env';
 
-import { LeaderboardEntrySchema, type LeaderboardEntry, type LeaderboardWrite } from './types';
+import {
+  LeaderboardEntrySchema,
+  qualifiesForLeaderboard,
+  type LeaderboardEntry,
+  type LeaderboardWrite,
+} from './types';
 
 const COLLECTION = 'leaderboard';
 
@@ -24,7 +29,9 @@ export async function publishEntry(uid: string, entry: LeaderboardWrite): Promis
 
 /**
  * Fetch the top players by XP. Returns an empty list offline or on error, and
- * drops any malformed remote row rather than failing the whole board.
+ * drops any malformed remote row rather than failing the whole board. Rows
+ * under MIN_LEADERBOARD_XP (published by older builds, or a fresh account) are
+ * dropped too, so the board only lists people who have actually played.
  */
 export async function fetchTop(max = 50): Promise<readonly LeaderboardEntry[]> {
   if (!isFirebaseConfigured) return [];
@@ -39,7 +46,7 @@ export async function fetchTop(max = 50): Promise<readonly LeaderboardEntry[]> {
     const entries: LeaderboardEntry[] = [];
     for (const docSnap of snapshot.docs) {
       const parsed = LeaderboardEntrySchema.safeParse({ uid: docSnap.id, ...docSnap.data() });
-      if (parsed.success) entries.push(parsed.data);
+      if (parsed.success && qualifiesForLeaderboard(parsed.data.xp)) entries.push(parsed.data);
     }
     return entries;
   } catch {

@@ -90,6 +90,60 @@ describe('RoundView answer feedback', () => {
   });
 });
 
+describe('RoundView reveal illustration', () => {
+  const illustrated: Question = QuestionSchema.parse({
+    ...question,
+    id: 'evt-caesar-assassination',
+    title: 'The Assassination of Julius Caesar',
+    year: -44,
+  });
+
+  it('shows the illustration in place of the timeline, and not again in the headline card', () => {
+    render(
+      <RoundView
+        question={illustrated}
+        phase="revealed"
+        result={evaluateGuess(illustrated, -40)}
+        onSubmit={jest.fn()}
+        onNext={jest.fn()}
+      />,
+    );
+    expect(screen.getByTestId('reveal-image')).toBeOnTheScreen();
+    expect(screen.queryByTestId('timeline')).toBeNull();
+    expect(screen.getByTestId('prompt-card-compact')).toBeOnTheScreen();
+    expect(screen.queryByTestId('prompt-image')).toBeNull();
+  });
+
+  it('shows the illustration on a miss too', () => {
+    render(
+      <RoundView
+        question={illustrated}
+        phase="revealed"
+        result={evaluateGuess(illustrated, 200)}
+        onSubmit={jest.fn()}
+        onNext={jest.fn()}
+      />,
+    );
+    expect(screen.getByTestId('reveal-image')).toBeOnTheScreen();
+    expect(screen.queryByTestId('timeline')).toBeNull();
+    expect(screen.queryByTestId('prompt-image')).toBeNull();
+  });
+
+  it('keeps the timeline only when the question has no illustration', () => {
+    render(
+      <RoundView
+        question={question}
+        phase="revealed"
+        result={evaluateGuess(question, 1838)}
+        onSubmit={jest.fn()}
+        onNext={jest.fn()}
+      />,
+    );
+    expect(screen.queryByTestId('reveal-image')).toBeNull();
+    expect(screen.getByTestId('timeline')).toBeOnTheScreen();
+  });
+});
+
 describe('RoundView framing between questions', () => {
   const ancient: Question = QuestionSchema.parse({
     ...question,
@@ -155,9 +209,60 @@ describe('RoundView framing between questions', () => {
       />,
     );
     act(() => {
-      jest.advanceTimersByTime(1000);
+      // Re-frame animation (420 ms), then the settle window before the
+      // readout's React copy of the year refreshes.
+      jest.advanceTimersByTime(2000);
     });
     // The next question starts at the default zoom, centred on the last answer.
     expect(readout()).toBe('121');
+  });
+
+  it('has the decade dividers around the last answer mounted the moment the next question renders', () => {
+    const { rerender } = render(
+      <RoundView
+        question={ancient}
+        phase="guessing"
+        result={null}
+        onSubmit={jest.fn()}
+        onNext={jest.fn()}
+      />,
+    );
+    act(() => {
+      fireEvent(screen.getByTestId('timeline-pan-layer'), 'layout', {
+        nativeEvent: { layout: { width: 390, height: 160 } },
+      });
+    });
+    act(() => {
+      jest.advanceTimersByTime(500);
+    });
+
+    fireEvent.press(screen.getByTestId('submit-button'));
+    rerender(
+      <RoundView
+        question={ancient}
+        phase="revealed"
+        result={evaluateGuess(ancient, 1863)}
+        onSubmit={jest.fn()}
+        onNext={jest.fn()}
+      />,
+    );
+    act(() => {
+      jest.advanceTimersByTime(2000);
+    });
+
+    rerender(
+      <RoundView
+        question={next}
+        phase="guessing"
+        result={null}
+        onSubmit={jest.fn()}
+        onNext={jest.fn()}
+      />,
+    );
+    // No timers advanced: the re-frame towards 121 has not even started. The
+    // decades around 121 must already be on the track, so they fade in with
+    // the zoom instead of popping in a second or two after the question.
+    expect(screen.queryByTestId('timeline-decade-130')).not.toBeNull();
+    expect(screen.queryByTestId('timeline-decade-110')).not.toBeNull();
   });
 });

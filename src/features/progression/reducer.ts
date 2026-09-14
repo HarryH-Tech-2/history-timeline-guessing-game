@@ -51,7 +51,7 @@ export function applyRound(
   const reward = { ...base, xp: Math.round(base.xp * multiplier) };
 
   const questionId = result.question.id;
-  const acquiring = isAcquiringGuess(result.errorYears, result.question.difficulty);
+  const acquiring = isAcquiringGuess(result.errorYears);
   const previousBest = state.collection[questionId];
   const acquired = acquiring && previousBest === undefined;
   const collection =

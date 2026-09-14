@@ -1,4 +1,4 @@
-import { getFreeQuestions } from '@/data';
+import { getQuestions } from '@/data';
 import { DIFFICULTY_ORDER, type Question, type RoundResult } from '@/domain';
 
 import type { CampaignProgress } from '../persistence';
@@ -102,13 +102,12 @@ function chunk<T>(items: readonly T[], size: number): T[][] {
  * The campaign is one world per time period, played in chronological order.
  * Within an era the questions are ordered easy→hard (then by year) and split
  * into fixed stages, so progression still feels like a gentle difficulty
- * ramp. Premium-only categories are excluded: era worlds mix categories, so a
- * single premium stage would break the star-gated unlock chain for free
- * players — premium content lives in practice runs, Endless and Survival.
- * Built once from the seed data.
+ * ramp. Every category takes part, premium ones included: all modes draw on
+ * the whole catalogue (user decision 2026-09-03); Premium only gates playing a
+ * premium category on its own. Built once from the seed data.
  */
 function buildCampaign(): readonly CampaignWorld[] {
-  const questions = getFreeQuestions();
+  const questions = getQuestions();
 
   return ERAS.map((era, worldIndex) => {
     const ordered = questions

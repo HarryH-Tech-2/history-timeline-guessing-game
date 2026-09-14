@@ -10,6 +10,7 @@ import {
 } from 'react';
 
 import { isFirebaseConfigured } from '@/config/env';
+import { track } from '@/services/analytics';
 import { loadGoogleSignin } from '@/services/googleSignin';
 
 /** Profile fields the rest of the app can show for the signed-in player. */
@@ -288,6 +289,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw friendlyAuthError(error);
       }
       await refreshFromCurrentUser();
+      track('sign_in_completed', { method: 'email' });
     },
     [refreshFromCurrentUser],
   );
@@ -301,6 +303,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } catch (error) {
         throw friendlyAuthError(error);
       }
+      track('sign_in_completed', { method: 'email' });
     },
     [],
   );
@@ -331,6 +334,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       throw friendlyAuthError(error);
     }
+    track('sign_in_completed', { method: 'google' });
   }, [applyGoogleIdToken]);
 
   const sendPasswordReset = useCallback(async (email: string) => {

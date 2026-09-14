@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import Animated, {
   Easing,
+  cancelAnimation,
   useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
@@ -83,10 +84,17 @@ function Segment({ state, reducedMotion }: { state: SegmentState; reducedMotion:
   const glow = useSharedValue(1);
 
   useEffect(() => {
+    // The live notch's glow is an endless withRepeat, and a running animation
+    // outlives its component unless cancelled — quitting a run mid-question
+    // would otherwise leave it ticking on the UI thread until app restart.
+    const stop = () => {
+      cancelAnimation(pop);
+      cancelAnimation(glow);
+    };
     if (reducedMotion) {
       pop.value = 1;
       glow.value = 1;
-      return;
+      return stop;
     }
     pop.value = withSpring(1, { damping: 10, stiffness: 220, mass: 0.6 });
     if (state === 'current') {
@@ -101,6 +109,7 @@ function Segment({ state, reducedMotion }: { state: SegmentState; reducedMotion:
     } else {
       glow.value = withTiming(1, { duration: 150 });
     }
+    return stop;
   }, [state, reducedMotion, pop, glow]);
 
   const animatedStyle = useAnimatedStyle(() => ({

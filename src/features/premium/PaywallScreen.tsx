@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { Button, Card, Screen } from '@/components/ui';
 import { getCategories } from '@/data';
+import { track } from '@/services/analytics';
 
 import type { PremiumPlan } from './billing';
 import { FounderNote } from './FounderNote';
@@ -117,6 +118,10 @@ export function PaywallScreen() {
   const [notice, setNotice] = useState<string | null>(null);
   const [plan, setPlan] = useState<PremiumPlan>('yearly');
 
+  useEffect(() => {
+    track('paywall_viewed');
+  }, []);
+
   const premiumCategories = getCategories().filter((c) => c.active && c.premiumOnly);
   const names = premiumCategories.map((c) => c.name);
   const categoryNames =
@@ -199,7 +204,7 @@ export function PaywallScreen() {
             <Benefit
               icon="🔓"
               title={`${categoryNames} unlocked`}
-              detail="Every premium category, in practice runs, Endless and Survival."
+              detail="Practice any premium category on its own, for as long as you like."
             />
             <Benefit
               icon="🏛️"

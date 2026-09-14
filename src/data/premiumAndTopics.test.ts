@@ -1,25 +1,28 @@
 import {
   getCategories,
   getDailyQuestions,
-  getFreeQuestions,
-  getPlayableQuestions,
   getQuestions,
   getRandomQuestion,
   getTopicOfTheDay,
   getTopicQuestions,
   getTopicRun,
   isPremiumCategory,
-  isTopicAvailable,
-  setPremiumUnlocked,
   TOPIC_RUN_SIZE,
   TOPICS,
 } from './index';
 
-afterEach(() => setPremiumUnlocked(false));
+const premiumIds = getCategories()
+  .filter((c) => c.premiumOnly)
+  .map((c) => c.id);
 
-describe('premium gating of question pools', () => {
-  const premiumIds = getCategories().filter((c) => c.premiumOnly).map((c) => c.id);
+/** Questions in the premium-only categories, by id. */
+const premiumQuestionIds = new Set(
+  getQuestions()
+    .filter((q) => premiumIds.includes(q.categoryId))
+    .map((q) => q.id),
+);
 
+describe('premium categories', () => {
   it('flags Arts & Culture and Philosophy as premium', () => {
     expect(premiumIds).toEqual(['arts', 'philosophy']);
     expect(isPremiumCategory('arts')).toBe(true);
@@ -27,58 +30,57 @@ describe('premium gating of question pools', () => {
     expect(isPremiumCategory('technology')).toBe(false);
     expect(isPremiumCategory('events')).toBe(false);
   });
+});
 
-  it('excludes premium categories from the free pool', () => {
-    const free = getFreeQuestions();
-    expect(free.length).toBeLessThan(getQuestions().length);
-    expect(free.some((q) => premiumIds.includes(q.categoryId))).toBe(false);
-  });
-
-  it('serves only free questions until Premium is unlocked', () => {
-    expect(getPlayableQuestions()).toHaveLength(getFreeQuestions().length);
-    for (let i = 0; i < 50; i += 1) {
-      expect(premiumIds).not.toContain(getRandomQuestion().categoryId);
+/**
+ * Every mode draws on the whole catalogue (user decision 2026-09-03: questions
+ * from all categories appear in all game modes). Premium gates playing a
+ * premium category on its own, not whether its questions show up elsewhere.
+ */
+describe('question pools span every category', () => {
+  it('random pools (Endless, Survival) can serve premium-category questions', () => {
+    const seen = new Set<string>();
+    const picked = new Set<string>();
+    for (let i = 0; i < getQuestions().length; i += 1) {
+      const q = getRandomQuestion(seen);
+      seen.add(q.id);
+      picked.add(q.categoryId);
     }
-    setPremiumUnlocked(true);
-    expect(getPlayableQuestions()).toHaveLength(getQuestions().length);
+    for (const id of premiumIds) expect(picked).toContain(id);
   });
 
-  it('keeps the Daily identical for free and Premium players', () => {
-    const free = getDailyQuestions('2026-08-24').map((q) => q.id);
-    setPremiumUnlocked(true);
-    expect(getDailyQuestions('2026-08-24').map((q) => q.id)).toEqual(free);
-    expect(free.some((id) => id.startsWith('art-') || id.startsWith('phi-'))).toBe(false);
+  it('the Daily is drawn from the full catalogue', () => {
+    // Over a run of days the fixed sets must include premium-category
+    // questions; a single day may not, so sample a month.
+    const ids = new Set<string>();
+    for (let day = 1; day <= 30; day += 1) {
+      const key = `2026-09-${String(day).padStart(2, '0')}`;
+      for (const q of getDailyQuestions(key)) ids.add(q.id);
+    }
+    expect([...ids].some((id) => premiumQuestionIds.has(id))).toBe(true);
+  });
+
+  it('topic pools include premium-category questions', () => {
+    const inTopics = new Set(TOPICS.flatMap((t) => getTopicQuestions(t).map((q) => q.id)));
+    expect([...inTopics].some((id) => premiumQuestionIds.has(id))).toBe(true);
   });
 });
 
 describe('topic of the day', () => {
-  it('every topic has enough questions for a full run with Premium', () => {
-    setPremiumUnlocked(true);
+  it('every topic has enough questions for a full run', () => {
     for (const topic of TOPICS) {
       expect(getTopicQuestions(topic).length).toBeGreaterThanOrEqual(TOPIC_RUN_SIZE);
-      expect(isTopicAvailable(topic)).toBe(true);
     }
   });
 
-  it('locks premium-heavy topics for free players but keeps most playable', () => {
-    const available = TOPICS.filter((t) => isTopicAvailable(t));
-    expect(available.length).toBeGreaterThanOrEqual(TOPICS.length - 4);
-    expect(isTopicAvailable(TOPICS.find((t) => t.id === 'inventions')!)).toBe(true);
-    expect(isTopicAvailable(TOPICS.find((t) => t.id === 'rome')!)).toBe(true);
-  });
-
-  it('is deterministic per day, the same for free and Premium, and varies across days', () => {
+  it('is deterministic per day and varies across days', () => {
     const a = getTopicOfTheDay('2026-08-24');
     expect(getTopicOfTheDay('2026-08-24')).toBe(a);
-    setPremiumUnlocked(true);
-    expect(getTopicOfTheDay('2026-08-24')).toBe(a);
-    setPremiumUnlocked(false);
     const days = ['2026-08-24', '2026-08-25', '2026-08-26', '2026-08-27', '2026-08-28'];
     expect(new Set(days.map((d) => getTopicOfTheDay(d).id)).size).toBeGreaterThan(1);
   });
 
   it('builds a fixed run of on-topic questions', () => {
-    setPremiumUnlocked(true);
     const topic = getTopicOfTheDay('2026-08-24');
     const run = getTopicRun(topic, '2026-08-24');
     expect(run).toHaveLength(TOPIC_RUN_SIZE);

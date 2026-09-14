@@ -7,10 +7,12 @@ import { SignInNudge } from '@/features/account/SignInNudge';
 import { OutOfHeartsSheet, useHearts } from '@/features/hearts';
 import { RoundView, useRoundRewards } from '@/features/round';
 import { palette } from '@/theme/tokens';
+import { dateKey } from '@/utils/date';
 
 import { ModeHud } from '../components/ModeHud';
 import { HintButton } from '../hints/HintButton';
 import { roundDetail, RunSummary, type SummaryRow } from '../components/RunSummary';
+import { prettyDate, shareDataFromResults } from '../share';
 import { getStage, getWorld, type CampaignStage } from './campaignMap';
 import { useCampaignSession } from './useCampaignSession';
 
@@ -44,6 +46,14 @@ function StagePlay({
         accent={colour}
         stars={earnedStars}
         rounds={rounds}
+        share={{
+          data: shareDataFromResults(
+            `${stage.title} · ${'★'.repeat(earnedStars)}${'☆'.repeat(3 - earnedStars)}`,
+            `${getWorld(stage.worldId)?.name ?? 'Campaign'} · ${prettyDate(dateKey())}`,
+            session.results,
+          ),
+          mode: 'campaign',
+        }}
         primaryLabel="Back to map"
         onPrimary={onHome}
         secondaryLabel="Replay"

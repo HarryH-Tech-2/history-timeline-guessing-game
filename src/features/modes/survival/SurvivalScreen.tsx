@@ -4,10 +4,12 @@ import { useRouter } from 'expo-router';
 import { Screen } from '@/components/ui';
 import { RoundView, useRoundRewards } from '@/features/round';
 import { palette } from '@/theme/tokens';
+import { dateKey } from '@/utils/date';
 
 import { ModeHud } from '../components/ModeHud';
 import { HintButton } from '../hints/HintButton';
 import { roundDetail, RunSummary, type SummaryRow } from '../components/RunSummary';
+import { prettyDate, shareDataFromResults } from '../share';
 import { isOutOfLives } from './survivalRules';
 import { useSurvivalSession } from './useSurvivalSession';
 
@@ -38,6 +40,14 @@ function SurvivalPlay({ onHome, onRetry }: { onHome: () => void; onRetry: () => 
         accent={palette.danger}
         stats={stats}
         rounds={rounds}
+        share={{
+          data: shareDataFromResults(
+            `Survival · ${session.results.length} ${session.results.length === 1 ? 'round' : 'rounds'}`,
+            prettyDate(dateKey()),
+            session.results,
+          ),
+          mode: 'survival',
+        }}
         primaryLabel="Play again"
         onPrimary={onRetry}
         secondaryLabel="Home"

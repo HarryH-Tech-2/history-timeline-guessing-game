@@ -4,6 +4,13 @@ import { z } from 'zod';
 export const MAX_DISPLAY_NAME = 24;
 
 /** The shape written to `leaderboard/{uid}` (the uid is the document id). */
+/** XP a player needs before they are published to, or shown on, the board. */
+export const MIN_LEADERBOARD_XP = 20;
+
+export function qualifiesForLeaderboard(xp: number): boolean {
+  return xp >= MIN_LEADERBOARD_XP;
+}
+
 export const LeaderboardWriteSchema = z.object({
   displayName: z.string().min(1).max(MAX_DISPLAY_NAME),
   xp: z.number().nonnegative(),

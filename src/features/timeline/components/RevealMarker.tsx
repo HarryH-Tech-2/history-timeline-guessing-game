@@ -10,8 +10,6 @@ import { formatYear, worldXForYear } from '@/features/timeline/math';
 interface RevealMarkerProps {
   year: number;
   scale: SharedValue<number>;
-  /** Zoom at the last rest; backs the plain fallback style (see TimelineTick). */
-  restingScale: number;
   colour: string;
   /** Short caption shown before the year in the pill (e.g. "You"). */
   label?: string;
@@ -37,7 +35,6 @@ const MARKER_WIDTH = 128;
 export function RevealMarker({
   year,
   scale,
-  restingScale,
   colour,
   label,
   stagger = 0,
@@ -56,13 +53,7 @@ export function RevealMarker({
     <Animated.View
       pointerEvents="none"
       entering={FadeIn.duration(400)}
-      style={[
-        style,
-        {
-          width: MARKER_WIDTH,
-          transform: [{ translateX: worldX * restingScale - MARKER_WIDTH / 2 }],
-        },
-      ]}
+      style={[style, { width: MARKER_WIDTH }]}
       className="absolute bottom-8 top-2 left-0 items-center"
       testID={testID}
     >

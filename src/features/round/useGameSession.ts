@@ -1,12 +1,15 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import type { Question, RoundResult } from '@/domain';
 import { evaluateGuess, type ScoreModifiers } from '@/features/timeline/math';
+import { track, type GameMode } from '@/services/analytics';
 
 export type SessionPhase = 'guessing' | 'revealed';
 export type SessionStatus = 'active' | 'finished';
 
 export interface GameSessionConfig {
+  /** Which mode this is, as reported on usage events. */
+  mode: GameMode;
   /** The opening question. */
   first: () => Question;
   /** Given the rounds played so far, the next question — or `null` to finish. */
@@ -38,7 +41,7 @@ export interface GameSession {
  * their queue policy (`first`/`next`) and end condition (`shouldEnd`).
  */
 export function useGameSession(config: GameSessionConfig): GameSession {
-  const { first, next, shouldEnd, modifiers } = config;
+  const { mode, first, next, shouldEnd, modifiers } = config;
 
   const [question, setQuestion] = useState<Question>(first);
   const [phase, setPhase] = useState<SessionPhase>('guessing');
@@ -47,18 +50,44 @@ export function useGameSession(config: GameSessionConfig): GameSession {
   const [results, setResults] = useState<readonly RoundResult[]>([]);
   const [roundNumber, setRoundNumber] = useState(1);
 
+  // Usage events, one each per session start and finish.
+  useEffect(() => {
+    track('mode_started', { mode });
+  }, [mode]);
+  const reportedFinish = useRef(false);
+  useEffect(() => {
+    if (status !== 'finished' || reportedFinish.current) return;
+    reportedFinish.current = true;
+    track('run_completed', {
+      mode,
+      rounds: results.length,
+      total_score: results.reduce((sum, r) => sum + r.score.total, 0),
+      exact: results.filter((r) => r.errorYears === 0).length,
+    });
+  }, [status, results, mode]);
+
   const submit = useCallback(
     (guessYear: number): RoundResult => {
       // A double-tap on Submit must not score the same question twice (which
       // would also skip the next question in a fixed queue).
       if (phase === 'revealed' && result !== null) return result;
       const evaluated = evaluateGuess(question, guessYear, modifiers?.(results));
+      track('round_submitted', {
+        mode,
+        question_id: question.id,
+        category_id: question.categoryId,
+        round: roundNumber,
+        guess_year: Math.round(guessYear),
+        answer_year: question.year,
+        error_years: evaluated.errorYears,
+        score: evaluated.score.total,
+      });
       setResult(evaluated);
       setResults((prev) => [...prev, evaluated]);
       setPhase('revealed');
       return evaluated;
     },
-    [question, results, modifiers, phase, result],
+    [question, results, modifiers, phase, result, mode, roundNumber],
   );
 
   const advance = useCallback(() => {

@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
@@ -15,13 +14,11 @@ import { OutOfHeartsSheet, useHearts } from '@/features/hearts';
 import { ModeHud } from '../components/ModeHud';
 import { roundDetail, RunSummary, type SummaryRow } from '../components/RunSummary';
 import type { DailyRecord } from '../persistence';
-import { DailyShareCard, SHARE_CARD_SIZE } from './DailyShareCard';
-import { shareDailyResult } from './shareImage';
+import { dailyShareData } from './shareCard';
 import { useDailySession } from './useDailySession';
 
 function DailySummary({ record, onHome }: { record: DailyRecord; onHome: () => void }) {
   const { state } = useProgression();
-  const cardRef = useRef<View>(null);
   const streak = activeStreakCount(state.streak, dateKey());
   const rounds: SummaryRow[] = record.rounds.map((r, i) => ({
     key: `${i}`,
@@ -31,33 +28,27 @@ function DailySummary({ record, onHome }: { record: DailyRecord; onHome: () => v
   }));
 
   return (
-    <>
-      <RunSummary
-        title="Daily complete"
-        subtitle={
-          streak > 0
-            ? `🔥 ${streak}-day streak — come back tomorrow to keep it alive.`
-            : 'Come back tomorrow for a fresh set.'
-        }
-        totalScore={record.totalScore}
-        stats={[
-          { label: 'Perfect answers', value: `${record.perfectCount} / ${record.rounds.length}` },
-        ]}
-        rounds={rounds}
-        primaryLabel="Share result"
-        onPrimary={() => void shareDailyResult(cardRef, record)}
-        secondaryLabel="Home"
-        onSecondary={onHome}
-      />
-      {/* The image card lives just off the left edge, laid out at full size so
-          it can be captured on demand without ever being visible. */}
-      <View
-        pointerEvents="none"
-        style={{ position: 'absolute', left: -SHARE_CARD_SIZE * 2, top: 0 }}
-      >
-        <DailyShareCard ref={cardRef} record={record} />
-      </View>
-    </>
+    <RunSummary
+      title="Daily complete"
+      subtitle={
+        streak > 0
+          ? `🔥 ${streak}-day streak — come back tomorrow to keep it alive.`
+          : 'Come back tomorrow for a fresh set.'
+      }
+      totalScore={record.totalScore}
+      stats={[
+        {
+          label: 'Perfect answers',
+          value: `${record.perfectCount} / ${record.rounds.length}`,
+        },
+      ]}
+      rounds={rounds}
+      // Share is the primary action on purpose: the card is the game's
+      // main word-of-mouth lever (user decision, 2026-09-01).
+      share={{ data: dailyShareData(record), mode: 'daily', primary: true }}
+      primaryLabel="Home"
+      onPrimary={onHome}
+    />
   );
 }
 

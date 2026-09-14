@@ -13,11 +13,20 @@ interface PromptCardProps {
    * timeline and the reveal sheet both fit on screen without overlapping.
    */
   compact?: boolean;
+  /** Hide the thumbnail in the compact layout (the illustration is shown
+   * large elsewhere on screen, so it need not repeat here). */
+  showImage?: boolean;
 }
 
 /** The question prompt: illustration, headline, supporting line. Tapping the
  * illustration opens it full-screen with pinch-to-zoom. */
-export function PromptCard({ questionId, title, subtitle, compact = false }: PromptCardProps) {
+export function PromptCard({
+  questionId,
+  title,
+  subtitle,
+  compact = false,
+  showImage = true,
+}: PromptCardProps) {
   const image = imageForQuestion(questionId);
   const [zoomed, setZoomed] = useState(false);
 
@@ -33,7 +42,7 @@ export function PromptCard({ questionId, title, subtitle, compact = false }: Pro
   if (compact) {
     return (
       <Card className="flex-row items-center gap-3 py-3" testID="prompt-card-compact">
-        {image && (
+        {image && showImage && (
           <Pressable
             onPress={() => setZoomed(true)}
             accessibilityRole="imagebutton"

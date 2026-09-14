@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useRef, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { ScrollView, useWindowDimensions, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { useReducedMotion } from 'react-native-reanimated';
 
 import { Button } from '@/components/ui';
-import { getCategoryById } from '@/data';
+import { getCategoryById, imageForQuestion } from '@/data';
 import type { Question, RoundResult } from '@/domain';
 import { useSound } from '@/features/sound';
 import { TimelineTrack, useTimelineTransform } from '@/features/timeline';
@@ -13,6 +13,7 @@ import { palette } from '@/theme/tokens';
 
 import { Confetti } from './components/Confetti';
 import { PromptCard } from './components/PromptCard';
+import { RevealImage } from './components/RevealImage';
 import { RevealSheet } from './components/RevealSheet';
 
 const DEFAULT_RANGE = { min: 1700, max: 2026 } as const;
@@ -79,8 +80,16 @@ export function RoundView({
   useEffect(() => {
     if (lastAnswerYear.current !== null) refocus(lastAnswerYear.current);
   }, [question.id, refocus]);
+  // The same year, as render state for the track: its decade dividers are
+  // mounted from the submit that reveals it (one commit, at a standstill), so
+  // when the next question re-frames around it they are already there. A
+  // block swap otherwise waits for the re-frame to settle (~1 s) and the
+  // dividers pop in late — most visibly on the ancient questions where big
+  // misses, and so big re-frames, are common.
+  const [anchorYear, setAnchorYear] = useState<number | undefined>(undefined);
 
   const handleSubmit = useCallback(() => {
+    setAnchorYear(question.year);
     const guessYear = controller.readGuessYear();
     // "Right" is a single shared threshold so the haptic and the sting agree.
     const right = isRightAnswer(Math.round(guessYear) - question.year);
@@ -99,6 +108,12 @@ export function RoundView({
     onSubmit(guessYear);
   }, [controller, question.year, onSubmit, playSound]);
 
+  // The reveal swaps the timeline for the illustration: the sheet already
+  // states the year and the distance, and the picture is the payoff. The
+  // timeline only stays if the question has no illustration.
+  const image = imageForQuestion(question.id);
+  const showImage = revealed && image !== undefined;
+
   const timeline = (
     <View className="flex-1 justify-center py-2">
       <TimelineTrack
@@ -106,9 +121,12 @@ export function RoundView({
         revealYear={revealed ? question.year : undefined}
         revealColour={colour}
         guessYear={revealed && result ? result.guessYear : undefined}
+        anchorYear={anchorYear}
       />
     </View>
   );
+
+  const stage = showImage ? <RevealImage source={image} title={question.title} /> : timeline;
 
   const revealSheet = revealed && result && (
     <RevealSheet
@@ -145,12 +163,13 @@ export function RoundView({
                 title={question.title}
                 subtitle={question.subtitle}
                 compact={revealed}
+                showImage={!showImage}
               />
               {revealSheet}
             </ScrollView>
           </View>
           <View className="flex-1">
-            {timeline}
+            {stage}
             {submitFooter}
           </View>
         </View>
@@ -168,9 +187,10 @@ export function RoundView({
           title={question.title}
           subtitle={question.subtitle}
           compact={revealed}
+          showImage={!showImage}
         />
 
-        {timeline}
+        {stage}
       </View>
 
       {revealSheet}
