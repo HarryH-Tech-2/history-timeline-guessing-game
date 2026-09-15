@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import * as Haptics from 'expo-haptics';
 import { GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   FadeIn,
@@ -9,6 +8,7 @@ import Animated, {
   useAnimatedStyle,
 } from 'react-native-reanimated';
 
+import { haptic } from '@/features/haptics';
 import type { TimelineController } from '@/features/timeline/hooks/useTimelineTransform';
 import { BASE_WIDTH, MIN_YEAR, PRESENT_YEAR, worldXForYear } from '@/features/timeline/math';
 import {
@@ -65,7 +65,7 @@ function YearStepButton({
     <View pointerEvents="box-none" className={`absolute top-0 bottom-8 ${side} justify-center`}>
       <Pressable
         onPress={() => {
-          void Haptics.selectionAsync();
+          haptic.selection();
           onStep(delta);
         }}
         accessibilityRole="button"

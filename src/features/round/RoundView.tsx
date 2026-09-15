@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { ScrollView, useWindowDimensions, View } from 'react-native';
-import * as Haptics from 'expo-haptics';
 import { useReducedMotion } from 'react-native-reanimated';
 
 import { Button } from '@/components/ui';
 import { getCategoryById, imageForQuestion } from '@/data';
 import type { Question, RoundResult } from '@/domain';
+import { haptic, NotificationFeedbackType } from '@/features/haptics';
 import { useSound } from '@/features/sound';
 import { TimelineTrack, useTimelineTransform } from '@/features/timeline';
 import { isRightAnswer } from '@/features/timeline/math';
@@ -94,10 +94,8 @@ export function RoundView({
     // "Right" is a single shared threshold so the haptic and the sting agree.
     const right = isRightAnswer(Math.round(guessYear) - question.year);
 
-    void Haptics.notificationAsync(
-      right
-        ? Haptics.NotificationFeedbackType.Success
-        : Haptics.NotificationFeedbackType.Warning,
+    haptic.notification(
+      right ? NotificationFeedbackType.Success : NotificationFeedbackType.Warning,
     );
     playSound(right ? 'right' : 'wrong');
 

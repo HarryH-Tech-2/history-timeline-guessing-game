@@ -1,4 +1,3 @@
-import * as Haptics from 'expo-haptics';
 import { Pressable, Text } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -6,6 +5,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { haptic as buzz } from '@/features/haptics';
 import { cn } from '@/utils/cn';
 
 type ButtonVariant = 'primary' | 'ghost';
@@ -53,7 +53,7 @@ export function Button({
   const handlePress = () => {
     if (disabled) return;
     if (haptic) {
-      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      buzz.impact();
     }
     onPress();
   };

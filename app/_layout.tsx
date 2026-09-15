@@ -11,6 +11,7 @@ import { AnalyticsProvider } from '@/services/analytics';
 import { PremiumProvider } from '@/features/premium';
 import { SaveProvider } from '@/features/save';
 import { ProgressionProvider } from '@/features/progression';
+import { HapticsProvider } from '@/features/haptics';
 import { SoundProvider } from '@/features/sound';
 import { syncRemoteContent } from '@/services/content';
 import { AuthProvider } from '@/services/firebase/auth';
@@ -57,7 +58,9 @@ export default function RootLayout() {
                 <PremiumProvider>
                   <ProgressionProvider>
                     <SoundProvider>
-                      <ThemedNavigator />
+                      <HapticsProvider>
+                        <ThemedNavigator />
+                      </HapticsProvider>
                     </SoundProvider>
                   </ProgressionProvider>
                 </PremiumProvider>

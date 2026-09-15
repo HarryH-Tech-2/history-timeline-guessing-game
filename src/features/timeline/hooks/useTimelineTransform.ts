@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { type LayoutChangeEvent } from 'react-native';
-import * as Haptics from 'expo-haptics';
 import { Gesture, type ComposedGesture } from 'react-native-gesture-handler';
 import {
   Easing,
@@ -15,6 +14,7 @@ import {
   type SharedValue,
 } from 'react-native-reanimated';
 
+import { haptic } from '@/features/haptics';
 import {
   BASE_WIDTH,
   MAX_SCALE,
@@ -126,7 +126,7 @@ export function useTimelineTransform(options: Options = {}): TimelineController 
   });
 
   const tickHaptic = useCallback(() => {
-    void Haptics.selectionAsync();
+    haptic.selection();
   }, []);
 
   const lastHapticAt = useSharedValue(0);

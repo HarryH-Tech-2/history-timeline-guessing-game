@@ -19,6 +19,7 @@ import {
 import { resolveDisplayName } from '@/features/leaderboard/playerName';
 import { usePremium } from '@/features/premium';
 import { openStoreListing } from '@/features/review';
+import { useHaptics } from '@/features/haptics';
 import { useSound } from '@/features/sound';
 import { useAnalyticsSettings } from '@/services/analytics';
 import { useAuth } from '@/services/firebase/auth';
@@ -209,6 +210,7 @@ export function ProfileScreen() {
   const { uid, isSignedIn, user, hasAccount, signOutToGuest } = useAuth();
   const { mode, toggle } = useTheme();
   const { enabled: soundOn, toggle: toggleSound } = useSound();
+  const { enabled: hapticsOn, toggle: toggleHaptics } = useHaptics();
   const { enabled: analyticsOn, toggle: toggleAnalytics } = useAnalyticsSettings();
   const [signingOut, setSigningOut] = useState(false);
   const [editingName, setEditingName] = useState(false);
@@ -440,6 +442,22 @@ export function ProfileScreen() {
             </Text>
           </View>
           <Text className="text-base text-ink-secondary">{soundOn ? 'On 🔊' : 'Off 🔇'}</Text>
+        </Pressable>
+        <Pressable
+          onPress={toggleHaptics}
+          accessibilityRole="switch"
+          accessibilityState={{ checked: hapticsOn }}
+          accessibilityLabel={hapticsOn ? 'Turn vibration off' : 'Turn vibration on'}
+          testID="profile-haptics-toggle"
+          className="flex-row items-center justify-between border border-hair bg-bg-raised p-4"
+        >
+          <View className="flex-1 pr-3">
+            <Text className="text-base font-semibold text-ink-primary">Vibration</Text>
+            <Text className="mt-0.5 text-xs text-ink-muted">
+              Ticks as you scrub the timeline and a buzz when an answer lands.
+            </Text>
+          </View>
+          <Text className="text-base text-ink-secondary">{hapticsOn ? 'On 📳' : 'Off'}</Text>
         </Pressable>
         <Pressable
           onPress={toggleAnalytics}
