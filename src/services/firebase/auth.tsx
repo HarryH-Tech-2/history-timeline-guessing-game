@@ -12,6 +12,7 @@ import {
 import { isFirebaseConfigured } from '@/config/env';
 import { track } from '@/services/analytics';
 import { loadGoogleSignin } from '@/services/googleSignin';
+import { requestPlayGamesServerAuthCode, warmUpPlayGames } from '@/services/playGames';
 
 /** Profile fields the rest of the app can show for the signed-in player. */
 export interface AuthUser {
@@ -34,26 +35,22 @@ export interface AuthState {
   isSignedIn: boolean;
   /** Profile of the current user, or null before sign-in / offline. */
   user: AuthUser | null;
-  /** True when signed in with a real account (email or Google), not as a guest. */
+  /** True when signed in with a real account (Google), not as a guest. */
   hasAccount: boolean;
 }
 
 /** Auth state plus the account actions surfaced in the profile UI. */
 export interface AuthApi extends AuthState {
-  /** Create an email/password account (guest progress is linked onto it). */
-  signUpWithEmail: (email: string, password: string) => Promise<void>;
-  /** Sign in to an existing email/password account. */
-  signInWithEmail: (email: string, password: string) => Promise<void>;
   /** Sign in with Google (guest progress is linked when possible). */
   signInWithGoogle: () => Promise<void>;
-  /** Email a password-reset link. */
-  sendPasswordReset: (email: string) => Promise<void>;
   /** Sign out of the account and fall back to a fresh guest session. */
   signOutToGuest: () => Promise<void>;
   /**
    * Prove the current session is fresh, as Firebase demands before sensitive
-   * operations. Password accounts must supply their password; Google accounts
-   * are re-verified silently (falling back to the account picker).
+   * operations. Google accounts are re-verified silently (falling back to the
+   * account picker). Legacy password accounts — email sign-up was removed in
+   * September 2026 but existing sessions persist — must still supply their
+   * password so they can delete their account.
    */
   reauthenticate: (password?: string) => Promise<void>;
   /**
@@ -78,10 +75,7 @@ const OFFLINE_STATE: AuthState = {
 
 const OFFLINE_API: AuthApi = {
   ...OFFLINE_STATE,
-  signUpWithEmail: () => Promise.reject(OFFLINE_ERROR),
-  signInWithEmail: () => Promise.reject(OFFLINE_ERROR),
   signInWithGoogle: () => Promise.reject(OFFLINE_ERROR),
-  sendPasswordReset: () => Promise.reject(OFFLINE_ERROR),
   signOutToGuest: () => Promise.resolve(),
   reauthenticate: () => Promise.reject(OFFLINE_ERROR),
   deleteAccount: () => Promise.reject(OFFLINE_ERROR),
@@ -101,20 +95,16 @@ async function loadAuth() {
   return { auth: getFirebaseAuth(), authModule };
 }
 
-/** Translate Firebase auth error codes into copy fit for the sign-in screen. */
+/** Translate Firebase auth error codes into copy fit for the account screens. */
 function friendlyAuthError(error: unknown): Error {
   const code =
     typeof error === 'object' && error !== null && 'code' in error
       ? String((error as { code: unknown }).code)
       : '';
   switch (code) {
-    case 'auth/invalid-email':
-      return new Error('That email address does not look right.');
-    case 'auth/email-already-in-use':
     case 'auth/credential-already-in-use':
-      return new Error('An account already exists for that email — try signing in instead.');
-    case 'auth/weak-password':
-      return new Error('Password is too weak — use at least 6 characters.');
+      return new Error('That Google account is already linked to another player.');
+    // Legacy password accounts can still re-authenticate to delete themselves.
     case 'auth/user-not-found':
     case 'auth/wrong-password':
     case 'auth/invalid-credential':
@@ -133,7 +123,7 @@ function friendlyAuthError(error: unknown): Error {
 /**
  * Owns the player's identity. On launch the player is signed in anonymously so
  * cloud features work with zero friction; the profile screen can then upgrade
- * that guest to a real account (email/password or Google). Upgrades use
+ * that guest to a real account (Google). Upgrades use
  * credential *linking* wherever possible so the uid — and with it the
  * leaderboard entry and any cloud data — survives the transition. When Firebase
  * isn't configured the provider is a transparent offline pass-through.
@@ -242,71 +232,68 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   /**
-   * Zero-tap account restore: if the device has a saved Google credential
-   * (the player signed in with Google before), upgrade the guest session to
-   * that account automatically on launch. Runs once per launch, and only when
-   * the FIRST resolved user is a guest — never after an explicit sign-out,
-   * and never over an existing real account. Best-effort: any failure just
-   * leaves the guest session in place.
+   * Play Games → Firebase bridge: prove the device's Play Games identity to
+   * our Cloud Function and follow its verdict — bind this uid to the player
+   * (first sighting) or sign into the uid the player was bound to on another
+   * device. Resolves true when the Firebase session changed. Throws only for
+   * unexpected failures; "no Play Games session" is a quiet false.
+   */
+  const linkPlayGames = useCallback(async (forceToken = false): Promise<boolean> => {
+    const webClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+    if (!webClientId) return false;
+    if (!(await warmUpPlayGames())) return false;
+    const code = await requestPlayGamesServerAuthCode(webClientId);
+    if (code === null) return false;
+    const { exchangePlayGamesCode } = await import('./playGamesBridge');
+    const result = await exchangePlayGamesCode(code, { forceToken });
+    if (result.token === null) return false;
+    const { auth, authModule } = await loadAuth();
+    await authModule.signInWithCustomToken(auth, result.token);
+    track('sign_in_completed', { method: 'playgames' });
+    return true;
+  }, []);
+
+  /**
+   * Zero-tap account restore, once per launch, keyed on the FIRST resolved
+   * user (never re-run after an explicit sign-out this session). Two steps,
+   * in order:
+   *  1. Returning Google users: if the device has a saved Google credential
+   *     and the session is a guest, upgrade it silently (link, or switch on
+   *     credential-already-in-use). This runs first so step 2 binds the Play
+   *     identity to the Google-backed uid, not to a throwaway guest.
+   *  2. Play Games bridge: with a Play Games session, bind or restore via the
+   *     Cloud Function. Runs for guests and real accounts alike so the
+   *     mapping exists before the player ever changes phone.
+   * Best-effort: any failure leaves the current session in place.
    */
   useEffect(() => {
     if (!isFirebaseConfigured) return;
     if (state.user === null || silentRestoreDone.current) return;
     silentRestoreDone.current = true;
-    if (!state.user.isAnonymous) return;
+    const wasGuest = state.user.isAnonymous;
 
     void (async () => {
+      if (wasGuest) {
+        try {
+          const GoogleSignin = await loadGoogleSignin();
+          const webClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+          if (GoogleSignin !== null && webClientId) {
+            GoogleSignin.configure({ webClientId });
+            const response = await GoogleSignin.signInSilently();
+            const idToken = response.type === 'success' ? response.data.idToken : null;
+            if (idToken) await applyGoogleIdToken(idToken);
+          }
+        } catch {
+          // No saved credential / offline / native module quirks — stay a guest.
+        }
+      }
       try {
-        const GoogleSignin = await loadGoogleSignin();
-        if (GoogleSignin === null) return;
-        const webClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
-        if (!webClientId) return;
-        GoogleSignin.configure({ webClientId });
-        const response = await GoogleSignin.signInSilently();
-        if (response.type !== 'success') return;
-        const idToken = response.data.idToken;
-        if (!idToken) return;
-        await applyGoogleIdToken(idToken);
+        await linkPlayGames();
       } catch {
-        // No saved credential / offline / native module quirks — stay a guest.
+        // Offline, function not deployed yet, or Play Games declined — no change.
       }
     })();
-  }, [state.user, applyGoogleIdToken]);
-
-  const signUpWithEmail = useCallback(
-    async (email: string, password: string) => {
-      if (!isFirebaseConfigured) throw OFFLINE_ERROR;
-      const { auth, authModule } = await loadAuth();
-      const current = auth.currentUser;
-      try {
-        if (current?.isAnonymous) {
-          const credential = authModule.EmailAuthProvider.credential(email.trim(), password);
-          await authModule.linkWithCredential(current, credential);
-        } else {
-          await authModule.createUserWithEmailAndPassword(auth, email.trim(), password);
-        }
-      } catch (error) {
-        throw friendlyAuthError(error);
-      }
-      await refreshFromCurrentUser();
-      track('sign_in_completed', { method: 'email' });
-    },
-    [refreshFromCurrentUser],
-  );
-
-  const signInWithEmail = useCallback(
-    async (email: string, password: string) => {
-      if (!isFirebaseConfigured) throw OFFLINE_ERROR;
-      const { auth, authModule } = await loadAuth();
-      try {
-        await authModule.signInWithEmailAndPassword(auth, email.trim(), password);
-      } catch (error) {
-        throw friendlyAuthError(error);
-      }
-      track('sign_in_completed', { method: 'email' });
-    },
-    [],
-  );
+  }, [state.user, applyGoogleIdToken, linkPlayGames]);
 
   const signInWithGoogle = useCallback(async () => {
     if (!isFirebaseConfigured) throw OFFLINE_ERROR;
@@ -336,16 +323,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     track('sign_in_completed', { method: 'google' });
   }, [applyGoogleIdToken]);
-
-  const sendPasswordReset = useCallback(async (email: string) => {
-    if (!isFirebaseConfigured) throw OFFLINE_ERROR;
-    const { auth, authModule } = await loadAuth();
-    try {
-      await authModule.sendPasswordResetEmail(auth, email.trim());
-    } catch (error) {
-      throw friendlyAuthError(error);
-    }
-  }, []);
 
   const reauthenticate = useCallback(async (password?: string) => {
     if (!isFirebaseConfigured) throw OFFLINE_ERROR;
@@ -387,11 +364,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await authModule.reauthenticateWithCredential(user, credential);
         return;
       }
+      if (providers.length === 0) {
+        // A Play Games-bridged account (custom-token session): a fresh bridge
+        // sign-in with a token for this same uid counts as a recent login.
+        const uidBefore = user.uid;
+        const ok = await linkPlayGames(true);
+        if (!ok || auth.currentUser?.uid !== uidBefore) {
+          throw new Error('Could not verify your Play Games sign-in. Try again.');
+        }
+        return;
+      }
       throw new Error('This account cannot be verified from the app.');
     } catch (error) {
       throw friendlyAuthError(error);
     }
-  }, []);
+  }, [linkPlayGames]);
 
   const deleteAccount = useCallback(async () => {
     if (!isFirebaseConfigured) throw OFFLINE_ERROR;
@@ -432,20 +419,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = useMemo<AuthApi>(
     () => ({
       ...state,
-      signUpWithEmail,
-      signInWithEmail,
       signInWithGoogle,
-      sendPasswordReset,
       signOutToGuest,
       reauthenticate,
       deleteAccount,
     }),
     [
       state,
-      signUpWithEmail,
-      signInWithEmail,
       signInWithGoogle,
-      sendPasswordReset,
       signOutToGuest,
       reauthenticate,
       deleteAccount,

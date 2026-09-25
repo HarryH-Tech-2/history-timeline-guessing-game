@@ -40,7 +40,7 @@ export interface AnalyticsEvents {
   /** A coin hint was bought. */
   hint_used: { question_id: string };
   /** A sign-in or sign-up finished successfully. */
-  sign_in_completed: { method: 'google' | 'email' };
+  sign_in_completed: { method: 'google' | 'email' | 'playgames' };
 }
 
 export type AnalyticsEventName = keyof AnalyticsEvents;

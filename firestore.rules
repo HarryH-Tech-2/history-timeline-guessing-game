@@ -58,6 +58,13 @@ service cloud.firestore {
         && request.resource.data.updatedAt is number;
     }
 
+    // Play Games player → uid bindings are written only by the Cloud Function
+    // (Admin SDK). Clients never read them: a mapping in the wrong hands would
+    // let someone sign into another player's progress.
+    match /playGamesPlayers/{playerId} {
+      allow read, write: if false;
+    }
+
     // Explicit default-deny for any collection not handled above.
     match /{document=**} {
       allow read, write: if false;

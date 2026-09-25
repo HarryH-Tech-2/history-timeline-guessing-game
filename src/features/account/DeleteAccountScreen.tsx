@@ -18,7 +18,7 @@ import { useThemeColors } from '@/theme';
 import { palette } from '@/theme/tokens';
 
 const DELETED_ITEMS = [
-  'Your sign-in (email or Google link). You will not be able to sign in to it again.',
+  'Your sign-in link. You will not be able to sign in to it again.',
   'Cloud saves: XP, level, coins, hearts, museum, campaign progress and best scores.',
   'Your row on the global leaderboard.',
   'The copy of that progress on this device.',
@@ -26,8 +26,8 @@ const DELETED_ITEMS = [
 
 /**
  * Permanent account deletion, as required by Google Play. The player confirms
- * with a native dialog, re-proves their identity (password, or a silent Google
- * check), and only then are local saves, cloud data and the Firebase user
+ * with a native dialog, re-proves their identity (a silent Google check, or the
+ * password on a legacy email account), and only then are local saves, cloud data and the Firebase user
  * removed: local first so no debounced write can re-mirror deleted data, and
  * the auth user last so a failure never leaves orphaned data.
  */

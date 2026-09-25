@@ -29,3 +29,11 @@ google-services.json
 promo/*.mp4
 promo/*.png
 assets/store/achievements/play-achievements-import.zip
+
+# Cloud Functions build output and deps
+functions/node_modules/
+functions/lib/
+
+# Scratch renders and Python caches
+promo/tmp2/
+__pycache__/

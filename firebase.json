@@ -2,7 +2,9 @@
   "hosting": {
     "public": "web",
     "cleanUrls": true,
-    "ignore": ["**/.*"]
+    "ignore": [
+      "**/.*"
+    ]
   },
   "firestore": {
     "rules": "firestore.rules",
@@ -21,5 +23,15 @@
         "supportEmail": "harry.h379572@gmail.com"
       }
     }
-  }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "runtime": "nodejs22",
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run build"
+      ]
+    }
+  ]
 }

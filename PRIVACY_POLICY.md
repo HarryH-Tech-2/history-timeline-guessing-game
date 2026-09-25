@@ -7,7 +7,7 @@ Date Guesser ("the app") is a history quiz game for Android developed by Harry H
 ## Summary
 
 - The app works fully offline; your game progress is stored on your device.
-- Creating an optional account (Google or email) stores a minimal profile so your progress and leaderboard entry can sync.
+- Creating an optional account (Google) stores a minimal profile so your progress and leaderboard entry can sync.
 - We show no ads, and we never sell your data or share it with third parties for marketing.
 
 ## Information we collect
@@ -22,7 +22,6 @@ You can play without an account. If you choose to sign in, the app uses **Fireba
 
 - **Guest play:** an anonymous account identifier, used to keep your progress consistent.
 - **Google Sign-In:** your Google account's name, email address, and profile picture reference.
-- **Email sign-in:** your email address.
 - **Google Play Games Services** (Android): your Play Games player ID and public profile, used for automatic sign-in on supported devices.
 
 ### Leaderboard data

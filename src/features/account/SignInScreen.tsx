@@ -1,12 +1,5 @@
 import { useCallback, useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { Button, Screen } from '@/components/ui';
@@ -15,67 +8,41 @@ import { useAuth } from '@/services/firebase/auth';
 import { useThemeColors } from '@/theme';
 import { palette } from '@/theme/tokens';
 
-type Mode = 'sign-in' | 'create';
+const BENEFITS = [
+  'Your progress, museum and campaign follow you to any device.',
+  'Your name on the global leaderboard stays yours.',
+  'One tap — no password to remember.',
+];
 
 /**
- * Account entry point: Google sign-in plus an email/password form that toggles
- * between signing in and creating an account. Guest progress is linked onto
- * the new account by the auth provider, so nothing is lost by upgrading.
+ * Account entry point: Google sign-in only. Guest progress is linked onto the
+ * Google account by the auth provider, so nothing is lost by upgrading.
+ * Premium never requires an account — purchases belong to the Google Play
+ * account on the device — so this screen is purely about backing up progress.
  */
 export function SignInScreen() {
   const router = useRouter();
   const colors = useThemeColors();
-  const { signInWithEmail, signUpWithEmail, signInWithGoogle, sendPasswordReset, hasAccount } =
-    useAuth();
+  const { signInWithGoogle, hasAccount } = useAuth();
 
-  const [mode, setMode] = useState<Mode>('sign-in');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
 
   const finish = useCallback(() => {
     if (router.canGoBack()) router.back();
     else router.replace('/profile');
   }, [router]);
 
-  const run = useCallback(
-    async (action: () => Promise<void>, doneNotice?: string) => {
-      setBusy(true);
-      setError(null);
-      setNotice(null);
-      try {
-        await action();
-        if (doneNotice) setNotice(doneNotice);
-        else finish();
-      } catch (caught) {
+  const continueWithGoogle = useCallback(() => {
+    setBusy(true);
+    setError(null);
+    void signInWithGoogle()
+      .then(finish)
+      .catch((caught: unknown) => {
         setError(caught instanceof Error ? caught.message : 'Something went wrong.');
-      } finally {
-        setBusy(false);
-      }
-    },
-    [finish],
-  );
-
-  const submitEmail = useCallback(() => {
-    if (email.trim().length === 0 || password.length === 0) {
-      setError('Enter your email and password.');
-      return;
-    }
-    void run(() =>
-      mode === 'create' ? signUpWithEmail(email, password) : signInWithEmail(email, password),
-    );
-  }, [run, mode, email, password, signUpWithEmail, signInWithEmail]);
-
-  const forgotPassword = useCallback(() => {
-    if (email.trim().length === 0) {
-      setError('Enter your email first, then tap "Forgot password?".');
-      return;
-    }
-    void run(() => sendPasswordReset(email), `Password reset email sent to ${email.trim()}.`);
-  }, [run, email, sendPasswordReset]);
+      })
+      .finally(() => setBusy(false));
+  }, [signInWithGoogle, finish]);
 
   if (!isFirebaseConfigured) {
     return (
@@ -93,9 +60,6 @@ export function SignInScreen() {
     );
   }
 
-  const inputClass =
-    'h-14 border border-hair bg-bg-raised px-4 text-base text-ink-primary';
-
   return (
     <Screen>
       <ScrollView
@@ -105,7 +69,7 @@ export function SignInScreen() {
       >
         <View className="mb-2 flex-row items-center justify-between">
           <Text className="text-3xl font-extrabold text-ink-primary">
-            {mode === 'create' ? 'Create account' : 'Sign in'}
+            {hasAccount ? 'Switch account' : 'Back up your progress'}
           </Text>
           {router.canGoBack() && (
             <Pressable
@@ -121,112 +85,36 @@ export function SignInScreen() {
 
         <Text className="mb-1 text-base text-ink-secondary">
           {hasAccount
-            ? 'Switch to a different account.'
-            : 'Keep your progress safe across devices. Your guest progress carries over.'}
+            ? 'Sign in with a different Google account.'
+            : 'Sign in with Google to keep your progress safe. Your guest progress carries over.'}
         </Text>
 
+        <View className="gap-2 border border-hair bg-bg-raised p-4">
+          {BENEFITS.map((item) => (
+            <Text key={item} className="text-sm text-ink-secondary">
+              {'•'} {item}
+            </Text>
+          ))}
+        </View>
+
         <Button
-          label="Continue with Google"
-          variant="ghost"
+          label={busy ? 'Working…' : 'Continue with Google'}
           disabled={busy}
-          onPress={() => void run(signInWithGoogle)}
+          onPress={continueWithGoogle}
           testID="google-sign-in"
         />
-
-        <View className="my-2 flex-row items-center gap-3">
-          <View className="h-px flex-1 bg-hair" />
-          <Text className="text-xs font-semibold uppercase tracking-widest text-ink-muted">
-            or use email
-          </Text>
-          <View className="h-px flex-1 bg-hair" />
-        </View>
-
-        <TextInput
-          value={email}
-          onChangeText={setEmail}
-          placeholder="Email"
-          placeholderTextColor={colors.ink.muted}
-          autoCapitalize="none"
-          autoComplete="email"
-          keyboardType="email-address"
-          editable={!busy}
-          className={inputClass}
-          testID="email-input"
-        />
-        <View className="relative">
-          <TextInput
-            value={password}
-            onChangeText={setPassword}
-            placeholder={mode === 'create' ? 'Password (6+ characters)' : 'Password'}
-            placeholderTextColor={colors.ink.muted}
-            autoCapitalize="none"
-            autoComplete={mode === 'create' ? 'new-password' : 'current-password'}
-            secureTextEntry={!showPassword}
-            editable={!busy}
-            className={`${inputClass} pr-16`}
-            testID="password-input"
-          />
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
-            onPress={() => setShowPassword((v) => !v)}
-            hitSlop={8}
-            className="absolute bottom-0 right-0 top-0 justify-center px-4"
-            testID="password-visibility"
-          >
-            <Text className="text-sm font-semibold text-accent">
-              {showPassword ? 'Hide' : 'Show'}
-            </Text>
-          </Pressable>
-        </View>
+        {busy && <ActivityIndicator color={colors.accent.default} />}
 
         {error && (
           <Text className="text-sm font-medium" style={{ color: palette.danger }}>
             {error}
           </Text>
         )}
-        {notice && (
-          <Text className="text-sm font-medium" style={{ color: palette.success }}>
-            {notice}
-          </Text>
-        )}
 
-        <Button
-          label={
-            busy ? 'Working…' : mode === 'create' ? 'Create account' : 'Sign in'
-          }
-          disabled={busy}
-          onPress={submitEmail}
-          testID="email-submit"
-        />
-        {busy && <ActivityIndicator color={colors.accent.default} />}
-
-        <View className="mt-2 flex-row items-center justify-between">
-          <Pressable
-            accessibilityRole="button"
-            onPress={() => {
-              setMode(mode === 'create' ? 'sign-in' : 'create');
-              setError(null);
-              setNotice(null);
-            }}
-            disabled={busy}
-            testID="mode-toggle"
-          >
-            <Text className="text-sm font-semibold text-accent">
-              {mode === 'create' ? 'Have an account? Sign in' : 'New here? Create an account'}
-            </Text>
-          </Pressable>
-          {mode === 'sign-in' && (
-            <Pressable
-              accessibilityRole="button"
-              onPress={forgotPassword}
-              disabled={busy}
-              testID="forgot-password"
-            >
-              <Text className="text-sm font-semibold text-ink-muted">Forgot password?</Text>
-            </Pressable>
-          )}
-        </View>
+        <Text className="mt-2 text-xs text-ink-muted">
+          Premium purchases are tied to your Google Play account, not to a sign-in. You can buy
+          and restore Premium without an account.
+        </Text>
       </ScrollView>
     </Screen>
   );

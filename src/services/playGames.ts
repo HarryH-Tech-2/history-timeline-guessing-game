@@ -75,3 +75,19 @@ export async function showPlayGamesAchievements(): Promise<boolean> {
     return false;
   }
 }
+
+/**
+ * A single-use server auth code proving the current Play Games identity to
+ * our Cloud Function (the account bridge). Null when Play Games is
+ * unavailable or the player has no session.
+ */
+export async function requestPlayGamesServerAuthCode(webClientId: string): Promise<string | null> {
+  const playGames = await loadPlayGames();
+  if (playGames === null) return null;
+  try {
+    const code = await playGames.requestServerSideAccess(webClientId);
+    return code.length > 0 ? code : null;
+  } catch {
+    return null;
+  }
+}
