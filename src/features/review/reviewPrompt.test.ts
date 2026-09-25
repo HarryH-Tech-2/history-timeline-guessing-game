@@ -5,6 +5,7 @@ import type { RoundResult } from '@/domain';
 import {
   isStrongRun,
   requestReviewAfterFirstPurchase,
+  requestReviewAfterRun,
   requestReviewAfterStrongRun,
   reviewPromptStore,
   runScoreFraction,
@@ -84,8 +85,8 @@ describe('requestReviewAfterStrongRun', () => {
   it('measures a run against its maximum possible score', () => {
     expect(runScoreFraction([])).toBe(0);
     expect(runScoreFraction([roundOf(1000), roundOf(500)])).toBe(0.75);
-    expect(isStrongRun([roundOf(1000), roundOf(500)])).toBe(false); // exactly 75% is not "over"
-    expect(isStrongRun([roundOf(1000), roundOf(510)])).toBe(true);
+    expect(isStrongRun([roundOf(600), roundOf(400)])).toBe(false); // exactly 50% is not "over"
+    expect(isStrongRun([roundOf(600), roundOf(410)])).toBe(true);
     // Combo multipliers can push a run past 100%; still strong.
     expect(isStrongRun([roundOf(1300), roundOf(1200)])).toBe(true);
   });
@@ -100,7 +101,7 @@ describe('requestReviewAfterStrongRun', () => {
   });
 
   it('stays quiet after a weak run', async () => {
-    await requestReviewAfterStrongRun([roundOf(600), roundOf(400)], { delayMs: 0 });
+    await requestReviewAfterStrongRun([roundOf(300), roundOf(400)], { delayMs: 0 });
     expect(mockHasAction).not.toHaveBeenCalled();
     expect(mockRequestReview).not.toHaveBeenCalled();
     await expect(reviewPromptStore.read()).resolves.toEqual({ done: false });
@@ -109,6 +110,29 @@ describe('requestReviewAfterStrongRun', () => {
   it('shares the once-per-install flag with the purchase ask', async () => {
     await requestReviewAfterFirstPurchase({ delayMs: 0 });
     await requestReviewAfterStrongRun([roundOf(1000)], { delayMs: 0 });
+    expect(mockRequestReview).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('requestReviewAfterRun', () => {
+  beforeEach(async () => {
+    mockHasAction.mockReset().mockResolvedValue(true);
+    mockRequestReview.mockReset().mockResolvedValue(undefined);
+    await reviewPromptStore.clear();
+  });
+
+  it('asks after a weak run that still unlocked a real achievement', async () => {
+    await requestReviewAfterRun([roundOf(100), roundOf(0)], ['bullseye'], { delayMs: 0 });
+    expect(mockRequestReview).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not count the badge everyone gets for finishing a first round', async () => {
+    await requestReviewAfterRun([roundOf(100), roundOf(0)], ['first-round'], { delayMs: 0 });
+    expect(mockRequestReview).not.toHaveBeenCalled();
+  });
+
+  it('still asks after a strong run with nothing unlocked', async () => {
+    await requestReviewAfterRun([roundOf(900), roundOf(800)], [], { delayMs: 0 });
     expect(mockRequestReview).toHaveBeenCalledTimes(1);
   });
 });

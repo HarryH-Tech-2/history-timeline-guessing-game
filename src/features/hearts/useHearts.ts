@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   formatHeartCountdown,
   HEART_REFILL_COST,
+  heartsAtStake,
   heartsAvailable,
   MAX_HEARTS,
   msUntilNextHeart,
@@ -16,6 +17,8 @@ export interface HeartsView {
   max: number;
   /** Premium: hearts never run out. */
   unlimited: boolean;
+  /** False during a new player's free games, when misses cost nothing. */
+  atStake: boolean;
   /** True when the player cannot start or continue a run. */
   empty: boolean;
   /** "12m" until the next heart, or null when full/unlimited. */
@@ -49,17 +52,19 @@ export function useHearts(): HeartsView {
   }, [state.hearts]);
 
   return useMemo(() => {
+    const atStake = heartsAtStake(state.stats);
     const count = isPremium ? MAX_HEARTS : heartsAvailable(state.hearts, now);
     const wait = isPremium ? 0 : msUntilNextHeart(state.hearts, now);
     return {
       count,
       max: MAX_HEARTS,
       unlimited: isPremium,
-      empty: !isPremium && count <= 0,
+      atStake,
+      empty: !isPremium && atStake && count <= 0,
       nextIn: wait > 0 ? formatHeartCountdown(wait) : null,
       refillCost: HEART_REFILL_COST,
       canRefill: !isPremium && count < MAX_HEARTS && state.coins >= HEART_REFILL_COST,
       refill: refillHearts,
     };
-  }, [isPremium, now, refillHearts, state.coins, state.hearts]);
+  }, [isPremium, now, refillHearts, state.coins, state.hearts, state.stats]);
 }

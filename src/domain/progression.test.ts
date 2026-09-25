@@ -1,8 +1,9 @@
 import type { RoundResult } from './round';
 import {
-  BASE_XP_PER_LEVEL,
   coinsForRound,
   INITIAL_PROGRESSION,
+  LEVEL_XP_BASE,
+  LEVEL_XP_EXPONENT,
   levelForXp,
   levelProgress,
   PERFECT_XP_BONUS,
@@ -23,27 +24,42 @@ function roundResult(errorYears: number, total: number): RoundResult {
 }
 
 describe('level curve', () => {
-  it('reaches levels on the triangular XP schedule', () => {
+  it('reaches levels on the power-curve XP schedule', () => {
     expect(xpToReachLevel(1)).toBe(0);
-    expect(xpToReachLevel(2)).toBe(BASE_XP_PER_LEVEL);
-    expect(xpToReachLevel(3)).toBe(BASE_XP_PER_LEVEL * 3);
-    expect(xpToReachLevel(4)).toBe(BASE_XP_PER_LEVEL * 6);
+    expect(xpToReachLevel(2)).toBe(LEVEL_XP_BASE);
+    expect(xpToReachLevel(3)).toBe(Math.round(LEVEL_XP_BASE * Math.pow(2, LEVEL_XP_EXPONENT)));
+    // Anchors the retune (2026-09-25): one good round → level 2, ~2.5k → 10,
+    // ~8k → 20, so the leaderboard spreads instead of stacking at level 1.
+    expect(xpToReachLevel(2)).toBe(40);
+    expect(xpToReachLevel(10)).toBe(2088);
+    expect(xpToReachLevel(20)).toBe(8013);
+    expect(xpToReachLevel(30)).toBe(17154);
+  });
+
+  it('grows monotonically with widening gaps', () => {
+    for (let level = 2; level < 60; level += 1) {
+      const gap = xpToReachLevel(level + 1) - xpToReachLevel(level);
+      const previousGap = xpToReachLevel(level) - xpToReachLevel(level - 1);
+      expect(gap).toBeGreaterThan(previousGap);
+    }
   });
 
   it('maps XP back to the correct level', () => {
     expect(levelForXp(0)).toBe(1);
-    expect(levelForXp(BASE_XP_PER_LEVEL - 1)).toBe(1);
-    expect(levelForXp(BASE_XP_PER_LEVEL)).toBe(2);
-    expect(levelForXp(BASE_XP_PER_LEVEL * 3)).toBe(3);
+    expect(levelForXp(LEVEL_XP_BASE - 1)).toBe(1);
+    expect(levelForXp(LEVEL_XP_BASE)).toBe(2);
+    expect(levelForXp(xpToReachLevel(3))).toBe(3);
+    expect(levelForXp(xpToReachLevel(3) - 1)).toBe(2);
+    expect(levelForXp(32804)).toBe(42);
     expect(levelForXp(-100)).toBe(1);
   });
 
   it('reports progress within the current level', () => {
-    const p = levelProgress(BASE_XP_PER_LEVEL + 250);
+    const p = levelProgress(LEVEL_XP_BASE + 25);
     expect(p.level).toBe(2);
-    expect(p.xpIntoLevel).toBe(250);
+    expect(p.xpIntoLevel).toBe(25);
     expect(p.xpForNextLevel).toBe(xpToReachLevel(3) - xpToReachLevel(2));
-    expect(p.fraction).toBeCloseTo(250 / p.xpForNextLevel);
+    expect(p.fraction).toBeCloseTo(25 / p.xpForNextLevel);
   });
 });
 

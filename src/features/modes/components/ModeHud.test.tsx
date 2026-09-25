@@ -83,3 +83,27 @@ describe('ModeHud progress segments', () => {
     expect(segmentTier(evaluateGuess(question, 1990))).toBe('miss');
   });
 });
+
+describe('ModeHud hearts meter', () => {
+  it('labels the meter as practice while hearts are not yet at stake', () => {
+    render(
+      <ModeHud
+        progress={{ current: 1, total: 3 }}
+        hearts={{ count: 10, unlimited: false, atStake: false }}
+      />,
+    );
+    expect(screen.getByText('Practice')).toBeTruthy();
+    expect(screen.getByLabelText('Practice: hearts are not at stake yet')).toBeTruthy();
+  });
+
+  it('shows the count once hearts are at stake', () => {
+    render(
+      <ModeHud
+        progress={{ current: 1, total: 3 }}
+        hearts={{ count: 7, unlimited: false, atStake: true }}
+      />,
+    );
+    expect(screen.getByText('7')).toBeTruthy();
+    expect(screen.queryByText('Practice')).toBeNull();
+  });
+});

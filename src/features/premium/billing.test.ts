@@ -1,4 +1,4 @@
-import { devBilling, revenueCatBilling, selectBilling, unavailableBilling } from './billing';
+import { devBilling, revenueCatBilling, selectBilling, trialDaysFor, unavailableBilling } from './billing';
 
 describe('billing adapter selection', () => {
   it('uses RevenueCat whenever a public SDK key is present', () => {
@@ -63,5 +63,30 @@ describe('store identity', () => {
       delete process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY;
       jest.dontMock('react-native-purchases');
     }
+  });
+});
+
+describe('trialDaysFor', () => {
+  it('reads a Play free phase from the default subscription option', () => {
+    expect(
+      trialDaysFor({ defaultOption: { freePhase: { billingPeriod: { unit: 'WEEK', value: 1 } } } }),
+    ).toBe(7);
+    expect(
+      trialDaysFor({ defaultOption: { freePhase: { billingPeriod: { unit: 'DAY', value: 3 } } } }),
+    ).toBe(3);
+  });
+
+  it('falls back to a zero-price intro offer', () => {
+    expect(
+      trialDaysFor({ introPrice: { price: 0, periodUnit: 'WEEK', periodNumberOfUnits: 1 } }),
+    ).toBe(7);
+  });
+
+  it('ignores paid intro offers, missing phases and unknown units', () => {
+    expect(trialDaysFor({ introPrice: { price: 0.99, periodUnit: 'WEEK', periodNumberOfUnits: 1 } })).toBeNull();
+    expect(trialDaysFor({ defaultOption: { freePhase: null } })).toBeNull();
+    expect(trialDaysFor({ defaultOption: { freePhase: { billingPeriod: { unit: 'FORTNIGHT', value: 1 } } } })).toBeNull();
+    expect(trialDaysFor(null)).toBeNull();
+    expect(trialDaysFor({})).toBeNull();
   });
 });

@@ -5,6 +5,7 @@ import { Screen } from '@/components/ui';
 import { getQuestionById } from '@/data';
 import { activeStreakCount } from '@/domain';
 import { useProgression } from '@/features/progression';
+import { ReminderNudge } from '@/features/reminders';
 import { RoundView, useRoundRewards } from '@/features/round';
 import { palette } from '@/theme/tokens';
 import { dateKey } from '@/utils/date';
@@ -43,6 +44,8 @@ function DailySummary({ record, onHome }: { record: DailyRecord; onHome: () => v
         },
       ]}
       rounds={rounds}
+      // Just finished today's: the natural moment to offer tomorrow's reminder.
+      notice={<ReminderNudge />}
       // Share is the primary action on purpose: the card is the game's
       // main word-of-mouth lever (user decision, 2026-09-01).
       share={{ data: dailyShareData(record), mode: 'daily', primary: true }}

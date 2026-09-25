@@ -36,6 +36,16 @@ export function costsHeart(result: RoundResult): boolean {
   return result.errorYears > HEART_ERROR_THRESHOLD;
 }
 
+/** Games a new player finishes before hearts are at stake at all. Beginners
+ * guess loosely while they learn the timeline, and burning the whole meter in
+ * their first session was where most of them left. */
+export const FREE_GAMES_BEFORE_HEARTS = 2;
+
+/** Whether loose guesses cost hearts yet for this player. */
+export function heartsAtStake(stats: { gamesPlayed: number }): boolean {
+  return stats.gamesPlayed >= FREE_GAMES_BEFORE_HEARTS;
+}
+
 /**
  * Fold elapsed regeneration into the state. Idempotent: settling twice at the
  * same instant yields the same result. The clock only advances by whole

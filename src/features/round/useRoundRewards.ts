@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { costsHeart } from '@/domain';
+import { costsHeart, heartsAtStake } from '@/domain';
 import { usePremium } from '@/features/premium';
 import { achievementById, useProgression } from '@/features/progression';
-import { requestReviewAfterStrongRun } from '@/features/review';
+import { requestReviewAfterRun } from '@/features/review';
 import { streakLength } from '@/features/timeline/math';
 
 import type { GameSession } from './useGameSession';
@@ -41,20 +41,25 @@ export function useRoundRewards(
   session: GameSession,
   { usesHearts = true }: RoundRewardsOptions = {},
 ): RoundRewards {
-  const { awardRound, completeGame, loseHeart } = useProgression();
+  const { state, awardRound, completeGame, loseHeart } = useProgression();
   const { isPremium } = usePremium();
   const awardedCount = useRef(0);
   const finished = useRef(false);
   const [reward, setReward] = useState<RoundReward | null>(null);
   const [unlocked, setUnlocked] = useState<readonly string[]>([]);
+  // Mirror of `unlocked` for the finish effect, which must not re-run on
+  // every unlock just to read the latest list.
+  const unlockedRef = useRef<readonly string[]>([]);
   const [acquired, setAcquired] = useState(false);
 
   const addUnlocked = (ids: readonly string[]) => {
-    setUnlocked((prev) => {
-      const seen = new Set(prev);
-      const added = ids.filter((id) => !seen.has(id));
-      return added.length > 0 ? [...prev, ...added] : prev;
-    });
+    // Dedupe against the ref, not a setState updater: the finish effect reads
+    // the ref in the same effects pass, before React would run an updater.
+    const seen = new Set(unlockedRef.current);
+    const added = ids.filter((id) => !seen.has(id));
+    if (added.length === 0) return;
+    unlockedRef.current = [...unlockedRef.current, ...added];
+    setUnlocked(unlockedRef.current);
   };
 
   useEffect(() => {
@@ -66,18 +71,22 @@ export function useRoundRewards(
     setReward(outcome.reward);
     setAcquired(outcome.acquired);
     addUnlocked(outcome.unlocked);
-    // A loose guess costs a heart — unless this mode has its own lives or the
-    // player holds Premium (unlimited hearts).
-    if (usesHearts && !isPremium && costsHeart(latest)) loseHeart();
-  }, [session.results, awardRound, loseHeart, usesHearts, isPremium]);
+    // A loose guess costs a heart — unless this mode has its own lives, the
+    // player holds Premium (unlimited hearts), or they are still in the free
+    // games every new player gets before hearts are at stake.
+    if (usesHearts && !isPremium && heartsAtStake(state.stats) && costsHeart(latest)) {
+      loseHeart();
+    }
+  }, [session.results, awardRound, loseHeart, usesHearts, isPremium, state.stats]);
 
   useEffect(() => {
     if (session.status !== 'finished' || finished.current) return;
     finished.current = true;
-    addUnlocked(completeGame());
-    // A strong finish (over 75% of the maximum score) in any mode is the
-    // moment to ask for a Play review — once per install.
-    void requestReviewAfterStrongRun(session.results);
+    const onFinish = completeGame();
+    addUnlocked(onFinish);
+    // A rewarding finish — a strong score or a real achievement — in any mode
+    // is the moment to ask for a Play review, once per install.
+    void requestReviewAfterRun(session.results, [...unlockedRef.current, ...onFinish]);
   }, [session.status, session.results, completeGame]);
 
   const unlockedTitles = unlocked

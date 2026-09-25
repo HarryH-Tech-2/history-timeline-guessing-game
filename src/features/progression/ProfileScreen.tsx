@@ -20,6 +20,7 @@ import { resolveDisplayName } from '@/features/leaderboard/playerName';
 import { usePremium } from '@/features/premium';
 import { openStoreListing } from '@/features/review';
 import { useHaptics } from '@/features/haptics';
+import { useReminders } from '@/features/reminders';
 import { useSound } from '@/features/sound';
 import { useAnalyticsSettings } from '@/services/analytics';
 import { useAuth } from '@/services/firebase/auth';
@@ -118,9 +119,11 @@ function RateUsCard() {
         ⭐
       </Text>
       <View className="flex-1">
-        <Text className="text-base font-bold text-ink-primary">Enjoying the game?</Text>
+        <Text className="text-base font-bold text-ink-primary">
+          Enjoying the game? A quick review really helps me out 🙏
+        </Text>
         <Text className="mt-0.5 text-xs text-ink-secondary">
-          A quick rating on Google Play helps other history fans find it. Thank you!
+          Tap to leave a rating on Google Play.
         </Text>
       </View>
       <Text className="text-xl text-ink-muted">›</Text>
@@ -212,6 +215,11 @@ export function ProfileScreen() {
   const { enabled: soundOn, toggle: toggleSound } = useSound();
   const { enabled: hapticsOn, toggle: toggleHaptics } = useHaptics();
   const { enabled: analyticsOn, toggle: toggleAnalytics } = useAnalyticsSettings();
+  const reminders = useReminders();
+  const toggleReminders = () => {
+    if (reminders.enabled) reminders.disable();
+    else void reminders.enable();
+  };
   const [signingOut, setSigningOut] = useState(false);
   const [editingName, setEditingName] = useState(false);
 
@@ -328,10 +336,12 @@ export function ProfileScreen() {
           <View className="gap-3 border border-hair bg-bg-raised p-4">
             <View>
               <Text className="text-base font-bold text-ink-primary" numberOfLines={1}>
-                {user?.email ?? displayName}
+                {user?.email ?? (user?.providerIds.length === 0 ? 'Google Play Games' : displayName)}
               </Text>
               <Text className="text-xs text-ink-muted">
-                Signed in{user?.displayName ? ` as ${user.displayName}` : ''}
+                {user?.providerIds.length === 0
+                  ? 'Linked to your Play Games profile'
+                  : `Signed in${user?.displayName ? ` as ${user.displayName}` : ''}`}
               </Text>
             </View>
             <Button
@@ -458,6 +468,26 @@ export function ProfileScreen() {
             </Text>
           </View>
           <Text className="text-base text-ink-secondary">{hapticsOn ? 'On 📳' : 'Off'}</Text>
+        </Pressable>
+        <Pressable
+          onPress={toggleReminders}
+          accessibilityRole="switch"
+          accessibilityState={{ checked: reminders.enabled }}
+          accessibilityLabel={
+            reminders.enabled ? 'Turn the Daily reminder off' : 'Turn the Daily reminder on'
+          }
+          testID="profile-reminders-toggle"
+          className="flex-row items-center justify-between border border-hair bg-bg-raised p-4"
+        >
+          <View className="flex-1 pr-3">
+            <Text className="text-base font-semibold text-ink-primary">Daily reminder</Text>
+            <Text className="mt-0.5 text-xs text-ink-muted">
+              One notification in the evening when a fresh Daily is waiting.
+            </Text>
+          </View>
+          <Text className="text-base text-ink-secondary">
+            {reminders.enabled ? 'On 🔔' : 'Off'}
+          </Text>
         </Pressable>
         <Pressable
           onPress={toggleAnalytics}

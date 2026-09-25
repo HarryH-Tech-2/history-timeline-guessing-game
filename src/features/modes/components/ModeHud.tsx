@@ -32,20 +32,38 @@ interface ModeHudProps {
   lives?: number;
   startingLives?: number;
   /** The global hearts meter (modes that spend hearts). */
-  hearts?: { count: number; unlimited: boolean };
+  hearts?: { count: number; unlimited: boolean; atStake: boolean };
   /** Renders a back affordance that exits the mode. */
   onBack?: () => void;
 }
 
-function HeartsMeter({ count, unlimited }: { count: number; unlimited: boolean }) {
+function HeartsMeter({
+  count,
+  unlimited,
+  atStake,
+}: {
+  count: number;
+  unlimited: boolean;
+  atStake: boolean;
+}) {
+  // New players get a few games before misses cost anything; say so rather
+  // than show a meter that mysteriously never moves.
+  const practice = !unlimited && !atStake;
+  const label = unlimited
+    ? 'Unlimited hearts'
+    : practice
+      ? 'Practice: hearts are not at stake yet'
+      : `${count} hearts`;
   return (
     <View
       className="flex-row items-center gap-1 border border-hair bg-bg-raised px-2 py-0.5"
-      accessibilityLabel={unlimited ? 'Unlimited hearts' : `${count} hearts`}
+      accessibilityLabel={label}
       testID="hud-hearts"
     >
       <Text className="text-sm">❤️</Text>
-      <Text className="text-sm font-bold text-ink-primary">{unlimited ? '∞' : count}</Text>
+      <Text className="text-sm font-bold text-ink-primary">
+        {unlimited ? '∞' : practice ? 'Practice' : count}
+      </Text>
     </View>
   );
 }
@@ -214,7 +232,11 @@ export function ModeHud({
         </View>
         <View className="flex-row items-center gap-3">
           {hearts !== undefined && (
-            <HeartsMeter count={hearts.count} unlimited={hearts.unlimited} />
+            <HeartsMeter
+              count={hearts.count}
+              unlimited={hearts.unlimited}
+              atStake={hearts.atStake}
+            />
           )}
           {lives !== undefined && startingLives !== undefined && (
             <Hearts lives={lives} total={startingLives} />

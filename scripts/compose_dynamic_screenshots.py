@@ -14,8 +14,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 ROOT = Path(__file__).resolve().parents[1]
-CAPS, OUT = Path(sys.argv[1]), Path(sys.argv[2])
-OUT.mkdir(parents=True, exist_ok=True)
+CAPS = OUT = None  # set in __main__; helpers below are imported by compose_ads_creative.py
 
 W, H = 1080, 1920
 STATUS_BAR, NAV_BAR = 94, 156       # cropped from the raw 1080x2340 capture
@@ -144,11 +143,12 @@ def phone(capture, sw=740):
 
 
 def shadow_of(sprite, blur, offset, alpha):
-    sh = Image.new("RGBA", sprite.size, (0, 0, 0, 0))
+    pad = blur * 3  # room for the blur, else the shadow is cut off square at the sprite bounds
+    sh = Image.new("RGBA", (sprite.width + pad * 2, sprite.height + pad * 2), (0, 0, 0, 0))
     sil = Image.new("RGBA", sprite.size, (0, 0, 0, alpha))
-    sh.paste(sil, (0, 0), sprite)
+    sh.paste(sil, (pad, pad), sprite)
     sh = sh.filter(ImageFilter.GaussianBlur(blur))
-    return sh, offset
+    return sh, (offset[0] - pad, offset[1] - pad)
 
 
 def composite(canvas, sprite, pos, shadow=(40, (0, 46), 170)):
@@ -291,10 +291,13 @@ def build(slide):
     return out
 
 
-made = [b for b in (build(s) for s in SLIDES) if b is not None]
-if made:
-    sheet = Image.new("RGB", (280 * len(made), 500), (240, 236, 228))
-    for i, im in enumerate(made):
-        sheet.paste(im.resize((270, 480), Image.LANCZOS), (i * 280 + 5, 10))
-    sheet.save(OUT / "contact.png")
-    print("contact", len(made))
+if __name__ == "__main__":
+    CAPS, OUT = Path(sys.argv[1]), Path(sys.argv[2])
+    OUT.mkdir(parents=True, exist_ok=True)
+    made = [b for b in (build(s) for s in SLIDES) if b is not None]
+    if made:
+        sheet = Image.new("RGB", (280 * len(made), 500), (240, 236, 228))
+        for i, im in enumerate(made):
+            sheet.paste(im.resize((270, 480), Image.LANCZOS), (i * 280 + 5, 10))
+        sheet.save(OUT / "contact.png")
+        print("contact", len(made))

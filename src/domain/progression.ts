@@ -10,17 +10,26 @@ import { INITIAL_STREAK, StreakStateSchema } from './streak';
  * pulling in React or storage.
  */
 
-/** XP that separates level 1 from level 2. Higher levels cost proportionally more. */
-export const BASE_XP_PER_LEVEL = 500;
+/**
+ * Level curve: cumulative XP to *be at* level n is LEVEL_XP_BASE * (n-1)^LEVEL_XP_EXPONENT.
+ *
+ * Retuned 2026-09-25 from a triangular 500-per-level curve, under which 116 of
+ * 125 leaderboard rows sat at level 1 (median active player: ~45 XP, top:
+ * ~33k). With base 40 and exponent 1.8 a single good round earns level 2,
+ * level 10 lands near 2,500 XP, level 20 near 8,000 and the top player in the
+ * low forties — so the board reads as a spread rather than a wall of ones.
+ * Level is always derived from XP, so existing players re-level automatically.
+ */
+export const LEVEL_XP_BASE = 40;
+export const LEVEL_XP_EXPONENT = 1.8;
 
 /**
  * Cumulative XP required to *be at* a given (1-based) level. Level 1 is 0.
- * The gap between consecutive levels grows linearly, so total XP is triangular:
- * reaching level n costs BASE * (n-1) * n / 2.
+ * Rounded to whole XP so thresholds are stable integers.
  */
 export function xpToReachLevel(level: number): number {
   const l = Math.max(1, Math.floor(level));
-  return (BASE_XP_PER_LEVEL * (l - 1) * l) / 2;
+  return Math.round(LEVEL_XP_BASE * Math.pow(l - 1, LEVEL_XP_EXPONENT));
 }
 
 /** The level a player with this much lifetime XP has earned. */
@@ -71,7 +80,7 @@ export function xpForRound(result: RoundResult): number {
  * for hints (10), heart refills (100) and streak freezes (150), so they are
  * meant to feel scarce.
  */
-const COIN_TIERS: ReadonlyArray<readonly [maxErrorYears: number, coins: number]> = [
+const COIN_TIERS: readonly (readonly [maxErrorYears: number, coins: number])[] = [
   [0, 5],
   [1, 3],
   [5, 1],

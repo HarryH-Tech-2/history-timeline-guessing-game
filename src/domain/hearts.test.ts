@@ -1,5 +1,6 @@
 import {
   formatHeartCountdown,
+  heartsAtStake,
   HEART_REGEN_MS,
   heartsAvailable,
   INITIAL_HEARTS,
@@ -58,5 +59,17 @@ describe('hearts', () => {
     expect(formatHeartCountdown(30_000)).toBe('1m');
     expect(formatHeartCountdown(12 * 60_000)).toBe('12m');
     expect(formatHeartCountdown(65 * 60_000)).toBe('1h 05m');
+  });
+});
+
+describe('heartsAtStake', () => {
+  it('is false until the player has finished two games', () => {
+    expect(heartsAtStake({ gamesPlayed: 0 })).toBe(false);
+    expect(heartsAtStake({ gamesPlayed: 1 })).toBe(false);
+  });
+
+  it('is true from the third game on', () => {
+    expect(heartsAtStake({ gamesPlayed: 2 })).toBe(true);
+    expect(heartsAtStake({ gamesPlayed: 40 })).toBe(true);
   });
 });

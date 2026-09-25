@@ -42,3 +42,17 @@ jest.mock('posthog-react-native', () => {
   };
   return { __esModule: true, default: jest.fn(() => instance) };
 });
+
+// expo-notifications is a native module; stand in a recording double so the
+// reminder scheduler can be exercised and asserted on.
+jest.mock('expo-notifications', () => ({
+  __esModule: true,
+  SchedulableTriggerInputTypes: { DATE: 'date' },
+  AndroidImportance: { DEFAULT: 3 },
+  setNotificationChannelAsync: jest.fn(() => Promise.resolve(null)),
+  getPermissionsAsync: jest.fn(() => Promise.resolve({ status: 'undetermined', granted: false })),
+  requestPermissionsAsync: jest.fn(() => Promise.resolve({ status: 'granted', granted: true })),
+  scheduleNotificationAsync: jest.fn(() => Promise.resolve('daily-reminder')),
+  cancelScheduledNotificationAsync: jest.fn(() => Promise.resolve()),
+  setNotificationHandler: jest.fn(),
+}));

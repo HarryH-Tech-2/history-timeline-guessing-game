@@ -30,8 +30,14 @@ const STRONG_RUN_DELAY_MS = 1500;
 
 /** The most a single round can score before combo multipliers. */
 const MAX_BASE_SCORE_PER_ROUND = 1000;
-/** A run scoring more than this share of its maximum counts as strong. */
-export const STRONG_RUN_FRACTION = 0.75;
+/** A run scoring more than this share of its maximum counts as strong. Half
+ * is a genuinely good run for a casual player; the old 75% bar was one almost
+ * nobody reached, so the ask never fired. */
+export const STRONG_RUN_FRACTION = 0.5;
+
+/** The badge every player earns for finishing a single round; unlocking it
+ * says nothing about how the run went. */
+const FIRST_ROUND_ACHIEVEMENT = 'first-round';
 
 /**
  * Ask Google Play for its in-app review sheet, once per install. Play decides
@@ -83,5 +89,27 @@ export function requestReviewAfterStrongRun(
   { delayMs = STRONG_RUN_DELAY_MS }: { delayMs?: number } = {},
 ): Promise<void> {
   if (!isStrongRun(results)) return Promise.resolve();
+  return requestReviewOnce({ delayMs });
+}
+
+/**
+ * A run worth asking after: strong by score, or one that unlocked a real
+ * achievement (anything beyond the first-round badge). Either is a moment the
+ * player feels good about.
+ */
+export function isRewardingRun(
+  results: readonly RoundResult[],
+  unlockedIds: readonly string[],
+): boolean {
+  return isStrongRun(results) || unlockedIds.some((id) => id !== FIRST_ROUND_ACHIEVEMENT);
+}
+
+/** After any finished run that was rewarding (see `isRewardingRun`). */
+export function requestReviewAfterRun(
+  results: readonly RoundResult[],
+  unlockedIds: readonly string[],
+  { delayMs = STRONG_RUN_DELAY_MS }: { delayMs?: number } = {},
+): Promise<void> {
+  if (!isRewardingRun(results, unlockedIds)) return Promise.resolve();
   return requestReviewOnce({ delayMs });
 }

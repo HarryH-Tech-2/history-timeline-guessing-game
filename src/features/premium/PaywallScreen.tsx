@@ -11,50 +11,79 @@ import { FounderNote } from './FounderNote';
 import { usePremium } from './PremiumProvider';
 
 /** Paywall copy per plan; prices come from the store via `priceLabels`. */
-const PLAN_COPY: Record<
-  PremiumPlan,
-  { title: string; badge?: string; cta: string; footer: string }
-> = {
+const PLAN_COPY: Record<PremiumPlan, { title: string; badge?: string; footer: string }> = {
   monthly: {
     title: 'Monthly',
-    cta: 'Subscribe',
     footer: 'Billed monthly through Google Play. Cancel anytime in your Play subscriptions.',
   },
   yearly: {
     title: 'Yearly',
     badge: 'Best value',
-    cta: 'Subscribe',
     footer: 'Billed yearly through Google Play. Cancel anytime in your Play subscriptions.',
   },
   lifetime: {
     title: 'Lifetime',
     badge: 'Pay once',
-    cta: 'Buy once',
     footer: 'A one-time purchase through Google Play. Yours forever — nothing renews.',
   },
 };
 
 const PLAN_ORDER: readonly PremiumPlan[] = ['monthly', 'yearly', 'lifetime'];
 
+/** "7-day" / "1-month" style length for trial copy. */
+export function trialLength(days: number): string {
+  if (days % 30 === 0) return days === 30 ? '1-month' : `${days / 30}-month`;
+  if (days % 7 === 0) return days === 7 ? '1-week' : `${days / 7}-week`;
+  return `${days}-day`;
+}
+
+/**
+ * The main button's label for the chosen plan. Says what the player is
+ * getting rather than the generic "Subscribe", and leads with the free trial
+ * when the store offers one.
+ */
+export function ctaLabel(plan: PremiumPlan, price: string, trialDays?: number): string {
+  if (trialDays) return `Start my free ${trialLength(trialDays)} trial`;
+  switch (plan) {
+    case 'monthly':
+      return `Get my monthly subscription · ${price}`;
+    case 'yearly':
+      return `Get my yearly subscription · ${price}`;
+    case 'lifetime':
+      return `Get lifetime access · ${price}`;
+  }
+}
+
+/** Small print under the button for the chosen plan. */
+export function footerCopy(plan: PremiumPlan, price: string, trialDays?: number): string {
+  if (trialDays) {
+    return `Free for ${trialDays} days, then ${price} through Google Play. Cancel before the trial ends and you won’t be charged.`;
+  }
+  return PLAN_COPY[plan].footer;
+}
+
 /** One selectable plan row: name and badge on the left, price on the right. */
 function PlanOption({
   plan,
   price,
+  trialDays,
   selected,
   onSelect,
 }: {
   plan: PremiumPlan;
   price: string;
+  trialDays?: number;
   selected: boolean;
   onSelect: () => void;
 }) {
   const copy = PLAN_COPY[plan];
+  const badge = trialDays ? `${trialLength(trialDays)} free trial` : copy.badge;
   return (
     <Pressable
       onPress={onSelect}
       accessibilityRole="radio"
       accessibilityState={{ selected }}
-      accessibilityLabel={`${copy.title}, ${price}`}
+      accessibilityLabel={`${copy.title}, ${trialDays ? `free ${trialLength(trialDays)} trial then ` : ''}${price}`}
       testID={`paywall-plan-${plan}`}
       className={
         selected
@@ -71,20 +100,26 @@ function PlanOption({
       </View>
       <View className="flex-1 flex-row items-center gap-2">
         <Text className="text-base font-bold text-ink-primary">{copy.title}</Text>
-        {copy.badge !== undefined && (
-          <View className={selected ? 'bg-accent px-1.5 py-0.5' : 'bg-bg-raised px-1.5 py-0.5'}>
+        {badge !== undefined && (
+          <View
+            className={selected ? 'bg-accent px-1.5 py-0.5' : 'bg-bg-raised px-1.5 py-0.5'}
+            testID={`paywall-badge-${plan}`}
+          >
             <Text
               className={`text-[10px] font-extrabold uppercase tracking-wide ${
                 selected ? '' : 'text-ink-muted'
               }`}
               style={{ includeFontPadding: false, ...(selected ? { color: '#1D1712' } : {}) }}
             >
-              {copy.badge}
+              {badge}
             </Text>
           </View>
         )}
       </View>
-      <Text className="text-sm font-bold text-ink-primary">{price}</Text>
+      <View className="items-end">
+        {trialDays ? <Text className="text-[10px] text-ink-muted">then</Text> : null}
+        <Text className="text-sm font-bold text-ink-primary">{price}</Text>
+      </View>
     </Pressable>
   );
 }
@@ -112,8 +147,15 @@ function Benefit({ icon, title, detail }: { icon: string; title: string; detail:
  */
 export function PaywallScreen() {
   const router = useRouter();
-  const { isPremium, billingAvailable, priceLabels, purchase, restore, revokeForTesting } =
-    usePremium();
+  const {
+    isPremium,
+    billingAvailable,
+    priceLabels,
+    trialDays,
+    purchase,
+    restore,
+    revokeForTesting,
+  } = usePremium();
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [plan, setPlan] = useState<PremiumPlan>('yearly');
@@ -176,7 +218,7 @@ export function PaywallScreen() {
           line={
             isPremium
               ? 'Thank you so much for supporting an indie developer — enjoy the whole archive!'
-              : 'Hi, I’m Harry 👋 I’m an indie developer and I maintain this app on my own. I’d really appreciate it if you signed up and supported me.'
+              : 'Hi, I’m Harry 👋 By subscribing, you’re not paying a big company. You’re backing one developer who builds this app alone. Join the players who keep it going and let’s keep making it better.'
           }
         />
 
@@ -238,13 +280,14 @@ export function PaywallScreen() {
                     key={p}
                     plan={p}
                     price={priceLabels[p]}
+                    trialDays={trialDays[p]}
                     selected={p === plan}
                     onSelect={() => setPlan(p)}
                   />
                 ))}
               </View>
               <Button
-                label={busy ? 'Please wait…' : `${PLAN_COPY[plan].cta} · ${priceLabels[plan]}`}
+                label={busy ? 'Please wait…' : ctaLabel(plan, priceLabels[plan], trialDays[plan])}
                 onPress={() => void onSubscribe()}
                 disabled={busy}
                 testID="paywall-subscribe"
@@ -262,7 +305,7 @@ export function PaywallScreen() {
                 </Text>
               )}
               <Text className="text-center text-xs text-ink-muted">
-                {PLAN_COPY[plan].footer}
+                {footerCopy(plan, priceLabels[plan], trialDays[plan])}
               </Text>
             </View>
           )}

@@ -12,6 +12,7 @@ import { PremiumProvider } from '@/features/premium';
 import { SaveProvider } from '@/features/save';
 import { ProgressionProvider } from '@/features/progression';
 import { HapticsProvider } from '@/features/haptics';
+import { RemindersProvider } from '@/features/reminders';
 import { SoundProvider } from '@/features/sound';
 import { syncRemoteContent } from '@/services/content';
 import { AuthProvider } from '@/services/firebase/auth';
@@ -59,7 +60,9 @@ export default function RootLayout() {
                   <ProgressionProvider>
                     <SoundProvider>
                       <HapticsProvider>
-                        <ThemedNavigator />
+                        <RemindersProvider>
+                          <ThemedNavigator />
+                        </RemindersProvider>
                       </HapticsProvider>
                     </SoundProvider>
                   </ProgressionProvider>

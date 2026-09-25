@@ -50,6 +50,14 @@
         }
       ],
       [
+        "expo-notifications",
+        {
+          "icon": "./assets/android-icon-monochrome.png",
+          "color": "#E8862B",
+          "defaultChannel": "daily-reminder"
+        }
+      ],
+      [
         "expo-build-properties",
         {
           "android": {

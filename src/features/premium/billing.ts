@@ -60,12 +60,52 @@ export interface BillingAdapter {
    */
   identify(uid: string | null): Promise<void>;
   /**
-   * The store's localized price strings per plan (e.g. "£2.49", "₹99.00"),
-   * exactly as Google Play will charge this user. A plan is absent when the
-   * store can't say (offline, no store in this build, package not configured
-   * yet) — show the fallback label for it.
+   * The store's localized price per plan (e.g. "£2.49", "₹99.00"), exactly as
+   * Google Play will charge this user, plus the length of any free trial the
+   * player is eligible for. A plan is absent when the store can't say
+   * (offline, no store in this build, package not configured yet) — show the
+   * fallback label for it.
    */
-  localizedPrices(): Promise<Partial<Record<PremiumPlan, string>>>;
+  localizedPrices(): Promise<StorePrices>;
+}
+
+/** What the store says about one plan. `trialDays` is null when there is no free trial. */
+export interface StorePrice {
+  price: string;
+  trialDays: number | null;
+}
+
+export type StorePrices = Partial<Record<PremiumPlan, StorePrice>>;
+
+/** Days in one unit of a store billing period ("P1W" → WEEK → 7). */
+const DAYS_PER_UNIT: Record<string, number> = { DAY: 1, WEEK: 7, MONTH: 30, YEAR: 365 };
+
+/** The subset of a RevenueCat store product that describes a free trial. */
+export interface TrialSource {
+  /** Android: the option Play will sell, with its free phase if the user is eligible. */
+  defaultOption?: {
+    freePhase?: { billingPeriod?: { unit?: string; value?: number } | null } | null;
+  } | null;
+  /** iOS (and a fallback): a zero-price intro offer is a free trial. */
+  introPrice?: { price: number; periodUnit: string; periodNumberOfUnits: number } | null;
+}
+
+/**
+ * Length of the free trial a store product offers this user, in days, or null
+ * when there is none. Play trials are configured as offers on the base plan in
+ * Play Console; RevenueCat surfaces them as the default option's free phase
+ * only for eligible (new) subscribers, so returning players see no trial.
+ */
+export function trialDaysFor(product: TrialSource | null | undefined): number | null {
+  const period = product?.defaultOption?.freePhase?.billingPeriod;
+  if (period?.unit && period.value && DAYS_PER_UNIT[period.unit]) {
+    return period.value * DAYS_PER_UNIT[period.unit]!;
+  }
+  const intro = product?.introPrice;
+  if (intro && intro.price === 0 && DAYS_PER_UNIT[intro.periodUnit]) {
+    return intro.periodNumberOfUnits * DAYS_PER_UNIT[intro.periodUnit]!;
+  }
+  return null;
 }
 
 /** No store configured: every attempt reports "unavailable". */
@@ -218,10 +258,12 @@ export const revenueCatBilling: BillingAdapter = {
       // The same packages the purchase flow buys, so the labels can never
       // disagree with the sheet Google shows.
       const offerings = await P.getOfferings();
-      const prices: Partial<Record<PremiumPlan, string>> = {};
+      const prices: StorePrices = {};
       for (const plan of PREMIUM_PLANS) {
-        const price = packageFor(offerings.current, plan)?.product.priceString;
-        if (price) prices[plan] = price;
+        const product = packageFor(offerings.current, plan)?.product;
+        if (product?.priceString) {
+          prices[plan] = { price: product.priceString, trialDays: trialDaysFor(product) };
+        }
       }
       return prices;
     } catch {

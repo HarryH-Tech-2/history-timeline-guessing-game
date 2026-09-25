@@ -82,7 +82,12 @@ const ProgressionContext = createContext<ProgressionApi>(OFFLINE_API);
 export function ProgressionProvider({ children }: { children: ReactNode }) {
   const { uid, isReady, progression: store } = useSaves();
   const [state, setState] = useState<ProgressionState>(INITIAL_PROGRESSION);
-  const [isLoading, setIsLoading] = useState(true);
+  // Which account `state` was read for. Deriving `isLoading` from it (rather
+  // than a flag flipped in an effect) means the very render in which the uid
+  // changes already reports loading — so a sibling effect, such as the
+  // leaderboard sync, can never pair the new uid with the old account's XP.
+  const [loadedUid, setLoadedUid] = useState<string | null>(null);
+  const isLoading = !isReady || loadedUid !== uid;
   const ref = useRef<ProgressionState>(INITIAL_PROGRESSION);
   // Mirrors `isLoading` synchronously for `commit` to read. `isLoading` state
   // only updates on the next render, so a mutator that fires in the window
@@ -96,7 +101,7 @@ export function ProgressionProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     ref.current = INITIAL_PROGRESSION;
     setState(INITIAL_PROGRESSION);
-    setIsLoading(true);
+    setLoadedUid(null);
     loadingRef.current = true;
     if (!isReady) return;
 
@@ -105,7 +110,7 @@ export function ProgressionProvider({ children }: { children: ReactNode }) {
       if (cancelled) return;
       ref.current = loaded;
       setState(loaded);
-      setIsLoading(false);
+      setLoadedUid(uid);
       loadingRef.current = false;
     });
     return () => {

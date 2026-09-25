@@ -23,6 +23,8 @@ export interface PremiumApi {
   billingAvailable: boolean;
   /** Display price per plan; the store's localized price once it loads. */
   priceLabels: Record<PremiumPlan, string>;
+  /** Free-trial length per plan, in days, for plans the store offers one on. */
+  trialDays: Partial<Record<PremiumPlan, number>>;
   purchase: (plan: PremiumPlan) => Promise<PurchaseResult>;
   restore: () => Promise<boolean>;
   /** Dev builds only: drop the entitlement to test the free experience. */
@@ -34,6 +36,7 @@ const OFFLINE_API: PremiumApi = {
   isLoading: false,
   billingAvailable: false,
   priceLabels: PREMIUM_PLAN_LABELS,
+  trialDays: {},
   purchase: async () => 'unavailable',
   restore: async () => false,
   revokeForTesting: () => undefined,
@@ -57,6 +60,7 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<PremiumState>(INITIAL_PREMIUM);
   const [isLoading, setIsLoading] = useState(true);
   const [priceLabels, setPriceLabels] = useState(PREMIUM_PLAN_LABELS);
+  const [trialDays, setTrialDays] = useState<Partial<Record<PremiumPlan, number>>>({});
   const { uid } = useAuth();
 
   // Show the store's own localized prices ("£2.49 / month", "₹499.00 once")
@@ -70,11 +74,17 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
       setPriceLabels((fallback) => {
         const next = { ...fallback };
         for (const plan of Object.keys(PLAN_SUFFIX) as PremiumPlan[]) {
-          const price = prices[plan];
+          const price = prices[plan]?.price;
           if (price) next[plan] = `${price}${PLAN_SUFFIX[plan]}`;
         }
         return next;
       });
+      const trials: Partial<Record<PremiumPlan, number>> = {};
+      for (const plan of Object.keys(PLAN_SUFFIX) as PremiumPlan[]) {
+        const days = prices[plan]?.trialDays;
+        if (days) trials[plan] = days;
+      }
+      setTrialDays(trials);
     });
     return () => {
       cancelled = true;
@@ -177,11 +187,12 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
       isLoading,
       billingAvailable: billing.available,
       priceLabels,
+      trialDays,
       purchase,
       restore,
       revokeForTesting,
     }),
-    [state.active, isLoading, priceLabels, purchase, restore, revokeForTesting],
+    [state.active, isLoading, priceLabels, trialDays, purchase, restore, revokeForTesting],
   );
 
   return <PremiumContext.Provider value={value}>{children}</PremiumContext.Provider>;
