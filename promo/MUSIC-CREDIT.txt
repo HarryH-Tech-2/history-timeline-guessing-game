@@ -1,0 +1,14 @@
+Music bed for history-date-guesser-promo-v2*.mp4 (promo/music.mp3)
+
+"Ancient Rite" Kevin MacLeod (incompetech.com)
+Licensed under Creative Commons: By Attribution 4.0 License
+http://creativecommons.org/licenses/by/4.0/
+
+Downloaded 2026-09-16 from https://incompetech.com/music/royalty-free/mp3-royaltyfree/Ancient%20Rite.mp3
+Attribution is required wherever the video is published: paste the three lines
+above into the YouTube description (and the Play listing video is the same
+YouTube upload, so that covers it).
+
+Other CC-BY candidates downloaded to promo/tmp2/music/ (same credit format):
+Crypto, Investigations, Lord of the Land, Hidden Agenda, Teller of the Tales,
+Evening of Chaos. Swap with:  python promo/build_promo2.py --music promo/tmp2/music/Crypto.mp3
