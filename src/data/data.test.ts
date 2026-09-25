@@ -1,17 +1,26 @@
 import { getCategories, getQuestions, getQuestionsByCategory, getRandomQuestion } from './index';
 
 describe('seed data', () => {
-  it('loads and validates the eight launch categories', () => {
+  it('loads and validates the twelve categories', () => {
     expect(getCategories().map((c) => c.id).sort()).toEqual([
       'arts',
       'battles',
-      'continents',
       'events',
       'exploration',
       'people',
       'philosophy',
+      'regional',
+      'space',
+      'sport',
       'technology',
+      'trade',
+      'treaties',
     ]);
+  });
+
+  it('no longer ships a Continents category', () => {
+    expect(getCategories().some((c) => c.id === 'continents')).toBe(false);
+    expect(getQuestions().some((q) => q.categoryId === 'continents')).toBe(false);
   });
 
   it('provides at least ten questions per category', () => {

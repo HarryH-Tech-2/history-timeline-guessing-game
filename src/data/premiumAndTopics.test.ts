@@ -23,10 +23,15 @@ const premiumQuestionIds = new Set(
 );
 
 describe('premium categories', () => {
-  it('flags Arts & Culture and Philosophy as premium', () => {
-    expect(premiumIds).toEqual(['arts', 'philosophy']);
+  it('flags Arts, Philosophy, Regional and Space as premium', () => {
+    expect(premiumIds).toEqual(['arts', 'philosophy', 'regional', 'space']);
     expect(isPremiumCategory('arts')).toBe(true);
     expect(isPremiumCategory('philosophy')).toBe(true);
+    expect(isPremiumCategory('regional')).toBe(true);
+    expect(isPremiumCategory('space')).toBe(true);
+    expect(isPremiumCategory('treaties')).toBe(false);
+    expect(isPremiumCategory('sport')).toBe(false);
+    expect(isPremiumCategory('trade')).toBe(false);
     expect(isPremiumCategory('technology')).toBe(false);
     expect(isPremiumCategory('events')).toBe(false);
   });

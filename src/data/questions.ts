@@ -1,12 +1,18 @@
 import type { Question } from '@/domain';
 
+import { REGIONAL_QUESTIONS } from './packs/regional';
+import { SPACE_QUESTIONS } from './packs/space';
+import { SPORT_QUESTIONS } from './packs/sport';
+import { TRADE_QUESTIONS } from './packs/trade';
+import { TREATIES_QUESTIONS } from './packs/treaties';
+
 /**
  * Hand-authored starter dataset (ancient -> modern, across the launch
  * categories). Only firmly documented dates belong here. Each object matches the future Firestore
  * `questions` document shape, so importing tens of thousands more later needs
  * no model changes. Years are signed integers (negative = BCE).
  */
-export const QUESTIONS = [
+const CORE_QUESTIONS = [
   // ---------------------------------------------------------------- Events ---
   {
     id: 'evt-moon-landing',
@@ -109,7 +115,7 @@ export const QUESTIONS = [
     longDescription:
       'The Continental Congress adopted the Declaration of Independence, announcing the colonies’ separation from Great Britain and articulating the idea that governments derive power from the consent of the governed.',
     source: 'https://en.wikipedia.org/wiki/United_States_Declaration_of_Independence',
-    tags: ['usa', 'politics', 'revolution'],
+    tags: ['usa', 'politics', 'revolution', 'independence'],
     verified: true,
     featured: false,
   },
@@ -1356,7 +1362,7 @@ export const QUESTIONS = [
   },
   {
     id: 'evt-versailles-treaty',
-    categoryId: 'events',
+    categoryId: 'treaties',
     title: 'The Treaty of Versailles',
     subtitle: 'The First World War is formally ended',
     year: 1919,
@@ -3541,7 +3547,7 @@ export const QUESTIONS = [
   // ------------------------------------------------------- Continents ---
   {
     id: 'con-tenochtitlan',
-    categoryId: 'continents',
+    categoryId: 'regional',
     title: 'The Fall of Tenochtitlan',
     subtitle: 'The Aztec capital falls to Cortés',
     year: 1521,
@@ -3562,7 +3568,7 @@ export const QUESTIONS = [
   },
   {
     id: 'con-panama-canal',
-    categoryId: 'continents',
+    categoryId: 'trade',
     title: 'The Panama Canal Opens',
     subtitle: 'Ships cross between the Atlantic and Pacific',
     year: 1914,
@@ -3583,7 +3589,7 @@ export const QUESTIONS = [
   },
   {
     id: 'con-brazil-independence',
-    categoryId: 'continents',
+    categoryId: 'regional',
     title: 'Brazilian Independence',
     subtitle: 'The “Cry of Ipiranga” breaks with Portugal',
     year: 1822,
@@ -3598,13 +3604,13 @@ export const QUESTIONS = [
     longDescription:
       'On the banks of the Ipiranga brook, Prince Pedro declared “Independence or death!”, severing Brazil from Portugal. He was crowned emperor of the only lasting monarchy in the Americas.',
     source: 'https://en.wikipedia.org/wiki/Independence_of_Brazil',
-    tags: ['south-america', 'politics', '19th-century'],
+    tags: ['south-america', 'politics', '19th-century', 'independence'],
     verified: true,
     featured: false,
   },
   {
     id: 'con-machu-picchu',
-    categoryId: 'continents',
+    categoryId: 'regional',
     title: 'Machu Picchu Revealed to the World',
     subtitle: 'Hiram Bingham reaches the lost Inca citadel',
     year: 1911,
@@ -3625,7 +3631,7 @@ export const QUESTIONS = [
   },
   {
     id: 'con-suez-canal',
-    categoryId: 'continents',
+    categoryId: 'trade',
     title: 'The Suez Canal Opens',
     subtitle: 'A waterway joins the Mediterranean and Red Sea',
     year: 1869,
@@ -3646,7 +3652,7 @@ export const QUESTIONS = [
   },
   {
     id: 'con-mansa-musa',
-    categoryId: 'continents',
+    categoryId: 'regional',
     title: 'Mansa Musa’s Pilgrimage',
     subtitle: 'The king of Mali dazzles the world with gold',
     year: 1324,
@@ -3665,7 +3671,7 @@ export const QUESTIONS = [
   },
   {
     id: 'con-ghana-independence',
-    categoryId: 'continents',
+    categoryId: 'regional',
     title: 'Ghanaian Independence',
     subtitle: 'The first sub-Saharan colony breaks free of empire',
     year: 1957,
@@ -3680,13 +3686,13 @@ export const QUESTIONS = [
     longDescription:
       'The Gold Coast became Ghana, the first sub-Saharan African colony to win independence from European rule. Kwame Nkrumah’s midnight declaration — “Ghana, your beloved country, is free forever” — inspired liberation movements across the continent.',
     source: 'https://en.wikipedia.org/wiki/Ghana',
-    tags: ['africa', 'politics', '20th-century'],
+    tags: ['africa', 'politics', '20th-century', 'independence'],
     verified: true,
     featured: false,
   },
   {
     id: 'con-meiji-restoration',
-    categoryId: 'continents',
+    categoryId: 'regional',
     title: 'The Meiji Restoration',
     subtitle: 'Imperial rule returns and Japan races to modernise',
     year: 1868,
@@ -3707,7 +3713,7 @@ export const QUESTIONS = [
   },
   {
     id: 'con-india-independence',
-    categoryId: 'continents',
+    categoryId: 'regional',
     title: 'Indian Independence',
     subtitle: 'The British Raj ends at the stroke of midnight',
     year: 1947,
@@ -3722,13 +3728,13 @@ export const QUESTIONS = [
     longDescription:
       'As Nehru spoke of India’s “tryst with destiny”, British rule over the subcontinent ended and two new nations, India and Pakistan, were born. Partition brought freedom alongside one of history’s largest and most traumatic migrations.',
     source: 'https://en.wikipedia.org/wiki/Indian_independence_movement',
-    tags: ['asia', 'politics', '20th-century'],
+    tags: ['asia', 'politics', '20th-century', 'independence'],
     verified: true,
     featured: false,
   },
   {
     id: 'con-australia-federation',
-    categoryId: 'continents',
+    categoryId: 'regional',
     title: 'The Federation of Australia',
     subtitle: 'Six colonies unite as one Commonwealth',
     year: 1901,
@@ -3749,7 +3755,7 @@ export const QUESTIONS = [
   },
   {
     id: 'con-treaty-waitangi',
-    categoryId: 'continents',
+    categoryId: 'treaties',
     title: 'The Treaty of Waitangi',
     subtitle: 'Māori chiefs and the British Crown sign a founding pact',
     year: 1840,
@@ -3770,7 +3776,7 @@ export const QUESTIONS = [
   },
   {
     id: 'con-antarctica-sighted',
-    categoryId: 'continents',
+    categoryId: 'exploration',
     title: 'Antarctica First Sighted',
     subtitle: 'A Russian expedition sees the last unknown continent',
     year: 1820,
@@ -3790,7 +3796,7 @@ export const QUESTIONS = [
   },
   {
     id: 'con-amundsen-pole',
-    categoryId: 'continents',
+    categoryId: 'exploration',
     title: 'Amundsen Reaches the South Pole',
     subtitle: 'The race to the bottom of the world is won',
     year: 1911,
@@ -3811,7 +3817,7 @@ export const QUESTIONS = [
   },
   {
     id: 'con-treaty-of-rome',
-    categoryId: 'continents',
+    categoryId: 'treaties',
     title: 'The Treaty of Rome',
     subtitle: 'Six nations found the European Economic Community',
     year: 1957,
@@ -4142,3 +4148,16 @@ export const QUESTIONS = [
     featured: false,
   },
 ] satisfies readonly Question[];
+
+/**
+ * The full bundled catalogue: the original hand-authored set plus the themed
+ * packs added in September 2026. Order matters only for stable seeding.
+ */
+export const QUESTIONS: readonly Question[] = [
+  ...CORE_QUESTIONS,
+  ...TREATIES_QUESTIONS,
+  ...SPORT_QUESTIONS,
+  ...TRADE_QUESTIONS,
+  ...SPACE_QUESTIONS,
+  ...REGIONAL_QUESTIONS,
+];

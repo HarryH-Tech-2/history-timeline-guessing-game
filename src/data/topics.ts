@@ -32,6 +32,10 @@ export const TOPICS: readonly Topic[] = [
   { id: 'literature', name: 'Literature', icon: '📚', blurb: 'Epics, novels and the writers behind them.', tags: ['literature'] },
   { id: 'music', name: 'Music', icon: '🎵', blurb: 'From the Ninth Symphony to Thriller.', tags: ['music'] },
   { id: 'architecture', name: 'Architecture', icon: '🏗️', blurb: 'Monuments that still stand.', tags: ['architecture'] },
+  { id: 'space', name: 'The Space Age', icon: '🚀', blurb: 'From Sputnik to the James Webb telescope.', tags: ['space'] },
+  { id: 'olympics', name: 'The Olympics', icon: '🥇', blurb: 'Golden moments from the Games.', tags: ['olympics'] },
+  { id: 'money', name: 'Money & Markets', icon: '💰', blurb: 'Banks, bubbles and crashes.', tags: ['economics'] },
+  { id: 'independence', name: 'Independence Days', icon: '🎆', blurb: 'The days new nations were born.', tags: ['independence'] },
 ];
 
 export function topicById(id: string): Topic | undefined {

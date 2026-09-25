@@ -10,6 +10,9 @@ import { ProfileHeader } from '@/features/progression';
 import { useTheme } from '@/theme';
 import { dateKey } from '@/utils/date';
 
+import { DailyHeroCard } from './DailyHeroCard';
+import { IconPlaque } from './IconPlaque';
+
 interface ModeCardData {
   key: string;
   title: string;
@@ -20,14 +23,8 @@ interface ModeCardData {
   premiumOnly?: boolean;
 }
 
+// The Daily has its own hero card at the top of the hub; these are the rest.
 const MODES: readonly ModeCardData[] = [
-  {
-    key: 'daily',
-    title: 'Daily',
-    description: 'Eight fresh questions. One shot a day.',
-    icon: '📅',
-    route: '/daily',
-  },
   {
     key: 'survival',
     title: 'Survival',
@@ -63,23 +60,14 @@ const CATEGORY_ICONS: Record<string, string> = {
   owl: '🦉',
   globe: '🌍',
   compass: '🧭',
+  handshake: '🤝',
+  trophy: '🏆',
+  coins: '💰',
+  rocket: '🚀',
 };
 
 export function categoryIcon(icon: string): string {
   return CATEGORY_ICONS[icon] ?? '🏛️';
-}
-
-/** Square icon plaque used to mark modes and categories. */
-function IconPlaque({ glyph, size = 'lg' }: { glyph: string; size?: 'lg' | 'md' }) {
-  const box = size === 'lg' ? 'h-12 w-12' : 'h-10 w-10';
-  const text = size === 'lg' ? 'text-2xl' : 'text-xl';
-  return (
-    <View className={`${box} items-center justify-center border border-hair bg-bg-overlay`}>
-      <Text className={text} style={{ includeFontPadding: false, textAlignVertical: 'center' }}>
-        {glyph}
-      </Text>
-    </View>
-  );
 }
 
 /** Today's featured topic: a short themed run, the same for everyone. */
@@ -239,6 +227,8 @@ export function HomeHub() {
         </View>
 
         <ProfileHeader />
+
+        <DailyHeroCard onPress={() => router.push('/daily')} />
 
         <TopicOfTheDayCard onPress={() => router.push('/topic')} />
 

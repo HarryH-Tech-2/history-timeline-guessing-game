@@ -6,6 +6,7 @@
  *
  * Usage:
  *   GEMINI_API_KEY=<key> npm run generate:images
+ *   npm run generate:images -- --map-only   (no key: just rebuild the require-map)
  *
  * Already-generated images are skipped, so re-running only fills gaps; delete
  * an image file to force its regeneration. The API key is read from the
@@ -119,6 +120,13 @@ export function imageForQuestion(id: string): ImageSourcePropType | undefined {
 }
 
 async function main(): Promise<void> {
+  // Images rendered elsewhere (e.g. via Higgsfield) only need the map rebuilt.
+  if (process.argv.includes('--map-only')) {
+    const mapped = writeRequireMap();
+    console.log(`Require-map rebuilt: ${mapped} of ${QUESTIONS.length} questions have images.`);
+    return;
+  }
+
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     console.error('GEMINI_API_KEY is not set. Aborting.');

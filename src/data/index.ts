@@ -5,6 +5,7 @@ import { pickDeterministic, seedFromString } from '@/utils/rng';
 
 import { CATEGORIES } from './categories';
 import { QUESTIONS } from './questions';
+import { REGIONAL_CATEGORY_ID, regionById, REGIONS, type Region } from './regions';
 import { TOPICS, type Topic } from './topics';
 
 export { QUESTION_IMAGES, imageForQuestion } from './questionImages';
@@ -107,6 +108,26 @@ export function getRandomQuestion(excludeIds: ReadonlySet<string> = new Set()): 
   const picked = source[index];
   if (!picked) throw new Error('No questions available in the seed dataset');
   return picked;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Regions                                                                   */
+/* ------------------------------------------------------------------------ */
+
+export { REGIONAL_CATEGORY_ID, REGIONS, regionById };
+export type { Region };
+
+/**
+ * The Regional category's questions for one region: those tagged with the
+ * region's tag. Unknown regions yield an empty pool rather than throwing, so a
+ * stale deep link can't wedge the screen.
+ */
+export function getRegionalQuestions(regionId: string): readonly Question[] {
+  const region = regionById(regionId);
+  if (!region) return [];
+  return activeQuestions.filter(
+    (q) => q.categoryId === REGIONAL_CATEGORY_ID && q.tags.includes(region.tag),
+  );
 }
 
 /* ------------------------------------------------------------------------ */

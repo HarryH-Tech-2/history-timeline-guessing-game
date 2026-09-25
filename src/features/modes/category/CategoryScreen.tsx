@@ -3,7 +3,7 @@ import { Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { Button, Screen } from '@/components/ui';
-import { getCategoryById } from '@/data';
+import { getCategoryById, REGIONAL_CATEGORY_ID, regionById } from '@/data';
 import { OutOfHeartsSheet, useHearts } from '@/features/hearts';
 import { usePremium } from '@/features/premium';
 import { RoundView, useRoundRewards } from '@/features/round';
@@ -13,14 +13,21 @@ import { ModeHud } from '../components/ModeHud';
 import { roundDetail, RunSummary, type SummaryRow } from '../components/RunSummary';
 import { HintButton } from '../hints/HintButton';
 import { prettyDate, shareDataFromResults } from '../share';
+import { RegionPicker } from './RegionPicker';
 import { useCategorySession } from './useCategorySession';
 
 interface CategoryScreenProps {
   categoryId: string;
+  /** Regional only: which region to play. Absent → show the picker. */
+  regionId?: string;
 }
 
-/** Category practice: one pass through every question in a chosen category. */
-export function CategoryScreen({ categoryId }: CategoryScreenProps) {
+/**
+ * Category practice: one pass through every question in a chosen category.
+ * The Regional category adds a step: pick a region first, then play just
+ * that region's questions.
+ */
+export function CategoryScreen({ categoryId, regionId }: CategoryScreenProps) {
   const router = useRouter();
   const { isPremium } = usePremium();
   const category = getCategoryById(categoryId);
@@ -57,12 +64,27 @@ export function CategoryScreen({ categoryId }: CategoryScreenProps) {
     );
   }
 
+  const isRegional = category.id === REGIONAL_CATEGORY_ID;
+  const region = isRegional && regionId ? regionById(regionId) : undefined;
+
+  if (isRegional && !region) {
+    return (
+      <RegionPicker
+        onPick={(id) =>
+          router.push({ pathname: '/category/[id]', params: { id: categoryId, region: id } })
+        }
+        onBack={() => router.back()}
+      />
+    );
+  }
+
   // Remounts on "Play again" so the hook deals a fresh order.
   return (
     <CategoryRun
       key={runId}
       categoryId={categoryId}
-      name={category.name}
+      regionId={region?.id}
+      name={region ? region.name : category.name}
       onHome={() => router.back()}
       onRetry={() => setRunId((n) => n + 1)}
     />
@@ -72,16 +94,18 @@ export function CategoryScreen({ categoryId }: CategoryScreenProps) {
 /** Split out so the session hook only mounts for a valid, unlocked category. */
 function CategoryRun({
   categoryId,
+  regionId,
   name,
   onHome,
   onRetry,
 }: {
   categoryId: string;
+  regionId?: string;
   name: string;
   onHome: () => void;
   onRetry: () => void;
 }) {
-  const { session, totalQuestions } = useCategorySession(categoryId);
+  const { session, totalQuestions } = useCategorySession(categoryId, regionId);
   const { reward, unlockedTitles, acquired } = useRoundRewards(session);
   const hearts = useHearts();
 
