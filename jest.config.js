@@ -7,7 +7,8 @@ module.exports = {
   resolver: '<rootDir>/node_modules/react-native-worklets/jest/resolver.js',
   setupFilesAfterEnv: ['<rootDir>/jest-setup.ts'],
   // Agent worktrees are full checkouts inside the repo; never run their copies.
-  testPathIgnorePatterns: ['/node_modules/', '/\\.claude/'],
+  // functions/ holds node:test suites for the Cloud Functions, not Jest ones.
+  testPathIgnorePatterns: ['/node_modules/', '/\\.claude/', '/functions/'],
   modulePathIgnorePatterns: ['<rootDir>/\\.claude/'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
