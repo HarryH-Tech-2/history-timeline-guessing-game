@@ -4,6 +4,7 @@ export {
   identifyPlayer,
   isAnalyticsConfigured,
   resetAnalyticsForTests,
+  resetPlayerIdentity,
   setAnalyticsEnabled,
   track,
 } from './client';

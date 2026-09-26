@@ -1,10 +1,18 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import { z } from 'zod';
 
 import { useAuth } from '@/services/firebase/auth';
 import { createStore } from '@/storage';
 
-import { identifyPlayer, setAnalyticsEnabled } from './client';
+import { identifyPlayer, resetPlayerIdentity, setAnalyticsEnabled } from './client';
 
 const analyticsStore = createStore<boolean>({
   key: 'chronos.analytics',
@@ -30,13 +38,13 @@ const AnalyticsSettingsContext = createContext<AnalyticsSettingsValue>(DEFAULT_C
 
 /**
  * Owns the Usage analytics switch (Profile → Settings) and keeps the PostHog
- * client in step with it and with the signed-in uid. Must sit inside
+ * client in step with it and with the signed-in account. Must sit inside
  * AuthProvider. The choice is persisted on the device and re-applied on every
  * launch (PostHog keeps its own opt-out flag, so the two are kept in sync
  * here). In builds without a PostHog key every client call is a no-op.
  */
 export function AnalyticsProvider({ children }: { children: ReactNode }) {
-  const { uid } = useAuth();
+  const { uid, hasAccount } = useAuth();
   const [enabled, setEnabledState] = useState(true);
 
   // Rehydrate the persisted choice and apply it to the client.
@@ -52,9 +60,19 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  // Only a real account is identified (see identifyPlayer); a guest stays on
+  // the device id. Going from account back to guest (sign-out) resets, so the
+  // next guest's events are not filed under the account that left.
+  const identified = useRef(false);
   useEffect(() => {
-    identifyPlayer(uid);
-  }, [uid]);
+    if (hasAccount && uid) {
+      identifyPlayer(uid);
+      identified.current = true;
+    } else if (identified.current) {
+      resetPlayerIdentity();
+      identified.current = false;
+    }
+  }, [uid, hasAccount]);
 
   const value = useMemo<AnalyticsSettingsValue>(() => {
     const setEnabled = (next: boolean) => {

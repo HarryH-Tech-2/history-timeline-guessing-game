@@ -1,6 +1,12 @@
 import PostHog from 'posthog-react-native';
 
 import type { AnalyticsEventName, AnalyticsEvents } from './events';
+import {
+  logFirebaseEvent,
+  resetFirebaseAnalyticsForTests,
+  setFirebaseCollectionEnabled,
+  setFirebaseUserId,
+} from './firebaseAnalytics';
 
 /** Project key and host for PostHog, inlined at build time (Expo requires
  * static `process.env.EXPO_PUBLIC_*` access). Publishable, not secret. Read
@@ -47,23 +53,30 @@ export function getAnalyticsClient(): PostHog | null {
 /**
  * Record one usage event. Typed against `AnalyticsEvents`, so a misspelt name
  * or a missing property fails to compile. Never throws: reporting must not be
- * able to break play.
+ * able to break play. Every event goes to PostHog (product analytics) and,
+ * under the same name, to Firebase Analytics (Google Ads conversions and
+ * uninstall attribution); each is independently a no-op where unavailable.
  */
 export function track<E extends AnalyticsEventName>(
   event: E,
   ...args: AnalyticsEvents[E] extends undefined ? [] : [properties: AnalyticsEvents[E]]
 ): void {
+  const properties = args[0] as Record<string, unknown> | undefined;
   try {
-    const properties = args[0] as Parameters<PostHog['capture']>[1];
-    getAnalyticsClient()?.capture(event, properties);
+    getAnalyticsClient()?.capture(event, properties as Parameters<PostHog['capture']>[1]);
   } catch {
     // Reporting is best-effort.
   }
+  logFirebaseEvent(event, properties);
 }
 
 /**
- * Tie events to the player's Firebase uid (guests included, whose uid is
- * anonymous), so a signed-in player's history follows them across devices.
+ * Tie events to a signed-in player's Firebase uid, so their history follows
+ * them across devices. Guests are deliberately NOT identified: a guest uid is
+ * minted afresh on every install and every sign-out, so identifying it made
+ * each of those a brand-new PostHog person. Left on the device id, a guest is
+ * one person per install, and the identify on sign-in merges that device
+ * history into the account.
  */
 export function identifyPlayer(uid: string | null): void {
   if (!uid) return;
@@ -72,6 +85,20 @@ export function identifyPlayer(uid: string | null): void {
   } catch {
     // Best-effort.
   }
+  setFirebaseUserId(uid);
+}
+
+/**
+ * Forget the identified account (sign-out): events from here on belong to a
+ * fresh device id, not to the account that just left. Never throws.
+ */
+export function resetPlayerIdentity(): void {
+  try {
+    getAnalyticsClient()?.reset();
+  } catch {
+    // Best-effort.
+  }
+  setFirebaseUserId(null);
 }
 
 /**
@@ -80,6 +107,7 @@ export function identifyPlayer(uid: string | null): void {
  * the two never drift apart.
  */
 export async function setAnalyticsEnabled(enabled: boolean): Promise<void> {
+  await setFirebaseCollectionEnabled(enabled);
   const c = getAnalyticsClient();
   if (!c) return;
   try {
@@ -93,4 +121,5 @@ export async function setAnalyticsEnabled(enabled: boolean): Promise<void> {
 /** Test hook: forget the client so the next call re-reads the environment. */
 export function resetAnalyticsForTests(): void {
   client = undefined;
+  resetFirebaseAnalyticsForTests();
 }

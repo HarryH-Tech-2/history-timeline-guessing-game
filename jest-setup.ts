@@ -36,12 +36,23 @@ jest.mock('posthog-react-native', () => {
   const instance = {
     capture: jest.fn(),
     identify: jest.fn(),
+    reset: jest.fn(),
     optIn: jest.fn(() => Promise.resolve()),
     optOut: jest.fn(() => Promise.resolve()),
     flush: jest.fn(() => Promise.resolve()),
   };
   return { __esModule: true, default: jest.fn(() => instance) };
 });
+
+// React Native Firebase Analytics is native-only; a recording double lets the
+// analytics client be asserted on and keeps tests off NativeModules.
+jest.mock('@react-native-firebase/analytics', () => ({
+  __esModule: true,
+  getAnalytics: jest.fn(() => ({ app: 'mock' })),
+  logEvent: jest.fn(() => Promise.resolve()),
+  setAnalyticsCollectionEnabled: jest.fn(() => Promise.resolve()),
+  setUserId: jest.fn(() => Promise.resolve()),
+}));
 
 // expo-notifications is a native module; stand in a recording double so the
 // reminder scheduler can be exercised and asserted on.

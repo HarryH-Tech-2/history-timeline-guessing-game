@@ -34,6 +34,7 @@
     "plugins": [
       "expo-router",
       "expo-status-bar",
+      "@react-native-firebase/app",
       "@react-native-google-signin/google-signin",
       [
         "./plugins/withPlayGames",
