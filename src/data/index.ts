@@ -8,6 +8,8 @@ import { QUESTIONS } from './questions';
 import { REGIONAL_CATEGORY_ID, regionById, REGIONS, type Region } from './regions';
 import { TOPICS, type Topic } from './topics';
 
+import { imageForQuestion } from './questionImages';
+
 export { QUESTION_IMAGES, imageForQuestion } from './questionImages';
 
 /**
@@ -34,20 +36,38 @@ for (const q of seedQuestions) {
 let activeCategories: readonly Category[] = seedCategories;
 let activeQuestions: readonly Question[] = seedQuestions;
 
+interface HydrateOptions {
+  /**
+   * Whether this build ships the illustration for a question id. Defaults to
+   * the bundled image table; tests inject their own.
+   */
+  hasIllustration?: (questionId: string) => boolean;
+}
+
 /**
- * Replace the active content with a remotely fetched set. Referential integrity
- * is enforced by dropping questions whose category is missing, so one bad remote
- * document can't wedge a round. An empty set is ignored, guaranteeing we never
- * downgrade a working catalogue to nothing on a partial/failed fetch.
+ * Replace the active content with a remotely fetched set, keeping only what
+ * this build can actually show:
+ *  - questions whose illustration is bundled — art ships in the app, not in
+ *    Firestore, so a reseed with newer questions must not surface pictureless
+ *    rounds on an older build;
+ *  - questions whose category exists (referential integrity), so one bad
+ *    remote document can't wedge a round;
+ *  - categories that still have at least one playable question.
+ * An empty result is ignored, guaranteeing we never downgrade a working
+ * catalogue to nothing on a partial/failed fetch or an unfamiliar catalogue.
  */
 export function hydrateContent(
   categories: readonly Category[],
   questions: readonly Question[],
+  { hasIllustration = (id) => imageForQuestion(id) !== undefined }: HydrateOptions = {},
 ): void {
   if (categories.length === 0 || questions.length === 0) return;
-  const ids = new Set(categories.map((c) => c.id));
-  activeCategories = categories;
-  activeQuestions = questions.filter((q) => ids.has(q.categoryId));
+  const categoryIds = new Set(categories.map((c) => c.id));
+  const playable = questions.filter((q) => categoryIds.has(q.categoryId) && hasIllustration(q.id));
+  if (playable.length === 0) return;
+  const populated = new Set(playable.map((q) => q.categoryId));
+  activeCategories = categories.filter((c) => populated.has(c.id));
+  activeQuestions = playable;
 }
 
 /** Reset the active content back to the bundled seed (used by tests). */

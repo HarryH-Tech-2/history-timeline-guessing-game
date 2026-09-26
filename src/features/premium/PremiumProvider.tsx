@@ -1,11 +1,12 @@
 import {
   createContext,
+  type ReactNode,
   useCallback,
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
-  type ReactNode,
 } from 'react';
 
 import { requestReviewAfterFirstPurchase } from '@/features/review';
@@ -133,12 +134,22 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
   // re-read the entitlement: signing into an account that already holds
   // Premium (a renewal on another device, or one granted in the RevenueCat
   // dashboard for Play reviewers) must unlock without a purchase or restore.
+  //
+  // When the account holds nothing, ask Play once what THIS device's Google
+  // account owns: a reinstall or new phone starts as a brand-new guest that
+  // the store has never seen, and the player's purchase would otherwise sit
+  // behind the Restore button until they found it.
+  const restoredFor = useRef<string | null>(null);
   useEffect(() => {
     if (!uid || !billing.available || billing === devBilling) return;
     let cancelled = false;
     void (async () => {
       await billing.identify(uid);
-      const active = await billing.checkActive();
+      let active = await billing.checkActive();
+      if (active === false && restoredFor.current !== uid) {
+        restoredFor.current = uid;
+        if (await billing.restore()) active = true;
+      }
       if (cancelled || active === null) return;
       setState((prev) => {
         if (active === prev.active) return prev;

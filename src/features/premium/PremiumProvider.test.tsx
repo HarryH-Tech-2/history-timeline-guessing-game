@@ -43,9 +43,44 @@ describe('PremiumProvider store identity', () => {
   beforeEach(() => {
     mockAuth.uid = null;
     mockBilling.checkActive.mockReset().mockResolvedValue(false);
+    mockBilling.restore.mockReset().mockResolvedValue(false);
     mockBilling.identify.mockClear();
   });
   afterEach(() => premiumStore.clear());
+
+  it('restores a Play purchase for a brand-new account without a tap', async () => {
+    // Reinstall: the store knows nothing about this guest, but the phone's
+    // Google account owns Premium.
+    mockAuth.uid = 'fresh-guest';
+    mockBilling.checkActive.mockResolvedValue(false);
+    mockBilling.restore.mockResolvedValue(true);
+    render(
+      <PremiumProvider>
+        <Probe />
+      </PremiumProvider>,
+    );
+    await screen.findByText('premium');
+    expect(mockBilling.restore).toHaveBeenCalledTimes(1);
+  });
+
+  it('asks Play only once per account when nothing is owned', async () => {
+    mockAuth.uid = 'fresh-guest';
+    const view = render(
+      <PremiumProvider>
+        <Probe />
+      </PremiumProvider>,
+    );
+    await screen.findByText('free');
+    await waitFor(() => expect(mockBilling.restore).toHaveBeenCalledTimes(1));
+    await act(async () => {
+      view.rerender(
+        <PremiumProvider>
+          <Probe />
+        </PremiumProvider>,
+      );
+    });
+    expect(mockBilling.restore).toHaveBeenCalledTimes(1);
+  });
 
   it('identifies the signed-in user to the store and re-checks the entitlement', async () => {
     mockAuth.uid = 'guest-uid';
