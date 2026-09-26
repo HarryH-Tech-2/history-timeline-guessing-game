@@ -131,7 +131,13 @@ export function RunSummary({
         variant={share.primary ? 'primary' : 'ghost'}
         onPress={() => {
           track('share_tapped', { mode: share.mode });
-          void shareResult(cardRef, share.data);
+          void shareResult(cardRef, share.data).then((outcome) => {
+            if (outcome === 'shared') {
+              track('share_completed', { mode: share.mode, method: 'image' });
+            } else if (outcome === 'dismissed') {
+              track('share_dismissed', { mode: share.mode });
+            }
+          });
         }}
         testID="summary-share"
       />

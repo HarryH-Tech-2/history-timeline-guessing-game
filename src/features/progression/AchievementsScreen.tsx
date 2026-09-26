@@ -2,7 +2,7 @@ import { Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
-import { Screen } from '@/components/ui';
+import { BackButton, Screen } from '@/components/ui';
 import { levelForXp } from '@/domain';
 import { showPlayGamesAchievements } from '@/services/playGames';
 import { palette } from '@/theme/tokens';
@@ -83,14 +83,7 @@ export function AchievementsScreen() {
             </Text>
           </View>
           {router.canGoBack() && (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Back"
-              testID="achievements-back"
-              onPress={() => router.back()}
-            >
-              <Text className="text-2xl text-ink-muted">✕</Text>
-            </Pressable>
+            <BackButton onPress={() => router.back()} testID="achievements-back" />
           )}
         </View>
 

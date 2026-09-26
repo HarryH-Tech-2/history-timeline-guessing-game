@@ -15,8 +15,13 @@ const PHOTO_SIZE = 88;
  * left, a friendly message in a speech plaque beside it. Replaces the mascot
  * here on purpose — a real person asking for support converts better than an
  * owl, and the owl still hosts every other end-of-run screen.
+ *
+ * `paragraphs[0]` is the greeting and renders bold; the rest render as short
+ * regular-weight paragraphs. The bubble sits in a narrow column beside the
+ * photo, so one long bold block reads as a wall — keep each beat short.
  */
-export function FounderNote({ line }: { line: string }) {
+export function FounderNote({ paragraphs }: { paragraphs: string[] }) {
+  const [greeting, ...body] = paragraphs;
   return (
     <Animated.View
       entering={FadeInUp.springify().damping(18)}
@@ -36,8 +41,13 @@ export function FounderNote({ line }: { line: string }) {
         className="border border-hair"
       />
       <View className="relative flex-1">
-        <View className="rounded-2xl border border-hair bg-bg-raised px-4 py-3">
-          <Text className="text-base font-semibold leading-snug text-ink-primary">{line}</Text>
+        <View className="gap-1.5 rounded-2xl border border-hair bg-bg-raised px-4 py-3">
+          <Text className="text-base font-semibold leading-snug text-ink-primary">{greeting}</Text>
+          {body.map((paragraph) => (
+            <Text key={paragraph} className="text-[15px] leading-relaxed text-ink-primary">
+              {paragraph}
+            </Text>
+          ))}
         </View>
         {/* Speech-bubble tail: a rotated square over the bubble's left border,
             so only its two outward edges read as the tail's outline. */}

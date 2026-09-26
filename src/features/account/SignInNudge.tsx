@@ -75,13 +75,13 @@ export function SignInNudgeCard({
       <View>
         <Text className="text-base font-semibold text-ink-primary">Keep your progress</Text>
         <Text className="mt-0.5 text-xs text-ink-muted">
-          You’re playing as a guest. Sign in with Google and your campaign, museum, XP and
-          coins follow you to any device.
+          Your progress is saved on this device. Back it up to Google and your campaign,
+          museum, XP and coins follow you to a new phone.
         </Text>
       </View>
       <View className="flex-row items-center gap-3">
         <View className="flex-1">
-          <Button label="Sign in" onPress={onSignIn} testID="sign-in-nudge-accept" />
+          <Button label="Back up to Google" onPress={onSignIn} testID="sign-in-nudge-accept" />
         </View>
         <Pressable
           onPress={onDismiss}

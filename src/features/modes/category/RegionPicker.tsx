@@ -1,7 +1,7 @@
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
-import { Button, Screen } from '@/components/ui';
+import { BackButton, Screen } from '@/components/ui';
 import { getRegionalQuestions, REGIONS, type Region } from '@/data';
 
 import { IconPlaque } from '../home/IconPlaque';
@@ -23,7 +23,10 @@ export function RegionPicker({ onPick, onBack }: RegionPickerProps) {
         contentContainerClassName="px-5 pt-6 pb-10 gap-3"
         showsVerticalScrollIndicator={false}
       >
-        <Text className="text-3xl font-extrabold text-ink-primary">Regional</Text>
+        <View className="flex-row items-center gap-3">
+          <BackButton onPress={onBack} />
+          <Text className="text-3xl font-extrabold text-ink-primary">Regional</Text>
+        </View>
         <Text className="mb-2 text-base text-ink-secondary">
           Pick a region and place its defining moments on the timeline.
         </Text>
@@ -36,9 +39,6 @@ export function RegionPicker({ onPick, onBack }: RegionPickerProps) {
             onPress={() => onPick(region.id)}
           />
         ))}
-        <View className="mt-4">
-          <Button label="Back" variant="ghost" onPress={onBack} />
-        </View>
       </ScrollView>
     </Screen>
   );

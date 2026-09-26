@@ -81,7 +81,7 @@ export function isStrongRun(results: readonly RoundResult[]): boolean {
 }
 
 /**
- * After any finished run — Daily, Campaign, Topic, Category, Endless or
+ * After any finished run — Daily, Campaign, Category, Endless or
  * Survival — that scored over 75% of its maximum. A weak run asks nothing.
  */
 export function requestReviewAfterStrongRun(

@@ -29,6 +29,10 @@ export interface AnalyticsEvents {
   daily_completed: { total_score: number; exact: number };
   /** The share button on a summary was tapped. */
   share_tapped: { mode: GameMode };
+  /** The share sheet closed with an app chosen — the result actually went somewhere. */
+  share_completed: { mode: GameMode; method: 'image' };
+  /** The share sheet was backed out of without sharing. */
+  share_dismissed: { mode: GameMode };
   /** The subscription paywall was shown. */
   paywall_viewed: undefined;
   /** A subscription purchase went through. */

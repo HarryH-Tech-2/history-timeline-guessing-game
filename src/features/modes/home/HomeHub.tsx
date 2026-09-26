@@ -3,12 +3,11 @@ import { useRouter, type Href } from 'expo-router';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
 import { Screen } from '@/components/ui';
-import { getCategories, getTopicOfTheDay, TOPIC_RUN_SIZE } from '@/data';
+import { getCategories } from '@/data';
 import type { Category } from '@/domain';
 import { usePremium } from '@/features/premium';
 import { ProfileHeader } from '@/features/progression';
 import { useTheme } from '@/theme';
-import { dateKey } from '@/utils/date';
 
 import { DailyHeroCard } from './DailyHeroCard';
 import { IconPlaque } from './IconPlaque';
@@ -68,34 +67,6 @@ const CATEGORY_ICONS: Record<string, string> = {
 
 export function categoryIcon(icon: string): string {
   return CATEGORY_ICONS[icon] ?? '🏛️';
-}
-
-/** Today's featured topic: a short themed run, the same for everyone. */
-function TopicOfTheDayCard({ onPress }: { onPress: () => void }) {
-  const topic = getTopicOfTheDay(dateKey());
-  return (
-    <Animated.View entering={FadeInUp.springify().damping(18)}>
-      <Pressable
-        onPress={onPress}
-        accessibilityRole="button"
-        accessibilityLabel={`Topic of the day: ${topic.name}`}
-        testID="topic-of-the-day"
-        className="flex-row items-center gap-4 overflow-hidden border border-accent bg-accent/10 p-4"
-      >
-        <IconPlaque glyph={topic.icon} />
-        <View className="flex-1">
-          <Text className="text-xs font-semibold uppercase tracking-wide text-accent">
-            Topic of the day
-          </Text>
-          <Text className="text-lg font-bold text-ink-primary">{topic.name}</Text>
-          <Text numberOfLines={1} className="text-sm text-ink-secondary">
-            {TOPIC_RUN_SIZE} questions · {topic.blurb}
-          </Text>
-        </View>
-        <Text className="text-xl text-ink-muted">›</Text>
-      </Pressable>
-    </Animated.View>
-  );
 }
 
 function ModeCard({
@@ -229,8 +200,6 @@ export function HomeHub() {
         <ProfileHeader />
 
         <DailyHeroCard onPress={() => router.push('/daily')} />
-
-        <TopicOfTheDayCard onPress={() => router.push('/topic')} />
 
         <Text className="mt-4 text-xs font-semibold uppercase tracking-wide text-ink-muted">
           Game modes

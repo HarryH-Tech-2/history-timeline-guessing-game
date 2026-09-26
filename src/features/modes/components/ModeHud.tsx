@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Text, View } from 'react-native';
 import Animated, {
   Easing,
   cancelAnimation,
@@ -12,13 +12,13 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { BackButton } from '@/components/ui';
 import type { RoundResult } from '@/domain';
-import { isRightAnswer } from '@/features/timeline/math';
 import { useThemeColors } from '@/theme';
 import { palette } from '@/theme/tokens';
 
 interface ModeHudProps {
-  /** Left-aligned progress label, e.g. "Question 3 of 8" or "Round 5". */
+  /** Left-aligned label for open-ended modes, e.g. "Round 5". Fixed-length runs rely on the bar. */
   progressLabel?: string;
   /**
    * Position in a fixed-length run — draws one segment per question under the
@@ -31,218 +31,178 @@ interface ModeHudProps {
   /** Remaining lives (Survival) — renders a row of hearts. */
   lives?: number;
   startingLives?: number;
-  /** The global hearts meter (modes that spend hearts). */
-  hearts?: { count: number; unlimited: boolean; atStake: boolean };
   /** Renders a back affordance that exits the mode. */
   onBack?: () => void;
 }
 
-function HeartsMeter({
-  count,
-  unlimited,
-  atStake,
-}: {
-  count: number;
-  unlimited: boolean;
-  atStake: boolean;
-}) {
-  // New players get a few games before misses cost anything; say so rather
-  // than show a meter that mysteriously never moves.
-  const practice = !unlimited && !atStake;
-  const label = unlimited
-    ? 'Unlimited hearts'
-    : practice
-      ? 'Practice: hearts are not at stake yet'
-      : `${count} hearts`;
+/** Survival lives: full hearts for those left, faded ones for those lost. */
+function Hearts({ lives, total }: { lives: number; total: number }) {
   return (
     <View
-      className="flex-row items-center gap-1 border border-hair bg-bg-raised px-2 py-0.5"
-      accessibilityLabel={label}
-      testID="hud-hearts"
+      className="flex-row items-center gap-0.5"
+      accessibilityLabel={`${lives} of ${total} lives left`}
+      testID="hud-lives"
     >
-      <Text className="text-sm">❤️</Text>
-      <Text className="text-sm font-bold text-ink-primary">
-        {unlimited ? '∞' : practice ? 'Practice' : count}
-      </Text>
-    </View>
-  );
-}
-
-function Hearts({ lives, total }: { lives: number; total: number }) {
-  const colors = useThemeColors();
-  return (
-    <View className="flex-row items-center gap-1.5">
       {Array.from({ length: total }, (_, i) => (
-        <View
+        <Text
           key={i}
-          className="h-2.5 w-2.5 rounded-full"
-          style={{
-            backgroundColor: i < lives ? colors.danger : colors.hair,
-          }}
-        />
+          className="text-base"
+          style={{ opacity: i < lives ? 1 : 0.22, includeFontPadding: false }}
+        >
+          ❤️
+        </Text>
       ))}
     </View>
   );
 }
 
-/** How an answered segment is coloured. */
-export type SegmentTier = 'perfect' | 'hit' | 'miss';
-
-export function segmentTier(result: RoundResult): SegmentTier {
-  if (result.isPerfect) return 'perfect';
-  return isRightAnswer(result.errorYears) ? 'hit' : 'miss';
-}
-
-type SegmentState = SegmentTier | 'current' | 'upcoming';
-
-/** One notch of the progress bar. Answered notches pop in; the live one breathes. */
-function Segment({ state, reducedMotion }: { state: SegmentState; reducedMotion: boolean }) {
-  const colors = useThemeColors();
-  const pop = useSharedValue(reducedMotion || state === 'upcoming' ? 1 : 0.6);
-  const glow = useSharedValue(1);
-
-  useEffect(() => {
-    // The live notch's glow is an endless withRepeat, and a running animation
-    // outlives its component unless cancelled — quitting a run mid-question
-    // would otherwise leave it ticking on the UI thread until app restart.
-    const stop = () => {
-      cancelAnimation(pop);
-      cancelAnimation(glow);
-    };
-    if (reducedMotion) {
-      pop.value = 1;
-      glow.value = 1;
-      return stop;
-    }
-    pop.value = withSpring(1, { damping: 10, stiffness: 220, mass: 0.6 });
-    if (state === 'current') {
-      glow.value = withRepeat(
-        withSequence(
-          withTiming(0.45, { duration: 700, easing: Easing.inOut(Easing.quad) }),
-          withTiming(1, { duration: 700, easing: Easing.inOut(Easing.quad) }),
-        ),
-        -1,
-        true,
-      );
-    } else {
-      glow.value = withTiming(1, { duration: 150 });
-    }
-    return stop;
-  }, [state, reducedMotion, pop, glow]);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    opacity: glow.value,
-    transform: [{ scaleY: pop.value }],
-  }));
-
-  const fill: Record<SegmentState, string> = {
-    perfect: palette.warning, // gold for an exact year
-    hit: palette.success,
-    miss: colors.ink.muted,
-    current: palette.accent.default,
-    upcoming: colors.hair,
-  };
-
-  return (
-    <View
-      className="h-2 flex-1 overflow-hidden rounded-full"
-      style={{ backgroundColor: colors.hair }}
-      testID={`hud-segment-${state}`}
-    >
-      <Animated.View
-        style={[
-          { flex: 1, borderRadius: 999, backgroundColor: fill[state] },
-          // Only the current notch shows a raised lip, so it reads as "live".
-          state === 'current' && { borderWidth: 1, borderColor: palette.accent.soft },
-          animatedStyle,
-        ]}
-      />
-    </View>
-  );
-}
+/** Track thickness; the head is a touch larger so it reads as the live edge. */
+const BAR_HEIGHT = 6;
+const HEAD_SIZE = 12;
 
 /**
- * Segmented progress: one notch per question. Answered notches are coloured
- * gold (exact), green (within the right-answer window) or muted (a miss); the
- * question in play pulses copper; the rest wait as hairline slots.
+ * One continuous progress bar: a copper fill that springs forward as questions
+ * are answered, with a softly pulsing head at its leading edge while a run is
+ * in play. Position is exposed as a progress value for screen readers.
  */
 function ProgressBar({
   current,
   total,
-  results = [],
+  results,
 }: {
   current: number;
   total: number;
   results?: readonly RoundResult[];
 }) {
+  const colors = useThemeColors();
   const reducedMotion = useReducedMotion();
-  const segments: SegmentState[] = Array.from({ length: Math.max(total, 0) }, (_, i) => {
-    const result = results[i];
-    if (result !== undefined) return segmentTier(result);
-    return i === current - 1 ? 'current' : 'upcoming';
-  });
+  const answered = Math.min(results?.length ?? Math.max(current - 1, 0), total);
+  const fraction = total > 0 ? answered / total : 0;
+  const finished = answered >= total;
+
+  const [trackWidth, setTrackWidth] = useState(0);
+  const fill = useSharedValue(fraction);
+  const glow = useSharedValue(1);
+
+  useEffect(() => {
+    fill.value = reducedMotion
+      ? fraction
+      : withSpring(fraction, { damping: 16, stiffness: 140, mass: 0.8 });
+  }, [fraction, reducedMotion, fill]);
+
+  useEffect(() => {
+    // The head's glow is an endless withRepeat, and a running animation
+    // outlives its component unless cancelled — quitting a run mid-question
+    // would otherwise leave it ticking on the UI thread until app restart.
+    const stop = () => cancelAnimation(glow);
+    if (reducedMotion || finished) {
+      glow.value = 1;
+      return stop;
+    }
+    glow.value = withRepeat(
+      withSequence(
+        withTiming(0.35, { duration: 800, easing: Easing.inOut(Easing.quad) }),
+        withTiming(1, { duration: 800, easing: Easing.inOut(Easing.quad) }),
+      ),
+      -1,
+      true,
+    );
+    return stop;
+  }, [reducedMotion, finished, glow]);
+
+  const fillStyle = useAnimatedStyle(() => ({ width: fill.value * trackWidth }));
+  const headStyle = useAnimatedStyle(() => ({
+    opacity: glow.value,
+    transform: [{ translateX: fill.value * trackWidth - HEAD_SIZE / 2 }],
+  }));
 
   return (
     <View
-      className="w-full flex-row items-center gap-1"
+      className="w-full justify-center"
+      style={{ height: HEAD_SIZE }}
+      accessibilityRole="progressbar"
       accessibilityLabel={`Question ${current} of ${total}`}
+      accessibilityValue={{ min: 0, max: total, now: answered }}
       testID="hud-progress-bar"
     >
-      {segments.map((state, i) => (
-        <Segment key={i} state={state} reducedMotion={reducedMotion} />
-      ))}
+      <View
+        className="w-full overflow-hidden rounded-full"
+        style={{ height: BAR_HEIGHT, backgroundColor: colors.hair }}
+        onLayout={(e) => setTrackWidth(e.nativeEvent.layout.width)}
+      >
+        <Animated.View
+          style={[
+            { height: BAR_HEIGHT, borderRadius: 999, backgroundColor: palette.accent.default },
+            fillStyle,
+          ]}
+          testID="hud-progress-fill"
+        />
+      </View>
+      {trackWidth > 0 && (
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            {
+              position: 'absolute',
+              left: 0,
+              width: HEAD_SIZE,
+              height: HEAD_SIZE,
+              borderRadius: HEAD_SIZE / 2,
+              backgroundColor: palette.accent.soft,
+              borderWidth: 2,
+              borderColor: palette.accent.default,
+              shadowColor: palette.accent.default,
+              shadowOpacity: 0.6,
+              shadowRadius: 4,
+              shadowOffset: { width: 0, height: 0 },
+              elevation: 3,
+            },
+            headStyle,
+          ]}
+        />
+      )}
     </View>
   );
 }
 
-/** A slim status bar above the prompt: progress on the left, lives/score on the right. */
+/** A slim status bar above the prompt: back on the left, score centred, lives on the right. */
 export function ModeHud({
   progressLabel,
   progress,
   score,
   lives,
   startingLives,
-  hearts,
   onBack,
 }: ModeHudProps) {
   return (
     <View className="gap-2 py-1">
-      <View className="flex-row items-center justify-between">
-        <View className="flex-row items-center gap-3">
+      <View className="min-h-10 flex-row items-center justify-between">
+        <View className="w-10">
           {onBack !== undefined && (
-            <Pressable
-              onPress={onBack}
-              accessibilityRole="button"
-              accessibilityLabel="Exit mode"
-              hitSlop={10}
-              testID="hud-back"
-              className="h-10 w-10 items-center justify-center border border-hair bg-bg-raised"
-            >
-              {/* A drawn chevron (rotated bordered square) renders crisply at any
-                  font scale, unlike a text glyph. Nudged right so it reads centred. */}
-              <View
-                className="h-3 w-3 border-b-2 border-l-2 border-ink-primary"
-                style={{ transform: [{ rotate: '45deg' }], marginLeft: 3 }}
-              />
-            </Pressable>
+            <BackButton onPress={onBack} label="Exit mode" testID="hud-back" />
           )}
-          <Text className="text-xs font-semibold uppercase tracking-wide text-ink-muted">
-            {progressLabel ?? ''}
-          </Text>
         </View>
-        <View className="flex-row items-center gap-3">
-          {hearts !== undefined && (
-            <HeartsMeter
-              count={hearts.count}
-              unlimited={hearts.unlimited}
-              atStake={hearts.atStake}
-            />
+        {/* The running score is the one number that matters mid-run: big and centred. */}
+        <View className="flex-1 items-center">
+          {score !== undefined && (
+            <Text
+              className="text-2xl font-extrabold text-ink-primary"
+              style={{ fontVariant: ['tabular-nums'], includeFontPadding: false }}
+              accessibilityLabel={`Score ${score}`}
+              testID="hud-score"
+            >
+              {score.toLocaleString()}
+            </Text>
           )}
+          {progressLabel !== undefined && (
+            <Text className="text-[11px] font-semibold uppercase tracking-wide text-ink-muted">
+              {progressLabel}
+            </Text>
+          )}
+        </View>
+        <View className="min-w-10 items-end">
           {lives !== undefined && startingLives !== undefined && (
             <Hearts lives={lives} total={startingLives} />
-          )}
-          {score !== undefined && (
-            <Text className="text-sm font-bold text-ink-primary">{score.toLocaleString()}</Text>
           )}
         </View>
       </View>

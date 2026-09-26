@@ -12,7 +12,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { Screen } from '@/components/ui';
+import { BackButton, Screen } from '@/components/ui';
 import { useSaves } from '@/features/save';
 import { useThemeColors } from '@/theme';
 
@@ -386,14 +386,7 @@ export function CampaignMapScreen() {
 
           <View className="px-5 pt-2">
             <View className="flex-row items-center gap-2">
-              <Pressable
-                onPress={() => router.back()}
-                accessibilityRole="button"
-                accessibilityLabel="Back"
-                hitSlop={12}
-              >
-                <Text className="text-xl text-ink-muted">‹</Text>
-              </Pressable>
+              <BackButton onPress={() => router.back()} className="mr-1" />
               <Text className="flex-1 text-2xl font-extrabold text-ink-primary">Campaign</Text>
               <Text className="text-sm font-semibold text-ink-muted">
                 ★ {totalStars} / {stages.length * 3}

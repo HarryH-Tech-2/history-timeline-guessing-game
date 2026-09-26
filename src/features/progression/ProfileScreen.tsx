@@ -235,7 +235,7 @@ export function ProfileScreen() {
     ? 'Offline · progress saved on device'
     : hasAccount
       ? 'Signed in · progress synced'
-      : 'Playing as guest';
+      : 'Progress saved on this device';
   const unlocked = new Set(state.unlocked);
   const earnedCount = ACHIEVEMENTS.filter((a) => unlocked.has(a.id)).length;
   const version = Constants.expoConfig?.version ?? '1.0.0';
@@ -307,6 +307,8 @@ export function ProfileScreen() {
           </View>
         </View>
 
+        <RateUsCard />
+
         <SectionTitle>Premium</SectionTitle>
         <View
           className="flex-row items-center justify-between gap-3 border border-hair bg-bg-raised p-4"
@@ -370,20 +372,18 @@ export function ProfileScreen() {
           <View className="gap-3 border border-hair bg-bg-raised p-4">
             <Text className="text-sm text-ink-secondary">
               {isSignedIn
-                ? 'You are playing as a guest. Sign in to keep your progress safe across devices.'
+                ? 'Your progress is saved on this device. Back it up to Google and it follows you to a new phone.'
                 : 'Accounts are not available in this offline build.'}
             </Text>
             {isSignedIn && (
               <Button
-                label="Sign in"
+                label="Back up to Google"
                 testID="open-sign-in"
                 onPress={() => router.push('/sign-in')}
               />
             )}
           </View>
         )}
-
-        <RateUsCard />
 
         <SectionTitle>Daily streak</SectionTitle>
         <StreakCard
@@ -524,7 +524,7 @@ export function ProfileScreen() {
           <Pressable
             onPress={() => router.push('/sign-in')}
             accessibilityRole="button"
-            accessibilityLabel="Sign in with Google to back up your progress"
+            accessibilityLabel="Back up your progress to Google"
             disabled={!isSignedIn}
             testID="settings-backup"
             className="flex-row items-center justify-between border border-hair bg-bg-raised p-4"
@@ -535,7 +535,7 @@ export function ProfileScreen() {
               </Text>
               <Text className="mt-0.5 text-xs text-ink-muted">
                 {isSignedIn
-                  ? 'Sign in with Google and your XP, coins, museum and campaign follow you to any device.'
+                  ? 'Optional. Your XP, coins, museum and campaign follow you to a new phone.'
                   : 'Accounts need a connection and aren’t available in this build.'}
               </Text>
             </View>

@@ -1,7 +1,7 @@
 import { Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { Button, Screen } from '@/components/ui';
+import { BackButton, Button, Screen } from '@/components/ui';
 import { usePremium } from '@/features/premium';
 import { RoundView, useRoundRewards } from '@/features/round';
 
@@ -45,6 +45,9 @@ export function EndlessScreen() {
   if (!isPremium) {
     return (
       <Screen>
+        <View className="px-5 pt-6">
+          <BackButton onPress={() => router.back()} />
+        </View>
         <View className="flex-1 items-center justify-center gap-4 px-8" testID="endless-locked">
           <Text className="text-4xl">🔒</Text>
           <Text className="text-center text-xl font-bold text-ink-primary">
@@ -55,7 +58,6 @@ export function EndlessScreen() {
             everywhere else.
           </Text>
           <Button label="See Premium" onPress={() => router.push('/paywall')} />
-          <Button label="Back" variant="ghost" onPress={() => router.back()} />
         </View>
       </Screen>
     );

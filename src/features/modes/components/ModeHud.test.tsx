@@ -4,7 +4,7 @@ import { cancelAnimation } from 'react-native-reanimated';
 import { QuestionSchema, type Question } from '@/domain';
 import { evaluateGuess } from '@/features/timeline/math';
 
-import { ModeHud, segmentTier } from './ModeHud';
+import { ModeHud } from './ModeHud';
 
 jest.mock('react-native-reanimated', () => {
   const actual = jest.requireActual<typeof import('react-native-reanimated')>(
@@ -42,68 +42,29 @@ const question: Question = QuestionSchema.parse({
   featured: false,
 });
 
-describe('ModeHud progress segments', () => {
-  it('grades answered rounds and marks the live question', () => {
-    const results = [
-      evaluateGuess(question, 1969), // exact
-      evaluateGuess(question, 1980), // 11 off → within the right-answer window
-      evaluateGuess(question, 1900), // 69 off → miss
-    ];
-    render(
-      <ModeHud progressLabel="Question 4 of 6" progress={{ current: 4, total: 6, results }} />,
-    );
-
-    expect(screen.getByLabelText('Question 4 of 6')).toBeOnTheScreen();
-    expect(screen.getAllByTestId('hud-segment-perfect')).toHaveLength(1);
-    expect(screen.getAllByTestId('hud-segment-hit')).toHaveLength(1);
-    expect(screen.getAllByTestId('hud-segment-miss')).toHaveLength(1);
-    expect(screen.getAllByTestId('hud-segment-current')).toHaveLength(1);
-    expect(screen.getAllByTestId('hud-segment-upcoming')).toHaveLength(2);
+describe('ModeHud progress bar', () => {
+  it('exposes position as a progress value with a readable label', () => {
+    const results = [evaluateGuess(question, 1969), evaluateGuess(question, 1980)];
+    render(<ModeHud progress={{ current: 3, total: 6, results }} />);
+    const bar = screen.getByTestId('hud-progress-bar');
+    expect(bar).toHaveAccessibilityValue({ min: 0, max: 6, now: 2 });
+    expect(screen.getByLabelText('Question 3 of 6')).toBeOnTheScreen();
   });
 
-  it('still draws a plain bar when no results are supplied', () => {
+  it('draws one continuous fill rather than a row of segments', () => {
     render(<ModeHud progress={{ current: 1, total: 3 }} />);
-    expect(screen.getAllByTestId('hud-segment-current')).toHaveLength(1);
-    expect(screen.getAllByTestId('hud-segment-upcoming')).toHaveLength(2);
+    expect(screen.getByTestId('hud-progress-fill')).toBeOnTheScreen();
+    expect(screen.queryAllByTestId(/hud-segment-/)).toHaveLength(0);
+    expect(screen.getByTestId('hud-progress-bar')).toHaveAccessibilityValue({ now: 0 });
   });
 
-  it('cancels the live segment pulse when the bar unmounts so it cannot run forever', () => {
-    // Quitting a run mid-question unmounts a segment whose glow is an endless
-    // withRepeat; nothing stops a running animation with its component.
+  it('cancels the fill-head pulse when the bar unmounts so it cannot run forever', () => {
+    // Quitting a run mid-question unmounts the bar while its head glow is an
+    // endless withRepeat; nothing stops a running animation with its component.
     const { unmount } = render(<ModeHud progress={{ current: 1, total: 3 }} />);
     expect(cancelled).not.toHaveBeenCalled();
 
     unmount();
     expect(cancelled).toHaveBeenCalled();
-  });
-
-  it('tiers a result by exactness then the shared right-answer threshold', () => {
-    expect(segmentTier(evaluateGuess(question, 1969))).toBe('perfect');
-    expect(segmentTier(evaluateGuess(question, 1989))).toBe('hit');
-    expect(segmentTier(evaluateGuess(question, 1990))).toBe('miss');
-  });
-});
-
-describe('ModeHud hearts meter', () => {
-  it('labels the meter as practice while hearts are not yet at stake', () => {
-    render(
-      <ModeHud
-        progress={{ current: 1, total: 3 }}
-        hearts={{ count: 10, unlimited: false, atStake: false }}
-      />,
-    );
-    expect(screen.getByText('Practice')).toBeTruthy();
-    expect(screen.getByLabelText('Practice: hearts are not at stake yet')).toBeTruthy();
-  });
-
-  it('shows the count once hearts are at stake', () => {
-    render(
-      <ModeHud
-        progress={{ current: 1, total: 3 }}
-        hearts={{ count: 7, unlimited: false, atStake: true }}
-      />,
-    );
-    expect(screen.getByText('7')).toBeTruthy();
-    expect(screen.queryByText('Practice')).toBeNull();
   });
 });

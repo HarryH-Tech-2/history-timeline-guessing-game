@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { Button, Screen } from '@/components/ui';
+import { BackButton, Button, Screen } from '@/components/ui';
 import { getCategoryById, REGIONAL_CATEGORY_ID, regionById } from '@/data';
 import { OutOfHeartsSheet, useHearts } from '@/features/hearts';
 import { usePremium } from '@/features/premium';
@@ -49,6 +49,9 @@ export function CategoryScreen({ categoryId, regionId }: CategoryScreenProps) {
   if (category.premiumOnly && !isPremium) {
     return (
       <Screen>
+        <View className="px-5 pt-6">
+          <BackButton onPress={() => router.back()} />
+        </View>
         <View className="flex-1 items-center justify-center gap-4 px-8" testID="category-locked">
           <Text className="text-4xl">🔒</Text>
           <Text className="text-center text-xl font-bold text-ink-primary">
@@ -58,7 +61,6 @@ export function CategoryScreen({ categoryId, regionId }: CategoryScreenProps) {
             Subscribe to unlock it — plus unlimited hearts.
           </Text>
           <Button label="See Premium" onPress={() => router.push('/paywall')} />
-          <Button label="Back" variant="ghost" onPress={() => router.back()} />
         </View>
       </Screen>
     );
@@ -157,14 +159,12 @@ function CategoryRun({
         actions={<HintButton question={session.question} />}
         hud={
           <ModeHud
-            progressLabel={`${name} · ${session.roundNumber} of ${totalQuestions}`}
             progress={{
               current: session.roundNumber,
               total: totalQuestions,
               results: session.results,
             }}
             score={session.totalScore}
-            hearts={hearts}
             onBack={onHome}
           />
         }

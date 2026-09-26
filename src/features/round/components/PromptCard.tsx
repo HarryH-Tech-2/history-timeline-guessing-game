@@ -41,7 +41,7 @@ export function PromptCard({
 
   if (compact) {
     return (
-      <Card className="flex-row items-center gap-3 py-3" testID="prompt-card-compact">
+      <Card className="items-center gap-1.5 py-3" testID="prompt-card-compact">
         {image && showImage && (
           <Pressable
             onPress={() => setZoomed(true)}
@@ -60,9 +60,20 @@ export function PromptCard({
             />
           </Pressable>
         )}
-        <Text numberOfLines={2} className="flex-1 text-lg font-bold leading-tight text-ink-primary">
+        {/* A short accent rule above the headline: the reveal's "plaque" moment. */}
+        <View className="h-0.5 w-8 rounded-full bg-accent" />
+        <Text
+          numberOfLines={2}
+          className="text-center text-xl font-extrabold leading-tight text-ink-primary"
+          style={{ textWrap: 'balance' } as object}
+        >
           {title}
         </Text>
+        {subtitle.length > 0 && (
+          <Text numberOfLines={1} className="text-center text-sm text-ink-secondary">
+            {subtitle}
+          </Text>
+        )}
         {lightbox}
       </Card>
     );

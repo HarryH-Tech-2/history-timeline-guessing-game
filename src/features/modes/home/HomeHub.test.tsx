@@ -15,4 +15,9 @@ describe('HomeHub', () => {
     expect(screen.getByTestId('mode-survival')).toBeOnTheScreen();
     expect(screen.getByTestId('mode-campaign')).toBeOnTheScreen();
   });
+
+  it('no longer offers a Topic of the day', () => {
+    render(<HomeHub />);
+    expect(screen.queryByTestId('topic-of-the-day')).toBeNull();
+  });
 });

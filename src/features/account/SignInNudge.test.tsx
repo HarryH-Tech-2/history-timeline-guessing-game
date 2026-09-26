@@ -20,7 +20,7 @@ describe('SignInNudge', () => {
   it('invites a guest to keep their progress after the milestone', async () => {
     render(<SignInNudge milestone="campaign-first-stage" active />);
     expect(await screen.findByTestId('sign-in-nudge')).toBeOnTheScreen();
-    expect(screen.getByText(/playing as a guest/i)).toBeOnTheScreen();
+    expect(screen.getByText(/saved on this device/i)).toBeOnTheScreen();
   });
 
   it('says nothing to a player who already has an account', async () => {
@@ -52,9 +52,9 @@ describe('SignInNudge', () => {
     expect(screen.queryByTestId('sign-in-nudge')).toBeNull();
   });
 
-  it('"Sign in" opens the sign-in screen and counts as shown', async () => {
+  it('"Back up to Google" opens the sign-in screen and counts as shown', async () => {
     render(<SignInNudge milestone="campaign-first-stage" active />);
-    fireEvent.press(await screen.findByText('Sign in'));
+    fireEvent.press(await screen.findByText('Back up to Google'));
     expect(mockPush).toHaveBeenCalledWith('/sign-in');
     await waitFor(async () => {
       expect((await signInNudgeStore.read()).shown['campaign-first-stage']).toEqual(

@@ -1,6 +1,15 @@
 import { useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import Animated, { FadeInUp } from 'react-native-reanimated';
+import Animated, {
+  cancelAnimation,
+  Easing,
+  FadeInUp,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { useProgression } from '@/features/progression';
 import { dateKey } from '@/utils/date';
@@ -10,6 +19,50 @@ import { IconPlaque } from './IconPlaque';
 
 /** Re-derive the countdown this often while the card is on screen. */
 const TICK_MS = 60_000;
+
+/**
+ * The card's call to action while today's Daily is unplayed: a lifted pill
+ * that breathes gently so the eye lands on it. The loop is cancelled on
+ * unmount — a leaked repeat here would keep Reanimated busy on every screen.
+ */
+function PlayPill() {
+  const scale = useSharedValue(1);
+
+  useEffect(() => {
+    scale.value = withRepeat(
+      withSequence(
+        withTiming(1.04, { duration: 750, easing: Easing.inOut(Easing.quad) }),
+        withTiming(1, { duration: 750, easing: Easing.inOut(Easing.quad) }),
+      ),
+      -1,
+      false,
+    );
+    return () => cancelAnimation(scale);
+  }, [scale]);
+
+  const style = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+
+  return (
+    <Animated.View
+      style={[
+        style,
+        {
+          shadowColor: '#000',
+          shadowOpacity: 0.25,
+          shadowRadius: 6,
+          shadowOffset: { width: 0, height: 3 },
+          elevation: 5,
+        },
+      ]}
+      className="flex-row items-center gap-1.5 rounded-full bg-accent px-5 py-3"
+    >
+      <Text className="text-xs text-bg-base" style={{ includeFontPadding: false }}>
+        ▶
+      </Text>
+      <Text className="text-base font-extrabold text-bg-base">Play</Text>
+    </Animated.View>
+  );
+}
 
 /**
  * The Daily as the first thing on the home hub. It is the habit loop of the
@@ -46,9 +99,11 @@ export function DailyHeroCard({ onPress }: { onPress: () => void }) {
       >
         <IconPlaque glyph={status.done ? '✅' : '📅'} />
         <View className="flex-1">
-          <Text className="text-xs font-semibold uppercase tracking-wide text-accent">
-            {status.done ? 'Come back tomorrow' : 'Eight questions · one shot a day'}
-          </Text>
+          {status.done && (
+            <Text className="text-xs font-semibold uppercase tracking-wide text-accent">
+              Come back tomorrow
+            </Text>
+          )}
           <Text className="text-xl font-extrabold text-ink-primary">
             {status.done ? 'Daily done' : "Today's Daily"}
           </Text>
@@ -59,13 +114,7 @@ export function DailyHeroCard({ onPress }: { onPress: () => void }) {
             <Text className="text-sm text-ink-muted">Next Daily in {status.hoursUntilNext}h</Text>
           )}
         </View>
-        {status.done ? (
-          <Text className="text-xl text-ink-muted">›</Text>
-        ) : (
-          <View className="border border-accent bg-accent px-4 py-2">
-            <Text className="text-sm font-bold uppercase tracking-wide text-bg-base">Play</Text>
-          </View>
-        )}
+        {status.done ? <Text className="text-xl text-ink-muted">›</Text> : <PlayPill />}
       </Pressable>
     </Animated.View>
   );

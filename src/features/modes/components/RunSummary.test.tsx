@@ -4,6 +4,11 @@ import RNShare from 'react-native-share';
 
 import { RunSummary } from './RunSummary';
 
+// Only `track` is used here; spreading the real barrel would drag the auth
+// provider in through a require cycle.
+jest.mock('@/services/analytics', () => ({ track: jest.fn() }));
+const { track } = jest.requireMock<typeof import('@/services/analytics')>('@/services/analytics');
+
 const shareData = {
   heading: 'Survival · 1 round',
   subheading: '5 Sep 2026',
@@ -60,6 +65,30 @@ describe('RunSummary', () => {
     const options = jest.mocked(RNShare.open).mock.calls[0]![0] as { url: string; message: string };
     expect(options.url).toBe('file:///tmp/capture.png');
     expect(options.message).toContain('play.google.com');
+  });
+
+  it('records whether the share sheet completed or was dismissed', async () => {
+    jest.mocked(track).mockClear();
+    render(
+      <RunSummary
+        title="Out of lives"
+        totalScore={900}
+        primaryLabel="Play again"
+        onPrimary={jest.fn()}
+        share={{ data: shareData, mode: 'survival' }}
+      />,
+    );
+
+    jest.mocked(RNShare.open).mockResolvedValueOnce({ success: true, message: 'ok' });
+    fireEvent.press(screen.getByTestId('summary-share'));
+    await waitFor(() =>
+      expect(track).toHaveBeenCalledWith('share_completed', { mode: 'survival', method: 'image' }),
+    );
+    expect(track).toHaveBeenCalledWith('share_tapped', { mode: 'survival' });
+
+    jest.mocked(RNShare.open).mockResolvedValueOnce({ success: false, message: 'CANCELLED' });
+    fireEvent.press(screen.getByTestId('summary-share'));
+    await waitFor(() => expect(track).toHaveBeenCalledWith('share_dismissed', { mode: 'survival' }));
   });
 
   it('puts Share first when a mode asks for it, keeping the other action as a ghost', () => {

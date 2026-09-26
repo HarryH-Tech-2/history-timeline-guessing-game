@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { Button, Card, Screen } from '@/components/ui';
+import { BackButton, Button, Card, Screen } from '@/components/ui';
 import { getCategories } from '@/data';
 import { track } from '@/services/analytics';
 
@@ -38,19 +38,25 @@ export function trialLength(days: number): string {
 }
 
 /**
- * The main button's label for the chosen plan. Says what the player is
- * getting rather than the generic "Subscribe", and leads with the free trial
- * when the store offers one.
+ * The main button's two lines for the chosen plan: the action on top, the
+ * price underneath. Says what the player is getting rather than the generic
+ * "Subscribe", and leads with the free trial when the store offers one.
  */
-export function ctaLabel(plan: PremiumPlan, price: string, trialDays?: number): string {
-  if (trialDays) return `Start my free ${trialLength(trialDays)} trial`;
+export function ctaLabel(
+  plan: PremiumPlan,
+  price: string,
+  trialDays?: number,
+): { label: string; sublabel: string } {
+  if (trialDays) {
+    return { label: `Start my free ${trialLength(trialDays)} trial`, sublabel: `then ${price}` };
+  }
   switch (plan) {
     case 'monthly':
-      return `Get my monthly subscription · ${price}`;
+      return { label: 'Get my monthly subscription', sublabel: price };
     case 'yearly':
-      return `Get my yearly subscription · ${price}`;
+      return { label: 'Get my yearly subscription', sublabel: price };
     case 'lifetime':
-      return `Get lifetime access · ${price}`;
+      return { label: 'Get lifetime access', sublabel: price };
   }
 }
 
@@ -202,23 +208,18 @@ export function PaywallScreen() {
           <Text className="text-xs font-semibold uppercase tracking-wide text-ink-muted">
             Premium
           </Text>
-          <Pressable
-            onPress={() => router.back()}
-            accessibilityRole="button"
-            accessibilityLabel="Close"
-            hitSlop={10}
-            testID="paywall-close"
-            className="h-10 w-10 items-center justify-center border border-hair bg-bg-raised"
-          >
-            <Text className="text-lg font-bold text-ink-primary">✕</Text>
-          </Pressable>
+          <BackButton onPress={() => router.back()} variant="close" testID="paywall-close" />
         </View>
 
         <FounderNote
-          line={
+          paragraphs={
             isPremium
-              ? 'Thank you so much for supporting an indie developer — enjoy the whole archive!'
-              : 'Hi, I’m Harry 👋 By subscribing, you’re not paying a big company. You’re backing one developer who builds this app alone. Join the players who keep it going and let’s keep making it better.'
+              ? ['Thank you so much for supporting an indie developer — enjoy the whole archive!']
+              : [
+                  'Hi, I’m Harry 👋',
+                  'Subscribing doesn’t pay a big company. It backs one developer who builds this app alone.',
+                  'Join the players who keep it going, and let’s keep making it better.',
+                ]
           }
         />
 
@@ -287,7 +288,9 @@ export function PaywallScreen() {
                 ))}
               </View>
               <Button
-                label={busy ? 'Please wait…' : ctaLabel(plan, priceLabels[plan], trialDays[plan])}
+                {...(busy
+                  ? { label: 'Please wait…' }
+                  : ctaLabel(plan, priceLabels[plan], trialDays[plan]))}
                 onPress={() => void onSubscribe()}
                 disabled={busy}
                 testID="paywall-subscribe"

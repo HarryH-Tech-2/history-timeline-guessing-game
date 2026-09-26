@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { Button, Screen } from '@/components/ui';
+import { BackButton, Button, Screen } from '@/components/ui';
 import { isFirebaseConfigured } from '@/config/env';
 import { useAuth } from '@/services/firebase/auth';
 import { useThemeColors } from '@/theme';
@@ -72,21 +72,14 @@ export function SignInScreen() {
             {hasAccount ? 'Switch account' : 'Back up your progress'}
           </Text>
           {router.canGoBack() && (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Close"
-              testID="sign-in-close"
-              onPress={() => router.back()}
-            >
-              <Text className="text-2xl text-ink-muted">✕</Text>
-            </Pressable>
+            <BackButton onPress={() => router.back()} variant="close" testID="sign-in-close" />
           )}
         </View>
 
         <Text className="mb-1 text-base text-ink-secondary">
           {hasAccount
             ? 'Sign in with a different Google account.'
-            : 'Sign in with Google to keep your progress safe. Your guest progress carries over.'}
+            : 'Optional. Back up to Google and your progress follows you to a new phone. Everything you’ve earned so far carries over.'}
         </Text>
 
         <View className="gap-2 border border-hair bg-bg-raised p-4">
