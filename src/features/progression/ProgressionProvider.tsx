@@ -15,6 +15,7 @@ import {
   type ProgressionState,
   type RoundResult,
 } from '@/domain';
+import { usePremium } from '@/features/premium/PremiumProvider';
 import { useSaves } from '@/features/save';
 import { dateKey } from '@/utils/date';
 
@@ -167,19 +168,23 @@ export function ProgressionProvider({ children }: { children: ReactNode }) {
     return outcome;
   }, [commit]);
 
+  // Premium means unlimited coins: nothing is deducted and nothing can be unaffordable.
+  const { isPremium } = usePremium();
+
   const buyFreeze = useCallback((): boolean => {
-    const { state: next, ok } = buyStreakFreeze(ref.current);
+    const { state: next, ok } = buyStreakFreeze(ref.current, isPremium ? 0 : undefined);
     if (ok) commit(next);
     return ok;
-  }, [commit]);
+  }, [commit, isPremium]);
 
   const spend = useCallback(
     (amount: number): boolean => {
+      if (isPremium) return amount > 0;
       const { state: next, ok } = spendCoins(ref.current, amount);
       if (ok) commit(next);
       return ok;
     },
-    [commit],
+    [commit, isPremium],
   );
 
   const loseHeart = useCallback((): number => {

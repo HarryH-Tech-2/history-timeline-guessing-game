@@ -46,3 +46,18 @@ export const firebaseConfig: FirebaseConfig | null = parsed.success ? parsed.dat
 
 /** True when a complete, valid Firebase config is present in the build. */
 export const isFirebaseConfigured = firebaseConfig !== null;
+
+/**
+ * Which EAS profile built this binary. `eas.json` sets EXPO_PUBLIC_APP_ENV for
+ * the development and preview profiles; production leaves it unset. Used only
+ * to expose developer conveniences (e.g. replaying onboarding) outside the
+ * store build.
+ */
+export const appEnv: 'development' | 'preview' | 'production' = (() => {
+  const raw = process.env.EXPO_PUBLIC_APP_ENV;
+  if (raw === 'development' || raw === 'preview') return raw;
+  return __DEV__ ? 'development' : 'production';
+})();
+
+/** True in Metro/dev clients and EAS preview builds; false in the store build. */
+export const isDeveloperBuild = appEnv !== 'production';

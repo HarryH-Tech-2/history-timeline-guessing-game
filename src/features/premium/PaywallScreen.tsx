@@ -3,7 +3,6 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { BackButton, Button, Card, Screen } from '@/components/ui';
-import { getCategories } from '@/data';
 import { track } from '@/services/analytics';
 
 import type { PremiumPlan } from './billing';
@@ -170,11 +169,6 @@ export function PaywallScreen() {
     track('paywall_viewed');
   }, []);
 
-  const premiumCategories = getCategories().filter((c) => c.active && c.premiumOnly);
-  const names = premiumCategories.map((c) => c.name);
-  const categoryNames =
-    names.length > 1 ? `${names.slice(0, -1).join(', ')} & ${names.at(-1)}` : (names[0] ?? '');
-
   const onSubscribe = async () => {
     setBusy(true);
     setNotice(null);
@@ -237,7 +231,12 @@ export function PaywallScreen() {
             <Benefit
               icon="❤️"
               title="Unlimited hearts"
-              detail="Miss as often as you like — no cooldowns, no coin refills."
+              detail="Miss as often as you like — no cooldowns, no refills."
+            />
+            <Benefit
+              icon="🪙"
+              title="Unlimited coins"
+              detail="Hints and streak freezes whenever you want them. Never count coins again."
             />
             <Benefit
               icon="♾️"
@@ -246,8 +245,8 @@ export function PaywallScreen() {
             />
             <Benefit
               icon="🔓"
-              title={`${categoryNames} unlocked`}
-              detail="Practice any premium category on its own, for as long as you like."
+              title="More categories unlocked"
+              detail="Practice every premium category on its own, with more arriving over time."
             />
             <Benefit
               icon="🏛️"

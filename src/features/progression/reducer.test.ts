@@ -188,6 +188,15 @@ describe('buyStreakFreeze', () => {
   });
 });
 
+describe('buyStreakFreeze for Premium', () => {
+  it('adds a freeze at no cost when told the price is zero', () => {
+    const { state, ok } = buyStreakFreeze({ ...INITIAL_PROGRESSION, coins: 0 }, 0);
+    expect(ok).toBe(true);
+    expect(state.coins).toBe(0);
+    expect(state.streak.freezes).toBe(1);
+  });
+});
+
 describe('spendCoins', () => {
   it('deducts when affordable', () => {
     const rich = { ...INITIAL_PROGRESSION, coins: 30 };

@@ -54,8 +54,13 @@ export function ProfileHeader() {
             >
               ❤️ {hearts.unlimited ? '∞' : hearts.count}
             </Text>
-            <Text className="text-sm font-bold" style={{ color: palette.warning }}>
-              {state.coins.toLocaleString()} 🪙
+            <Text
+              className="text-sm font-bold"
+              style={{ color: palette.warning }}
+              accessibilityLabel={isPremium ? 'Unlimited coins' : `${state.coins} coins`}
+              testID="header-coins"
+            >
+              {isPremium ? '∞' : state.coins.toLocaleString()} 🪙
             </Text>
           </View>
         </View>

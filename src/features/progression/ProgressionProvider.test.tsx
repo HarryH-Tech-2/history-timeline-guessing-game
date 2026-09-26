@@ -7,6 +7,9 @@ import { STARTING_COINS, type RoundResult } from '@/domain';
 import { progressionStore } from './persistence';
 import { ProgressionProvider, useProgression } from './ProgressionProvider';
 
+const mockPremium = { isPremium: false };
+jest.mock('@/features/premium/PremiumProvider', () => ({ usePremium: () => mockPremium }));
+
 function perfectRound(): RoundResult {
   return {
     question: { year: 2000 } as RoundResult['question'],
@@ -71,6 +74,29 @@ describe('ProgressionProvider', () => {
     });
     expect(ok).toBe(true);
     await screen.findByText(`xp:150 coins:${STARTING_COINS}`);
+  });
+});
+
+describe('Premium coins', () => {
+  it('spends nothing and never runs out when the player is Premium', async () => {
+    mockPremium.isPremium = true;
+    try {
+      let api!: ReturnType<typeof useProgression>;
+      render(
+        <ProgressionProvider>
+          <Probe onReady={(a) => (api = a)} />
+        </ProgressionProvider>,
+      );
+      await waitFor(() => expect(api).toBeDefined());
+      let ok = false;
+      act(() => {
+        ok = api.spend(10_000);
+      });
+      expect(ok).toBe(true);
+      await screen.findByText(`xp:0 coins:${STARTING_COINS}`);
+    } finally {
+      mockPremium.isPremium = false;
+    }
   });
 });
 

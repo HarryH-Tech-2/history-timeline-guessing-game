@@ -3,6 +3,7 @@ import { Text, View } from 'react-native';
 
 import { Button } from '@/components/ui';
 import type { Question } from '@/domain';
+import { usePremium } from '@/features/premium/PremiumProvider';
 import { useProgression } from '@/features/progression';
 import { track } from '@/services/analytics';
 import { palette } from '@/theme/tokens';
@@ -16,6 +17,7 @@ import { centuryHint, HINT_COST, hintTemplate } from './hint';
  */
 export function HintButton({ question }: { question: Question }) {
   const { state, spend } = useProgression();
+  const { isPremium } = usePremium();
   const [revealed, setRevealed] = useState(false);
 
   useEffect(() => {
@@ -37,11 +39,17 @@ export function HintButton({ question }: { question: Question }) {
     );
   }
 
-  const canAfford = state.coins >= HINT_COST;
+  const canAfford = isPremium || state.coins >= HINT_COST;
 
   return (
     <Button
-      label={canAfford ? `Hint · ${HINT_COST} 🪙` : `Need ${HINT_COST} 🪙 for a hint`}
+      label={
+        isPremium
+          ? 'Hint · free with Premium'
+          : canAfford
+            ? `Hint · ${HINT_COST} 🪙`
+            : `Need ${HINT_COST} 🪙 for a hint`
+      }
       variant="ghost"
       disabled={!canAfford}
       testID="hint-button"

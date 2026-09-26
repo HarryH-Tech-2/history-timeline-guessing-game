@@ -4,6 +4,7 @@ import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 
 import { Button, Screen } from '@/components/ui';
+import { isDeveloperBuild } from '@/config/env';
 import { getCategories, getQuestionsByCategory } from '@/data';
 import {
   activeStreakCount,
@@ -20,6 +21,7 @@ import { usePremium } from '@/features/premium';
 import { openStoreListing } from '@/features/review';
 import { useHaptics } from '@/features/haptics';
 import { useReminders } from '@/features/reminders';
+import { onboardingStore } from '@/features/onboarding/onboardingStore';
 import { useSound } from '@/features/sound';
 import { useAnalyticsSettings } from '@/services/analytics';
 import { useAuth } from '@/services/firebase/auth';
@@ -55,15 +57,18 @@ function StatTile({ label, value }: { label: string; value: string }) {
 function StreakCard({
   streak,
   coins,
+  unlimitedCoins = false,
   onBuyFreeze,
 }: {
   streak: { count: number; lastDate: string | null; freezes: number };
   coins: number;
+  /** Premium: freezes cost nothing. */
+  unlimitedCoins?: boolean;
   onBuyFreeze: () => boolean;
 }) {
   const live = activeStreakCount(streak, dateKey());
   const multiplier = streakMultiplier(live);
-  const canBuy = coins >= STREAK_FREEZE_COST && streak.freezes < MAX_STREAK_FREEZES;
+  const canBuy = (unlimitedCoins || coins >= STREAK_FREEZE_COST) && streak.freezes < MAX_STREAK_FREEZES;
 
   return (
     <View className="gap-3 border border-hair bg-bg-raised p-4" testID="streak-card">
@@ -85,7 +90,7 @@ function StreakCard({
         </Text>
       </View>
       <Button
-        label={`Buy streak freeze · ${STREAK_FREEZE_COST} 🪙`}
+        label={unlimitedCoins ? 'Add streak freeze · free with Premium' : `Buy streak freeze · ${STREAK_FREEZE_COST} 🪙`}
         variant="ghost"
         disabled={!canBuy}
         onPress={() => {
@@ -244,8 +249,12 @@ export function ProfileScreen() {
               {statusLine}
             </Text>
           </Pressable>
-          <Text className="text-sm font-bold" style={{ color: palette.warning }}>
-            {state.coins.toLocaleString()} 🪙
+          <Text
+            className="text-sm font-bold"
+            style={{ color: palette.warning }}
+            accessibilityLabel={isPremium ? 'Unlimited coins' : `${state.coins} coins`}
+          >
+            {isPremium ? '∞' : state.coins.toLocaleString()} 🪙
           </Text>
         </View>
         <PlayerNameSheet
@@ -286,7 +295,7 @@ export function ProfileScreen() {
             <Text className="text-xs text-ink-muted">
               {isPremium
                 ? 'Unlimited hearts · all categories unlocked'
-                : `Unlimited hearts & every category · from ${priceLabels.monthly}`}
+                : `Unlimited hearts & coins, every category · from ${priceLabels.monthly}`}
             </Text>
           </View>
           <Button
@@ -354,6 +363,7 @@ export function ProfileScreen() {
         <StreakCard
           streak={state.streak}
           coins={state.coins}
+          unlimitedCoins={isPremium}
           onBuyFreeze={buyFreeze}
         />
 
@@ -457,6 +467,25 @@ export function ProfileScreen() {
           </View>
           <Text className="text-base text-ink-secondary">{analyticsOn ? 'On 📊' : 'Off'}</Text>
         </Pressable>
+        {isDeveloperBuild && (
+          <Pressable
+            onPress={() => {
+              void onboardingStore.clear().then(() => router.push('/onboarding'));
+            }}
+            accessibilityRole="button"
+            accessibilityLabel="Replay the first-run onboarding"
+            testID="settings-replay-onboarding"
+            className="flex-row items-center justify-between border border-dashed border-hair bg-bg-raised p-4"
+          >
+            <View className="flex-1 pr-3">
+              <Text className="text-base font-semibold text-ink-primary">Replay onboarding</Text>
+              <Text className="mt-0.5 text-xs text-ink-muted">
+                Developer builds only. Shows the first-run flow again.
+              </Text>
+            </View>
+            <Text className="text-xl text-ink-muted">›</Text>
+          </Pressable>
+        )}
         {hasAccount ? (
           <View
             className="flex-row items-center justify-between border border-hair bg-bg-raised p-4"

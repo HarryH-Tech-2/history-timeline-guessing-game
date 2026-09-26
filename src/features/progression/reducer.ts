@@ -142,16 +142,20 @@ export function applyDailyComplete(
 }
 
 /** Buy one streak freeze with coins; refuses when broke or already at the cap. */
-export function buyStreakFreeze(state: ProgressionState): {
+export function buyStreakFreeze(
+  state: ProgressionState,
+  /** Premium players pay nothing: pass 0. */
+  cost: number = STREAK_FREEZE_COST,
+): {
   state: ProgressionState;
   ok: boolean;
 } {
-  if (state.coins < STREAK_FREEZE_COST) return { state, ok: false };
+  if (state.coins < cost) return { state, ok: false };
   if (state.streak.freezes >= MAX_STREAK_FREEZES) return { state, ok: false };
   return {
     state: {
       ...state,
-      coins: state.coins - STREAK_FREEZE_COST,
+      coins: state.coins - cost,
       streak: { ...state.streak, freezes: state.streak.freezes + 1 },
     },
     ok: true,
