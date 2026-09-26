@@ -39,7 +39,7 @@ interface TimelineTrackProps {
    * A year whose decade dividers must be mounted regardless of where the
    * crosshair is or whether the view is at rest — the answer just revealed,
    * which the next question re-frames around. Mounting them with the question
-   * itself means they fade in with the zoom instead of popping in once the
+   * itself means they fade in with the re-frame instead of popping in once the
    * re-frame has settled.
    */
   anchorYear?: number;
@@ -173,7 +173,7 @@ function ErrorBand({
 }
 
 /**
- * The interactive timeline surface: a pan/pinch gesture region filled with
+ * The interactive timeline surface: a pan gesture region filled with
  * gridlines, a fixed centre crosshair, and (after submission) the correct-year
  * and guessed-year markers.
  *

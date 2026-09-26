@@ -39,7 +39,7 @@ describe('OnboardingScreen', () => {
     expect(track).toHaveBeenCalledWith('onboarding_step_viewed', { step: 2 });
     expect(screen.getByTestId('onboarding-coach-marks')).toBeOnTheScreen();
 
-    fireEvent.press(screen.getByTestId('onboarding-submit'));
+    fireEvent.press(screen.getByTestId('submit-button'));
     expect(screen.getByTestId('reveal-sheet')).toBeOnTheScreen();
     expect(screen.queryByTestId('onboarding-coach-marks')).toBeNull();
     fireEvent.press(screen.getByTestId('next-button')); // reveal → why
@@ -78,7 +78,7 @@ describe('OnboardingScreen', () => {
   it('rejects an invalid custom name instead of finishing', async () => {
     render(<OnboardingScreen />);
     fireEvent.press(screen.getByTestId('onboarding-next'));
-    fireEvent.press(screen.getByTestId('onboarding-submit'));
+    fireEvent.press(screen.getByTestId('submit-button'));
     fireEvent.press(screen.getByTestId('next-button'));
     fireEvent.press(screen.getByTestId('onboarding-next'));
 

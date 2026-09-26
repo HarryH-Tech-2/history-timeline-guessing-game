@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { type LayoutChangeEvent } from 'react-native';
-import { Gesture, type ComposedGesture } from 'react-native-gesture-handler';
+import { Gesture, type PanGesture } from 'react-native-gesture-handler';
 import {
   Easing,
   cancelAnimation,
@@ -17,8 +17,6 @@ import {
 import { haptic } from '@/features/haptics';
 import {
   BASE_WIDTH,
-  MAX_SCALE,
-  MIN_SCALE,
   clampYear,
   transformToFit,
   transformToRefocus,
@@ -27,11 +25,6 @@ import {
   warp,
   yearForWorldX,
 } from '@/features/timeline/math';
-
-function clampScale(value: number): number {
-  'worklet';
-  return Math.min(MAX_SCALE, Math.max(MIN_SCALE, value));
-}
 
 /** Shared easing for programmatic re-framing (century jumps, reveals, resets). */
 const FRAME_TIMING = { duration: 420, easing: Easing.out(Easing.cubic) };
@@ -66,7 +59,7 @@ export interface TimelineController {
   centreYear: SharedValue<number>;
   /** Laid-out track width in px (0 until the first layout). */
   width: SharedValue<number>;
-  gesture: ComposedGesture;
+  gesture: PanGesture;
   onLayout: (event: LayoutChangeEvent) => void;
   /** Read the current guess (whole-ish year, clamped to range) on the JS thread. */
   readGuessYear: () => number;
@@ -100,9 +93,12 @@ interface Options {
 const DEFAULT_RANGE = { min: 1700, max: 2026 } as const;
 
 /**
- * Owns the pan/pinch transform of the timeline. Everything runs on the UI
- * thread via Reanimated shared values, so panning and zooming stay at 60fps
- * regardless of how many ticks are drawn.
+ * Owns the pan transform of the timeline. Everything runs on the UI thread
+ * via Reanimated shared values, so panning stays at 60fps regardless of how
+ * many ticks are drawn. The zoom (`scale`) is not under the player's control:
+ * there is no pinch gesture, on purpose — one fixed framing to learn, and
+ * nothing to get lost in. Only the reveal (to fit a big miss) and the next
+ * question's refocus ever change it.
  */
 export function useTimelineTransform(options: Options = {}): TimelineController {
   const { initialRange = DEFAULT_RANGE, haptics = true } = options;
@@ -113,7 +109,6 @@ export function useTimelineTransform(options: Options = {}): TimelineController 
   const ready = useSharedValue(false);
 
   const startTranslateX = useSharedValue(0);
-  const startScale = useSharedValue(1);
 
   // Mirror width on the JS side for imperative reads (guess submission).
   const widthRef = useRef(0);
@@ -148,7 +143,7 @@ export function useTimelineTransform(options: Options = {}): TimelineController 
   // is moving the view, the view counts as moving; SETTLE_MS after the last
   // change (and the last finger lifting) it comes to rest. (-1 = no timer.)
   const settleTimer = useSharedValue(-1);
-  /** Fingers currently on the track (pan and pinch each count one). */
+  /** Fingers currently on the track. */
   const activeTouches = useSharedValue(0);
 
   const cancelSettle = () => {
@@ -238,28 +233,7 @@ export function useTimelineTransform(options: Options = {}): TimelineController 
       });
     });
 
-  const pinch = Gesture.Pinch()
-    .withTestId('timeline-pinch')
-    .onBegin(() => {
-      touchBegan();
-      startScale.value = scale.value;
-      startTranslateX.value = translateX.value;
-    })
-    .onFinalize(() => {
-      touchFinalized();
-    })
-    .onUpdate((event) => {
-      const nextScale = clampScale(startScale.value * event.scale);
-      // World point under the focal point must stay put as we scale — then
-      // clamped so a pinch can't carry the crosshair out of range either.
-      const worldUnderFocal = (event.focalX - startTranslateX.value) / startScale.value;
-      const next = event.focalX - worldUnderFocal * nextScale;
-      const [tMin, tMax] = translateBounds(nextScale);
-      translateX.value = Math.min(tMax, Math.max(tMin, next));
-      scale.value = nextScale;
-    });
-
-  const gesture = Gesture.Simultaneous(pan, pinch);
+  const gesture = pan;
 
   const fitTo = useCallback(
     (minYear: number, maxYear: number) => {

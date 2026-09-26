@@ -77,8 +77,8 @@ export function OnboardingScreen() {
 
   return (
     <Screen>
-      <View className="flex-1 px-5 pb-4 pt-3" testID="onboarding">
-        <View className="mb-3 h-10 flex-row items-center justify-between">
+      <View className="flex-1 pt-3" testID="onboarding">
+        <View className="mx-5 mb-3 h-10 flex-row items-center justify-between">
           <Dots step={step} />
           {step < STEP_COUNT - 1 ? (
             <Pressable
@@ -95,11 +95,13 @@ export function OnboardingScreen() {
           )}
         </View>
 
+        {/* The first-guess step is the real round view, which brings its own
+            gutters and footer so it lays out exactly as a game round does. */}
         <Animated.View
           key={step}
           entering={FadeIn.duration(260)}
           exiting={FadeOut.duration(160)}
-          className="flex-1"
+          className={step === 1 ? 'flex-1' : 'flex-1 px-5 pb-4'}
         >
           {step === 0 && <WelcomeStep onNext={next} />}
           {step === 1 && <FirstGuessStep onNext={next} />}

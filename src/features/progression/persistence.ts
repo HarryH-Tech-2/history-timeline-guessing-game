@@ -12,8 +12,10 @@ export { LOCAL_UID };
  * key keeps the whole progression atomic, and the Zod-validated store falls
  * back to a fresh profile if an older/corrupt shape is ever read.
  */
+export const PROGRESSION_SAVE_KEY = 'chronos.progression';
+
 export const progressionSaves = createScopedStore<ProgressionState>({
-  key: 'chronos.progression',
+  key: PROGRESSION_SAVE_KEY,
   schema: ProgressionStateSchema,
   fallback: INITIAL_PROGRESSION,
   cloud: isFirebaseConfigured ? cloudSaves : undefined,

@@ -28,7 +28,10 @@ export interface SetupOutcome {
 export function SetupStep({ onFinish }: { onFinish: (outcome: SetupOutcome) => void }) {
   const colors = useThemeColors();
   const { uid } = useAuth();
-  const { state, setDisplayName } = useProgression();
+  // Onboarding opens before the profile has loaded (a fresh install never
+  // waits on sign-in), so the name write is held until it has: a write made
+  // while loading is dropped by the provider to protect the incoming save.
+  const { state, setDisplayName, isLoading: profileLoading } = useProgression();
   const reminders = useReminders();
 
   const handle = resolveDisplayName(null, uid);
@@ -136,11 +139,13 @@ export function SetupStep({ onFinish }: { onFinish: (outcome: SetupOutcome) => v
           label="Play today’s Daily"
           glyph="→"
           variant="hero"
+          disabled={profileLoading}
           onPress={() => finish('daily')}
           testID="onboarding-play-daily"
         />
         <Pressable
           onPress={() => finish('explore')}
+          disabled={profileLoading}
           accessibilityRole="button"
           className="items-center py-3"
           testID="onboarding-explore"

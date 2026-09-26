@@ -36,6 +36,8 @@ interface RoundViewProps {
   acquired?: boolean;
   /** Optional control rendered next to the submit button (e.g. a hint). */
   actions?: ReactNode;
+  /** Optional line shown just above the reveal sheet once revealed. */
+  notice?: ReactNode;
 }
 
 /**
@@ -55,6 +57,7 @@ export function RoundView({
   unlockedTitles,
   acquired,
   actions,
+  notice,
 }: RoundViewProps) {
   const controller = useTimelineTransform({ initialRange: DEFAULT_RANGE });
   const reducedMotion = useReducedMotion();
@@ -127,15 +130,18 @@ export function RoundView({
   const stage = showImage ? <RevealImage source={image} title={question.title} /> : timeline;
 
   const revealSheet = revealed && result && (
-    <RevealSheet
-      result={result}
-      categoryColour={colour}
-      onNext={onNext}
-      nextLabel={nextLabel}
-      reward={reward}
-      unlockedTitles={unlockedTitles}
-      acquired={acquired}
-    />
+    <>
+      {notice}
+      <RevealSheet
+        result={result}
+        categoryColour={colour}
+        onNext={onNext}
+        nextLabel={nextLabel}
+        reward={reward}
+        unlockedTitles={unlockedTitles}
+        acquired={acquired}
+      />
+    </>
   );
 
   const submitFooter = !revealed && (

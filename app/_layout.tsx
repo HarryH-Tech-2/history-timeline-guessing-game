@@ -3,7 +3,9 @@ import '../global.css';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import Animated, { FadeOut } from 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { useLeaderboardSync } from '@/features/leaderboard';
@@ -24,7 +26,7 @@ import { ThemeProvider, useTheme } from '@/theme';
 function ThemedNavigator() {
   const { mode, colors } = useTheme();
   useLeaderboardSync();
-  useOnboardingGate();
+  const { decided: onboardingDecided } = useOnboardingGate();
   return (
     <>
       <StatusBar style={mode === 'dark' ? 'light' : 'dark'} />
@@ -39,6 +41,16 @@ function ThemedNavigator() {
         {/* First run only; no swipe-back out of it, the Skip button is the way out. */}
         <Stack.Screen name="onboarding" options={{ gestureEnabled: false, animation: 'fade' }} />
       </Stack>
+      {/* Covers the navigator until the launch decision is made, so a first
+          run opens straight onto onboarding instead of a flash of the hub. */}
+      {!onboardingDecided && (
+        <Animated.View
+          pointerEvents="none"
+          exiting={FadeOut.duration(200)}
+          style={[StyleSheet.absoluteFill, { backgroundColor: colors.bg.base }]}
+          testID="launch-veil"
+        />
+      )}
     </>
   );
 }
