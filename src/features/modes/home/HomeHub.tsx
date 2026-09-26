@@ -11,6 +11,7 @@ import { useTheme } from '@/theme';
 
 import { DailyHeroCard } from './DailyHeroCard';
 import { IconPlaque } from './IconPlaque';
+import { useContentVersion } from './useContentVersion';
 
 interface ModeCardData {
   key: string;
@@ -174,6 +175,8 @@ export function HomeHub() {
   const router = useRouter();
   const { mode, toggle } = useTheme();
   const { isPremium } = usePremium();
+  // Re-render when the remote catalogue lands, so a tapped category always exists.
+  useContentVersion();
 
   return (
     <Screen>

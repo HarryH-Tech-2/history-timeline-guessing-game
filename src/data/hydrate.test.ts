@@ -1,6 +1,13 @@
 import type { Category, Question } from '@/domain';
 
-import { getCategories, getQuestions, hydrateContent, resetContentToSeed } from './index';
+import {
+  getCategories,
+  getContentVersion,
+  getQuestions,
+  hydrateContent,
+  resetContentToSeed,
+  subscribeContent,
+} from './index';
 
 const REMOTE_CATEGORY: Category = {
   id: 'remote-cat',
@@ -44,15 +51,44 @@ const ANY_ART = { hasIllustration: () => true };
 describe('hydrateContent', () => {
   afterEach(() => resetContentToSeed());
 
-  it('swaps the active catalogue to the hydrated content', () => {
+  it('merges remote content over the bundled seed, never dropping bundled categories', () => {
+    const seedCount = getCategories().length;
     hydrateContent([REMOTE_CATEGORY], [REMOTE_QUESTION], ANY_ART);
-    expect(getCategories()).toEqual([REMOTE_CATEGORY]);
-    expect(getQuestions()).toEqual([REMOTE_QUESTION]);
+    expect(getCategories()).toContainEqual(REMOTE_CATEGORY);
+    expect(getCategories()).toHaveLength(seedCount + 1);
+    // Bundled categories the remote catalogue has never heard of stay playable.
+    expect(getCategories().map((c) => c.id)).toContain('sport');
+    expect(getQuestions()).toContainEqual(REMOTE_QUESTION);
+    expect(getQuestions().some((q) => q.categoryId === 'sport')).toBe(true);
   });
 
-  it('drops questions whose category is missing (referential integrity)', () => {
+  it('lets a remote row override the bundled row with the same id', () => {
+    const seeded = getQuestions()[0];
+    if (!seeded) throw new Error('seed has no questions');
+    const corrected = { ...seeded, title: 'Corrected title', year: seeded.year + 1 };
+    const category = getCategories().find((c) => c.id === seeded.categoryId);
+    if (!category) throw new Error('seed question has no category');
+    hydrateContent([{ ...category, name: 'Renamed' }], [corrected]);
+    expect(getQuestions().find((q) => q.id === seeded.id)).toEqual(corrected);
+    expect(getCategories().find((c) => c.id === category.id)?.name).toBe('Renamed');
+    expect(getQuestions().filter((q) => q.id === seeded.id)).toHaveLength(1);
+  });
+
+  it('notifies subscribers when the catalogue changes', () => {
+    const seen: number[] = [];
+    const unsubscribe = subscribeContent(() => seen.push(getContentVersion()));
+    hydrateContent([REMOTE_CATEGORY], [REMOTE_QUESTION], ANY_ART);
+    expect(seen).toHaveLength(1);
+    unsubscribe();
+    hydrateContent([REMOTE_CATEGORY], [REMOTE_QUESTION], ANY_ART);
+    expect(seen).toHaveLength(1);
+  });
+
+  it('drops remote questions whose category is missing (referential integrity)', () => {
     hydrateContent([REMOTE_CATEGORY], [REMOTE_QUESTION, ORPHAN_QUESTION], ANY_ART);
-    expect(getQuestions().map((q) => q.id)).toEqual(['remote-q']);
+    const ids = getQuestions().map((q) => q.id);
+    expect(ids).toContain('remote-q');
+    expect(ids).not.toContain('orphan-q');
   });
 
   it('ignores an empty payload rather than wiping working content', () => {
@@ -69,22 +105,27 @@ describe('hydrateContent', () => {
     hydrateContent([REMOTE_CATEGORY], [illustrated, bare], {
       hasIllustration: (id) => id === 'has-art',
     });
-    expect(getQuestions().map((q) => q.id)).toEqual(['has-art']);
+    const ids = getQuestions().map((q) => q.id);
+    expect(ids).toContain('has-art');
+    expect(ids).not.toContain('no-art');
   });
 
-  it('drops a category left with no playable questions', () => {
+  it('drops a remote-only category left with no playable questions', () => {
     const emptyCategory: Category = { ...REMOTE_CATEGORY, id: 'empty-cat', name: 'Empty' };
     const bare = { ...REMOTE_QUESTION, id: 'no-art', categoryId: 'empty-cat' };
     hydrateContent([REMOTE_CATEGORY, emptyCategory], [REMOTE_QUESTION, bare], {
       hasIllustration: (id) => id === 'remote-q',
     });
-    expect(getCategories().map((c) => c.id)).toEqual(['remote-cat']);
+    const ids = getCategories().map((c) => c.id);
+    expect(ids).toContain('remote-cat');
+    expect(ids).not.toContain('empty-cat');
   });
 
   it('keeps the working catalogue when nothing remote has bundled art', () => {
     const before = getQuestions();
     hydrateContent([REMOTE_CATEGORY], [REMOTE_QUESTION], { hasIllustration: () => false });
-    expect(getQuestions()).toBe(before);
+    expect(getQuestions()).toEqual(before);
+    expect(getCategories().map((c) => c.id)).not.toContain('remote-cat');
   });
 
   it('checks the bundled images by default', () => {
@@ -92,7 +133,9 @@ describe('hydrateContent', () => {
     if (!seeded) throw new Error('seed has no questions');
     const remoteSeeded = { ...seeded, categoryId: 'remote-cat' };
     hydrateContent([REMOTE_CATEGORY], [remoteSeeded, REMOTE_QUESTION]);
-    expect(getQuestions().map((q) => q.id)).toEqual([seeded.id]);
+    const ids = getQuestions().map((q) => q.id);
+    expect(ids).not.toContain('remote-q'); // no bundled art
+    expect(getQuestions().find((q) => q.id === seeded.id)?.categoryId).toBe('remote-cat');
   });
 
   it('resets back to the bundled seed', () => {

@@ -45,16 +45,40 @@ interface HydrateOptions {
 }
 
 /**
- * Replace the active content with a remotely fetched set, keeping only what
- * this build can actually show:
- *  - questions whose illustration is bundled — art ships in the app, not in
- *    Firestore, so a reseed with newer questions must not surface pictureless
- *    rounds on an older build;
- *  - questions whose category exists (referential integrity), so one bad
- *    remote document can't wedge a round;
- *  - categories that still have at least one playable question.
- * An empty result is ignored, guaranteeing we never downgrade a working
- * catalogue to nothing on a partial/failed fetch or an unfamiliar catalogue.
+ * Consumers that render the catalogue subscribe here so a remote refresh
+ * landing after first paint re-renders them (otherwise Home could still show
+ * a category the lookup no longer knows).
+ */
+type ContentListener = () => void;
+const listeners = new Set<ContentListener>();
+let contentVersion = 0;
+
+export function subscribeContent(listener: ContentListener): () => void {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+export function getContentVersion(): number {
+  return contentVersion;
+}
+
+function publishContent(): void {
+  contentVersion += 1;
+  listeners.forEach((l) => l());
+}
+
+/**
+ * Merge a remotely fetched catalogue over the bundled seed. The seed is what
+ * this build can actually show — art ships in the app, not in Firestore — so
+ * the remote copy corrects and extends it; it can never remove a bundled
+ * category or question. Rules:
+ *  - a remote row with a bundled id replaces that row (text and date fixes);
+ *  - remote questions need a bundled illustration and a known category, or
+ *    they're dropped, so a reseed can't surface pictureless rounds;
+ *  - a remote-only category with no playable questions is dropped.
+ * An empty payload is ignored, so a failed fetch never changes anything.
  */
 export function hydrateContent(
   categories: readonly Category[],
@@ -62,18 +86,30 @@ export function hydrateContent(
   { hasIllustration = (id) => imageForQuestion(id) !== undefined }: HydrateOptions = {},
 ): void {
   if (categories.length === 0 || questions.length === 0) return;
-  const categoryIds = new Set(categories.map((c) => c.id));
-  const playable = questions.filter((q) => categoryIds.has(q.categoryId) && hasIllustration(q.id));
-  if (playable.length === 0) return;
-  const populated = new Set(playable.map((q) => q.categoryId));
-  activeCategories = categories.filter((c) => populated.has(c.id));
-  activeQuestions = playable;
+
+  const categoryById = new Map(seedCategories.map((c) => [c.id, c] as const));
+  for (const c of categories) categoryById.set(c.id, c);
+
+  const questionById = new Map(seedQuestions.map((q) => [q.id, q] as const));
+  for (const q of questions) {
+    if (categoryById.has(q.categoryId) && hasIllustration(q.id)) questionById.set(q.id, q);
+  }
+
+  const mergedQuestions = [...questionById.values()].filter((q) => categoryById.has(q.categoryId));
+  const populated = new Set(mergedQuestions.map((q) => q.categoryId));
+  const bundledIds = new Set(seedCategories.map((c) => c.id));
+  activeCategories = [...categoryById.values()].filter(
+    (c) => bundledIds.has(c.id) || populated.has(c.id),
+  );
+  activeQuestions = mergedQuestions;
+  publishContent();
 }
 
 /** Reset the active content back to the bundled seed (used by tests). */
 export function resetContentToSeed(): void {
   activeCategories = seedCategories;
   activeQuestions = seedQuestions;
+  publishContent();
 }
 
 export function getCategories(): readonly Category[] {
