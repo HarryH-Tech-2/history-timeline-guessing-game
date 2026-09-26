@@ -24,6 +24,8 @@ jest.mock('@/features/progression', () => ({
 }));
 
 // eslint-disable-next-line import/first
+import { weekKey } from '@/utils/date';
+// eslint-disable-next-line import/first
 import { handleForUid } from './types';
 // eslint-disable-next-line import/first
 import { useLeaderboardSync } from './useLeaderboardSync';
@@ -53,6 +55,37 @@ describe('useLeaderboardSync', () => {
     rerender(undefined);
     await waitFor(() => expect(mockPublish).toHaveBeenCalledTimes(1));
     expect(mockPublish).toHaveBeenCalledWith('uid-1', expect.objectContaining({ xp: 20 }));
+  });
+
+  it('publishes this week’s XP and the last Daily score alongside the total', async () => {
+    const week = weekKey();
+    mockState = {
+      ...INITIAL_PROGRESSION,
+      xp: 500,
+      weekly: { key: week, xp: 120 },
+      lastDaily: { date: '2026-09-26', score: 4100 },
+    };
+    renderHook(() => useLeaderboardSync());
+    await waitFor(() => expect(mockPublish).toHaveBeenCalledTimes(1));
+    expect(mockPublish).toHaveBeenCalledWith(
+      'uid-1',
+      expect.objectContaining({
+        weekKey: week,
+        weekXp: 120,
+        dailyDate: '2026-09-26',
+        dailyScore: 4100,
+      }),
+    );
+  });
+
+  it('publishes zero weekly XP when the banked week is stale, and no Daily fields when none played', async () => {
+    mockState = { ...INITIAL_PROGRESSION, xp: 500, weekly: { key: '2000-W01', xp: 999 } };
+    renderHook(() => useLeaderboardSync());
+    await waitFor(() => expect(mockPublish).toHaveBeenCalledTimes(1));
+    const written = mockPublish.mock.calls[0]![1] as Record<string, unknown>;
+    expect(written.weekXp).toBe(0);
+    expect(written).not.toHaveProperty('dailyDate');
+    expect(written).not.toHaveProperty('dailyScore');
   });
 
   it('publishes the chosen name once one is set', async () => {

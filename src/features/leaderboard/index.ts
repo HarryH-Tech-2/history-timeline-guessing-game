@@ -1,6 +1,7 @@
 export { LeaderboardScreen } from './LeaderboardScreen';
 export { useLeaderboardSync } from './useLeaderboardSync';
-export { fetchTop, publishEntry } from './service';
+export { fetchRank, fetchTop, publishEntry } from './service';
+export { BOARDS, BOARD_LABEL, type Board } from './boards';
 export {
   handleForUid,
   MIN_LEADERBOARD_XP,

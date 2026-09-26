@@ -87,7 +87,7 @@ export function useDailySession(): DailySession {
     const rec = buildRecord(today, session.results);
     void daily.write(rec);
     setRecord(rec);
-    recordDailyCompleted();
+    recordDailyCompleted(rec.totalScore);
     track('daily_completed', { total_score: rec.totalScore, exact: rec.perfectCount });
   }, [
     isReady,

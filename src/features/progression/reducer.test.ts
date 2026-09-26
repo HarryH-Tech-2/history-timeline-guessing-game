@@ -1,4 +1,9 @@
-import { INITIAL_PROGRESSION, STREAK_FREEZE_COST, type RoundResult } from '@/domain';
+import {
+  INITIAL_PROGRESSION,
+  STARTING_COINS,
+  STREAK_FREEZE_COST,
+  type RoundResult,
+} from '@/domain';
 
 import {
   applyDailyComplete,
@@ -25,12 +30,29 @@ function roundResult(errorYears: number, total: number): RoundResult {
   };
 }
 
+describe('applyDailyComplete score', () => {
+  it('remembers today’s score for the Today board, and keeps the old one when none is given', () => {
+    const scored = applyDailyComplete(INITIAL_PROGRESSION, TODAY, 4200).state;
+    expect(scored.lastDaily).toEqual({ date: TODAY, score: 4200 });
+    expect(applyDailyComplete(scored, TODAY).state.lastDaily).toEqual({ date: TODAY, score: 4200 });
+  });
+});
+
 describe('applyRound', () => {
+  it('banks XP into the current ISO week and rolls over when the week changes', () => {
+    const monday = applyRound(INITIAL_PROGRESSION, roundResult(0, 1000), 1, '2026-09-21').state;
+    expect(monday.weekly).toEqual({ key: '2026-W39', xp: 150 });
+    const sunday = applyRound(monday, roundResult(0, 1000), 1, '2026-09-27').state;
+    expect(sunday.weekly).toEqual({ key: '2026-W39', xp: 300 });
+    const nextMonday = applyRound(sunday, roundResult(0, 1000), 1, '2026-09-28').state;
+    expect(nextMonday.weekly).toEqual({ key: '2026-W40', xp: 150 });
+  });
+
   it('banks rewards and bumps counters', () => {
     const { state, reward } = applyRound(INITIAL_PROGRESSION, roundResult(0, 1000), 1, TODAY);
     expect(reward).toEqual({ xp: 150, coins: 5 });
     expect(state.xp).toBe(150);
-    expect(state.coins).toBe(5);
+    expect(state.coins).toBe(STARTING_COINS + 5);
     expect(state.stats.rounds).toBe(1);
     expect(state.stats.perfectRounds).toBe(1);
     expect(state.stats.bestStreak).toBe(1);

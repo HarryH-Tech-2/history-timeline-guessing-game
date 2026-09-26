@@ -16,10 +16,21 @@ const question = { id: 'q1', year: 1969 } as Question;
 describe('HintButton', () => {
   afterEach(() => progressionStore.clear());
 
-  it('is disabled when the player cannot afford it', () => {
+  it('is disabled when the player cannot afford it', async () => {
+    // New players start with coins, so the broke case has to be set up explicitly.
+    await progressionStore.write({ ...INITIAL_PROGRESSION, coins: 0 });
+    render(
+      <ProgressionProvider>
+        <HintButton question={question} />
+      </ProgressionProvider>,
+    );
+    const button = await screen.findByTestId('hint-button');
+    await waitFor(() => expect(button.props.accessibilityState?.disabled).toBe(true));
+  });
+
+  it('is enabled straight away for a brand-new player', () => {
     render(<HintButton question={question} />);
-    const button = screen.getByTestId('hint-button');
-    expect(button.props.accessibilityState?.disabled).toBe(true);
+    expect(screen.getByTestId('hint-button').props.accessibilityState?.disabled).toBe(false);
   });
 
   it('spends coins and reveals the century when affordable', async () => {

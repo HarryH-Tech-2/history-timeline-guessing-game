@@ -39,8 +39,8 @@ export interface ProgressionApi {
   awardRound: (result: RoundResult, streak: number) => RoundOutcome;
   /** Record a finished game; returns any newly unlocked achievement ids. */
   completeGame: () => readonly string[];
-  /** Fold a finished Daily into the streak (idempotent per calendar day). */
-  recordDailyCompleted: () => DailyCompleteOutcome;
+  /** Fold a finished Daily into the streak (idempotent per calendar day) and note its score. */
+  recordDailyCompleted: (score?: number) => DailyCompleteOutcome;
   /** Buy one streak freeze with coins; false when broke or at the cap. */
   buyFreeze: () => boolean;
   /** Attempt to spend coins; false if unaffordable. */
@@ -157,8 +157,8 @@ export function ProgressionProvider({ children }: { children: ReactNode }) {
     return unlocked;
   }, [commit]);
 
-  const recordDailyCompleted = useCallback((): DailyCompleteOutcome => {
-    const outcome = applyDailyComplete(ref.current, dateKey());
+  const recordDailyCompleted = useCallback((score?: number): DailyCompleteOutcome => {
+    const outcome = applyDailyComplete(ref.current, dateKey(), score);
     commit(outcome.state);
     return outcome;
   }, [commit]);

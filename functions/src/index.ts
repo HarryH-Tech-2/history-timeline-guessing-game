@@ -17,6 +17,8 @@ import { logger } from 'firebase-functions/v2';
 
 import { decideLink, type LinkAction } from './link';
 
+export { refreshHouseBoards } from './houseBoards';
+
 initializeApp();
 
 /** Web OAuth client the app passes to `requestServerSideAccess`. */

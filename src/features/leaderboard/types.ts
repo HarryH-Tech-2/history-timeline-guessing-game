@@ -14,8 +14,18 @@ export function qualifiesForLeaderboard(xp: number): boolean {
 export const LeaderboardWriteSchema = z.object({
   displayName: z.string().min(1).max(MAX_DISPLAY_NAME),
   xp: z.number().nonnegative(),
+  /**
+   * Level as the writing client computed it. Readers derive level from `xp`
+   * instead, so a build on an older curve can't show a wrong number.
+   */
   level: z.number().int().nonnegative(),
   updatedAt: z.number().nonnegative(),
+  /** "This week" board: XP earned in ISO week `weekKey`. Absent from older builds. */
+  weekKey: z.string().optional(),
+  weekXp: z.number().nonnegative().optional(),
+  /** "Today" board: score of the Daily finished on `dailyDate`. Absent until one is played. */
+  dailyDate: z.string().optional(),
+  dailyScore: z.number().nonnegative().optional(),
 });
 export type LeaderboardWrite = z.infer<typeof LeaderboardWriteSchema>;
 

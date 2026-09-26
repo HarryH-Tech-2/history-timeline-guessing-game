@@ -1,5 +1,6 @@
 import {
   activeStreakCount,
+  addWeeklyXp,
   applyDailyCompletion,
   HEART_REFILL_COST,
   heartsAvailable,
@@ -14,6 +15,7 @@ import {
   type ProgressionState,
   type RoundResult,
 } from '@/domain';
+import { weekKeyForDay } from '@/utils/date';
 
 import { newlyEarnedAchievements } from './achievements';
 
@@ -63,6 +65,7 @@ export function applyRound(
     ...state,
     xp: state.xp + reward.xp,
     coins: state.coins + reward.coins,
+    weekly: addWeeklyXp(state.weekly, weekKeyForDay(todayKey), reward.xp),
     collection,
     stats: {
       ...state.stats,
@@ -101,11 +104,14 @@ export interface DailyCompleteOutcome {
 export function applyDailyComplete(
   state: ProgressionState,
   todayKey: string,
+  /** Today's total score, when known — published to the "Today" leaderboard. */
+  score?: number,
 ): DailyCompleteOutcome {
   const { streak, extended } = applyDailyCompletion(state.streak, todayKey);
   const credited: ProgressionState = {
     ...state,
     streak,
+    lastDaily: score === undefined ? state.lastDaily : { date: todayKey, score },
     stats: {
       ...state.stats,
       bestDailyStreak: Math.max(state.stats.bestDailyStreak, streak.count),

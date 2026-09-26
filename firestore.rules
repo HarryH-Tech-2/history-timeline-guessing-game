@@ -47,15 +47,31 @@ service cloud.firestore {
       // Account deletion removes the row; `request.resource` is null on a
       // delete, so it must not go through the shape checks below.
       allow delete: if isOwner(uid);
+      // Optional board fields (weekly XP, today's Daily) arrived with the 2026-09
+      // builds; older clients still write the four core fields only.
       allow create, update: if isOwner(uid)
-        && request.resource.data.keys().hasOnly(['displayName', 'xp', 'level', 'updatedAt'])
+        && request.resource.data.keys().hasOnly([
+          'displayName', 'xp', 'level', 'updatedAt',
+          'weekKey', 'weekXp', 'dailyDate', 'dailyScore'
+        ])
         && request.resource.data.displayName is string
         && request.resource.data.displayName.size() > 0
         && request.resource.data.displayName.size() <= 24
         && request.resource.data.xp is number
         && request.resource.data.xp >= 0
         && request.resource.data.level is int
-        && request.resource.data.updatedAt is number;
+        && request.resource.data.updatedAt is number
+        && (!('weekKey' in request.resource.data)
+            || (request.resource.data.weekKey is string
+                && request.resource.data.weekKey.size() <= 12))
+        && (!('weekXp' in request.resource.data)
+            || (request.resource.data.weekXp is number && request.resource.data.weekXp >= 0))
+        && (!('dailyDate' in request.resource.data)
+            || (request.resource.data.dailyDate is string
+                && request.resource.data.dailyDate.size() == 10))
+        && (!('dailyScore' in request.resource.data)
+            || (request.resource.data.dailyScore is number
+                && request.resource.data.dailyScore >= 0));
     }
 
     // Play Games player → uid bindings are written only by the Cloud Function

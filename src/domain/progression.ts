@@ -115,6 +115,45 @@ export const ProgressionStatsSchema = z.object({
 });
 export type ProgressionStats = z.infer<typeof ProgressionStatsSchema>;
 
+/** XP earned within one ISO week — the "This week" leaderboard. */
+export const WeeklyXpSchema = z.object({
+  /** `YYYY-Www`; a new week starts the count over. */
+  key: z.string(),
+  xp: z.number().nonnegative(),
+});
+export type WeeklyXp = z.infer<typeof WeeklyXpSchema>;
+export const INITIAL_WEEKLY: WeeklyXp = { key: '', xp: 0 };
+
+/** Bank round XP into the week, rolling over when the week key changes. */
+export function addWeeklyXp(weekly: WeeklyXp, key: string, xp: number): WeeklyXp {
+  return weekly.key === key ? { key, xp: weekly.xp + xp } : { key, xp };
+}
+
+/** The most recent finished Daily — the "Today" leaderboard. */
+export const LastDailySchema = z.object({
+  date: z.string(),
+  score: z.number().nonnegative(),
+});
+export type LastDaily = z.infer<typeof LastDailySchema>;
+
+/** Era-themed rank titles by level band, shown beside names on the leaderboard. */
+const LEVEL_TITLES: readonly [minLevel: number, title: string][] = [
+  [40, 'Legend'],
+  [30, 'Timeless'],
+  [25, 'Sage'],
+  [20, 'Curator'],
+  [16, 'Archivist'],
+  [12, 'Historian'],
+  [8, 'Scholar'],
+  [5, 'Chronicler'],
+  [3, 'Scribe'],
+  [1, 'Apprentice'],
+];
+
+export function titleForLevel(level: number): string {
+  return LEVEL_TITLES.find(([min]) => level >= min)?.[1] ?? 'Apprentice';
+}
+
 /** The whole of a player's persisted progression. Level is derived from `xp`. */
 export const ProgressionStateSchema = z.object({
   xp: z.number().nonnegative(),
@@ -135,16 +174,25 @@ export const ProgressionStateSchema = z.object({
    * show the generated handle. Never a Google/email name — those stay private.
    */
   displayName: z.string().nullable().default(null),
+  /** XP this ISO week; defaulted so older profiles join the weekly board on their next round. */
+  weekly: WeeklyXpSchema.default(INITIAL_WEEKLY),
+  /** Last finished Daily; defaulted so older profiles simply have none yet. */
+  lastDaily: LastDailySchema.nullable().default(null),
 });
 export type ProgressionState = z.infer<typeof ProgressionStateSchema>;
 
+/** Coins a brand-new player starts with: enough for a few hints straight away. */
+export const STARTING_COINS = 50;
+
 export const INITIAL_PROGRESSION: ProgressionState = {
   xp: 0,
-  coins: 0,
+  coins: STARTING_COINS,
   unlocked: [],
   stats: { rounds: 0, perfectRounds: 0, gamesPlayed: 0, bestStreak: 0, bestDailyStreak: 0 },
   streak: INITIAL_STREAK,
   collection: {},
   hearts: INITIAL_HEARTS,
   displayName: null,
+  weekly: INITIAL_WEEKLY,
+  lastDaily: null,
 };

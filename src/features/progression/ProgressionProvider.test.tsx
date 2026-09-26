@@ -2,7 +2,7 @@ import { act, render, screen, waitFor } from '@testing-library/react-native';
 import { useEffect } from 'react';
 import { Text } from 'react-native';
 
-import type { RoundResult } from '@/domain';
+import { STARTING_COINS, type RoundResult } from '@/domain';
 
 import { progressionStore } from './persistence';
 import { ProgressionProvider, useProgression } from './ProgressionProvider';
@@ -42,7 +42,7 @@ describe('ProgressionProvider', () => {
       api.awardRound(perfectRound(), 1);
     });
 
-    await screen.findByText('xp:150 coins:5');
+    await screen.findByText(`xp:150 coins:${STARTING_COINS + 5}`);
     await waitFor(async () => {
       expect((await progressionStore.read()).xp).toBe(150);
     });
@@ -59,7 +59,7 @@ describe('ProgressionProvider', () => {
 
     let ok = true;
     act(() => {
-      ok = api.spend(50);
+      ok = api.spend(STARTING_COINS + 1);
     });
     expect(ok).toBe(false);
 
@@ -70,7 +70,7 @@ describe('ProgressionProvider', () => {
       ok = api.spend(5);
     });
     expect(ok).toBe(true);
-    await screen.findByText('xp:150 coins:0');
+    await screen.findByText(`xp:150 coins:${STARTING_COINS}`);
   });
 });
 

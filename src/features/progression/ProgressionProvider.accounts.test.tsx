@@ -89,22 +89,22 @@ describe('ProgressionProvider across accounts', () => {
     await progressionSaves.forUser('account-2').write({ ...INITIAL_PROGRESSION, xp: 45 });
 
     const view = render(<Tree />);
-    await screen.findByText('xp:300 coins:0');
+    await screen.findByText('xp:300 coins:50');
 
     auth.uid = 'account-2';
     view.rerender(<Tree />);
-    await screen.findByText('xp:45 coins:0');
+    await screen.findByText('xp:45 coins:50');
   });
 
   it('is loading again while the new account is being read', async () => {
     const view = render(<Tree />);
-    await screen.findByText('xp:0 coins:0');
+    await screen.findByText('xp:0 coins:50');
 
     auth.uid = 'account-2';
     view.rerender(<Tree />);
     // Synchronously after the switch the old numbers must be gone.
-    expect(screen.queryByText('xp:0 coins:0')).toBeNull();
-    await screen.findByText('xp:0 coins:0');
+    expect(screen.queryByText('xp:0 coins:50')).toBeNull();
+    await screen.findByText('xp:0 coins:50');
   });
 
   it('drops (and never persists) a mutation that fires mid-hydration after a uid switch', async () => {
@@ -112,7 +112,7 @@ describe('ProgressionProvider across accounts', () => {
 
     let api!: ReturnType<typeof useProgression>;
     const view = render(<ApiTree onApi={(a) => (api = a)} />);
-    await screen.findByText('xp:0 coins:0');
+    await screen.findByText('xp:0 coins:50');
 
     auth.uid = 'account-2';
     view.rerender(<ApiTree onApi={(a) => (api = a)} />);
@@ -123,7 +123,7 @@ describe('ProgressionProvider across accounts', () => {
       api.awardRound(perfectRound(), 1);
     });
 
-    await screen.findByText('xp:45 coins:0');
+    await screen.findByText('xp:45 coins:50');
     expect((await progressionSaves.forUser('account-2').read()).xp).toBe(45);
   });
 
@@ -139,11 +139,11 @@ describe('ProgressionProvider across accounts', () => {
       </SaveProvider>
     );
     const view = render(<Watched />);
-    await screen.findByText('xp:300 coins:0');
+    await screen.findByText('xp:300 coins:50');
 
     auth.uid = 'account-2';
     view.rerender(<Watched />);
-    await screen.findByText('xp:0 coins:0');
+    await screen.findByText('xp:0 coins:50');
 
     // The leaderboard sync publishes `state.xp` under `uid` whenever it sees
     // `isLoading` false — this pairing would bank guest-1's XP as account-2's.
