@@ -45,6 +45,12 @@ export interface AnalyticsEvents {
   hint_used: { question_id: string };
   /** A sign-in or sign-up finished successfully. */
   sign_in_completed: { method: 'google' | 'email' | 'playgames' };
+  /** A first-run onboarding step came on screen (1-based). */
+  onboarding_step_viewed: { step: number };
+  /** Onboarding was skipped, from this step. */
+  onboarding_skipped: { step: number };
+  /** Onboarding finished: where they went, and what they set up. */
+  onboarding_completed: { choice: 'daily' | 'explore'; named: boolean; reminders: boolean };
 }
 
 export type AnalyticsEventName = keyof AnalyticsEvents;

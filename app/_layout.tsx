@@ -7,6 +7,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { useLeaderboardSync } from '@/features/leaderboard';
+import { useOnboardingGate } from '@/features/onboarding';
 import { AnalyticsProvider } from '@/services/analytics';
 import { PremiumProvider } from '@/features/premium';
 import { SaveProvider } from '@/features/save';
@@ -23,6 +24,7 @@ import { ThemeProvider, useTheme } from '@/theme';
 function ThemedNavigator() {
   const { mode, colors } = useTheme();
   useLeaderboardSync();
+  useOnboardingGate();
   return (
     <>
       <StatusBar style={mode === 'dark' ? 'light' : 'dark'} />
@@ -34,6 +36,8 @@ function ThemedNavigator() {
         }}
       >
         <Stack.Screen name="paywall" options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
+        {/* First run only; no swipe-back out of it, the Skip button is the way out. */}
+        <Stack.Screen name="onboarding" options={{ gestureEnabled: false, animation: 'fade' }} />
       </Stack>
     </>
   );
