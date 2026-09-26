@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, Text, View } from 'react-native';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 
@@ -31,6 +31,9 @@ import { dateKey } from '@/utils/date';
 
 import { PlayerNameSheet } from './components/PlayerNameSheet';
 import { useProgression } from './ProgressionProvider';
+
+/** The developer's photo, shared with the paywall's founder note. */
+const FOUNDER_PHOTO = require('../../../assets/founder.webp');
 
 function SectionTitle({ children }: { children: string }) {
   return (
@@ -118,9 +121,16 @@ function RateUsCard() {
       testID="rate-us"
       className="mt-2 flex-row items-center gap-4 border border-accent bg-accent/10 p-4"
     >
-      <Text className="text-3xl" style={{ includeFontPadding: false }}>
-        ⭐
-      </Text>
+      {/* The ask comes from a person, so the person's face fronts it. */}
+      <Image
+        source={FOUNDER_PHOTO}
+        accessibilityIgnoresInvertColors
+        accessible
+        accessibilityLabel="Photo of Harry, the developer"
+        style={{ width: 48, height: 48, borderRadius: 24 }}
+        className="border border-hair"
+        testID="rate-us-photo"
+      />
       <View className="flex-1">
         <Text className="text-base font-bold text-ink-primary">
           Enjoying the game? A quick review really helps me out 🙏
