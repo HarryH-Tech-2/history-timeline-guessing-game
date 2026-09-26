@@ -13,6 +13,7 @@ import { dateKey } from '@/utils/date';
 import { OutOfHeartsSheet, useHearts } from '@/features/hearts';
 
 import { ModeHud } from '../components/ModeHud';
+import { HintButton } from '../hints/HintButton';
 import { roundDetail, RunSummary, type SummaryRow } from '../components/RunSummary';
 import type { DailyRecord } from '../persistence';
 import { dailyShareData } from './shareCard';
@@ -89,6 +90,7 @@ export function DailyScreen() {
           reward={reward}
           unlockedTitles={unlockedTitles}
           acquired={acquired}
+          actions={<HintButton question={session.question} />}
           hud={
             <ModeHud
               progress={{

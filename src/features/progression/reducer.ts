@@ -10,6 +10,7 @@ import {
   MAX_STREAK_FREEZES,
   refillHearts,
   rewardForRound,
+  STARTING_COINS,
   STREAK_FREEZE_COST,
   streakMultiplier,
   type ProgressionState,
@@ -76,6 +77,19 @@ export function applyRound(
   };
   const { state: next, unlocked } = withUnlocks(credited);
   return { state: next, reward, unlocked, acquired };
+}
+
+/**
+ * Apply any one-off grants an older profile has not yet received. Idempotent:
+ * a profile that already holds a grant is returned unchanged (same reference).
+ */
+export function applyGrants(state: ProgressionState): ProgressionState {
+  if (state.grants.startingCoins) return state;
+  return {
+    ...state,
+    coins: state.coins + STARTING_COINS,
+    grants: { ...state.grants, startingCoins: true },
+  };
 }
 
 /** Mark a finished game, unlocking any play-count achievements. */

@@ -22,6 +22,7 @@ import { syncPlayGamesAchievements } from './playGamesSync';
 import {
   applyDailyComplete,
   applyGameComplete,
+  applyGrants,
   applyHeartLoss,
   applyRound,
   buyHeartRefill,
@@ -108,10 +109,13 @@ export function ProgressionProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
     void store.read().then((loaded) => {
       if (cancelled) return;
-      ref.current = loaded;
-      setState(loaded);
+      // Older saves collect any one-off grants (e.g. starting coins) as they load.
+      const current = applyGrants(loaded);
+      ref.current = current;
+      setState(current);
       setLoadedUid(uid);
       loadingRef.current = false;
+      if (current !== loaded) void store.write(current);
     });
     return () => {
       cancelled = true;

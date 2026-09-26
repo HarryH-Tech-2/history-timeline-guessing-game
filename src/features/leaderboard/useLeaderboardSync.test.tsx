@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react-native';
+import { act, renderHook, waitFor } from '@testing-library/react-native';
 
 import { INITIAL_PROGRESSION, type ProgressionState } from '@/domain';
 
@@ -28,7 +28,7 @@ import { weekKey } from '@/utils/date';
 // eslint-disable-next-line import/first
 import { handleForUid } from './types';
 // eslint-disable-next-line import/first
-import { useLeaderboardSync } from './useLeaderboardSync';
+import { PUBLISH_DEBOUNCE_MS, useLeaderboardSync } from './useLeaderboardSync';
 
 describe('useLeaderboardSync', () => {
   beforeEach(() => {
@@ -86,6 +86,29 @@ describe('useLeaderboardSync', () => {
     expect(written.weekXp).toBe(0);
     expect(written).not.toHaveProperty('dailyDate');
     expect(written).not.toHaveProperty('dailyScore');
+  });
+
+  it('collapses rapid XP changes into one trailing write', async () => {
+    jest.useFakeTimers();
+    try {
+      mockState = { ...INITIAL_PROGRESSION, xp: 100 };
+      const { rerender } = renderHook(() => useLeaderboardSync());
+      expect(mockPublish).toHaveBeenCalledTimes(1); // first change goes out at once
+
+      mockState = { ...INITIAL_PROGRESSION, xp: 150 };
+      rerender(undefined);
+      mockState = { ...INITIAL_PROGRESSION, xp: 200 };
+      rerender(undefined);
+      expect(mockPublish).toHaveBeenCalledTimes(1); // held
+
+      act(() => {
+        jest.advanceTimersByTime(PUBLISH_DEBOUNCE_MS + 10);
+      });
+      expect(mockPublish).toHaveBeenCalledTimes(2);
+      expect(mockPublish).toHaveBeenLastCalledWith('uid-1', expect.objectContaining({ xp: 200 }));
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   it('publishes the chosen name once one is set', async () => {

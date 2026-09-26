@@ -21,5 +21,5 @@ export {
   type ProgressionApi,
 } from './ProgressionProvider';
 export { ProfileHeader } from './components/ProfileHeader';
-export { AchievementsScreen } from './AchievementsScreen';
+export { AchievementsList } from './components/AchievementsList';
 export { ProfileScreen } from './ProfileScreen';

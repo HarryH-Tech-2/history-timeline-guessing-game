@@ -8,6 +8,7 @@ import {
 import {
   applyDailyComplete,
   applyGameComplete,
+  applyGrants,
   applyRound,
   buyStreakFreeze,
   spendCoins,
@@ -29,6 +30,17 @@ function roundResult(errorYears: number, total: number): RoundResult {
     isPerfect: errorYears === 0,
   };
 }
+
+describe('applyGrants', () => {
+  it('gives an older profile the starting coins once, and leaves new profiles alone', () => {
+    const legacy = { ...INITIAL_PROGRESSION, coins: 7, grants: { startingCoins: false } };
+    const granted = applyGrants(legacy);
+    expect(granted.coins).toBe(7 + STARTING_COINS);
+    expect(granted.grants.startingCoins).toBe(true);
+    expect(applyGrants(granted)).toBe(granted);
+    expect(applyGrants(INITIAL_PROGRESSION)).toBe(INITIAL_PROGRESSION);
+  });
+});
 
 describe('applyDailyComplete score', () => {
   it('remembers today’s score for the Today board, and keeps the old one when none is given', () => {

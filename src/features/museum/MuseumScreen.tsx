@@ -1,21 +1,23 @@
 import { memo, useCallback, useMemo, useState } from 'react';
+import { useLocalSearchParams } from 'expo-router';
 import {
   Image,
+  type ImageSourcePropType,
+  type LayoutChangeEvent,
   Pressable,
+  ScrollView,
   SectionList,
+  type SectionListData,
+  type SectionListRenderItemInfo,
   Text,
   View,
   useWindowDimensions,
-  type ImageSourcePropType,
-  type LayoutChangeEvent,
-  type SectionListData,
-  type SectionListRenderItemInfo,
 } from 'react-native';
 
 import { ImageLightbox, Screen } from '@/components/ui';
 import { getCategories, getQuestionsByCategory, imageForQuestion } from '@/data';
 import { MASTERY_BADGES, masteryTier, type Category, type Question } from '@/domain';
-import { useProgression } from '@/features/progression';
+import { AchievementsList, useProgression } from '@/features/progression';
 import { formatYear } from '@/features/timeline/math';
 
 /** Artefact grid: fixed column count with a fixed gutter, sized from the
@@ -191,8 +193,53 @@ function WingHeader({ section }: { section: WingSection }) {
  * by naming its exact year. Wings map to categories;
  * filling a wing earns its mastery badge.
  */
+type MuseumTab = 'artefacts' | 'achievements';
+
+/** Artefacts · Achievements, underlined on the active one. */
+function MuseumTabs({ tab, onChange }: { tab: MuseumTab; onChange: (t: MuseumTab) => void }) {
+  const tabs: readonly [MuseumTab, string][] = [
+    ['artefacts', 'Artefacts'],
+    ['achievements', 'Achievements'],
+  ];
+  return (
+    <View className="mt-3 flex-row border-b border-hair" accessibilityRole="tablist">
+      {tabs.map(([id, label]) => {
+        const active = id === tab;
+        return (
+          <Pressable
+            key={id}
+            onPress={() => onChange(id)}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: active }}
+            testID={`museum-tab-${id}`}
+            className={`flex-1 items-center border-b-2 pb-2 pt-1 ${
+              active ? 'border-accent' : 'border-transparent'
+            }`}
+          >
+            <Text className={`text-sm font-bold ${active ? 'text-accent' : 'text-ink-muted'}`}>
+              {label}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
+/** The Museum: your artefact collection on one tab, your achievements on the other. */
 export function MuseumScreen() {
   const { state } = useProgression();
+  // The route param (Profile header → achievements) picks the tab; a tap on
+  // the tabs overrides it until the param next changes. Derived, not synced,
+  // so a fresh deep link always wins without an effect.
+  const params = useLocalSearchParams<{ tab?: string }>();
+  const paramTab: MuseumTab = params.tab === 'achievements' ? 'achievements' : 'artefacts';
+  const [selection, setSelection] = useState<{ from: MuseumTab; tab: MuseumTab }>({
+    from: paramTab,
+    tab: paramTab,
+  });
+  const tab = selection.from === paramTab ? selection.tab : paramTab;
+  const setTab = (next: MuseumTab) => setSelection({ from: paramTab, tab: next });
   const { width: windowWidth } = useWindowDimensions();
   // Shelf width is measured from the content column; until the first layout
   // lands, fall back to the window width minus the horizontal padding.
@@ -252,6 +299,38 @@ export function MuseumScreen() {
     [],
   );
 
+  const title = (
+    <View onLayout={onShelfLayout} style={{ paddingBottom: WING_GAP }}>
+      <Text className="text-3xl font-extrabold text-ink-primary">Museum</Text>
+      {tab === 'artefacts' ? (
+        <>
+          <Text className="text-base text-ink-secondary">
+            Guess close to the real year to add an artefact to your collection.
+          </Text>
+          <Text className="mt-1 text-sm font-semibold text-accent">
+            {acquired} of {total} artefacts collected
+          </Text>
+        </>
+      ) : (
+        <Text className="text-base text-ink-secondary">
+          Milestones you have reached, and how close the next ones are.
+        </Text>
+      )}
+      <MuseumTabs tab={tab} onChange={setTab} />
+    </View>
+  );
+
+  if (tab === 'achievements') {
+    return (
+      <Screen>
+        <ScrollView contentContainerClassName="px-5 pt-6 pb-10" showsVerticalScrollIndicator={false}>
+          {title}
+          <AchievementsList />
+        </ScrollView>
+      </Screen>
+    );
+  }
+
   return (
     <Screen>
       <SectionList
@@ -260,17 +339,7 @@ export function MuseumScreen() {
         renderItem={renderShelf}
         renderSectionHeader={renderHeader}
         renderSectionFooter={() => <View style={{ height: WING_GAP - ROW_GAP }} />}
-        ListHeaderComponent={
-          <View onLayout={onShelfLayout} style={{ paddingBottom: WING_GAP }}>
-            <Text className="text-3xl font-extrabold text-ink-primary">Museum</Text>
-            <Text className="text-base text-ink-secondary">
-              Guess close to the real year to add an artefact to your collection.
-            </Text>
-            <Text className="mt-1 text-sm font-semibold text-accent">
-              {acquired} of {total} artefacts collected
-            </Text>
-          </View>
-        }
+        ListHeaderComponent={title}
         contentContainerClassName="px-5 pt-6 pb-10"
         showsVerticalScrollIndicator={false}
         stickySectionHeadersEnabled={false}

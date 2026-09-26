@@ -154,6 +154,16 @@ export function titleForLevel(level: number): string {
   return LEVEL_TITLES.find(([min]) => level >= min)?.[1] ?? 'Apprentice';
 }
 
+/**
+ * One-off grants a profile has received. New profiles are born with every
+ * grant already applied; profiles saved by older builds default to `false`
+ * and receive the grant on their next load, so nobody is left behind.
+ */
+export const GrantsSchema = z.object({
+  startingCoins: z.boolean().default(false),
+});
+export type Grants = z.infer<typeof GrantsSchema>;
+
 /** The whole of a player's persisted progression. Level is derived from `xp`. */
 export const ProgressionStateSchema = z.object({
   xp: z.number().nonnegative(),
@@ -178,6 +188,7 @@ export const ProgressionStateSchema = z.object({
   weekly: WeeklyXpSchema.default(INITIAL_WEEKLY),
   /** Last finished Daily; defaulted so older profiles simply have none yet. */
   lastDaily: LastDailySchema.nullable().default(null),
+  grants: GrantsSchema.default({ startingCoins: false }),
 });
 export type ProgressionState = z.infer<typeof ProgressionStateSchema>;
 
@@ -195,4 +206,6 @@ export const INITIAL_PROGRESSION: ProgressionState = {
   displayName: null,
   weekly: INITIAL_WEEKLY,
   lastDaily: null,
+  // Born with the starting coins already in `coins`, so the grant is marked done.
+  grants: { startingCoins: true },
 };

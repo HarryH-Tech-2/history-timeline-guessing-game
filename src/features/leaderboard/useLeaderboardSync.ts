@@ -20,12 +20,34 @@ import { qualifiesForLeaderboard } from './types';
  * The published name is the player's chosen name or their generated handle —
  * never the Google/email name on the account.
  */
+/**
+ * Every answered question changes XP, and a quick player answers several a
+ * minute. The first change publishes at once (so a new name or a first score
+ * shows up immediately); further changes within this window collapse into one
+ * trailing write, sparing the JS thread a Firestore round-trip per guess.
+ */
+export const PUBLISH_DEBOUNCE_MS = 2500;
+
 export function useLeaderboardSync(): void {
   const { uid, isSignedIn } = useAuth();
   const { state, isLoading } = useProgression();
   const lastPublished = useRef<string | null>(null);
+  const lastPublishedAt = useRef(0);
+  const pending = useRef<{ timer: ReturnType<typeof setTimeout>; run: () => void } | null>(null);
 
   const displayName = resolveDisplayName(state.displayName, uid);
+
+  // Flush a held write if the hook unmounts (sign-out, app root re-mount).
+  useEffect(
+    () => () => {
+      if (pending.current) {
+        clearTimeout(pending.current.timer);
+        pending.current.run();
+        pending.current = null;
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
     if (!isFirebaseConfigured || !isSignedIn || uid === null || isLoading) return;
@@ -38,15 +60,32 @@ export function useLeaderboardSync(): void {
     const key = `${uid}:${state.xp}:${displayName}:${week}:${weekXp}:${daily?.date}:${daily?.score}`;
     if (key === lastPublished.current) return;
     lastPublished.current = key;
-    void publishEntry(uid, {
-      displayName,
-      xp: state.xp,
-      level: levelForXp(state.xp),
-      updatedAt: Date.now(),
-      weekKey: week,
-      weekXp,
-      // Firestore rejects `undefined`, so the Daily fields only appear once one exists.
-      ...(daily ? { dailyDate: daily.date, dailyScore: daily.score } : {}),
-    });
+
+    const run = () => {
+      lastPublishedAt.current = Date.now();
+      void publishEntry(uid, {
+        displayName,
+        xp: state.xp,
+        level: levelForXp(state.xp),
+        updatedAt: Date.now(),
+        weekKey: week,
+        weekXp,
+        // Firestore rejects `undefined`, so the Daily fields only appear once one exists.
+        ...(daily ? { dailyDate: daily.date, dailyScore: daily.score } : {}),
+      });
+    };
+
+    if (pending.current) clearTimeout(pending.current.timer);
+    const sinceLast = Date.now() - lastPublishedAt.current;
+    if (sinceLast >= PUBLISH_DEBOUNCE_MS) {
+      pending.current = null;
+      run();
+      return;
+    }
+    const timer = setTimeout(() => {
+      pending.current = null;
+      run();
+    }, PUBLISH_DEBOUNCE_MS - sinceLast);
+    pending.current = { timer, run };
   }, [uid, isSignedIn, isLoading, state.xp, state.weekly, state.lastDaily, displayName]);
 }

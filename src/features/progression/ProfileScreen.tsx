@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
-import Animated, { FadeInUp } from 'react-native-reanimated';
 
 import { Button, Screen } from '@/components/ui';
 import { getCategories, getQuestionsByCategory } from '@/data';
@@ -28,7 +27,6 @@ import { useTheme } from '@/theme';
 import { palette } from '@/theme/tokens';
 import { dateKey } from '@/utils/date';
 
-import { ACHIEVEMENTS, type Achievement } from './achievements';
 import { PlayerNameSheet } from './components/PlayerNameSheet';
 import { useProgression } from './ProgressionProvider';
 
@@ -171,37 +169,6 @@ function MasteryGrid({ collection }: { collection: Readonly<Record<string, numbe
   );
 }
 
-function AchievementRow({
-  achievement,
-  earned,
-  index,
-}: {
-  achievement: Achievement;
-  earned: boolean;
-  index: number;
-}) {
-  return (
-    <Animated.View entering={FadeInUp.delay(index * 30).springify().damping(18)}>
-      <View
-        testID={`achievement-${achievement.id}`}
-        className="flex-row items-center gap-4 border border-hair bg-bg-raised p-4"
-        style={{ opacity: earned ? 1 : 0.45 }}
-      >
-        <Text className="text-3xl">{earned ? achievement.icon : '🔒'}</Text>
-        <View className="flex-1">
-          <Text className="text-base font-bold text-ink-primary">{achievement.title}</Text>
-          <Text className="text-sm text-ink-secondary">{achievement.description}</Text>
-        </View>
-        {earned && (
-          <Text className="text-sm font-bold" style={{ color: palette.success }}>
-            ✓
-          </Text>
-        )}
-      </View>
-    </Animated.View>
-  );
-}
-
 /**
  * The player's profile: identity, level progress, lifetime stats, the
  * achievements gallery, and app settings (theme, version, account status).
@@ -236,8 +203,6 @@ export function ProfileScreen() {
     : hasAccount
       ? 'Signed in · progress synced'
       : 'Progress saved on this device';
-  const unlocked = new Set(state.unlocked);
-  const earnedCount = ACHIEVEMENTS.filter((a) => unlocked.has(a.id)).length;
   const version = Constants.expoConfig?.version ?? '1.0.0';
 
   return (
@@ -410,19 +375,6 @@ export function ProfileScreen() {
             value={Object.keys(state.collection).length.toLocaleString()}
           />
         </View>
-
-        <SectionTitle>Achievements</SectionTitle>
-        <Text className="-mt-2 text-sm text-ink-secondary">
-          {earnedCount} of {ACHIEVEMENTS.length} earned
-        </Text>
-        {ACHIEVEMENTS.map((achievement, index) => (
-          <AchievementRow
-            key={achievement.id}
-            achievement={achievement}
-            earned={unlocked.has(achievement.id)}
-            index={index}
-          />
-        ))}
 
         <SectionTitle>Settings</SectionTitle>
         <Pressable

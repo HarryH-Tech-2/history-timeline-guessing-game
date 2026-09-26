@@ -31,7 +31,7 @@ export function ProfileHeader() {
       accessibilityRole="button"
       accessibilityLabel="View achievements"
       testID="profile-header"
-      onPress={() => router.push('/achievements')}
+      onPress={() => router.push({ pathname: '/(tabs)/museum', params: { tab: 'achievements' } })}
       className="flex-row items-center gap-4 border border-hair bg-bg-raised p-4"
     >
       <View

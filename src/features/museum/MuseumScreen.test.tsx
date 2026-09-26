@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react-native';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 
 import { INITIAL_PROGRESSION } from '@/domain';
 import { ProgressionProvider, progressionStore } from '@/features/progression';
@@ -7,10 +7,21 @@ import { MuseumScreen } from './MuseumScreen';
 
 jest.mock('expo-router', () => ({
   useRouter: () => ({ push: jest.fn(), back: jest.fn(), canGoBack: () => false }),
+  useLocalSearchParams: () => ({}),
 }));
+jest.mock('@/services/playGames', () => ({ showPlayGamesAchievements: jest.fn(async () => true) }));
 
 describe('MuseumScreen', () => {
   afterEach(() => progressionStore.clear());
+
+  it('switches to the Achievements tab in place', () => {
+    render(<MuseumScreen />);
+    expect(screen.queryByTestId('achievements-list')).toBeNull();
+    fireEvent.press(screen.getByTestId('museum-tab-achievements'));
+    expect(screen.getByTestId('achievements-list')).toBeOnTheScreen();
+    fireEvent.press(screen.getByTestId('museum-tab-artefacts'));
+    expect(screen.queryByTestId('achievements-list')).toBeNull();
+  });
 
   it('shows the event year under acquired artefacts and hides it on undiscovered ones', async () => {
     await progressionStore.write({
