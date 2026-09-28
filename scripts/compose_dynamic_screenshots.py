@@ -54,6 +54,28 @@ SLIDES = [
          art=None, owl=None, callout=None, tilt=-9, scale=760),
 ]
 
+# The 1.2.0 listing set (captured from build 0ce960ed on the HarryH account).
+# Pass "1.2" as the third argument to build it; SLIDES above is the September
+# experiment set, which compose_ads_creative.py still draws from.
+SLIDES_1_2 = [
+    dict(name="01-guess", cap="quiz", head="Guess the year", sub="Slide the timeline. No multiple choice.",
+         art=None, owl=None,
+         callout=dict(auto="readout", width=360, pos=(860, 1560), angle=7), tilt=-9, scale=740),
+    dict(name="02-reveal", cap="reveal", head="Nail the exact year", sub="Up to 1,000 points a question.",
+         art=None, owl="right", callout=dict(box=(690, 1340, 1010, 1550), width=380, pos=(300, 1250), angle=-6),
+         tilt=8, scale=740),
+    dict(name="03-achievements", cap="achievements", head="Earn every badge", sub="28 achievements to unlock.",
+         art=None, owl="left", callout=None, tilt=-8, scale=740),
+    dict(name="04-modes", cap="home", head="Four ways to play", sub="Daily, Survival, Campaign and Endless.",
+         art=None, owl=None, callout=None, tilt=9, scale=760),
+    dict(name="05-leaderboard", cap="leaderboard", head="Top the leaderboard", sub="Today, this week and all time.",
+         art=None, owl=None, callout=None, tilt=-8, scale=760),
+    dict(name="06-museum", cap="museum", head="Build your museum", sub="Guess close and keep the artefact.",
+         art="evt-moon-landing.webp", art_pos=(640, 500, 420), owl=None, callout=None, tilt=8, scale=740),
+    dict(name="07-dark", cap="home_dark", head="Easy on the eyes", sub="Warm copper in light and dark.",
+         art=None, owl=None, callout=None, tilt=-9, scale=760),
+]
+
 
 # ----------------------------------------------------------------- helpers --
 def gradient(size, stops):
@@ -294,7 +316,8 @@ def build(slide):
 if __name__ == "__main__":
     CAPS, OUT = Path(sys.argv[1]), Path(sys.argv[2])
     OUT.mkdir(parents=True, exist_ok=True)
-    made = [b for b in (build(s) for s in SLIDES) if b is not None]
+    slides = SLIDES_1_2 if sys.argv[3:4] == ["1.2"] else SLIDES
+    made = [b for b in (build(s) for s in slides) if b is not None]
     if made:
         sheet = Image.new("RGB", (280 * len(made), 500), (240, 236, 228))
         for i, im in enumerate(made):

@@ -37,3 +37,4 @@ functions/lib/
 # Scratch renders and Python caches
 promo/tmp2/
 __pycache__/
+regional-prices-preview.csv
