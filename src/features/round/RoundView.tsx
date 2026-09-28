@@ -28,12 +28,6 @@ interface RoundViewProps {
   hud?: ReactNode;
   /** Label for the advance button on the reveal sheet. */
   nextLabel?: string;
-  /** XP/coins banked for the revealed round, surfaced on the reveal sheet. */
-  reward?: { xp: number; coins: number } | null;
-  /** Achievements unlocked this session, surfaced on the reveal sheet. */
-  unlockedTitles?: readonly string[];
-  /** True when the revealed round just added its artefact to the museum. */
-  acquired?: boolean;
   /** Optional control rendered next to the submit button (e.g. a hint). */
   actions?: ReactNode;
   /** Optional line shown just above the reveal sheet once revealed. */
@@ -53,9 +47,6 @@ export function RoundView({
   onNext,
   hud,
   nextLabel,
-  reward,
-  unlockedTitles,
-  acquired,
   actions,
   notice,
 }: RoundViewProps) {
@@ -109,25 +100,54 @@ export function RoundView({
     onSubmit(guessYear);
   }, [controller, question.year, onSubmit, playSound]);
 
+  // Next can take this whole view out of the tree (the last question hands
+  // over to the run summary), often while the reveal zoom is still running
+  // from a quick tap. So the timeline is stopped first, and the hand-off waits
+  // a frame for it; a second tap in that window is ignored.
+  const nextPending = useRef(false);
+  const { halt } = controller;
+  const handleNext = useCallback(() => {
+    if (nextPending.current) return;
+    nextPending.current = true;
+    halt(() => {
+      nextPending.current = false;
+      onNext();
+    });
+  }, [halt, onNext]);
+
   // The reveal swaps the timeline for the illustration: the sheet already
   // states the year and the distance, and the picture is the payoff. The
   // timeline only stays if the question has no illustration.
   const image = imageForQuestion(question.id);
   const showImage = revealed && image !== undefined;
 
-  const timeline = (
-    <View className="flex-1 justify-center py-2">
-      <TimelineTrack
-        controller={controller}
-        revealYear={revealed ? question.year : undefined}
-        revealColour={colour}
-        guessYear={revealed && result ? result.guessYear : undefined}
-        anchorYear={anchorYear}
-      />
+  // Behind the illustration the timeline is hidden, never unmounted, and kept
+  // in its guessing state. Taking its ~200 animated ticks out of the tree
+  // while the reveal re-frame is still running leaves Reanimated pushing
+  // updates at views that no longer exist; each one throws on the main
+  // thread, and a run of quick answers piled up enough to stall the app.
+  // Laid out absolutely at the stage's width so the track never re-measures.
+  const showMarkers = revealed && !showImage;
+  const stage = (
+    <View className="flex-1">
+      <View
+        className={showImage ? 'absolute left-0 right-0 top-0 py-2' : 'flex-1 justify-center py-2'}
+        style={showImage ? { opacity: 0 } : undefined}
+        pointerEvents={showImage ? 'none' : 'auto'}
+        accessibilityElementsHidden={showImage}
+        importantForAccessibility={showImage ? 'no-hide-descendants' : 'auto'}
+      >
+        <TimelineTrack
+          controller={controller}
+          revealYear={showMarkers ? question.year : undefined}
+          revealColour={colour}
+          guessYear={showMarkers && result ? result.guessYear : undefined}
+          anchorYear={anchorYear}
+        />
+      </View>
+      {showImage && <RevealImage source={image} title={question.title} />}
     </View>
   );
-
-  const stage = showImage ? <RevealImage source={image} title={question.title} /> : timeline;
 
   const revealSheet = revealed && result && (
     <>
@@ -135,17 +155,22 @@ export function RoundView({
       <RevealSheet
         result={result}
         categoryColour={colour}
-        onNext={onNext}
+        onNext={handleNext}
         nextLabel={nextLabel}
-        reward={reward}
-        unlockedTitles={unlockedTitles}
-        acquired={acquired}
       />
     </>
   );
 
-  const submitFooter = !revealed && (
-    <View className="gap-3 px-5 pb-5 pt-2">
+  // Hidden rather than unmounted once revealed, for the same reason as the
+  // timeline: the button is still easing back from the press that submitted.
+  const submitFooter = (
+    <View
+      className={revealed ? 'absolute bottom-0 left-0 right-0 gap-3 px-5 pb-5 pt-2' : 'gap-3 px-5 pb-5 pt-2'}
+      style={revealed ? { opacity: 0 } : undefined}
+      pointerEvents={revealed ? 'none' : 'auto'}
+      accessibilityElementsHidden={revealed}
+      importantForAccessibility={revealed ? 'no-hide-descendants' : 'auto'}
+    >
       {actions}
       <Button label="Submit guess" onPress={handleSubmit} testID="submit-button" />
     </View>

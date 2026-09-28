@@ -79,6 +79,14 @@ export interface TimelineController {
   refocus: (year: number) => void;
   /** Nudge the crosshair year by a whole-year delta (the +/- fine controls). */
   stepYear: (delta: number) => void;
+  /**
+   * Stop any re-frame in flight, then call `then` on the JS thread a frame
+   * later, once the UI thread has pushed its last update. For anything that is
+   * about to take the timeline out of the tree: unmounting ~200 ticks while a
+   * reveal zoom is still animating them leaves Reanimated pushing props at
+   * views that no longer exist, every event, for the rest of the session.
+   */
+  halt: (then: () => void) => void;
   /** Whether the timeline has been laid out and initialised. */
   ready: SharedValue<boolean>;
 }
@@ -311,6 +319,20 @@ export function useTimelineTransform(options: Options = {}): TimelineController 
     [readGuessYear, scale, translateX],
   );
 
+  const halt = useCallback(
+    (then: () => void) => {
+      runOnUI(() => {
+        'worklet';
+        cancelAnimation(translateX);
+        cancelAnimation(scale);
+        requestAnimationFrame(() => {
+          runOnJS(then)();
+        });
+      })();
+    },
+    [scale, translateX],
+  );
+
   return {
     translateX,
     scale,
@@ -324,6 +346,7 @@ export function useTimelineTransform(options: Options = {}): TimelineController 
     reveal,
     refocus,
     stepYear,
+    halt,
     ready,
   };
 }

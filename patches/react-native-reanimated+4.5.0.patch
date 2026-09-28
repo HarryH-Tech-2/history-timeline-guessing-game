@@ -1,0 +1,43 @@
+diff --git a/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/NativeProxy.kt b/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/NativeProxy.kt
+index 48e3771..29a5a7c 100644
+--- a/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/NativeProxy.kt
++++ b/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/NativeProxy.kt
+@@ -245,6 +245,15 @@ open class NativeProxy {
+             }.apply { isAccessible = true }
+     }
+ 
++    // Patched (patches/react-native-reanimated+4.5.0.patch): the updates
++    // registry can keep entries for views that were unmounted mid-animation,
++    // and every event re-pushes the whole registry, so each dead view threw
++    // and logged a stack trace on the main thread for the rest of the session.
++    // A view still failing a second after its first failure is treated as gone
++    // and skipped. Tags are never reused within a session.
++    private val firstFailureAt = HashMap<Int, Long>()
++    private val deadViewTags = HashSet<Int>()
++
+     @DoNotStrip
+     fun synchronouslyUpdateUIProps(
+         intBuffer: IntArray,
+@@ -252,10 +261,21 @@ open class NativeProxy {
+     ) {
+         SynchronousPropsBufferParser.parse(intBuffer, doubleBuffer) { viewTag, props ->
+             if (BuildConfig.IS_REACT_NATIVE_86_OR_NEWER) {
++                if (viewTag in deadViewTags) return@parse
+                 try {
+                     updatePropsSynchronouslyMethod.invoke(mountingManager, viewTag, props)
++                    if (firstFailureAt.isNotEmpty()) firstFailureAt.remove(viewTag)
+                 } catch (e: Exception) {
+-                    Log.w("Reanimated", "synchronouslyUpdateUIProps failed for tag $viewTag", e)
++                    val now = SystemClock.uptimeMillis()
++                    val since = firstFailureAt[viewTag]
++                    if (since == null) {
++                        firstFailureAt[viewTag] = now
++                        Log.w("Reanimated", "synchronouslyUpdateUIProps failed for tag $viewTag", e)
++                    } else if (now - since > 1000) {
++                        firstFailureAt.remove(viewTag)
++                        deadViewTags.add(viewTag)
++                        Log.w("Reanimated", "synchronouslyUpdateUIProps gave up on dead tag $viewTag")
++                    }
+                 }
+             } else {
+                 mFabricUIManager.synchronouslyUpdateViewOnUIThread(viewTag, props)

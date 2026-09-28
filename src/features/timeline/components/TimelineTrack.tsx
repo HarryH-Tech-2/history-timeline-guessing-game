@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
@@ -125,9 +125,34 @@ function useVisibleDecadeTicks(
   );
 
   const anchorBlock = anchorYear === undefined ? null : decadeBlockOf(anchorYear);
+
+  // The anchor moves on submit, in the same breath as the reveal starts
+  // zooming. Dropping the old anchor's ticks there takes ~50 animated views
+  // out of the tree with updates still in flight, and Reanimated goes on
+  // pushing props at them for the rest of the session. So an outgoing anchor
+  // is held until the view next comes to rest, and let go at a standstill.
+  const [held, setHeld] = useState<readonly number[]>([]);
+  if (anchorBlock !== null && !held.includes(anchorBlock)) setHeld([...held, anchorBlock]);
+  const anchorRef = useRef(anchorBlock);
+  useEffect(() => {
+    anchorRef.current = anchorBlock;
+  }, [anchorBlock]);
+  const release = useCallback(() => {
+    setHeld((prev) => {
+      const next = prev.filter((b) => b === anchorRef.current);
+      return next.length === prev.length ? prev : next;
+    });
+  }, []);
+  useAnimatedReaction(
+    () => atRest.value,
+    (rest, wasAtRest) => {
+      if (rest && wasAtRest === false) runOnJS(release)();
+    },
+  );
+
   return useMemo(() => {
     const blocks = new Set<number>();
-    for (const centre of [block, anchorBlock]) {
+    for (const centre of [block, anchorBlock, ...held]) {
       if (centre === null) continue;
       for (let b = centre - BLOCK_REACH; b <= centre + BLOCK_REACH; b += 1) blocks.add(b);
     }
@@ -137,7 +162,7 @@ function useVisibleDecadeTicks(
       if (list) ticks.push(...list);
     }
     return ticks;
-  }, [block, anchorBlock]);
+  }, [block, anchorBlock, held]);
 }
 
 /**

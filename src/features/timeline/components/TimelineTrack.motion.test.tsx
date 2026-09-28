@@ -154,6 +154,27 @@ describe('timeline stays React-quiet while it is moving', () => {
     expect(screen.queryByTestId('timeline-decade-130')).not.toBeNull();
   });
 
+  it('holds an outgoing anchor block until the view comes to rest', () => {
+    const view = render(<Harness onController={captureController} anchorYear={121} />);
+    layOut();
+    rest();
+    expect(screen.queryByTestId('timeline-decade-130')).not.toBeNull();
+
+    // Submit: the anchor jumps to the new answer while the reveal is zooming.
+    act(() => {
+      controller!.scale.value = controller!.scale.value * 0.9;
+    });
+    // (1776 is far enough away that its neighbouring blocks don't cover AD 130.)
+    view.rerender(<Harness onController={captureController} anchorYear={1776} />);
+    expect(screen.queryByTestId('timeline-decade-1780')).not.toBeNull();
+    // Still moving: the old anchor's ticks must not leave the tree yet.
+    expect(screen.queryByTestId('timeline-decade-130')).not.toBeNull();
+
+    rest();
+    expect(screen.queryByTestId('timeline-decade-1780')).not.toBeNull();
+    expect(screen.queryByTestId('timeline-decade-130')).toBeNull();
+  });
+
   it('draws gridlines beyond the 1000 BCE floor so the oldest end is never blank', () => {
     render(<Harness onController={captureController} />);
     layOut();

@@ -97,6 +97,8 @@ describe('RoundView reveal illustration', () => {
     title: 'The Assassination of Julius Caesar',
     year: -44,
   });
+  // Behind the illustration the track is hidden from queries by default.
+  const hidden = { includeHiddenElements: true };
 
   it('shows the illustration in place of the timeline, and not again in the headline card', () => {
     render(
@@ -109,7 +111,7 @@ describe('RoundView reveal illustration', () => {
       />,
     );
     expect(screen.getByTestId('reveal-image')).toBeOnTheScreen();
-    expect(screen.queryByTestId('timeline')).toBeNull();
+    expect(screen.getByTestId('timeline', hidden)).not.toBeVisible();
     expect(screen.getByTestId('prompt-card-compact')).toBeOnTheScreen();
     expect(screen.queryByTestId('prompt-image')).toBeNull();
   });
@@ -125,8 +127,27 @@ describe('RoundView reveal illustration', () => {
       />,
     );
     expect(screen.getByTestId('reveal-image')).toBeOnTheScreen();
-    expect(screen.queryByTestId('timeline')).toBeNull();
+    expect(screen.getByTestId('timeline', hidden)).not.toBeVisible();
     expect(screen.queryByTestId('prompt-image')).toBeNull();
+  });
+
+  it('keeps the same timeline views mounted behind the illustration', () => {
+    // Unmounting ~200 animated ticks while the reveal re-frame is in flight
+    // leaves Reanimated pushing updates to views that no longer exist, which
+    // is what made the app crawl after a run of quick answers.
+    const props = { question: illustrated, onSubmit: jest.fn(), onNext: jest.fn() };
+    const { rerender } = render(<RoundView {...props} phase="guessing" result={null} />);
+    const before = screen.getByTestId('timeline-tick-1900');
+
+    rerender(
+      <RoundView {...props} phase="revealed" result={evaluateGuess(illustrated, 200)} />,
+    );
+
+    expect(screen.getByTestId('timeline-tick-1900', hidden)).toBe(before);
+    // Hidden, the track stays in its guessing state: nothing mounts or
+    // unmounts inside it either.
+    expect(screen.queryByTestId('reveal-marker-answer')).toBeNull();
+    expect(screen.getByLabelText('Selected year', hidden)).toBeTruthy();
   });
 
   it('keeps the timeline only when the question has no illustration', () => {
@@ -140,7 +161,7 @@ describe('RoundView reveal illustration', () => {
       />,
     );
     expect(screen.queryByTestId('reveal-image')).toBeNull();
-    expect(screen.getByTestId('timeline')).toBeOnTheScreen();
+    expect(screen.getByTestId('timeline')).toBeVisible();
   });
 });
 
@@ -264,5 +285,43 @@ describe('RoundView framing between questions', () => {
     // the zoom instead of popping in a second or two after the question.
     expect(screen.queryByTestId('timeline-decade-130')).not.toBeNull();
     expect(screen.queryByTestId('timeline-decade-110')).not.toBeNull();
+  });
+});
+
+describe('RoundView next', () => {
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it('hands off once, a frame after the tap, however many times Next is tapped', () => {
+    jest.useFakeTimers();
+    const onNext = jest.fn();
+    render(
+      <RoundView
+        question={question}
+        phase="revealed"
+        result={evaluateGuess(question, 1838)}
+        onSubmit={jest.fn()}
+        onNext={onNext}
+      />,
+    );
+
+    fireEvent.press(screen.getByTestId('next-button'));
+    fireEvent.press(screen.getByTestId('next-button'));
+    // Not synchronously: the timeline is stopped first, so nothing is still
+    // animating its ticks when the next screen takes them out of the tree.
+    expect(onNext).not.toHaveBeenCalled();
+
+    act(() => {
+      jest.advanceTimersByTime(100);
+    });
+    expect(onNext).toHaveBeenCalledTimes(1);
+
+    // Once handed off, Next works again (a parent that stays on this view).
+    fireEvent.press(screen.getByTestId('next-button'));
+    act(() => {
+      jest.advanceTimersByTime(100);
+    });
+    expect(onNext).toHaveBeenCalledTimes(2);
   });
 });
