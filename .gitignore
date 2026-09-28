@@ -16,8 +16,8 @@ modules/*/android/build/
 
 # Kept out of the repo on purpose: generated native project, session notes,
 # and the Firebase Android config (regenerable from the Firebase console).
-android/
-ios/
+/android/
+/ios/
 SESSION-HANDOFF.txt
 google-services.json
 
@@ -38,3 +38,5 @@ functions/lib/
 promo/tmp2/
 __pycache__/
 regional-prices-preview.csv
+GoogleService-Info.plist
+modules/*/android/build/

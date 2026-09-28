@@ -1,8 +1,15 @@
 import { useEffect, useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { BackButton, Button, Card, Screen } from '@/components/ui';
+import {
+  IS_IOS,
+  PRIVACY_POLICY_URL,
+  STORE_NAME,
+  SUBSCRIPTION_SETTINGS,
+  TERMS_OF_USE_URL,
+} from '@/config/store';
 import { track } from '@/services/analytics';
 
 import type { PremiumPlan } from './billing';
@@ -13,17 +20,17 @@ import { usePremium } from './PremiumProvider';
 const PLAN_COPY: Record<PremiumPlan, { title: string; badge?: string; footer: string }> = {
   monthly: {
     title: 'Monthly',
-    footer: 'Billed monthly through Google Play. Cancel anytime in your Play subscriptions.',
+    footer: `Billed monthly through ${STORE_NAME}. Cancel anytime in ${SUBSCRIPTION_SETTINGS}.`,
   },
   yearly: {
     title: 'Yearly',
     badge: 'Best value',
-    footer: 'Billed yearly through Google Play. Cancel anytime in your Play subscriptions.',
+    footer: `Billed yearly through ${STORE_NAME}. Cancel anytime in ${SUBSCRIPTION_SETTINGS}.`,
   },
   lifetime: {
     title: 'Lifetime',
     badge: 'Pay once',
-    footer: 'A one-time purchase through Google Play. Yours forever — nothing renews.',
+    footer: `A one-time purchase through ${STORE_NAME}. Yours forever — nothing renews.`,
   },
 };
 
@@ -59,12 +66,41 @@ export function ctaLabel(
   }
 }
 
+/**
+ * Apple's required disclosure for auto-renewing subscriptions (App Review
+ * guideline 3.1.2): who charges, that it renews, and how to stop it.
+ */
+const APPLE_RENEWAL_TERMS =
+  'Payment is charged to your Apple Account when you confirm. Subscriptions renew automatically unless cancelled at least 24 hours before the end of the current period.';
+
 /** Small print under the button for the chosen plan. */
 export function footerCopy(plan: PremiumPlan, price: string, trialDays?: number): string {
-  if (trialDays) {
-    return `Free for ${trialDays} days, then ${price} through Google Play. Cancel before the trial ends and you won’t be charged.`;
-  }
-  return PLAN_COPY[plan].footer;
+  const base = trialDays
+    ? `Free for ${trialDays} days, then ${price} through ${STORE_NAME}. Cancel before the trial ends and you won’t be charged.`
+    : PLAN_COPY[plan].footer;
+  return IS_IOS && plan !== 'lifetime' ? `${base} ${APPLE_RENEWAL_TERMS}` : base;
+}
+
+/** Terms of Use and Privacy Policy links, required under a subscription offer. */
+function LegalLinks() {
+  const links = [
+    { label: 'Terms of Use', url: TERMS_OF_USE_URL },
+    { label: 'Privacy Policy', url: PRIVACY_POLICY_URL },
+  ].filter((l) => l.url !== '');
+  return (
+    <View className="flex-row justify-center gap-4">
+      {links.map((l) => (
+        <Pressable
+          key={l.label}
+          onPress={() => void Linking.openURL(l.url).catch(() => {})}
+          accessibilityRole="link"
+          hitSlop={8}
+        >
+          <Text className="text-xs text-ink-muted underline">{l.label}</Text>
+        </Pressable>
+      ))}
+    </View>
+  );
 }
 
 /** One selectable plan row: name and badge on the left, price on the right. */
@@ -297,6 +333,7 @@ export function PaywallScreen() {
               <Text className="text-center text-xs text-ink-muted">
                 {footerCopy(plan, priceLabels[plan], trialDays[plan])}
               </Text>
+              <LegalLinks />
             </View>
           )}
         </Card>

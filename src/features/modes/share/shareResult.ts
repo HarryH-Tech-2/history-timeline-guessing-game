@@ -36,7 +36,7 @@ export async function shareResult(
     const result = await RNShare.open({
       url: uri.startsWith('file://') ? uri : `file://${uri}`,
       type: 'image/png',
-      message: STORE_URL,
+      message: STORE_URL ?? undefined,
       failOnCancel: false,
     });
     return result.success ? 'shared' : 'dismissed';

@@ -9,8 +9,11 @@ import {
   type ReactNode,
 } from 'react';
 
+import type { AuthCredential } from 'firebase/auth';
+
 import { isFirebaseConfigured } from '@/config/env';
 import { track } from '@/services/analytics';
+import { requestAppleCredential } from '@/services/appleSignin';
 import { loadGoogleSignin } from '@/services/googleSignin';
 import { requestPlayGamesServerAuthCode, warmUpPlayGames } from '@/services/playGames';
 
@@ -43,6 +46,8 @@ export interface AuthState {
 export interface AuthApi extends AuthState {
   /** Sign in with Google (guest progress is linked when possible). */
   signInWithGoogle: () => Promise<void>;
+  /** Sign in with Apple, iOS only (guest progress is linked when possible). */
+  signInWithApple: () => Promise<void>;
   /** Sign out of the account and fall back to a fresh guest session. */
   signOutToGuest: () => Promise<void>;
   /**
@@ -76,6 +81,7 @@ const OFFLINE_STATE: AuthState = {
 const OFFLINE_API: AuthApi = {
   ...OFFLINE_STATE,
   signInWithGoogle: () => Promise.reject(OFFLINE_ERROR),
+  signInWithApple: () => Promise.reject(OFFLINE_ERROR),
   signOutToGuest: () => Promise.resolve(),
   reauthenticate: () => Promise.reject(OFFLINE_ERROR),
   deleteAccount: () => Promise.reject(OFFLINE_ERROR),
@@ -103,7 +109,7 @@ function friendlyAuthError(error: unknown): Error {
       : '';
   switch (code) {
     case 'auth/credential-already-in-use':
-      return new Error('That Google account is already linked to another player.');
+      return new Error('That account is already linked to another player.');
     // Legacy password accounts can still re-authenticate to delete themselves.
     case 'auth/user-not-found':
     case 'auth/wrong-password':
@@ -203,15 +209,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   /**
-   * Turn a Google idToken into the signed-in Firebase user: guests are
-   * upgraded in place via credential linking (uid preserved); a Google account
-   * that already has its own player switches to it instead of failing (the
-   * guest's local progress stays on-device).
+   * Turn a provider credential (Google or Apple) into the signed-in Firebase
+   * user: guests are upgraded in place via credential linking (uid preserved);
+   * an account that already has its own player switches to it instead of
+   * failing (the guest's local progress stays on-device).
    */
-  const applyGoogleIdToken = useCallback(
-    async (idToken: string) => {
+  const applyCredential = useCallback(
+    async (credential: AuthCredential) => {
       const { auth, authModule } = await loadAuth();
-      const credential = authModule.GoogleAuthProvider.credential(idToken);
       const current = auth.currentUser;
       if (current?.isAnonymous) {
         try {
@@ -230,6 +235,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     [refreshFromCurrentUser],
   );
+
+  const applyGoogleIdToken = useCallback(
+    async (idToken: string) => {
+      const { authModule } = await loadAuth();
+      await applyCredential(authModule.GoogleAuthProvider.credential(idToken));
+    },
+    [applyCredential],
+  );
+
+  /**
+   * The authorization code from the latest Apple sheet. Apple requires an
+   * account's tokens to be revoked when it is deleted, and revoking needs a
+   * fresh code, which the re-authentication before deletion provides.
+   */
+  const appleAuthorizationCode = useRef<string | null>(null);
+
+  /** Apple's sheet → a Firebase credential, or null if the player cancelled. */
+  const appleFirebaseCredential = useCallback(async (): Promise<AuthCredential | null> => {
+    const apple = await requestAppleCredential();
+    if (apple === null) return null;
+    appleAuthorizationCode.current = apple.authorizationCode;
+    const { authModule } = await loadAuth();
+    return new authModule.OAuthProvider('apple.com').credential({
+      idToken: apple.identityToken,
+      rawNonce: apple.rawNonce,
+    });
+  }, []);
 
   /**
    * Play Games → Firebase bridge: prove the device's Play Games identity to
@@ -324,6 +356,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     track('sign_in_completed', { method: 'google' });
   }, [applyGoogleIdToken]);
 
+  const signInWithApple = useCallback(async () => {
+    if (!isFirebaseConfigured) throw OFFLINE_ERROR;
+    try {
+      const credential = await appleFirebaseCredential();
+      if (credential === null) return; // player closed the sheet
+      await applyCredential(credential);
+    } catch (error) {
+      throw friendlyAuthError(error);
+    }
+    track('sign_in_completed', { method: 'apple' });
+  }, [appleFirebaseCredential, applyCredential]);
+
   const reauthenticate = useCallback(async (password?: string) => {
     if (!isFirebaseConfigured) throw OFFLINE_ERROR;
     const { auth, authModule } = await loadAuth();
@@ -337,6 +381,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           throw new Error('Enter your password to continue.');
         }
         const credential = authModule.EmailAuthProvider.credential(user.email, password);
+        await authModule.reauthenticateWithCredential(user, credential);
+        return;
+      }
+      if (providers.includes('apple.com')) {
+        const credential = await appleFirebaseCredential();
+        if (credential === null) throw new Error('Sign in with Apple was cancelled.');
         await authModule.reauthenticateWithCredential(user, credential);
         return;
       }
@@ -378,13 +428,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       throw friendlyAuthError(error);
     }
-  }, [linkPlayGames]);
+  }, [linkPlayGames, appleFirebaseCredential]);
 
   const deleteAccount = useCallback(async () => {
     if (!isFirebaseConfigured) throw OFFLINE_ERROR;
     const { auth, authModule } = await loadAuth();
     const user = auth.currentUser;
     if (user === null || user.isAnonymous) throw new Error('No account is signed in.');
+
+    // Apple accounts: revoke the app's Apple tokens, as Apple requires on
+    // deletion. Best-effort — it needs the Apple provider's key set up in
+    // Firebase, and a failure must not block deleting the account itself.
+    const appleCode = appleAuthorizationCode.current;
+    if (user.providerData.some((p) => p.providerId === 'apple.com') && appleCode) {
+      try {
+        await authModule.revokeAccessToken(auth, appleCode);
+      } catch {
+        // Revocation unavailable — the deletion still goes ahead.
+      }
+      appleAuthorizationCode.current = null;
+    }
 
     // Cloud data first: if this fails the account survives and nothing is orphaned.
     const { deleteCloudAccountData } = await import('./accountData');
@@ -420,6 +483,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () => ({
       ...state,
       signInWithGoogle,
+      signInWithApple,
       signOutToGuest,
       reauthenticate,
       deleteAccount,
@@ -427,6 +491,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [
       state,
       signInWithGoogle,
+      signInWithApple,
       signOutToGuest,
       reauthenticate,
       deleteAccount,

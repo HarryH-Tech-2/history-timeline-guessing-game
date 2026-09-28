@@ -44,7 +44,7 @@ export interface AnalyticsEvents {
   /** A coin hint was bought. */
   hint_used: { question_id: string };
   /** A sign-in or sign-up finished successfully. */
-  sign_in_completed: { method: 'google' | 'email' | 'playgames' };
+  sign_in_completed: { method: 'google' | 'apple' | 'email' | 'playgames' };
   /** A first-run onboarding step came on screen (1-based). */
   onboarding_step_viewed: { step: number };
   /** Onboarding was skipped, from this step. */

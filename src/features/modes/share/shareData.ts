@@ -1,9 +1,12 @@
 import type { RoundResult } from '@/domain';
+import { STORE_LISTING_URL } from '@/config/store';
 import { palette } from '@/theme/tokens';
 
-/** Store link appended to every share so the card doubles as an invite. */
-export const STORE_URL =
-  'https://play.google.com/store/apps/details?id=com.harryhh.historydateguesser';
+/**
+ * Store link appended to every share so the card doubles as an invite. Null on
+ * iOS until the App Store id is known: a Play link must never ship there.
+ */
+export const STORE_URL: string | null = STORE_LISTING_URL;
 
 /** One round as it appears on a share card. Spoiler-light: ids, not titles. */
 export interface ShareRound {
@@ -135,5 +138,7 @@ export function summaryLine(data: ShareCardData): string {
  */
 export function buildShareMessage(data: ShareCardData): string {
   const tiles = data.rounds.map((r) => tileForError(r.errorYears)).join('');
-  return [`📜 Date Guesser · ${data.heading}`, tiles, summaryLine(data), STORE_URL].join('\n');
+  const lines = [`📜 Date Guesser · ${data.heading}`, tiles, summaryLine(data)];
+  if (STORE_URL) lines.push(STORE_URL);
+  return lines.join('\n');
 }

@@ -16,7 +16,13 @@
       "backgroundColor": "#B0703A"
     },
     "ios": {
-      "supportsTablet": true
+      "bundleIdentifier": "com.harryhh.historydateguesser",
+      "supportsTablet": false,
+      "usesAppleSignIn": true,
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.harryhh.historydateguesser",
@@ -34,8 +40,16 @@
     "plugins": [
       "expo-router",
       "expo-status-bar",
-      "@react-native-firebase/app",
+      [
+        "@react-native-firebase/app",
+        {
+          "ios": {
+            "disableSPM": true
+          }
+        }
+      ],
       "@react-native-google-signin/google-signin",
+      "expo-apple-authentication",
       [
         "./plugins/withPlayGames",
         {
@@ -64,9 +78,17 @@
           "android": {
             "enableMinifyInReleaseBuilds": true,
             "enableShrinkResourcesInReleaseBuilds": true
+          },
+          "ios": {
+            "useFrameworks": "static",
+            "forceStaticLinking": [
+              "RNFBApp",
+              "RNFBAnalytics"
+            ]
           }
         }
-      ]
+      ],
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true
@@ -76,6 +98,14 @@
       "eas": {
         "projectId": "e847738f-2e68-46c7-b55c-70c2fa603934"
       }
+    },
+    "runtimeVersion": {
+      "policy": "fingerprint"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/e847738f-2e68-46c7-b55c-70c2fa603934",
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0
     }
   }
 }

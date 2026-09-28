@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 
 import { Button, Screen } from '@/components/ui';
 import { isDeveloperBuild } from '@/config/env';
+import { BACKUP_BUTTON_LABEL, BACKUP_PROVIDERS, STORE_NAME } from '@/config/store';
 import { getCategories, getQuestionsByCategory } from '@/data';
 import {
   activeStreakCount,
@@ -109,7 +110,7 @@ function StreakCard({
   );
 }
 
-/** A friendly ask for a Play rating: one tap straight to the listing. */
+/** A friendly ask for a store rating: one tap straight to the listing. */
 function RateUsCard() {
   return (
     <Pressable
@@ -117,7 +118,7 @@ function RateUsCard() {
         void openStoreListing();
       }}
       accessibilityRole="button"
-      accessibilityLabel="Rate Date Guesser on Google Play"
+      accessibilityLabel={`Rate Date Guesser on ${STORE_NAME}`}
       testID="rate-us"
       className="mt-2 flex-row items-center gap-4 border border-accent bg-accent/10 p-4"
     >
@@ -136,7 +137,7 @@ function RateUsCard() {
           Enjoying the game? A quick review really helps me out 🙏
         </Text>
         <Text className="mt-0.5 text-xs text-ink-secondary">
-          Tap to leave a rating on Google Play.
+          Tap to leave a rating on {STORE_NAME}.
         </Text>
       </View>
       <Text className="text-xl text-ink-muted">›</Text>
@@ -356,12 +357,12 @@ export function ProfileScreen() {
           <View className="gap-3 border border-hair bg-bg-raised p-4">
             <Text className="text-sm text-ink-secondary">
               {isSignedIn
-                ? 'Your progress is saved on this device. Back it up to Google and it follows you to a new phone.'
+                ? `Your progress is saved on this device. Back it up with ${BACKUP_PROVIDERS} and it follows you to a new phone.`
                 : 'Accounts are not available in this offline build.'}
             </Text>
             {isSignedIn && (
               <Button
-                label="Back up to Google"
+                label={BACKUP_BUTTON_LABEL}
                 testID="open-sign-in"
                 onPress={() => router.push('/sign-in')}
               />
@@ -515,7 +516,7 @@ export function ProfileScreen() {
           <Pressable
             onPress={() => router.push('/sign-in')}
             accessibilityRole="button"
-            accessibilityLabel="Back up your progress to Google"
+            accessibilityLabel={`Back up your progress with ${BACKUP_PROVIDERS}`}
             disabled={!isSignedIn}
             testID="settings-backup"
             className="flex-row items-center justify-between border border-hair bg-bg-raised p-4"

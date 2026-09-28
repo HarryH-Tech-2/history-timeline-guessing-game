@@ -3,6 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { Button } from '@/components/ui';
+import { BACKUP_BUTTON_LABEL } from '@/config/store';
 import { useAuth } from '@/services/firebase/auth';
 
 import {
@@ -81,7 +82,7 @@ export function SignInNudgeCard({
       </View>
       <View className="flex-row items-center gap-3">
         <View className="flex-1">
-          <Button label="Back up to Google" onPress={onSignIn} testID="sign-in-nudge-accept" />
+          <Button label={BACKUP_BUTTON_LABEL} onPress={onSignIn} testID="sign-in-nudge-accept" />
         </View>
         <Pressable
           onPress={onDismiss}

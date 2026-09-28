@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import { Text } from 'react-native';
 import RNShare from 'react-native-share';
 
+import { STORE_URL } from '../share';
 import { RunSummary } from './RunSummary';
 
 // Only `track` is used here; spreading the real barrel would drag the auth
@@ -64,7 +65,8 @@ describe('RunSummary', () => {
     await waitFor(() => expect(RNShare.open).toHaveBeenCalledTimes(1));
     const options = jest.mocked(RNShare.open).mock.calls[0]![0] as { url: string; message: string };
     expect(options.url).toBe('file:///tmp/capture.png');
-    expect(options.message).toContain('play.google.com');
+    // Only the store link rides along — and never a Play link on iOS.
+    expect(options.message).toBe(STORE_URL ?? undefined);
   });
 
   it('records whether the share sheet completed or was dismissed', async () => {

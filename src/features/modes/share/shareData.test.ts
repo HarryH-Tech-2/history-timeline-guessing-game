@@ -82,7 +82,7 @@ describe('buildShareMessage', () => {
       '📜 Date Guesser · Daily #3',
       '🎯🟩🟨🎯⬛',
       '4,321 pts · 2/5 exact · avg 29 yrs off',
-      STORE_URL,
+      ...(STORE_URL ? [STORE_URL] : []),
     ]);
     expect(message).not.toContain('1066');
   });

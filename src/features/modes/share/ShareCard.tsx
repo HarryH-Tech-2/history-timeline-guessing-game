@@ -1,6 +1,7 @@
 import { forwardRef } from 'react';
 import { Image, Text, View } from 'react-native';
 
+import { STORE_LABEL } from '@/config/store';
 import { getQuestionById } from '@/data';
 import { formatYear } from '@/features/timeline/math';
 import { lightPalette as p } from '@/theme/tokens';
@@ -156,7 +157,7 @@ export const ShareCard = forwardRef<View, ShareCardProps>(function ShareCard({ d
         <Text style={{ fontSize: 12, fontWeight: '700', color: p.ink.primary }}>
           Can you beat me?
         </Text>
-        <Text style={{ fontSize: 11, color: p.ink.muted }}>Date Guesser · Google Play</Text>
+        <Text style={{ fontSize: 11, color: p.ink.muted }}>Date Guesser · {STORE_LABEL}</Text>
       </View>
     </View>
   );

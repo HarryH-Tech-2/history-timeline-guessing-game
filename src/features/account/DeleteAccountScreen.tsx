@@ -12,6 +12,7 @@ import { useRouter } from 'expo-router';
 
 import { Button, Screen } from '@/components/ui';
 import { isFirebaseConfigured } from '@/config/env';
+import { STORE_NAME, SUBSCRIPTION_SETTINGS } from '@/config/store';
 import { forgetUser } from '@/features/save/SaveProvider';
 import { useAuth } from '@/services/firebase/auth';
 import { useThemeColors } from '@/theme';
@@ -125,8 +126,8 @@ export function DeleteAccountScreen() {
             </Text>
           ))}
           <Text className="mt-1 text-xs text-ink-muted">
-            Purchases are managed by Google Play and are not affected. An active Premium
-            subscription must be cancelled separately in the Play Store.
+            Purchases are managed by {STORE_NAME} and are not affected. An active Premium
+            subscription must be cancelled separately in {SUBSCRIPTION_SETTINGS}.
           </Text>
         </View>
 

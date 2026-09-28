@@ -65,6 +65,7 @@ jest.mock('@/data', () => ({
 }));
 
 // eslint-disable-next-line import/first
+import { STORE_URL } from '../share';
 import { DailyScreen } from './DailyScreen';
 
 describe('DailyScreen', () => {
@@ -109,9 +110,7 @@ describe('DailyScreen', () => {
     expect(options.url).toBe('file:///tmp/capture.png');
     expect(options.type).toBe('image/png');
     // The picture is the whole message: only the store link rides along.
-    expect(options.message).toBe(
-      'https://play.google.com/store/apps/details?id=com.harryhh.historydateguesser',
-    );
+    expect(options.message).toBe(STORE_URL ?? undefined);
     expect(screen.getByText('Home')).toBeOnTheScreen();
   });
 });
