@@ -32,8 +32,38 @@ describe('houseRows', () => {
     expect(week.length).toBeGreaterThanOrEqual(today.length);
     for (const r of rows) {
       if (r.dailyDate === '') expect(r.dailyScore).toBe(0);
-      else expect(r.dailyScore).toBeGreaterThan(2000);
+      else {
+        expect(r.dailyScore).toBeGreaterThanOrEqual(1200);
+        expect(r.dailyScore).toBeLessThanOrEqual(5600);
+      }
       if (r.weekKey === '') expect(r.weekXp).toBe(0);
     }
+  });
+
+  it('tops up without re-rolling the first rows or repeating a name', () => {
+    const first = houseRows(opts);
+    const taken = new Set(first.map((r) => r.displayName));
+    const more = houseRows({ ...opts, count: 80, offset: 40, taken });
+
+    expect(houseRows(opts)).toEqual(first);
+    expect(more).toHaveLength(80);
+    const names = more.map((r) => r.displayName);
+    expect(new Set(names).size).toBe(80);
+    for (const name of names) {
+      expect(taken.has(name)).toBe(false);
+      expect(name.length).toBeLessThanOrEqual(MAX_DISPLAY_NAME);
+    }
+    for (const r of more) expect(r.xp).toBeLessThanOrEqual(6000 * 1.15);
+  });
+
+  it('scores the Daily like real players do: middling on the whole, not all high', () => {
+    const scores = houseRows({ ...opts, count: 120 })
+      .filter((r) => r.dailyDate !== '')
+      .map((r) => r.dailyScore)
+      .sort((a, b) => a - b);
+    const median = scores[Math.floor(scores.length / 2)]!;
+    expect(median).toBeGreaterThan(3000);
+    expect(median).toBeLessThan(4000);
+    expect(scores[0]).toBeLessThan(2200);
   });
 });

@@ -26,6 +26,19 @@ const FIRST = [
   'Ugo', 'Vera', 'Wren', 'Ximena', 'Yusuf', 'Zora', 'Anouk', 'Bea', 'Casper', 'Dov',
 ];
 const SUFFIX = ['', '', '', '_history', '99', '.k', '_', 'H', '22', 'xo', '_reads', '07'];
+/**
+ * A wider pool for rows added after the first seed. Kept separate so the
+ * original rows still roll the names they were seeded with.
+ */
+const MORE_FIRST = [
+  ...FIRST,
+  'Arlo', 'Birgit', 'Cyrus', 'Dalia', 'Emeka', 'Freya', 'Goran', 'Hana', 'Idris', 'Juno',
+  'Kofi', 'Lucia', 'Mateo', 'Nadia', 'Otto', 'Priya', 'Rafa', 'Signe', 'Tomas', 'Uma',
+  'Viktor', 'Willa', 'Xavi', 'Yara', 'Zeno', 'Amara', 'Bodhi', 'Carys', 'Dmitri', 'Esme',
+];
+const MORE_SUFFIX = [
+  ...SUFFIX, '', '', '_dates', '1066', '.b', 'J', '88', '_m', '1789', 'xx', '_past', '42', '.r',
+];
 
 /** Tiny deterministic PRNG (mulberry32) so the same index always rolls the same way. */
 function rng(seed: number): () => number {
@@ -39,11 +52,17 @@ function rng(seed: number): () => number {
   };
 }
 
-/** Score for eight Daily rounds: strong players land high, most in the middle. */
+/**
+ * Score for eight Daily rounds, matched to what real players score (Dailies
+ * to 2026-09-27: median about 3,500, a quarter under 1,500, best just under
+ * 6,000), so a typical real run lands mid-table rather than near the bottom.
+ * Keep in step with functions/src/houseTurns.ts.
+ */
 export function dailyScoreFor(rank: number, count: number, roll: number): number {
   const skill = 1 - rank / count; // top rows are better
-  const base = 2600 + skill * 3200; // 2,600 … 5,800
-  return Math.round((base + (roll - 0.5) * 900) / 10) * 10;
+  const base = 1500 + skill * 3900; // 1,500 … 5,400
+  const score = Math.round((base + (roll - 0.5) * 600) / 10) * 10;
+  return Math.min(5600, Math.max(1200, score));
 }
 
 export interface HouseOptions {
@@ -53,6 +72,13 @@ export interface HouseOptions {
   today: string;
   week: string;
   now: number;
+  /**
+   * How many house rows already exist. The new rows roll from the next seeds
+   * on, so topping the boards up never re-rolls the rows already there.
+   */
+  offset?: number;
+  /** Names already on the board; no new row repeats one, or another new row. */
+  taken?: ReadonlySet<string>;
 }
 
 /**
@@ -60,16 +86,34 @@ export interface HouseOptions {
  * names and numbers, so re-running the seed refreshes stamps rather than
  * reshuffling who is who.
  */
-export function houseRows({ count, maxXp, today, week, now }: HouseOptions): HouseRow[] {
+export function houseRows({
+  count,
+  maxXp,
+  today,
+  week,
+  now,
+  offset = 0,
+  taken,
+}: HouseOptions): HouseRow[] {
   const rows: HouseRow[] = [];
+  const topUp = offset > 0 || taken !== undefined;
+  const firsts = topUp ? MORE_FIRST : FIRST;
+  const suffixes = topUp ? MORE_SUFFIX : SUFFIX;
+  const used = new Set(taken);
   for (let i = 0; i < count; i++) {
-    const next = rng(1000 + i * 7919);
+    const next = rng(1000 + (i + offset) * 7919);
     const roll = next();
     const roll2 = next();
     // Power-law-ish XP: a few high, a long tail. 60 XP floor keeps them above the publish gate.
     const xp = Math.max(60, Math.round(maxXp * Math.pow(1 - i / count, 2.2) * (0.85 + roll * 0.3)));
-    const first = FIRST[Math.floor(next() * FIRST.length)] ?? 'Ada';
-    const suffix = SUFFIX[Math.floor(next() * SUFFIX.length)] ?? '';
+    let first = firsts[Math.floor(next() * firsts.length)] ?? 'Ada';
+    let suffix = suffixes[Math.floor(next() * suffixes.length)] ?? '';
+    // Two players with the same name is the giveaway: re-roll until it is new.
+    for (let tries = 0; topUp && used.has(`${first}${suffix}`) && tries < 50; tries++) {
+      first = firsts[Math.floor(next() * firsts.length)] ?? 'Ada';
+      suffix = suffixes[Math.floor(next() * suffixes.length)] ?? '';
+    }
+    used.add(`${first}${suffix}`);
     // Not everyone played this week or today — about two thirds did.
     const playedWeek = roll2 < 0.7;
     const playedToday = playedWeek && roll < 0.6;

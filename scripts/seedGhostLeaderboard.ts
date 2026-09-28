@@ -9,6 +9,7 @@
  * current — a stale stamp just drops them from those two boards.
  *
  *   npx tsx scripts/seedGhostLeaderboard.ts [--count 40] [--max-xp 6000] [--dry-run]
+ *   npx tsx scripts/seedGhostLeaderboard.ts --top-up --count 80   # add 80 more, leave the rest alone
  *   npx tsx scripts/seedGhostLeaderboard.ts --purge          # remove every house row
  *
  * Needs GOOGLE_APPLICATION_CREDENTIALS and FIREBASE_PROJECT_ID from `.env`.
@@ -47,7 +48,26 @@ async function main() {
 
   const count = arg('count', 40);
   const maxXp = arg('max-xp', 6000);
-  const rows = houseRows({ count, maxXp, today: dateKey(), week: weekKey(), now: Date.now() });
+  // A top-up adds rows after the ones already there: their XP (which the
+  // daily refresh has been growing) and their names are left untouched.
+  const topUp = process.argv.includes('--top-up');
+  const existing = topUp ? await col.where('house', '==', true).get() : null;
+  const offset = existing
+    ? existing.docs.reduce((max, d) => Math.max(max, Number(d.id.slice(HOUSE_PREFIX.length)) || 0), 0)
+    : 0;
+  const taken = existing
+    ? new Set(existing.docs.map((d) => String(d.get('displayName') ?? '')))
+    : undefined;
+  const rows = houseRows({
+    count,
+    maxXp,
+    today: dateKey(),
+    week: weekKey(),
+    now: Date.now(),
+    offset,
+    taken,
+  });
+  if (topUp) console.log(`${offset} house rows already there; adding ${rows.length}`);
 
   console.log(`${rows.length} house rows → xp ${rows.at(-1)?.xp}…${rows[0]?.xp}`);
   for (const r of rows.slice(0, 5)) {
@@ -59,7 +79,7 @@ async function main() {
 
   const batch = db.batch();
   rows.forEach((row, i) => {
-    batch.set(col.doc(`${HOUSE_PREFIX}${i + 1}`), row, { merge: true });
+    batch.set(col.doc(`${HOUSE_PREFIX}${offset + i + 1}`), row, { merge: true });
   });
   await batch.commit();
   console.log(`wrote ${rows.length}`);
