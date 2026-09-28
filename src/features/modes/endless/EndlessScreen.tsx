@@ -12,7 +12,7 @@ import { useEndlessSession } from './useEndlessSession';
 function EndlessPlay({ onHome }: { onHome: () => void }) {
   const { session, best } = useEndlessSession();
   // Endless has no lives at all, so a miss must not cost a heart either.
-  const { reward, unlockedTitles, acquired } = useRoundRewards(session, { usesHearts: false });
+  useRoundRewards(session, { usesHearts: false });
 
   // There is no end-of-run summary (the run never ends), so the best score
   // lives in the HUD where the player can see it climb.
@@ -27,9 +27,6 @@ function EndlessPlay({ onHome }: { onHome: () => void }) {
         result={session.result}
         onSubmit={session.submit}
         onNext={session.advance}
-        reward={reward}
-        unlockedTitles={unlockedTitles}
-        acquired={acquired}
         actions={<HintButton question={session.question} />}
         hud={<ModeHud progressLabel={progressLabel} score={session.totalScore} onBack={onHome} />}
       />

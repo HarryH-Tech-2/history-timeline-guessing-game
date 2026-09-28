@@ -54,11 +54,8 @@ function PlayPill() {
           elevation: 5,
         },
       ]}
-      className="flex-row items-center gap-1.5 rounded-full bg-accent px-5 py-3"
+      className="rounded-full bg-accent px-5 py-3"
     >
-      <Text className="text-xs text-bg-base" style={{ includeFontPadding: false }}>
-        ▶
-      </Text>
       <Text className="text-base font-extrabold text-bg-base">Play</Text>
     </Animated.View>
   );

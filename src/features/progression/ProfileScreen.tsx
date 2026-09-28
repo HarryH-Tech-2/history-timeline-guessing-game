@@ -117,7 +117,7 @@ function RateUsCard() {
         void openStoreListing();
       }}
       accessibilityRole="button"
-      accessibilityLabel="Rate History Date Guesser on Google Play"
+      accessibilityLabel="Rate Date Guesser on Google Play"
       testID="rate-us"
       className="mt-2 flex-row items-center gap-4 border border-accent bg-accent/10 p-4"
     >

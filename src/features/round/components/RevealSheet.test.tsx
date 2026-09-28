@@ -54,27 +54,4 @@ describe('RevealSheet', () => {
     expect(screen.getByTestId('next-button')).toBeOnTheScreen();
   });
 
-  it('shows coins, museum and achievement pills only when earned', () => {
-    const result = evaluateGuess(question, 1969);
-    const { rerender } = render(
-      <RevealSheet
-        result={result}
-        categoryColour="#123456"
-        onNext={jest.fn()}
-        reward={{ xp: 150, coins: 5 }}
-        acquired
-        unlockedTitles={['Bullseye']}
-      />,
-    );
-    expect(screen.getByTestId('reveal-coins')).toBeOnTheScreen();
-    expect(screen.getByTestId('museum-acquired')).toBeOnTheScreen();
-    expect(screen.getByText('🏆 Bullseye')).toBeOnTheScreen();
-    expect(screen.queryByText(/XP/)).toBeNull();
-
-    rerender(
-      <RevealSheet result={result} categoryColour="#123456" onNext={jest.fn()} reward={{ xp: 150, coins: 0 }} />,
-    );
-    expect(screen.queryByTestId('reveal-coins')).toBeNull();
-    expect(screen.queryByTestId('museum-acquired')).toBeNull();
-  });
 });

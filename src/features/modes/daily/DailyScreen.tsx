@@ -60,7 +60,7 @@ function DailySummary({ record, onHome }: { record: DailyRecord; onHome: () => v
 export function DailyScreen() {
   const router = useRouter();
   const { session, totalQuestions, loading, locked, record } = useDailySession();
-  const { reward, unlockedTitles, acquired } = useRoundRewards(session);
+  useRoundRewards(session);
   const hearts = useHearts();
 
   if (loading) {
@@ -87,9 +87,6 @@ export function DailyScreen() {
           onSubmit={session.submit}
           onNext={session.advance}
           nextLabel={onLastQuestion ? 'Finish' : 'Next'}
-          reward={reward}
-          unlockedTitles={unlockedTitles}
-          acquired={acquired}
           actions={<HintButton question={session.question} />}
           hud={
             <ModeHud

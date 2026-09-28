@@ -191,7 +191,7 @@ export function ModeHud({
               accessibilityLabel={`Score ${score}`}
               testID="hud-score"
             >
-              {score.toLocaleString()}
+              Score: {score.toLocaleString()}
             </Text>
           )}
           {progressLabel !== undefined && (

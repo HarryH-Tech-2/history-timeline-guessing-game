@@ -28,7 +28,7 @@ function StagePlay({
   onRetry: () => void;
 }) {
   const { session, totalQuestions, earnedStars } = useCampaignSession(stage);
-  const { reward, unlockedTitles, acquired } = useRoundRewards(session);
+  useRoundRewards(session);
   const hearts = useHearts();
 
   if (session.status === 'finished') {
@@ -76,9 +76,6 @@ function StagePlay({
         onSubmit={session.submit}
         onNext={session.advance}
         nextLabel={onLastQuestion ? 'Finish' : 'Next'}
-        reward={reward}
-        unlockedTitles={unlockedTitles}
-        acquired={acquired}
         actions={<HintButton question={session.question} />}
         hud={
           <ModeHud

@@ -205,18 +205,6 @@ export function PaywallScreen() {
           <BackButton onPress={() => router.back()} variant="close" testID="paywall-close" />
         </View>
 
-        <FounderNote
-          paragraphs={
-            isPremium
-              ? ['Thank you so much for supporting an indie developer — enjoy the whole archive!']
-              : [
-                  'Hi, I’m Harry 👋',
-                  'Subscribing doesn’t pay a big company. It backs one developer who builds this app alone.',
-                  'Join the players who keep it going, and let’s keep making it better.',
-                ]
-          }
-        />
-
         <Card className="gap-5">
           <View className="gap-1">
             <Text className="text-3xl font-extrabold text-ink-primary">
@@ -312,6 +300,18 @@ export function PaywallScreen() {
             </View>
           )}
         </Card>
+
+        <FounderNote
+          paragraphs={
+            isPremium
+              ? ['Thank you so much for supporting an indie developer — enjoy the whole archive!']
+              : [
+                  'Hi, I’m Harry 👋',
+                  'Subscribing doesn’t pay a big company. It backs one developer who builds this app alone.',
+                  'Join the players who keep it going, and let’s keep making it better.',
+                ]
+          }
+        />
       </ScrollView>
     </Screen>
   );

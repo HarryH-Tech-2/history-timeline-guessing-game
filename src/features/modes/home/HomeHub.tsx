@@ -4,10 +4,11 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
 
 import { Screen } from '@/components/ui';
 import { getCategories } from '@/data';
-import type { Category } from '@/domain';
+import { activeStreakCount, type Category } from '@/domain';
 import { usePremium } from '@/features/premium';
-import { ProfileHeader } from '@/features/progression';
+import { ProfileHeader, useProgression } from '@/features/progression';
 import { useTheme } from '@/theme';
+import { dateKey } from '@/utils/date';
 
 import { DailyHeroCard } from './DailyHeroCard';
 import { IconPlaque } from './IconPlaque';
@@ -175,6 +176,9 @@ export function HomeHub() {
   const router = useRouter();
   const { mode, toggle } = useTheme();
   const { isPremium } = usePremium();
+  const { state } = useProgression();
+  // The Daily streak the player is on; read per render so it is right after a run.
+  const streak = activeStreakCount(state.streak, dateKey());
   // Re-render when the remote catalogue lands, so a tapped category always exists.
   useContentVersion();
 
@@ -186,7 +190,22 @@ export function HomeHub() {
       >
         <View className="mb-2 flex-row items-start justify-between">
           <View className="flex-1 justify-center pr-3">
-            <Text className="text-3xl font-extrabold text-ink-primary">History Date Guesser</Text>
+            <Text className="text-3xl font-extrabold text-ink-primary">Date Guesser</Text>
+          </View>
+          <View
+            accessibilityLabel={`${streak}-day streak`}
+            testID="home-streak"
+            className="mr-2 h-10 flex-row items-center gap-1 border border-hair bg-bg-raised px-3"
+          >
+            <Text className="text-base" style={{ includeFontPadding: false }}>
+              🔥
+            </Text>
+            <Text
+              className="text-base font-extrabold text-ink-primary"
+              style={{ fontVariant: ['tabular-nums'], includeFontPadding: false }}
+            >
+              {streak}
+            </Text>
           </View>
           <Pressable
             onPress={toggle}

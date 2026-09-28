@@ -54,7 +54,7 @@ export function PromptCard({
               source={image}
               resizeMode="contain"
               accessibilityIgnoresInvertColors
-              className="h-12 w-12 bg-bg-overlay"
+              className="h-16 w-16 bg-bg-overlay"
               style={{ aspectRatio: 1 }}
               testID="prompt-image"
             />
@@ -93,7 +93,7 @@ export function PromptCard({
             source={image}
             resizeMode="contain"
             accessibilityIgnoresInvertColors
-            className="h-64 w-64 bg-bg-overlay"
+            className="h-72 w-72 bg-bg-overlay"
             style={{ aspectRatio: 1 }}
             testID="prompt-image"
           />

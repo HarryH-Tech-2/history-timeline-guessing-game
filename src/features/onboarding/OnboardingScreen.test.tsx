@@ -43,8 +43,9 @@ describe('OnboardingScreen', () => {
     expect(screen.getByTestId('reveal-sheet')).toBeOnTheScreen();
     expect(screen.queryByTestId('onboarding-coach-marks')).toBeNull();
     fireEvent.press(screen.getByTestId('next-button')); // reveal → why
+    // Next hands off a frame later, once the timeline has stopped.
+    await waitFor(() => expect(screen.getByTestId('onboarding-reason-2')).toBeOnTheScreen());
     expect(track).toHaveBeenCalledWith('onboarding_step_viewed', { step: 3 });
-    expect(screen.getByTestId('onboarding-reason-2')).toBeOnTheScreen();
 
     fireEvent.press(screen.getByTestId('onboarding-next')); // why → setup
     expect(track).toHaveBeenCalledWith('onboarding_step_viewed', { step: 4 });
@@ -80,6 +81,7 @@ describe('OnboardingScreen', () => {
     fireEvent.press(screen.getByTestId('onboarding-next'));
     fireEvent.press(screen.getByTestId('submit-button'));
     fireEvent.press(screen.getByTestId('next-button'));
+    await waitFor(() => expect(screen.getByTestId('onboarding-reason-2')).toBeOnTheScreen());
     fireEvent.press(screen.getByTestId('onboarding-next'));
 
     fireEvent.changeText(screen.getByTestId('onboarding-name'), 'ab');

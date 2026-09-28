@@ -10,8 +10,8 @@ import type { PremiumPlan } from './billing';
  */
 export const PREMIUM_PLAN_LABELS: Record<PremiumPlan, string> = {
   monthly: '$2.99 / month',
-  yearly: '$17.99 / year',
-  lifetime: '$49.99 once',
+  yearly: '$19.99 / year',
+  lifetime: '$34.99 once',
 };
 
 export const PREMIUM_PRODUCT_IDS: Record<PremiumPlan, string> = {

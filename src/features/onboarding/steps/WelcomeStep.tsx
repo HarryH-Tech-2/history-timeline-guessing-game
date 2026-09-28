@@ -56,7 +56,7 @@ export function WelcomeStep({ onNext }: { onNext: () => void }) {
       <View className="flex-1 justify-center gap-8">
         <Animated.View entering={FadeInUp.springify().damping(18)} className="items-center gap-2">
           <Text className="text-xs font-semibold uppercase tracking-widest text-ink-muted">
-            History Date Guesser
+            Date Guesser
           </Text>
           <Text className="px-4 text-center text-4xl font-extrabold leading-tight text-ink-primary">
             Every event has a year.

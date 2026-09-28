@@ -12,12 +12,6 @@ interface RevealSheetProps {
   categoryColour: string;
   onNext: () => void;
   nextLabel?: string;
-  /** XP and coins banked for this round, when a progression profile is active. */
-  reward?: { xp: number; coins: number } | null;
-  /** Titles of achievements unlocked this session, shown as a subtle callout. */
-  unlockedTitles?: readonly string[];
-  /** True when this round just added the question's artefact to the museum. */
-  acquired?: boolean;
 }
 
 function headline(result: RoundResult): string {
@@ -50,20 +44,6 @@ const RIBBON: Record<Verdict, { bg: string; fg: string; note: string | null }> =
   miss: { bg: 'transparent', fg: '', note: null },
 };
 
-/** A small rounded tag for the round's side-effects: coins, museum, achievements. */
-function Pill({ text, colour, testID }: { text: string; colour: string; testID?: string }) {
-  return (
-    <View
-      className="flex-row items-center rounded-full border border-hair bg-bg-overlay px-3 py-1"
-      testID={testID}
-    >
-      <Text className="text-xs font-bold" style={{ color: colour, includeFontPadding: false }}>
-        {text}
-      </Text>
-    </View>
-  );
-}
-
 /**
  * Post-submission card: a verdict ribbon, the correct year as the hero, the
  * score in a chip, then the teaching moment. Lifts off the timeline as a
@@ -74,17 +54,11 @@ export function RevealSheet({
   categoryColour,
   onNext,
   nextLabel = 'Next',
-  reward,
-  unlockedTitles,
-  acquired = false,
 }: RevealSheetProps) {
   const animatedScore = useCountUp(result.score.total);
   const { question } = result;
   const verdict = verdictOf(result);
   const ribbon = RIBBON[verdict];
-  const coins = reward?.coins ?? 0;
-  const titles = unlockedTitles ?? [];
-  const hasPills = coins > 0 || acquired || titles.length > 0;
 
   return (
     <Animated.View
@@ -159,24 +133,6 @@ export function RevealSheet({
               </Text>
             </View>
           </View>
-
-          {hasPills && (
-            <View className="mt-4 flex-row flex-wrap gap-2">
-              {coins > 0 && (
-                <Pill text={`+${coins} 🪙`} colour={palette.warning} testID="reveal-coins" />
-              )}
-              {acquired && (
-                <Pill
-                  text="🏛️ Added to your museum"
-                  colour={palette.accent.default}
-                  testID="museum-acquired"
-                />
-              )}
-              {titles.map((title) => (
-                <Pill key={title} text={`🏆 ${title}`} colour={palette.success} />
-              ))}
-            </View>
-          )}
 
           <View className="my-4 h-px bg-hair" />
 

@@ -29,7 +29,7 @@ export function RevealImage({ source, title }: RevealImageProps) {
           resizeMode="contain"
           accessibilityIgnoresInvertColors
           className="bg-bg-overlay"
-          style={{ width: '100%', flex: 1, maxHeight: 256, aspectRatio: 1 }}
+          style={{ width: '100%', flex: 1, maxHeight: 320, aspectRatio: 1 }}
         />
       </Pressable>
       <ImageLightbox

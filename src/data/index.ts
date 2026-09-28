@@ -8,8 +8,6 @@ import { QUESTIONS } from './questions';
 import { REGIONAL_CATEGORY_ID, regionById, REGIONS, type Region } from './regions';
 import { TOPICS, type Topic } from './topics';
 
-import { imageForQuestion } from './questionImages';
-
 export { QUESTION_IMAGES, imageForQuestion } from './questionImages';
 
 /**
@@ -35,14 +33,6 @@ for (const q of seedQuestions) {
  */
 let activeCategories: readonly Category[] = seedCategories;
 let activeQuestions: readonly Question[] = seedQuestions;
-
-interface HydrateOptions {
-  /**
-   * Whether this build ships the illustration for a question id. Defaults to
-   * the bundled image table; tests inject their own.
-   */
-  hasIllustration?: (questionId: string) => boolean;
-}
 
 /**
  * Consumers that render the catalogue subscribe here so a remote refresh
@@ -70,38 +60,36 @@ function publishContent(): void {
 }
 
 /**
- * Merge a remotely fetched catalogue over the bundled seed. The seed is what
- * this build can actually show — art ships in the app, not in Firestore — so
- * the remote copy corrects and extends it; it can never remove a bundled
- * category or question. Rules:
- *  - a remote row with a bundled id replaces that row (text and date fixes);
- *  - remote questions need a bundled illustration and a known category, or
- *    they're dropped, so a reseed can't surface pictureless rounds;
- *  - a remote-only category with no playable questions is dropped.
+ * Apply remote corrections to the bundled seed. The seed is the catalogue:
+ * what this build ships art for, how it is grouped and what is behind the
+ * paywall. The remote copy can only fix what a bundled row says. Rules:
+ *  - a remote row is used only when its id is bundled; categories and
+ *    questions this build has never heard of are ignored, so a category the
+ *    app has since dropped can't come back from an old backend copy;
+ *  - a question keeps its bundled category and tags (the Regional picker reads
+ *    the tags), a category its bundled paywall flag and position; everything
+ *    else (titles, years, descriptions, `active`) follows the remote row.
  * An empty payload is ignored, so a failed fetch never changes anything.
  */
 export function hydrateContent(
   categories: readonly Category[],
   questions: readonly Question[],
-  { hasIllustration = (id) => imageForQuestion(id) !== undefined }: HydrateOptions = {},
 ): void {
   if (categories.length === 0 || questions.length === 0) return;
 
-  const categoryById = new Map(seedCategories.map((c) => [c.id, c] as const));
-  for (const c of categories) categoryById.set(c.id, c);
+  const remoteCategories = new Map(categories.map((c) => [c.id, c] as const));
+  const remoteQuestions = new Map(questions.map((q) => [q.id, q] as const));
 
-  const questionById = new Map(seedQuestions.map((q) => [q.id, q] as const));
-  for (const q of questions) {
-    if (categoryById.has(q.categoryId) && hasIllustration(q.id)) questionById.set(q.id, q);
-  }
-
-  const mergedQuestions = [...questionById.values()].filter((q) => categoryById.has(q.categoryId));
-  const populated = new Set(mergedQuestions.map((q) => q.categoryId));
-  const bundledIds = new Set(seedCategories.map((c) => c.id));
-  activeCategories = [...categoryById.values()].filter(
-    (c) => bundledIds.has(c.id) || populated.has(c.id),
-  );
-  activeQuestions = mergedQuestions;
+  activeCategories = seedCategories.map((seed) => {
+    const remote = remoteCategories.get(seed.id);
+    if (!remote) return seed;
+    return { ...remote, premiumOnly: seed.premiumOnly, displayOrder: seed.displayOrder };
+  });
+  activeQuestions = seedQuestions.map((seed) => {
+    const remote = remoteQuestions.get(seed.id);
+    if (!remote) return seed;
+    return { ...remote, categoryId: seed.categoryId, tags: seed.tags };
+  });
   publishContent();
 }
 
