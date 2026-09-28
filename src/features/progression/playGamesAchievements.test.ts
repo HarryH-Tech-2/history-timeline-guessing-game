@@ -2,6 +2,7 @@ import { ACHIEVEMENTS } from './achievements';
 import {
   MAX_TOTAL_POINTS,
   PLAY_GAMES_ACHIEVEMENTS,
+  playGamesLinked,
   playGamesIdFor,
 } from './playGamesAchievements';
 
@@ -28,5 +29,10 @@ describe('Play Games achievement catalogue', () => {
     // Console ids are filled in by hand once created; a blank means skip.
     const blank = Object.entries(PLAY_GAMES_ACHIEVEMENTS).find(([, a]) => a.playId === '');
     if (blank) expect(playGamesIdFor(blank[0])).toBeNull();
+  });
+
+  it('counts Play Games as linked only once an achievement has a Console id', () => {
+    const anyId = Object.values(PLAY_GAMES_ACHIEVEMENTS).some((a) => a.playId !== '');
+    expect(playGamesLinked()).toBe(anyId);
   });
 });

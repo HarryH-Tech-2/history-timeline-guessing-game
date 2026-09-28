@@ -59,3 +59,11 @@ export function playGamesIdFor(id: string): string | null {
   const playId = PLAY_GAMES_ACHIEVEMENTS[id]?.playId;
   return playId ? playId : null;
 }
+
+/**
+ * Whether any achievement is wired to Play Games yet. Until one is, nothing
+ * syncs, so the app shouldn't point players at their Play Games profile.
+ */
+export function playGamesLinked(): boolean {
+  return Object.values(PLAY_GAMES_ACHIEVEMENTS).some((a) => a.playId !== '');
+}

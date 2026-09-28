@@ -5,6 +5,7 @@ import { INITIAL_PROGRESSION } from '@/domain';
 import { showPlayGamesAchievements } from '@/services/playGames';
 
 import { ACHIEVEMENTS } from '../achievements';
+import { playGamesLinked } from '../playGamesAchievements';
 import { ProgressionProvider, progressionStore } from '../index';
 import { AchievementsList } from './AchievementsList';
 
@@ -14,6 +15,10 @@ jest.mock('expo-router', () => ({
 }));
 jest.mock('@/services/playGames', () => ({
   showPlayGamesAchievements: jest.fn(async () => true),
+}));
+jest.mock('../playGamesAchievements', () => ({
+  ...jest.requireActual('../playGamesAchievements'),
+  playGamesLinked: jest.fn(() => true),
 }));
 
 describe('AchievementsList', () => {
@@ -49,6 +54,13 @@ describe('AchievementsList → Play Games', () => {
 
   it('hides the Play Games entry where Play Games does not exist', () => {
     jest.replaceProperty(Platform, 'OS', 'ios');
+    render(<AchievementsList />);
+    expect(screen.queryByTestId('achievements-play-games')).toBeNull();
+  });
+
+  it('hides the Play Games entry until an achievement is wired to Play Games', () => {
+    jest.replaceProperty(Platform, 'OS', 'android');
+    jest.mocked(playGamesLinked).mockReturnValueOnce(false);
     render(<AchievementsList />);
     expect(screen.queryByTestId('achievements-play-games')).toBeNull();
   });

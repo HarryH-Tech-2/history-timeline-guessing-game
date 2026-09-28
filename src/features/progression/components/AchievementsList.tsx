@@ -11,6 +11,7 @@ import {
   type Achievement,
   type AchievementGroup,
 } from '../achievements';
+import { playGamesLinked } from '../playGamesAchievements';
 import { useProgression } from '../ProgressionProvider';
 
 /** Badges per row in a cabinet. */
@@ -245,7 +246,7 @@ export function AchievementsList() {
     <View className="gap-3" testID="achievements-list">
       <Summary earnedCount={earnedCount} level={levelForXp(state.xp)} next={next} />
 
-      {Platform.OS === 'android' && (
+      {Platform.OS === 'android' && playGamesLinked() && (
         <Pressable
           onPress={() => {
             void showPlayGamesAchievements();
