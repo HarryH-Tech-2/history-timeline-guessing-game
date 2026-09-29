@@ -4,6 +4,11 @@ import { Image, Pressable, Text, View } from 'react-native';
 import { Card, ImageLightbox } from '@/components/ui';
 import { imageForQuestion } from '@/data';
 
+/** Full-size illustration edge (the old fixed h-72), and the smallest it may
+ * shrink to when the screen is short. */
+const IMAGE_MAX = 288;
+const IMAGE_MIN = 112;
+
 interface PromptCardProps {
   questionId: string;
   title: string;
@@ -79,22 +84,26 @@ export function PromptCard({
     );
   }
 
+  // The illustration is the one part of the round that can give up space: on
+  // shorter phones, or under a taller header, it shrinks (square, never below
+  // IMAGE_MIN) so the timeline below keeps its full height instead of being
+  // squeezed and spilling over this card and the buttons.
   return (
-    <Card className="items-center gap-3">
+    <Card className="shrink items-center gap-3" style={{ minHeight: 0 }}>
       {image && (
         <Pressable
           onPress={() => setZoomed(true)}
           accessibilityRole="imagebutton"
           accessibilityLabel={`Enlarge illustration of ${title}`}
           testID="prompt-image-button"
-          className="self-center"
+          className="shrink self-center"
+          style={{ height: IMAGE_MAX, minHeight: IMAGE_MIN, aspectRatio: 1 }}
         >
           <Image
             source={image}
             resizeMode="contain"
             accessibilityIgnoresInvertColors
-            className="h-72 w-72 bg-bg-overlay"
-            style={{ aspectRatio: 1 }}
+            className="h-full w-full bg-bg-overlay"
             testID="prompt-image"
           />
         </Pressable>

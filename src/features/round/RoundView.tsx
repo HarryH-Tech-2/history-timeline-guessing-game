@@ -7,7 +7,7 @@ import { getCategoryById, imageForQuestion } from '@/data';
 import type { Question, RoundResult } from '@/domain';
 import { haptic, NotificationFeedbackType } from '@/features/haptics';
 import { useSound } from '@/features/sound';
-import { TimelineTrack, useTimelineTransform } from '@/features/timeline';
+import { TimelineTrack, trackHeightFor, useTimelineTransform } from '@/features/timeline';
 import { isRightAnswer } from '@/features/timeline/math';
 import { palette } from '@/theme/tokens';
 
@@ -152,8 +152,12 @@ export function RoundView({
   // thread, and a run of quick answers piled up enough to stall the app.
   // Laid out absolutely at the stage's width so the track never re-measures.
   const showMarkers = revealed && !showImage;
+  // While guessing, the stage never gets less than the track needs (track +
+  // its py-2 padding and border); the prompt card above shrinks its
+  // illustration instead. On the reveal the track is hidden, so the stage
+  // gives the reveal picture whatever room the sheet leaves.
   const stage = (
-    <View className="flex-1">
+    <View className="flex-1" style={revealed ? undefined : { minHeight: trackHeightFor(height) + 18 }}>
       <View
         className={showImage ? 'absolute left-0 right-0 top-0 py-2' : 'flex-1 justify-center py-2'}
         style={showImage ? { opacity: 0 } : undefined}
