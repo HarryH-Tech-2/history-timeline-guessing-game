@@ -17,6 +17,8 @@ import { HeadToHead } from './HeadToHeadView';
 import { challengeUrl, shareChallenge } from './shareInvite';
 import { CHALLENGE_SIZE, type Challenge, type ChallengeEntry } from './types';
 
+const PERMANENT_SUBMIT_ERRORS = ['failed-precondition', 'not-found'];
+
 type Load =
   | { kind: 'loading' }
   | { kind: 'error' }
@@ -72,6 +74,7 @@ function ChallengeRun({
  * Firestore is unreachable; a challenge this build can't play never throws.
  */
 async function fetchLoad(code: string, uid: string | null): Promise<Load> {
+  if (!code) return { kind: 'missing' }; // the link or typed code wasn't a valid code
   const [challenge, entries] = await Promise.all([api.fetchChallenge(code), api.fetchEntries(code)]);
   if (!challenge) return { kind: 'missing' };
   const lacking = missingQuestions(challenge, (id) => !!getQuestionById(id));
@@ -86,8 +89,14 @@ export function ChallengeScreen({ code, via }: { code: string; via: 'link' | 'co
   const { uid } = useAuth();
   const { state } = useProgression();
   const name = resolveDisplayName(state.displayName, uid);
+  // A cold app-link open has no history to go back to.
+  const leave = useCallback(() => {
+    if (router.canGoBack()) router.back();
+    else router.replace('/');
+  }, [router]);
   const [load, setLoad] = useState<Load>({ kind: 'loading' });
-  const [error, setError] = useState<string | null>(null);
+  /** A failed submit: the message, and whether retrying could help. */
+  const [error, setError] = useState<{ message: string; retry: boolean } | null>(null);
   const [pending, setPending] = useState<number[] | null>(null);
   /** Set by a submission from this screen, so completion is tracked once and only then. */
   const [justPlayed, setJustPlayed] = useState(false);
@@ -122,7 +131,9 @@ export function ChallengeScreen({ code, via }: { code: string; via: 'link' | 'co
         // A second device (or a retried request that did land) already
         // recorded this player: that is a finished run, not an error.
         if (!api.isAlreadyPlayed(e)) {
-          setError(api.socialErrorMessage(e));
+          // Expired or deleted meanwhile: retrying can't succeed.
+          const permanent = PERMANENT_SUBMIT_ERRORS.includes(api.socialErrorCode(e));
+          setError({ message: api.socialErrorMessage(e), retry: !permanent });
           return;
         }
       }
@@ -168,7 +179,7 @@ export function ChallengeScreen({ code, via }: { code: string; via: 'link' | 'co
       <Screen className="items-center justify-center gap-4 px-5">
         <Text className="text-center text-lg text-ink-primary">{api.socialErrorMessage(null)}</Text>
         <Button label="Try again" onPress={reload} testID="challenge-retry" />
-        <Button label="Back" variant="ghost" onPress={() => router.back()} />
+        <Button label="Back" variant="ghost" onPress={leave} />
       </Screen>
     );
   }
@@ -184,7 +195,7 @@ export function ChallengeScreen({ code, via }: { code: string; via: 'link' | 'co
     return (
       <Screen className="items-center justify-center gap-4 px-5">
         <Text className="text-center text-lg text-ink-primary">{message}</Text>
-        <Button label="Back" onPress={() => router.back()} />
+        <Button label="Back" onPress={leave} />
       </Screen>
     );
   }
@@ -197,8 +208,11 @@ export function ChallengeScreen({ code, via }: { code: string; via: 'link' | 'co
       <Screen className="items-center justify-center gap-4 px-5">
         {error ? (
           <>
-            <Text className="text-center text-base text-ink-primary">{error}</Text>
-            <Button label="Try again" onPress={() => void submit(pending)} testID="challenge-submit-retry" />
+            <Text className="text-center text-base text-ink-primary">{error.message}</Text>
+            {error.retry && (
+              <Button label="Try again" onPress={() => void submit(pending)} testID="challenge-submit-retry" />
+            )}
+            <Button label="Back" variant="ghost" onPress={leave} testID="challenge-submit-back" />
           </>
         ) : (
           <ActivityIndicator />
@@ -225,7 +239,7 @@ export function ChallengeScreen({ code, via }: { code: string; via: 'link' | 'co
       <HeadToHead
         comparison={comparison}
         creatorName={challenge.creatorName}
-        onDone={() => router.back()}
+        onDone={leave}
         onShare={() => void shareChallenge(challengeUrl(code), name)}
       />
     </Screen>

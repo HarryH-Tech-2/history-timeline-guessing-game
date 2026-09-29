@@ -6,7 +6,12 @@ const mockApi = {
   submitChallengeEntry: jest.fn(),
   isAlreadyPlayed: (err: unknown) =>
     (err as { code?: string } | null)?.code === 'functions/already-exists',
-  socialErrorMessage: () => 'Couldn’t reach the server. Check your connection and try again.',
+  socialErrorCode: (err: unknown) =>
+    ((err as { code?: string } | null)?.code ?? '').replace(/^functions\//, ''),
+  socialErrorMessage: (err?: unknown) =>
+    (err as { code?: string } | null)?.code === 'functions/failed-precondition'
+      ? 'This challenge has expired.'
+      : 'Couldn’t reach the server. Check your connection and try again.',
 };
 // Delegates lazily: the component module (and so this factory) loads before
 // `mockApi` above is initialised.
@@ -15,9 +20,15 @@ jest.mock('./api', () => ({
   fetchEntries: (...a: unknown[]) => mockApi.fetchEntries(...a),
   submitChallengeEntry: (...a: unknown[]) => mockApi.submitChallengeEntry(...a),
   isAlreadyPlayed: (err: unknown) => mockApi.isAlreadyPlayed(err),
-  socialErrorMessage: () => mockApi.socialErrorMessage(),
+  socialErrorCode: (err: unknown) => mockApi.socialErrorCode(err),
+  socialErrorMessage: (err: unknown) => mockApi.socialErrorMessage(err),
 }));
-jest.mock('expo-router', () => ({ useRouter: () => ({ back: jest.fn(), replace: jest.fn() }) }));
+let mockCanGoBack = true;
+const mockBack = jest.fn();
+const mockReplace = jest.fn();
+jest.mock('expo-router', () => ({
+  useRouter: () => ({ back: mockBack, replace: mockReplace, canGoBack: () => mockCanGoBack }),
+}));
 let mockUid = 'me';
 jest.mock('@/services/firebase/auth', () => ({ useAuth: () => ({ uid: mockUid }) }));
 const mockTrack = jest.fn();
@@ -93,6 +104,7 @@ describe('ChallengeScreen', () => {
     jest.clearAllMocks();
     mockRoundProps.length = 0;
     mockUid = 'me';
+    mockCanGoBack = true;
   });
 
   it('asks for an update when this build lacks a question', async () => {
@@ -191,5 +203,58 @@ describe('ChallengeScreen', () => {
     expect(screen.getByText('1 friend played')).toBeOnTheScreen();
     expect(screen.getByText(/ana/)).toBeOnTheScreen();
     expect(screen.queryByText(/won/)).toBeNull();
+  });
+
+  it('treats an invalid code as no match without reading Firestore', async () => {
+    render(<ChallengeScreen code="" via="link" />);
+    await waitFor(() => expect(screen.getByText(/doesn’t match/)).toBeOnTheScreen());
+    expect(mockApi.fetchChallenge).not.toHaveBeenCalled();
+  });
+
+  it('goes back when there is history', async () => {
+    mockApi.fetchChallenge.mockResolvedValue(null);
+    mockApi.fetchEntries.mockResolvedValue([]);
+    render(<ChallengeScreen code="ABC234" via="code" />);
+    await waitFor(() => expect(screen.getByText(/doesn’t match/)).toBeOnTheScreen());
+    fireEvent.press(screen.getByText('Back'));
+    expect(mockBack).toHaveBeenCalled();
+    expect(mockReplace).not.toHaveBeenCalled();
+  });
+
+  it('goes home from a cold app-link open with no history', async () => {
+    mockCanGoBack = false;
+    mockApi.fetchChallenge.mockResolvedValue({ ...base, questionIds: ids });
+    mockApi.fetchEntries.mockResolvedValue([e('sam', 600), e('me', 700)]);
+    render(<ChallengeScreen code="ABC234" via="link" />);
+    await waitFor(() => expect(screen.getByTestId('head-to-head-done')).toBeOnTheScreen());
+    fireEvent.press(screen.getByTestId('head-to-head-done'));
+    expect(mockReplace).toHaveBeenCalledWith('/');
+    expect(mockBack).not.toHaveBeenCalled();
+  });
+
+  it('offers retry and a way out when a submit fails transiently', async () => {
+    mockCanGoBack = false;
+    mockApi.fetchChallenge.mockResolvedValue({ ...base, questionIds: ids });
+    mockApi.fetchEntries.mockResolvedValue([e('sam', 600)]);
+    mockApi.submitChallengeEntry.mockRejectedValue(new Error('offline'));
+    render(<ChallengeScreen code="ABC234" via="link" />);
+    await waitFor(() => expect(screen.getByTestId('fake-round')).toBeOnTheScreen());
+    await playEightRounds();
+    await waitFor(() => expect(screen.getByTestId('challenge-submit-retry')).toBeOnTheScreen());
+    fireEvent.press(screen.getByTestId('challenge-submit-back'));
+    expect(mockReplace).toHaveBeenCalledWith('/');
+  });
+
+  it('hides retry when the submit can never succeed', async () => {
+    mockApi.fetchChallenge.mockResolvedValue({ ...base, questionIds: ids });
+    mockApi.fetchEntries.mockResolvedValue([e('sam', 600)]);
+    mockApi.submitChallengeEntry.mockRejectedValue({ code: 'functions/failed-precondition' });
+    render(<ChallengeScreen code="ABC234" via="link" />);
+    await waitFor(() => expect(screen.getByTestId('fake-round')).toBeOnTheScreen());
+    await playEightRounds();
+    await waitFor(() => expect(screen.getByText('This challenge has expired.')).toBeOnTheScreen());
+    expect(screen.queryByTestId('challenge-submit-retry')).toBeNull();
+    fireEvent.press(screen.getByTestId('challenge-submit-back'));
+    expect(mockBack).toHaveBeenCalled();
   });
 });

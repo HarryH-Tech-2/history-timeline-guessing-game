@@ -90,4 +90,17 @@ describe('ChallengesPanel', () => {
     expect(mockShare).toHaveBeenCalledWith('https://x/c/XYZ789', expect.any(String));
     expect(mockPush).toHaveBeenCalledWith({ pathname: '/c/[code]', params: { code: 'XYZ789' } });
   });
+
+  it('skips the seen write when the entry count has not changed', async () => {
+    mockApi.fetchSocialState.mockResolvedValue({
+      challengeCodes: ['ABC234'],
+      groupIds: [],
+      seen: { ABC234: 2 },
+    });
+    mockApi.fetchChallenge.mockResolvedValue(challenge);
+    mockApi.fetchEntries.mockResolvedValue([entry('sam', 500), entry('me', 500)]);
+    render(<ChallengesPanel />);
+    await waitFor(() => expect(screen.getByTestId('challenge-row-ABC234')).toBeOnTheScreen());
+    expect(mockApi.markSeen).not.toHaveBeenCalled();
+  });
 });

@@ -19,11 +19,12 @@ type Row = { challenge: Challenge; entries: ChallengeEntry[] };
 /** Newest first; older ones stay reachable by code. */
 const MAX_ROWS = 20;
 
-async function loadRow(uid: string, code: string): Promise<Row | null> {
+async function loadRow(uid: string, code: string, seen: number | undefined): Promise<Row | null> {
   try {
     const [challenge, entries] = await Promise.all([api.fetchChallenge(code), api.fetchEntries(code)]);
     if (!challenge) return null;
-    api.markSeen(uid, code, entries.length).catch(() => undefined);
+    // Only write when the count moved, not for every row on every focus.
+    if (seen !== entries.length) api.markSeen(uid, code, entries.length).catch(() => undefined);
     return { challenge, entries };
   } catch {
     return null; // one unreadable challenge shouldn't hide the rest
@@ -49,7 +50,7 @@ export function ChallengesPanel() {
         try {
           const social = await api.fetchSocialState(uid);
           const loaded = await Promise.all(
-            [...social.challengeCodes].reverse().slice(0, MAX_ROWS).map((code) => loadRow(uid, code)),
+            [...social.challengeCodes].reverse().slice(0, MAX_ROWS).map((code) => loadRow(uid, code, social.seen[code])),
           );
           if (!live) return;
           setRows(loaded.filter((r): r is Row => r !== null));
