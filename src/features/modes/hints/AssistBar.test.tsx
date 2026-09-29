@@ -15,13 +15,16 @@ import { multipleChoiceYears } from './choices';
 
 const question = { id: 'q1', year: 1969 } as Question;
 
-function renderBar(props: { onSubmit?: () => void; onChoose?: (year: number) => void } = {}) {
+function renderBar(
+  props: { onSubmit?: () => void; onChoose?: (year: number) => void; onChoicesShown?: () => void } = {},
+) {
   return render(
     <ProgressionProvider>
       <AssistBar
         question={question}
         onSubmit={props.onSubmit ?? jest.fn()}
         onChoose={props.onChoose ?? jest.fn()}
+        onChoicesShown={props.onChoicesShown}
       />
     </ProgressionProvider>,
   );
@@ -97,6 +100,22 @@ describe('AssistBar', () => {
 
     fireEvent.press(screen.getByTestId('choice-1969'));
     expect(onChoose).toHaveBeenCalledWith(1969);
+  });
+
+  it('hides the timeline submit once the four choices are showing', async () => {
+    await withCoins(25);
+    const onChoicesShown = jest.fn();
+    renderBar({ onChoicesShown });
+    await waitFor(() =>
+      expect(screen.getByTestId('choices-button')).toHaveProp(
+        'accessibilityState',
+        expect.objectContaining({ disabled: false }),
+      ),
+    );
+    fireEvent.press(screen.getByTestId('choices-button'));
+    await screen.findByTestId('choices');
+    expect(onChoicesShown).toHaveBeenCalledTimes(1);
+    expect(screen.queryByTestId('submit-button')).toBeNull();
   });
 
   it('only takes the first pick', async () => {

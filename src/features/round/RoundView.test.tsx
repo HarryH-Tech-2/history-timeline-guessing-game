@@ -5,7 +5,7 @@ import { QuestionSchema, type Question } from '@/domain';
 import { SoundContext } from '@/features/sound';
 import { evaluateGuess, isRightAnswer } from '@/features/timeline/math';
 
-import { RoundView } from './RoundView';
+import { type AssistControls, RoundView } from './RoundView';
 
 const question: Question = QuestionSchema.parse({
   id: 'q1',
@@ -154,6 +154,27 @@ describe('RoundView assist footer', () => {
     act(() => controls!.submit());
     expect(onSubmit).toHaveBeenCalledTimes(1);
     expect(onSubmit.mock.calls[0]![1]).toBeUndefined();
+  });
+
+  it('hides (but keeps mounted) the timeline once the footer shows choices', () => {
+    let controls: AssistControls | undefined;
+    render(
+      <RoundView
+        question={question}
+        phase="guessing"
+        result={null}
+        onSubmit={jest.fn()}
+        onNext={jest.fn()}
+        assist={(c) => {
+          controls = c;
+          return null;
+        }}
+      />,
+    );
+    expect(screen.getByTestId('timeline')).toBeOnTheScreen();
+    act(() => controls!.hideTimeline());
+    expect(screen.queryByTestId('timeline')).toBeNull();
+    expect(screen.getByTestId('timeline', { includeHiddenElements: true })).toBeTruthy();
   });
 });
 

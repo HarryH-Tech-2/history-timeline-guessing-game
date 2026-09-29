@@ -21,6 +21,9 @@ const DEFAULT_RANGE = { min: 1700, max: 2026 } as const;
 export interface AssistControls {
   submit: () => void;
   choose: (year: number) => void;
+  /** Hide the timeline for the rest of this question (the footer is showing
+   * multiple choice, which is then the only way to answer). */
+  hideTimeline: () => void;
 }
 
 interface RoundViewProps {
@@ -124,6 +127,12 @@ export function RoundView({
   );
   const handleChoose = useCallback((year: number) => answer(year, true), [answer]);
 
+  // Keyed by question id rather than reset in an effect: a new question
+  // brings the timeline straight back.
+  const [timelineHiddenFor, setTimelineHiddenFor] = useState<string | null>(null);
+  const hideTimeline = useCallback(() => setTimelineHiddenFor(question.id), [question.id]);
+  const choicesMode = !revealed && timelineHiddenFor === question.id;
+
   // Next can take this whole view out of the tree (the last question hands
   // over to the run summary), often while the reveal zoom is still running
   // from a quick tap. So the timeline is stopped first, and the hand-off waits
@@ -152,18 +161,24 @@ export function RoundView({
   // thread, and a run of quick answers piled up enough to stall the app.
   // Laid out absolutely at the stage's width so the track never re-measures.
   const showMarkers = revealed && !showImage;
+  // Hidden the same way (never unmounted) behind the reveal picture, and
+  // while the footer's multiple choice is the way to answer.
+  const trackHidden = showImage || choicesMode;
   // While guessing, the stage never gets less than the track needs (track +
   // its py-2 padding and border); the prompt card above shrinks its
   // illustration instead. On the reveal the track is hidden, so the stage
   // gives the reveal picture whatever room the sheet leaves.
   const stage = (
-    <View className="flex-1" style={revealed ? undefined : { minHeight: trackHeightFor(height) + 18 }}>
+    <View
+      className="flex-1"
+      style={revealed || choicesMode ? undefined : { minHeight: trackHeightFor(height) + 18 }}
+    >
       <View
-        className={showImage ? 'absolute left-0 right-0 top-0 py-2' : 'flex-1 justify-center py-2'}
-        style={showImage ? { opacity: 0 } : undefined}
-        pointerEvents={showImage ? 'none' : 'auto'}
-        accessibilityElementsHidden={showImage}
-        importantForAccessibility={showImage ? 'no-hide-descendants' : 'auto'}
+        className={trackHidden ? 'absolute left-0 right-0 top-0 py-2' : 'flex-1 justify-center py-2'}
+        style={trackHidden ? { opacity: 0 } : undefined}
+        pointerEvents={trackHidden ? 'none' : 'auto'}
+        accessibilityElementsHidden={trackHidden}
+        importantForAccessibility={trackHidden ? 'no-hide-descendants' : 'auto'}
       >
         <TimelineTrack
           controller={controller}
@@ -202,7 +217,7 @@ export function RoundView({
       {actions}
       {assist ? (
         <Fragment key={question.id}>
-          {assist({ submit: handleSubmit, choose: handleChoose })}
+          {assist({ submit: handleSubmit, choose: handleChoose, hideTimeline })}
         </Fragment>
       ) : (
         <Button label="Submit guess" onPress={handleSubmit} testID="submit-button" />

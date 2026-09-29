@@ -1,13 +1,16 @@
 import { useState } from 'react';
-import { Image, Pressable, Text, View } from 'react-native';
+import { Image, Pressable, Text, useWindowDimensions, View } from 'react-native';
 
 import { Card, ImageLightbox } from '@/components/ui';
 import { imageForQuestion } from '@/data';
 
-/** Largest illustration edge (it is also capped at the card's width), and
- * the smallest it may shrink to when the screen is short. */
+/** Largest illustration edge (also capped at the card's inner width, so it
+ * stays square), and the smallest it may shrink to when the screen is short. */
 const IMAGE_MAX = 360;
 const IMAGE_MIN = 112;
+/** Never squeeze the card below the smallest art plus a two-line title and
+ * its padding, or the title spills out over the timeline. */
+const CARD_MIN = IMAGE_MIN + 108;
 
 interface PromptCardProps {
   questionId: string;
@@ -32,6 +35,9 @@ export function PromptCard({
 }: PromptCardProps) {
   const image = imageForQuestion(questionId);
   const [zoomed, setZoomed] = useState(false);
+  // Screen gutter (px-5 each side) + card padding (p-4) + its border.
+  const { width: windowWidth } = useWindowDimensions();
+  const imageEdge = Math.min(IMAGE_MAX, windowWidth - 40 - 32 - 2);
 
   const lightbox = image ? (
     <ImageLightbox
@@ -82,7 +88,7 @@ export function PromptCard({
   // IMAGE_MIN) so the timeline below keeps its full height instead of being
   // squeezed and spilling over this card and the buttons.
   return (
-    <Card className="shrink items-center gap-3 p-4" style={{ minHeight: 0 }}>
+    <Card className="shrink items-center gap-3 p-4" style={{ minHeight: CARD_MIN }}>
       {image && (
         <Pressable
           onPress={() => setZoomed(true)}
@@ -90,7 +96,7 @@ export function PromptCard({
           accessibilityLabel={`Enlarge illustration of ${title}`}
           testID="prompt-image-button"
           className="shrink self-center"
-          style={{ height: IMAGE_MAX, minHeight: IMAGE_MIN, maxWidth: '100%', aspectRatio: 1 }}
+          style={{ height: imageEdge, minHeight: IMAGE_MIN, aspectRatio: 1 }}
         >
           <Image
             source={image}

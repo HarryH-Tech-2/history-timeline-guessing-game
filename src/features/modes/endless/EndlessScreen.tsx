@@ -29,7 +29,12 @@ function EndlessPlay({ onHome }: { onHome: () => void }) {
         onSubmit={session.submit}
         onNext={session.advance}
         assist={(c) => (
-          <AssistBar question={session.question} onSubmit={c.submit} onChoose={c.choose} />
+          <AssistBar
+            question={session.question}
+            onSubmit={c.submit}
+            onChoose={c.choose}
+            onChoicesShown={c.hideTimeline}
+          />
         )}
         hud={<ModeHud progressLabel={progressLabel} score={session.totalScore} onBack={onHome} />}
       />

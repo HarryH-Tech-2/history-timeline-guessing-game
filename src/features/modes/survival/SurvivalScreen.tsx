@@ -68,7 +68,12 @@ function SurvivalPlay({ onHome, onRetry }: { onHome: () => void; onRetry: () => 
         onNext={session.advance}
         nextLabel={nextLabel}
         assist={(c) => (
-          <AssistBar question={session.question} onSubmit={c.submit} onChoose={c.choose} />
+          <AssistBar
+            question={session.question}
+            onSubmit={c.submit}
+            onChoose={c.choose}
+            onChoicesShown={c.hideTimeline}
+          />
         )}
         hud={
           <ModeHud

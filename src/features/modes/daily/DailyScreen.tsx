@@ -99,7 +99,12 @@ export function DailyScreen() {
           onNext={session.advance}
           nextLabel={onLastQuestion ? 'Finish' : 'Next'}
           assist={(c) => (
-            <AssistBar question={session.question} onSubmit={c.submit} onChoose={c.choose} />
+            <AssistBar
+              question={session.question}
+              onSubmit={c.submit}
+              onChoose={c.choose}
+              onChoicesShown={c.hideTimeline}
+            />
           )}
           hud={
             <ModeHud

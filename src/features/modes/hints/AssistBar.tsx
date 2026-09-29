@@ -19,6 +19,13 @@ interface AssistBarProps {
   onSubmit: () => void;
   /** Submit a year picked from multiple choice (scored at half). */
   onChoose: (year: number) => void;
+  /**
+   * Called once when the four choices appear. The choices are then the only
+   * way to answer: the round hides its timeline, and the timeline's Submit
+   * goes too, so nobody can read the options and drag to the right one for
+   * full points.
+   */
+  onChoicesShown?: () => void;
 }
 
 /** A small coin-priced helper pill, sized to its content: glyph, name and
@@ -77,7 +84,7 @@ function AssistButton({
  * shown above the chips.
  * Mounted per question (RoundView keys it), so it starts fresh each round.
  */
-export function AssistBar({ question, onSubmit, onChoose }: AssistBarProps) {
+export function AssistBar({ question, onSubmit, onChoose, onChoicesShown }: AssistBarProps) {
   const { state, spend } = useProgression();
   const { isPremium } = usePremium();
   const [hintShown, setHintShown] = useState(false);
@@ -98,6 +105,7 @@ export function AssistBar({ question, onSubmit, onChoose }: AssistBarProps) {
     if (spend(MULTIPLE_CHOICE_COST)) {
       track('multiple_choice_used', { question_id: question.id });
       setChoices(multipleChoiceYears(question));
+      onChoicesShown?.();
     }
   };
 
@@ -175,7 +183,9 @@ export function AssistBar({ question, onSubmit, onChoose }: AssistBarProps) {
         />
       </View>
 
-      <Button variant="hero" label="Submit guess" onPress={onSubmit} testID="submit-button" />
+      {choices === null && (
+        <Button variant="hero" label="Submit guess" onPress={onSubmit} testID="submit-button" />
+      )}
     </View>
   );
 }
