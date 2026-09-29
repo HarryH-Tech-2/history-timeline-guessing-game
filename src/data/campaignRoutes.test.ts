@@ -1,3 +1,5 @@
+import { CAMPAIGN } from '@/features/modes/campaign/campaignMap';
+
 import {
   CAMPAIGN_ROUTE_SPECS,
   getCategoryById,
@@ -130,6 +132,28 @@ describe('campaign route questions', () => {
         for (const d of ['easy', 'medium', 'hard']) {
           expect(own.filter((q) => q.difficulty === d)).toHaveLength(5);
         }
+      }
+    });
+  }
+
+  const FORK_AFTER: Record<string, string> = {
+    ancient: 'ancient-s2',
+    medieval: 'medieval-s3',
+    'early-modern': 'early-modern-s4',
+    nineteenth: 'nineteenth-s4',
+    modern: 'modern-s8',
+  };
+
+  for (const eraId of COMPLETE_ERAS) {
+    it(`forks ${eraId} after ${FORK_AFTER[eraId]} into two routes of three five-question stages`, () => {
+      const world = CAMPAIGN.find((w) => w.id === eraId)!;
+      expect(world.routes.map((r) => r.id)).toEqual(
+        CAMPAIGN_ROUTE_SPECS.filter((s) => s.eraId === eraId).map((s) => s.id),
+      );
+      for (const route of world.routes) {
+        expect(route.afterStageId).toBe(FORK_AFTER[eraId]);
+        expect(route.stages.map((s) => s.id)).toEqual([1, 2, 3].map((n) => `${eraId}-${route.id}-s${n}`));
+        for (const stage of route.stages) expect(stage.questionIds).toHaveLength(5);
       }
     });
   }

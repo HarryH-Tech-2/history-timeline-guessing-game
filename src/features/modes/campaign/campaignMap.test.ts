@@ -5,6 +5,12 @@ import type { CampaignProgress } from '../persistence';
 import {
   CAMPAIGN,
   allStages,
+  allStagesIncludingRoutes,
+  buildCampaign,
+  forkAfterIndex,
+  getRoute,
+  getStage,
+  worldStages,
   eraStatus,
   FREE_ERA_COUNT,
   isStagePremium,
@@ -14,6 +20,12 @@ import {
   progressSince,
   starsForResults,
 } from './campaignMap';
+import {
+  FIXTURE_POOL,
+  FIXTURE_ROUTE_QUESTIONS,
+  FIXTURE_ROUTE_SPECS,
+  FIXTURE_WORLDS,
+} from './__fixtures__/routedCampaign';
 
 function roundScoring(total: number): RoundResult {
   return {
@@ -149,5 +161,69 @@ describe('progressSince', () => {
     const before: CampaignProgress = { [s1!.id]: { stars: 1, bestScore: 1 } };
     const after: CampaignProgress = { [s1!.id]: { stars: 3, bestScore: 9 } };
     expect(progressSince(before, after)).toEqual({ cleared: [], unlocked: [] });
+  });
+});
+
+describe('routes data model', () => {
+  const [ancient, medieval] = FIXTURE_WORLDS;
+
+  it('forks a third of the way along each era, rounding up', () => {
+    expect([6, 9, 12, 12, 24].map(forkAfterIndex)).toEqual([2, 3, 4, 4, 8]);
+    expect(forkAfterIndex(1)).toBe(1);
+  });
+
+  it('builds each route after the fork stage with positional route stage ids', () => {
+    expect(ancient!.routes.map((r) => [r.id, r.afterStageId, r.stages.map((s) => s.id)])).toEqual([
+      ['north', 'ancient-s2', ['ancient-north-s1', 'ancient-north-s2', 'ancient-north-s3']],
+      ['south', 'ancient-s2', ['ancient-south-s1', 'ancient-south-s2', 'ancient-south-s3']],
+    ]);
+    expect(medieval!.routes.map((r) => [r.id, r.afterStageId, r.stages.length])).toEqual([
+      ['east', 'medieval-s1', 1],
+    ]);
+  });
+
+  it('orders route questions easy→hard, then by year, five per stage', () => {
+    const north = ancient!.routes[0]!;
+    expect(north.stages.map((s) => s.questionIds)).toEqual([
+      ['n-5', 'n-6', 'n-7', 'n-8', 'n-9'],
+      ['n-10', 'n-11', 'n-12', 'n-13', 'n-14'],
+      ['n-0', 'n-1', 'n-2', 'n-3', 'n-4'],
+    ]);
+  });
+
+  it('labels route stages with era, route and number', () => {
+    const stage = ancient!.routes[1]!.stages[2]!;
+    expect(stage).toMatchObject({
+      worldId: 'ancient',
+      routeId: 'south',
+      index: 3,
+      title: 'The Ancient World · South Road · Stage 3',
+    });
+  });
+
+  it('never changes the main path when routes are added', () => {
+    const without = buildCampaign(FIXTURE_POOL, [], FIXTURE_ROUTE_SPECS);
+    expect(without.every((w) => w.routes.length === 0)).toBe(true);
+    expect(allStages(FIXTURE_WORLDS)).toEqual(allStages(without));
+    expect(buildCampaign(FIXTURE_POOL, FIXTURE_ROUTE_QUESTIONS, FIXTURE_ROUTE_SPECS)).toEqual(FIXTURE_WORLDS);
+  });
+
+  it('lists stages in play order: main to the fork, route A, route B, then on', () => {
+    expect(worldStages(ancient!).map((s) => s.id)).toEqual([
+      'ancient-s1', 'ancient-s2',
+      'ancient-north-s1', 'ancient-north-s2', 'ancient-north-s3',
+      'ancient-south-s1', 'ancient-south-s2', 'ancient-south-s3',
+      'ancient-s3', 'ancient-s4', 'ancient-s5', 'ancient-s6',
+    ]);
+    expect(allStagesIncludingRoutes(FIXTURE_WORLDS)).toHaveLength(12 + 3);
+    expect(allStages(FIXTURE_WORLDS)).toHaveLength(8);
+  });
+
+  it('finds route stages and their route', () => {
+    const stage = getStage('medieval', 'medieval-east-s1', FIXTURE_WORLDS);
+    expect(stage?.routeId).toBe('east');
+    expect(getRoute(stage!, FIXTURE_WORLDS)?.name).toBe('East Road');
+    expect(getRoute(getStage('ancient', 'ancient-s1', FIXTURE_WORLDS)!, FIXTURE_WORLDS)).toBeUndefined();
+    expect(getStage('ancient', 'medieval-east-s1', FIXTURE_WORLDS)).toBeUndefined();
   });
 });

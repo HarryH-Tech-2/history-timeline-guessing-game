@@ -1,4 +1,10 @@
-import { getQuestions, isInRotation } from '@/data';
+import {
+  CAMPAIGN_ROUTE_SPECS,
+  getQuestions,
+  isCampaignRouteQuestion,
+  isInRotation,
+  type CampaignRouteSpec,
+} from '@/data';
 import { DIFFICULTY_ORDER, type Question, type RoundResult } from '@/domain';
 
 import type { CampaignProgress } from '../persistence';
@@ -8,10 +14,27 @@ export const STAGE_SIZE = 5;
 export interface CampaignStage {
   id: string;
   worldId: string;
-  /** 1-based position within the world. */
+  /** 1-based position within the world's main path, or within its route. */
   index: number;
   title: string;
   questionIds: readonly string[];
+  /** Set on route stages only: the route they belong to. */
+  routeId?: string;
+}
+
+/**
+ * A themed side path: it forks off the main path after `afterStageId` and
+ * rejoins at the next main stage. Finishing either route of a fork opens the
+ * rejoin stage; the other route stays open to play later.
+ */
+export interface CampaignRoute {
+  id: string;
+  worldId: string;
+  name: string;
+  icon: string;
+  /** The main stage this route forks after. */
+  afterStageId: string;
+  stages: readonly CampaignStage[];
 }
 
 export interface CampaignWorld {
@@ -23,7 +46,10 @@ export interface CampaignWorld {
   period: string;
   /** 1-based position in the campaign. */
   index: number;
+  /** The main path, in play order. */
   stages: readonly CampaignStage[];
+  /** The era's fork: its themed routes, in play order (empty until they have questions). */
+  routes: readonly CampaignRoute[];
 }
 
 /** One campaign world per era of history, played oldest to newest. */
@@ -98,24 +124,33 @@ function chunk<T>(items: readonly T[], size: number): T[][] {
   return out;
 }
 
+function byDifficultyThenYear(a: Question, b: Question): number {
+  const byDifficulty = difficultyRank(a.difficulty) - difficultyRank(b.difficulty);
+  return byDifficulty !== 0 ? byDifficulty : a.year - b.year;
+}
+
+/** The 1-based main stage an era forks after: a third of the way along, rounded up. */
+export function forkAfterIndex(mainStageCount: number): number {
+  return Math.ceil(mainStageCount / 3);
+}
+
 /**
  * The campaign is one world per time period, played in chronological order.
- * Within an era the questions are ordered easy→hard (then by year) and split
- * into fixed stages, so progression still feels like a gentle difficulty
- * ramp. Every category takes part, premium ones included: all modes draw on
- * the whole catalogue (user decision 2026-09-03); Premium only gates playing a
- * premium category on its own. Built once from the seed data.
+ * Within an era the in-rotation questions are ordered easy→hard (then by year)
+ * and split into fixed stages — the main path, whose positional ids players'
+ * progress is keyed by, so `pool` must only ever be the rotation. A third of
+ * the way along, each era forks into its themed routes, built the same way
+ * from the route questions tagged with the route's id. Routes without
+ * questions are left out. Every category takes part, premium ones included
+ * (user decision 2026-09-03). Pure, so tests can build fixture campaigns.
  */
-function buildCampaign(): readonly CampaignWorld[] {
-  const questions = getQuestions().filter(isInRotation);
-
+export function buildCampaign(
+  pool: readonly Question[],
+  routeQuestions: readonly Question[],
+  routeSpecs: readonly CampaignRouteSpec[],
+): readonly CampaignWorld[] {
   return ERAS.map((era, worldIndex) => {
-    const ordered = questions
-      .filter((q) => eraOf(q).id === era.id)
-      .sort((a, b) => {
-        const byDifficulty = difficultyRank(a.difficulty) - difficultyRank(b.difficulty);
-        return byDifficulty !== 0 ? byDifficulty : a.year - b.year;
-      });
+    const ordered = pool.filter((q) => eraOf(q).id === era.id).sort(byDifficultyThenYear);
 
     const stages: CampaignStage[] = chunk(ordered, STAGE_SIZE).map((group, stageIndex) => ({
       id: `${era.id}-s${stageIndex + 1}`,
@@ -125,6 +160,34 @@ function buildCampaign(): readonly CampaignWorld[] {
       questionIds: group.map((q) => q.id),
     }));
 
+    const fork = stages[forkAfterIndex(stages.length) - 1];
+    const routes: CampaignRoute[] =
+      fork === undefined
+        ? []
+        : routeSpecs
+            .filter((spec) => spec.eraId === era.id)
+            .map((spec) => {
+              const own = routeQuestions
+                .filter((q) => q.tags.includes(spec.id))
+                .sort(byDifficultyThenYear);
+              return {
+                id: spec.id,
+                worldId: era.id,
+                name: spec.name,
+                icon: spec.icon,
+                afterStageId: fork.id,
+                stages: chunk(own, STAGE_SIZE).map((group, i) => ({
+                  id: `${era.id}-${spec.id}-s${i + 1}`,
+                  worldId: era.id,
+                  index: i + 1,
+                  title: `${era.name} · ${spec.name} · Stage ${i + 1}`,
+                  questionIds: group.map((q) => q.id),
+                  routeId: spec.id,
+                })),
+              };
+            })
+            .filter((route) => route.stages.length > 0);
+
     return {
       id: era.id,
       name: era.name,
@@ -133,23 +196,61 @@ function buildCampaign(): readonly CampaignWorld[] {
       period: era.period,
       index: worldIndex + 1,
       stages,
+      routes,
     };
   }).filter((world) => world.stages.length > 0);
 }
 
-export const CAMPAIGN: readonly CampaignWorld[] = buildCampaign();
+/** Built once from the bundled seed. */
+export const CAMPAIGN: readonly CampaignWorld[] = buildCampaign(
+  getQuestions().filter(isInRotation),
+  getQuestions().filter(isCampaignRouteQuestion),
+  CAMPAIGN_ROUTE_SPECS,
+);
 
-export function getWorld(worldId: string): CampaignWorld | undefined {
-  return CAMPAIGN.find((w) => w.id === worldId);
+export function getWorld(
+  worldId: string,
+  worlds: readonly CampaignWorld[] = CAMPAIGN,
+): CampaignWorld | undefined {
+  return worlds.find((w) => w.id === worldId);
 }
 
-export function getStage(worldId: string, stageId: string): CampaignStage | undefined {
-  return getWorld(worldId)?.stages.find((s) => s.id === stageId);
+/** Every stage of an era in play order: main path to the fork, each route, then the rest. */
+export function worldStages(world: CampaignWorld): readonly CampaignStage[] {
+  return world.stages.flatMap((stage) => [
+    stage,
+    ...world.routes.filter((r) => r.afterStageId === stage.id).flatMap((r) => r.stages),
+  ]);
 }
 
-/** A flat, ordered list of every stage across every world. */
-export function allStages(): readonly CampaignStage[] {
-  return CAMPAIGN.flatMap((w) => w.stages);
+export function getStage(
+  worldId: string,
+  stageId: string,
+  worlds: readonly CampaignWorld[] = CAMPAIGN,
+): CampaignStage | undefined {
+  const world = getWorld(worldId, worlds);
+  return world === undefined ? undefined : worldStages(world).find((s) => s.id === stageId);
+}
+
+/** The route a stage belongs to; undefined for main-path stages. */
+export function getRoute(
+  stage: CampaignStage,
+  worlds: readonly CampaignWorld[] = CAMPAIGN,
+): CampaignRoute | undefined {
+  if (stage.routeId === undefined) return undefined;
+  return getWorld(stage.worldId, worlds)?.routes.find((r) => r.id === stage.routeId);
+}
+
+/** The main path: a flat, ordered list of every main stage across every world. */
+export function allStages(worlds: readonly CampaignWorld[] = CAMPAIGN): readonly CampaignStage[] {
+  return worlds.flatMap((w) => w.stages);
+}
+
+/** Every stage, route stages included, in play order. */
+export function allStagesIncludingRoutes(
+  worlds: readonly CampaignWorld[] = CAMPAIGN,
+): readonly CampaignStage[] {
+  return worlds.flatMap(worldStages);
 }
 
 /** Star rating (1–3) for a completed stage, from its average round score. */
