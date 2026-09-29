@@ -8,6 +8,7 @@ import { usePremium } from '@/features/premium/PremiumProvider';
 import { useProgression } from '@/features/progression';
 import { formatYear } from '@/features/timeline/math/format';
 import { track } from '@/services/analytics';
+import { cn } from '@/utils/cn';
 
 import { MULTIPLE_CHOICE_COST, multipleChoiceYears } from './choices';
 import { centuryHint, HINT_COST, hintTemplate } from './hint';
@@ -20,7 +21,8 @@ interface AssistBarProps {
   onChoose: (year: number) => void;
 }
 
-/** A compact coin-priced helper: glyph and name over its price. */
+/** A coin-priced helper chip: glyph and name, with the price in a small
+ * badge on the right (a tick once it has been used this round). */
 function AssistButton({
   glyph,
   label,
@@ -47,22 +49,38 @@ function AssistButton({
       accessibilityLabel={used ? `${label} used` : `${label}, ${price}`}
       accessibilityState={{ disabled: inactive }}
       testID={testID}
-      className="h-14 min-w-[76px] items-center justify-center border border-hair bg-bg-raised px-2"
+      className={cn(
+        'h-12 flex-1 flex-row items-center justify-between rounded-xl border px-3.5 active:opacity-70',
+        used ? 'border-hair bg-bg-overlay' : 'border-accent/35 bg-accent/5',
+      )}
       style={{ opacity: disabled && !used ? 0.45 : 1 }}
     >
-      <Text className="text-xs font-bold text-ink-primary" numberOfLines={1}>
-        {glyph} {label}
-      </Text>
-      <Text className="text-[11px] font-semibold text-ink-muted" numberOfLines={1}>
-        {used ? 'Used' : price}
-      </Text>
+      <View className="flex-row items-center gap-2">
+        <Text className="text-base" style={{ includeFontPadding: false }}>
+          {glyph}
+        </Text>
+        <Text
+          className={cn('text-sm font-bold', used ? 'text-ink-muted' : 'text-ink-primary')}
+          numberOfLines={1}
+        >
+          {label}
+        </Text>
+      </View>
+      <View
+        className={cn('rounded-full px-2.5 py-1', used ? 'bg-transparent' : 'bg-bg-raised')}
+      >
+        <Text className="text-xs font-bold text-ink-secondary" numberOfLines={1}>
+          {used ? '✓ Used' : price}
+        </Text>
+      </View>
     </Pressable>
   );
 }
 
 /**
- * The guess footer: the century hint and multiple choice as small coin-priced
- * buttons beside Submit, with whatever they unlocked shown above the row.
+ * The guess footer: the century hint and multiple choice as a pair of
+ * coin-priced chips above a full-width Submit, with whatever they unlocked
+ * shown above the chips.
  * Mounted per question (RoundView keys it), so it starts fresh each round.
  */
 export function AssistBar({ question, onSubmit, onChoose }: AssistBarProps) {
@@ -104,7 +122,7 @@ export function AssistBar({ question, onSubmit, onChoose }: AssistBarProps) {
       {hintShown && (
         <Animated.View
           entering={FadeInDown.duration(220)}
-          className="border border-hair bg-bg-raised px-4 py-3"
+          className="rounded-xl border border-hair bg-bg-raised px-4 py-3"
           testID="hint-line"
         >
           <Text className="text-center text-sm text-ink-secondary">
@@ -128,7 +146,7 @@ export function AssistBar({ question, onSubmit, onChoose }: AssistBarProps) {
                 accessibilityRole="button"
                 accessibilityLabel={`Answer ${formatYear(year)}`}
                 testID={`choice-${year}`}
-                className="h-12 w-[48.5%] items-center justify-center border-2 border-accent/60 bg-accent/10"
+                className="h-12 w-[48.5%] items-center justify-center rounded-xl border-2 border-accent/60 bg-accent/10 active:opacity-70"
               >
                 <Text
                   className="text-lg font-extrabold text-ink-primary"
@@ -142,7 +160,7 @@ export function AssistBar({ question, onSubmit, onChoose }: AssistBarProps) {
         </Animated.View>
       )}
 
-      <View className="flex-row items-center gap-2" testID="assist-row">
+      <View className="flex-row gap-3" testID="assist-row">
         <AssistButton
           glyph="💡"
           label="Hint"
@@ -161,10 +179,9 @@ export function AssistBar({ question, onSubmit, onChoose }: AssistBarProps) {
           onPress={buyChoices}
           testID="choices-button"
         />
-        <View className="flex-1">
-          <Button label="Submit guess" onPress={onSubmit} testID="submit-button" />
-        </View>
       </View>
+
+      <Button variant="hero" label="Submit guess" onPress={onSubmit} testID="submit-button" />
     </View>
   );
 }
