@@ -1,0 +1,622 @@
+[
+ {
+  "id": "ancient-s1",
+  "questionIds": [
+   "evt-hannibal-alps",
+   "evt-caesar-assassination",
+   "evt-vesuvius",
+   "evt-fall-western-rome",
+   "bat-marathon"
+  ]
+ },
+ {
+  "id": "ancient-s2",
+  "questionIds": [
+   "bat-thermopylae",
+   "bat-salamis",
+   "art-parthenon",
+   "phi-socrates-trial",
+   "ppl-aristotle"
+  ]
+ },
+ {
+  "id": "ancient-s3",
+  "questionIds": [
+   "ppl-alexander",
+   "ppl-cicero",
+   "ppl-caesar",
+   "tec-paper",
+   "ppl-marcus-aurelius"
+  ]
+ },
+ {
+  "id": "ancient-s4",
+  "questionIds": [
+   "bat-gaugamela",
+   "bat-cannae",
+   "bat-zama",
+   "ppl-augustus",
+   "bat-alesia"
+  ]
+ },
+ {
+  "id": "ancient-s5",
+  "questionIds": [
+   "bat-actium",
+   "bat-teutoburg",
+   "ppl-hadrian",
+   "bat-red-cliffs",
+   "ppl-augustine"
+  ]
+ },
+ {
+  "id": "ancient-s6",
+  "questionIds": [
+   "bat-adrianople",
+   "phi-city-of-god"
+  ]
+ },
+ {
+  "id": "medieval-s1",
+  "questionIds": [
+   "evt-charlemagne-crowned",
+   "bat-hastings",
+   "evt-genghis-proclaimed",
+   "evt-black-death",
+   "ppl-davinci"
+  ]
+ },
+ {
+  "id": "medieval-s2",
+  "questionIds": [
+   "tec-printing-press",
+   "evt-columbus",
+   "reg-granada-falls",
+   "trt-tordesillas",
+   "exp-vasco-da-gama"
+  ]
+ },
+ {
+  "id": "medieval-s3",
+  "questionIds": [
+   "art-hagia-sophia",
+   "evt-hijra",
+   "evt-baghdad-founded",
+   "trt-verdun",
+   "trd-jiaozi"
+  ]
+ },
+ {
+  "id": "medieval-s4",
+  "questionIds": [
+   "evt-great-schism",
+   "evt-domesday-book",
+   "evt-council-clermont",
+   "bat-jerusalem-1099",
+   "art-notre-dame"
+  ]
+ },
+ {
+  "id": "medieval-s5",
+  "questionIds": [
+   "bat-hattin",
+   "evt-sack-constantinople-1204",
+   "evt-magna-carta",
+   "exp-marco-polo",
+   "con-mansa-musa"
+  ]
+ },
+ {
+  "id": "medieval-s6",
+  "questionIds": [
+   "bat-crecy",
+   "trd-medici-bank",
+   "reg-kalmar-union",
+   "bat-agincourt",
+   "reg-forbidden-city"
+  ]
+ },
+ {
+  "id": "medieval-s7",
+  "questionIds": [
+   "bat-orleans",
+   "evt-constantinople",
+   "bat-bosworth",
+   "evt-justinian-plague",
+   "bat-tours"
+  ]
+ },
+ {
+  "id": "medieval-s8",
+  "questionIds": [
+   "evt-lindisfarne",
+   "tec-gunpowder-formula",
+   "bat-manzikert",
+   "tec-su-song-clock",
+   "bat-ain-jalut"
+  ]
+ },
+ {
+  "id": "medieval-s9",
+  "questionIds": [
+   "ppl-petrarch",
+   "bat-bannockburn",
+   "exp-ibn-battuta",
+   "exp-zheng-he",
+   "bat-grunwald"
+  ]
+ },
+ {
+  "id": "early-modern-s1",
+  "questionIds": [
+   "reg-mayflower",
+   "evt-us-independence",
+   "art-david",
+   "art-sistine-chapel",
+   "phi-utopia"
+  ]
+ },
+ {
+  "id": "early-modern-s2",
+  "questionIds": [
+   "con-tenochtitlan",
+   "exp-magellan",
+   "reg-atahualpa-captured",
+   "ppl-elizabeth-i",
+   "ppl-shakespeare"
+  ]
+ },
+ {
+  "id": "early-modern-s3",
+  "questionIds": [
+   "ppl-galileo",
+   "bat-spanish-armada",
+   "art-globe-theatre",
+   "trd-east-india-company",
+   "trd-voc"
+  ]
+ },
+ {
+  "id": "early-modern-s4",
+  "questionIds": [
+   "reg-tokugawa-shogunate",
+   "trd-tulip-mania",
+   "trt-westphalia",
+   "art-taj-mahal",
+   "evt-great-fire-london"
+  ]
+ },
+ {
+  "id": "early-modern-s5",
+  "questionIds": [
+   "trd-bank-of-england",
+   "reg-st-petersburg",
+   "ppl-washington",
+   "ppl-mozart",
+   "ppl-napoleon"
+  ]
+ },
+ {
+  "id": "early-modern-s6",
+  "questionIds": [
+   "evt-boston-tea-party",
+   "phi-wealth-of-nations",
+   "bat-yorktown",
+   "tec-hot-air-balloon",
+   "trt-paris-1783"
+  ]
+ },
+ {
+  "id": "early-modern-s7",
+  "questionIds": [
+   "reg-first-fleet",
+   "evt-french-revolution",
+   "tec-vaccination",
+   "art-don-quixote",
+   "tec-telescope"
+  ]
+ },
+ {
+  "id": "early-modern-s8",
+  "questionIds": [
+   "phi-discourse-method",
+   "reg-tasman-new-zealand",
+   "ppl-newton",
+   "phi-leviathan",
+   "bat-vienna"
+  ]
+ },
+ {
+  "id": "early-modern-s9",
+  "questionIds": [
+   "trt-utrecht",
+   "trd-south-sea-bubble",
+   "bat-culloden",
+   "phi-social-contract",
+   "tec-spinning-jenny"
+  ]
+ },
+ {
+  "id": "early-modern-s10",
+  "questionIds": [
+   "tec-steam-engine",
+   "exp-cook-botany-bay",
+   "phi-critique-pure-reason",
+   "phi-vindication",
+   "trd-buttonwood"
+  ]
+ },
+ {
+  "id": "early-modern-s11",
+  "questionIds": [
+   "evt-rosetta-stone",
+   "bat-lepanto",
+   "exp-drake",
+   "art-first-opera-house",
+   "phi-spinoza-ethics"
+  ]
+ },
+ {
+  "id": "early-modern-s12",
+  "questionIds": [
+   "phi-locke-essay"
+  ]
+ },
+ {
+  "id": "nineteenth-s1",
+  "questionIds": [
+   "reg-canada-confederation",
+   "ppl-einstein",
+   "tec-light-bulb",
+   "art-eiffel-tower",
+   "spt-modern-olympics"
+  ]
+ },
+ {
+  "id": "nineteenth-s2",
+  "questionIds": [
+   "reg-haiti-independence",
+   "ppl-darwin",
+   "ppl-lincoln",
+   "bat-waterloo",
+   "trt-vienna-congress"
+  ]
+ },
+ {
+  "id": "nineteenth-s3",
+  "questionIds": [
+   "reg-argentina-independence",
+   "ppl-victoria",
+   "reg-singapore-founded",
+   "reg-mexico-independence",
+   "con-brazil-independence"
+  ]
+ },
+ {
+  "id": "nineteenth-s4",
+  "questionIds": [
+   "art-beethoven-ninth",
+   "trd-erie-canal",
+   "tec-telegraph",
+   "evt-gold-rush",
+   "phi-communist-manifesto"
+  ]
+ },
+ {
+  "id": "nineteenth-s5",
+  "questionIds": [
+   "ppl-van-gogh",
+   "reg-italy-unified",
+   "bat-gettysburg",
+   "ppl-curie",
+   "ppl-gandhi"
+  ]
+ },
+ {
+  "id": "nineteenth-s6",
+  "questionIds": [
+   "con-suez-canal",
+   "ppl-churchill",
+   "tec-telephone",
+   "spt-wimbledon",
+   "evt-krakatoa"
+  ]
+ },
+ {
+  "id": "nineteenth-s7",
+  "questionIds": [
+   "reg-berlin-conference",
+   "tec-automobile",
+   "art-starry-night",
+   "art-the-scream",
+   "reg-nz-suffrage"
+  ]
+ },
+ {
+  "id": "nineteenth-s8",
+  "questionIds": [
+   "art-lumiere-cinema",
+   "exp-lewis-clark",
+   "bat-trafalgar",
+   "bat-austerlitz",
+   "ppl-nightingale"
+  ]
+ },
+ {
+  "id": "nineteenth-s9",
+  "questionIds": [
+   "reg-ayacucho",
+   "tec-photography",
+   "con-treaty-waitangi",
+   "trt-nanking",
+   "trd-corn-laws"
+  ]
+ },
+ {
+  "id": "nineteenth-s10",
+  "questionIds": [
+   "trt-guadalupe-hidalgo",
+   "evt-great-exhibition",
+   "reg-eureka-stockade",
+   "phi-on-liberty",
+   "con-meiji-restoration"
+  ]
+ },
+ {
+  "id": "nineteenth-s11",
+  "questionIds": [
+   "spt-rugby-first-international",
+   "spt-fa-cup-final",
+   "art-swan-lake",
+   "spt-first-test-match",
+   "reg-adwa"
+  ]
+ },
+ {
+  "id": "nineteenth-s12",
+  "questionIds": [
+   "tec-locomotive",
+   "con-antarctica-sighted",
+   "exp-livingstone-stanley",
+   "phi-zarathustra"
+  ]
+ },
+ {
+  "id": "modern-s1",
+  "questionIds": [
+   "tec-powered-flight",
+   "evt-titanic",
+   "evt-wall-street-crash",
+   "art-wizard-of-oz",
+   "bat-dday"
+  ]
+ },
+ {
+  "id": "modern-s2",
+  "questionIds": [
+   "con-india-independence",
+   "exp-gagarin",
+   "evt-moon-landing",
+   "art-woodstock",
+   "spc-apollo-13"
+  ]
+ },
+ {
+  "id": "modern-s3",
+  "questionIds": [
+   "art-sydney-opera-house",
+   "art-thriller",
+   "evt-chernobyl",
+   "spt-hand-of-god",
+   "spc-challenger"
+  ]
+ },
+ {
+  "id": "modern-s4",
+  "questionIds": [
+   "evt-berlin-wall",
+   "reg-south-africa-1994",
+   "art-harry-potter",
+   "reg-hong-kong-handover",
+   "tec-iphone"
+  ]
+ },
+ {
+  "id": "modern-s5",
+  "questionIds": [
+   "trd-lehman",
+   "spt-bolt-9-58",
+   "trt-paris-climate",
+   "spc-jwst",
+   "tec-chatgpt"
+  ]
+ },
+ {
+  "id": "modern-s6",
+  "questionIds": [
+   "spt-tour-de-france",
+   "evt-sf-earthquake",
+   "con-machu-picchu",
+   "con-amundsen-pole",
+   "trd-federal-reserve"
+  ]
+ },
+ {
+  "id": "modern-s7",
+  "questionIds": [
+   "con-panama-canal",
+   "bat-somme",
+   "reg-easter-rising",
+   "ppl-mandela",
+   "evt-versailles-treaty"
+  ]
+ },
+ {
+  "id": "modern-s8",
+  "questionIds": [
+   "evt-tutankhamun",
+   "spt-winter-olympics",
+   "exp-lindbergh",
+   "tec-penicillin",
+   "ppl-mlk"
+  ]
+ },
+ {
+  "id": "modern-s9",
+  "questionIds": [
+   "ppl-anne-frank",
+   "art-academy-awards",
+   "spt-world-cup-1930",
+   "art-empire-state",
+   "spt-jesse-owens"
+  ]
+ },
+ {
+  "id": "modern-s10",
+  "questionIds": [
+   "evt-hindenburg",
+   "art-snow-white",
+   "trt-munich-agreement",
+   "bat-stalingrad",
+   "bat-midway"
+  ]
+ },
+ {
+  "id": "modern-s11",
+  "questionIds": [
+   "trt-un-charter",
+   "spt-jackie-robinson",
+   "trt-nato",
+   "spt-formula-one",
+   "trd-diners-club"
+  ]
+ },
+ {
+  "id": "modern-s12",
+  "questionIds": [
+   "tec-dna-double-helix",
+   "exp-everest",
+   "art-elvis-first-single",
+   "spt-bannister-mile",
+   "tec-sputnik"
+  ]
+ },
+ {
+  "id": "modern-s13",
+  "questionIds": [
+   "spc-laika",
+   "spc-nasa-founded",
+   "reg-cuban-revolution",
+   "reg-brasilia",
+   "spc-shepard"
+  ]
+ },
+ {
+  "id": "modern-s14",
+  "questionIds": [
+   "reg-algeria-independence",
+   "spc-tereshkova",
+   "art-beatles-ed-sullivan",
+   "spc-leonov-spacewalk",
+   "spt-super-bowl"
+  ]
+ },
+ {
+  "id": "modern-s15",
+  "questionIds": [
+   "trd-first-atm",
+   "spc-apollo-8",
+   "spt-rumble-jungle",
+   "spt-comaneci",
+   "spc-viking-1"
+  ]
+ },
+ {
+  "id": "modern-s16",
+  "questionIds": [
+   "spc-voyager-1",
+   "trt-camp-david",
+   "spt-miracle-on-ice",
+   "spc-shuttle-columbia",
+   "spc-sally-ride"
+  ]
+ },
+ {
+  "id": "modern-s17",
+  "questionIds": [
+   "trd-black-monday",
+   "reg-velvet-revolution",
+   "spc-hubble",
+   "tec-world-wide-web",
+   "trt-maastricht"
+  ]
+ },
+ {
+  "id": "modern-s18",
+  "questionIds": [
+   "trt-good-friday",
+   "spc-iss-zarya",
+   "trd-euro-cash",
+   "spc-curiosity",
+   "spc-new-horizons-pluto"
+  ]
+ },
+ {
+  "id": "modern-s19",
+  "questionIds": [
+   "spc-black-hole-image",
+   "spc-artemis-1",
+   "tec-transatlantic-radio",
+   "con-australia-federation",
+   "evt-russian-revolution"
+  ]
+ },
+ {
+  "id": "modern-s20",
+  "questionIds": [
+   "trt-brest-litovsk",
+   "tec-television",
+   "exp-earhart",
+   "trd-bretton-woods",
+   "tec-eniac"
+  ]
+ },
+ {
+  "id": "modern-s21",
+  "questionIds": [
+   "phi-second-sex",
+   "con-ghana-independence",
+   "con-treaty-of-rome",
+   "trt-antarctic-treaty",
+   "spc-luna-2"
+  ]
+ },
+ {
+  "id": "modern-s22",
+  "questionIds": [
+   "tec-heart-transplant",
+   "trd-nixon-shock",
+   "spc-salyut-1",
+   "spc-apollo-soyuz",
+   "reg-png-independence"
+  ]
+ },
+ {
+  "id": "modern-s23",
+  "questionIds": [
+   "spc-mir",
+   "spc-falcon-1",
+   "exp-shackleton",
+   "phi-being-and-time",
+   "tec-nuclear-reactor"
+  ]
+ },
+ {
+  "id": "modern-s24",
+  "questionIds": [
+   "tec-transistor",
+   "exp-trieste",
+   "phi-theory-of-justice"
+  ]
+ }
+]
