@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 
 import { BackButton, Button, Screen } from '@/components/ui';
 import { usePremium } from '@/features/premium';
+import { paywallHref } from '@/features/premium/paywallSource';
 import { RoundView, useRoundRewards } from '@/features/round';
 
 import { ModeHud } from '../components/ModeHud';
@@ -56,7 +57,7 @@ export function EndlessScreen() {
             Subscribe to chase a high score with unlimited lives — plus unlimited hearts
             everywhere else.
           </Text>
-          <Button label="See Premium" onPress={() => router.push('/paywall')} />
+          <Button label="See Premium" onPress={() => router.push(paywallHref('locked_mode'))} />
         </View>
       </Screen>
     );

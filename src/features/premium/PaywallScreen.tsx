@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { BackButton, Button, Card, Screen } from '@/components/ui';
 import {
@@ -14,6 +14,7 @@ import { track } from '@/services/analytics';
 
 import type { PremiumPlan } from './billing';
 import { FounderNote } from './FounderNote';
+import { parsePaywallSource } from './paywallSource';
 import { usePremium } from './PremiumProvider';
 
 /** Paywall copy per plan; prices come from the store via `priceLabels`. */
@@ -188,6 +189,7 @@ function Benefit({ icon, title, detail }: { icon: string; title: string; detail:
  */
 export function PaywallScreen() {
   const router = useRouter();
+  const source = parsePaywallSource(useLocalSearchParams<{ source?: string }>().source);
   const {
     isPremium,
     billingAvailable,
@@ -202,16 +204,22 @@ export function PaywallScreen() {
   const [plan, setPlan] = useState<PremiumPlan>('yearly');
 
   useEffect(() => {
-    track('paywall_viewed');
-  }, []);
+    track('paywall_viewed', { source });
+  }, [source]);
+
+  // Opened straight from onboarding there is nothing underneath: land on home.
+  const close = () => {
+    if (router.canGoBack()) router.back();
+    else router.replace('/');
+  };
 
   const onSubscribe = async () => {
     setBusy(true);
     setNotice(null);
-    const result = await purchase(plan);
+    const result = await purchase(plan, source);
     setBusy(false);
     if (result === 'purchased') {
-      router.back();
+      close();
     } else if (result === 'unavailable') {
       setNotice('Purchases aren’t available in this build yet.');
     } else if (result === 'error') {
@@ -224,7 +232,7 @@ export function PaywallScreen() {
     setNotice(null);
     const ok = await restore();
     setBusy(false);
-    if (ok) router.back();
+    if (ok) close();
     else setNotice(billingAvailable ? 'No active subscription found.' : 'Purchases aren’t available in this build yet.');
   };
 
@@ -238,7 +246,7 @@ export function PaywallScreen() {
           <Text className="text-xs font-semibold uppercase tracking-wide text-ink-muted">
             Premium
           </Text>
-          <BackButton onPress={() => router.back()} variant="close" testID="paywall-close" />
+          <BackButton onPress={close} variant="close" testID="paywall-close" />
         </View>
 
         <Card className="gap-5">
@@ -291,7 +299,7 @@ export function PaywallScreen() {
                   Your subscription is active
                 </Text>
               </View>
-              <Button label="Done" onPress={() => router.back()} testID="paywall-done" />
+              <Button label="Done" onPress={close} testID="paywall-done" />
               {__DEV__ && (
                 <Button
                   label="Revoke (dev only)"

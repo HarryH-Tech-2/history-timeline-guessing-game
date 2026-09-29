@@ -17,6 +17,7 @@ import Animated, {
 
 import { Screen } from '@/components/ui';
 import { usePremium } from '@/features/premium';
+import { paywallHref } from '@/features/premium/paywallSource';
 import { useSaves } from '@/features/save';
 import { useThemeColors } from '@/theme';
 
@@ -697,7 +698,7 @@ export function CampaignMapScreen() {
   const openStage = useCallback(
     (worldId: string, stage: CampaignStage) => {
       if (isStagePremium(stage) && !isPremium) {
-        router.push('/paywall');
+        router.push(paywallHref('campaign'));
         return;
       }
       router.push({

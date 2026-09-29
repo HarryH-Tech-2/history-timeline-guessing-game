@@ -6,6 +6,7 @@ import { Button, Screen } from '@/components/ui';
 import { SignInNudge } from '@/features/account/SignInNudge';
 import { HeartsChip, OutOfHeartsSheet, useHearts } from '@/features/hearts';
 import { usePremium } from '@/features/premium';
+import { paywallHref } from '@/features/premium/paywallSource';
 import { RoundView, useRoundRewards } from '@/features/round';
 import { palette } from '@/theme/tokens';
 import { dateKey } from '@/utils/date';
@@ -140,7 +141,7 @@ export function CampaignStageScreen() {
         <Text className="text-center text-lg font-bold text-ink-primary">
           {getWorld(stage.worldId)?.name ?? 'This era'} is part of Premium
         </Text>
-        <Button label="See Premium" onPress={() => router.push('/paywall')} />
+        <Button label="See Premium" onPress={() => router.push(paywallHref('campaign'))} />
         <Button label="Back to map" variant="ghost" onPress={() => router.back()} />
       </Screen>
     );
@@ -150,7 +151,7 @@ export function CampaignStageScreen() {
 
   const onQuest = (action: QuestAction) => {
     if (action.kind === 'map') router.back();
-    else if (action.kind === 'paywall') router.push('/paywall');
+    else if (action.kind === 'paywall') router.push(paywallHref('campaign'));
     else
       router.replace({
         pathname: '/campaign/[world]/[stage]',

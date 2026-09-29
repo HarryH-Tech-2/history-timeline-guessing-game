@@ -6,6 +6,7 @@ import { BackButton, Button, Screen } from '@/components/ui';
 import { getCategoryById, REGIONAL_CATEGORY_ID, regionById } from '@/data';
 import { HeartsChip, OutOfHeartsSheet, useHearts } from '@/features/hearts';
 import { usePremium } from '@/features/premium';
+import { paywallHref } from '@/features/premium/paywallSource';
 import { RoundView, useRoundRewards } from '@/features/round';
 import { dateKey } from '@/utils/date';
 
@@ -60,7 +61,7 @@ export function CategoryScreen({ categoryId, regionId }: CategoryScreenProps) {
           <Text className="text-center text-base text-ink-secondary">
             Subscribe to unlock it — plus unlimited hearts.
           </Text>
-          <Button label="See Premium" onPress={() => router.push('/paywall')} />
+          <Button label="See Premium" onPress={() => router.push(paywallHref('locked_category'))} />
         </View>
       </Screen>
     );

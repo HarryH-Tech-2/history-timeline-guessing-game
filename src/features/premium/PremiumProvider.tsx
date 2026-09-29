@@ -10,7 +10,7 @@ import {
 } from 'react';
 
 import { requestReviewAfterFirstPurchase } from '@/features/review';
-import { track } from '@/services/analytics';
+import { track, type PaywallSource } from '@/services/analytics';
 import { useAuth } from '@/services/firebase/auth';
 
 import { billing, devBilling, type PremiumPlan, type PurchaseResult } from './billing';
@@ -26,7 +26,8 @@ export interface PremiumApi {
   priceLabels: Record<PremiumPlan, string>;
   /** Free-trial length per plan, in days, for plans the store offers one on. */
   trialDays: Partial<Record<PremiumPlan, number>>;
-  purchase: (plan: PremiumPlan) => Promise<PurchaseResult>;
+  /** Buy `plan`; `source` is where the paywall was opened from, for attribution. */
+  purchase: (plan: PremiumPlan, source?: PaywallSource) => Promise<PurchaseResult>;
   restore: () => Promise<boolean>;
   /** Dev builds only: drop the entitlement to test the free experience. */
   revokeForTesting: () => void;
@@ -168,11 +169,14 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
     void premiumStore.write(next);
   }, []);
 
-  const purchase = useCallback(async (plan: PremiumPlan): Promise<PurchaseResult> => {
+  const purchase = useCallback(async (
+    plan: PremiumPlan,
+    source: PaywallSource = 'unknown',
+  ): Promise<PurchaseResult> => {
     const result = await billing.purchase(plan);
     if (result === 'purchased') {
       commit({ active: true, source: billing === devBilling ? 'dev' : 'store' });
-      track('purchase_completed', { plan });
+      track('purchase_completed', { plan, source });
       // Google's in-app review sheet, once, on the first successful purchase.
       void requestReviewAfterFirstPurchase();
     }

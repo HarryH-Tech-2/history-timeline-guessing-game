@@ -21,6 +21,8 @@ jest.mock('./billing', () => ({
   },
   devBilling: { available: true },
 }));
+jest.mock('@/services/analytics', () => ({ track: jest.fn() }));
+const mockTrack = jest.requireMock('@/services/analytics').track as jest.Mock;
 jest.mock('@/features/review', () => ({
   requestReviewAfterFirstPurchase: jest.fn(async () => undefined),
 }));
@@ -122,7 +124,7 @@ describe('PremiumProvider review ask', () => {
     const { purchase, restore } = usePremium();
     return (
       <>
-        <Text onPress={() => void purchase('monthly')}>buy</Text>
+        <Text onPress={() => void purchase('monthly', 'hearts')}>buy</Text>
         <Text onPress={() => void restore()}>restore</Text>
       </>
     );
@@ -143,6 +145,22 @@ describe('PremiumProvider review ask', () => {
 
     await screen.findByText('premium');
     expect(mockRequestReview).toHaveBeenCalledTimes(1);
+  });
+
+  it('attributes a completed purchase to the paywall source', async () => {
+    mockTrack.mockClear();
+    render(
+      <PremiumProvider>
+        <Probe />
+        <Actions />
+      </PremiumProvider>,
+    );
+    await screen.findByText('free');
+    await act(async () => {
+      fireEvent.press(screen.getByText('buy'));
+    });
+    await screen.findByText('premium');
+    expect(mockTrack).toHaveBeenCalledWith('purchase_completed', { plan: 'monthly', source: 'hearts' });
   });
 
   it('does not ask after a cancelled purchase or a restore', async () => {

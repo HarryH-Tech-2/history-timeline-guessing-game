@@ -1,6 +1,21 @@
 /** The play modes, as reported on every session event. */
 export type GameMode = 'daily' | 'survival' | 'endless' | 'campaign' | 'category' | 'topic' | 'challenge';
 
+/** Where the paywall was opened from, so views and purchases can be attributed. */
+export type PaywallSource =
+  | 'onboarding'
+  | 'run_summary'
+  | 'home_chip'
+  | 'hearts'
+  | 'profile'
+  | 'locked_category'
+  | 'locked_mode'
+  | 'campaign'
+  | 'unknown';
+
+/** A proactive Premium pitch placed outside the paywall itself. */
+export type UpsellPlacement = 'run_summary' | 'home_chip';
+
 /**
  * Every usage event the app records, with the properties each carries. One
  * place to keep names consistent: an event is only ever tracked via
@@ -35,10 +50,12 @@ export interface AnalyticsEvents {
   share_completed: { mode: GameMode; method: 'image' };
   /** The share sheet was backed out of without sharing. */
   share_dismissed: { mode: GameMode };
-  /** The subscription paywall was shown. */
-  paywall_viewed: undefined;
-  /** A subscription purchase went through. */
-  purchase_completed: { plan: string };
+  /** The subscription paywall was shown, opened from `source`. */
+  paywall_viewed: { source: PaywallSource };
+  /** A Premium upsell was rendered (click-through = paywall_viewed by source / this). */
+  upsell_shown: { placement: UpsellPlacement };
+  /** A subscription purchase went through, from a paywall opened at `source`. */
+  purchase_completed: { plan: string; source: PaywallSource };
   /** A previous purchase was restored. */
   purchase_restored: undefined;
   /** The hearts meter ran out mid-run and blocked play. */

@@ -41,7 +41,7 @@ describe('analytics client', () => {
   it('is a silent no-op in builds without a PostHog key', () => {
     configure(undefined);
     expect(analytics.isAnalyticsConfigured()).toBe(false);
-    expect(() => analytics.track('paywall_viewed')).not.toThrow();
+    expect(() => analytics.track('purchase_restored')).not.toThrow();
     expect(() => analytics.track('hint_used', { question_id: 'q1' })).not.toThrow();
     analytics.identifyPlayer('uid-1');
     expect(analytics.getAnalyticsClient()).toBeNull();
@@ -54,7 +54,7 @@ describe('analytics client', () => {
     expect(analytics.isAnalyticsConfigured()).toBe(true);
 
     analytics.track('mode_started', { mode: 'daily' });
-    analytics.track('paywall_viewed');
+    analytics.track('purchase_restored');
     analytics.identifyPlayer('uid-1');
     analytics.identifyPlayer(null);
 
@@ -65,7 +65,7 @@ describe('analytics client', () => {
     );
     const client = mockClient();
     expect(client.capture).toHaveBeenCalledWith('mode_started', { mode: 'daily' });
-    expect(client.capture).toHaveBeenCalledWith('paywall_viewed', undefined);
+    expect(client.capture).toHaveBeenCalledWith('purchase_restored', undefined);
     expect(client.identify).toHaveBeenCalledTimes(1);
     expect(client.identify).toHaveBeenCalledWith('uid-1');
   });
@@ -86,7 +86,7 @@ describe('analytics client', () => {
 
     analytics.track('run_completed', { mode: 'daily', rounds: 8, total_score: 900, exact: 2 });
     analytics.track('onboarding_completed', { choice: 'daily', named: false, reminders: true });
-    analytics.track('paywall_viewed');
+    analytics.track('purchase_restored');
     analytics.identifyPlayer('uid-1');
     await analytics.setAnalyticsEnabled(false);
 
@@ -103,7 +103,7 @@ describe('analytics client', () => {
       named: 'false',
       reminders: 'true',
     });
-    expect(firebase.logEvent).toHaveBeenCalledWith(analyticsArg, 'paywall_viewed', undefined);
+    expect(firebase.logEvent).toHaveBeenCalledWith(analyticsArg, 'purchase_restored', undefined);
     expect(firebase.setUserId).toHaveBeenCalledWith(analyticsArg, 'uid-1');
     expect(firebase.setAnalyticsCollectionEnabled).toHaveBeenCalledWith(analyticsArg, false);
   });
@@ -124,10 +124,10 @@ describe('analytics client', () => {
     });
     jest.mocked(firebase.logEvent).mockClear();
     expect(() => analytics.track('hearts_exhausted')).not.toThrow();
-    expect(() => analytics.track('paywall_viewed')).not.toThrow();
+    expect(() => analytics.track('purchase_restored')).not.toThrow();
     expect(firebase.logEvent).not.toHaveBeenCalled();
     // PostHog is unaffected.
-    expect(mockClient().capture).toHaveBeenCalledWith('paywall_viewed', undefined);
+    expect(mockClient().capture).toHaveBeenCalledWith('purchase_restored', undefined);
   });
 
   it('trims Firebase string parameters to the 100-character cap and drops the rest', () => {

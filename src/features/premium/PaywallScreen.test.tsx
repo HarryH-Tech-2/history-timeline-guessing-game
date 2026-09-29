@@ -1,10 +1,20 @@
-import { fireEvent, render, screen, within } from '@testing-library/react-native';
+import { act, fireEvent, render, screen, within } from '@testing-library/react-native';
 
 import { ctaLabel, footerCopy, PaywallScreen, trialLength } from './PaywallScreen';
 
+const mockRouter = {
+  push: jest.fn(),
+  back: jest.fn(),
+  replace: jest.fn(),
+  canGoBack: jest.fn(() => true),
+};
+let mockParams: Record<string, string | string[] | undefined> = {};
 jest.mock('expo-router', () => ({
-  useRouter: () => ({ push: jest.fn(), back: jest.fn() }),
+  useRouter: () => mockRouter,
+  useLocalSearchParams: () => mockParams,
 }));
+jest.mock('@/services/analytics', () => ({ track: jest.fn() }));
+const { track } = jest.requireMock<typeof import('@/services/analytics')>('@/services/analytics');
 
 const mockPremium = {
   isPremium: false,
@@ -12,7 +22,7 @@ const mockPremium = {
   billingAvailable: true,
   priceLabels: { monthly: '£2.49 / month', yearly: '£14.99 / year', lifetime: '£39.99 once' },
   trialDays: {} as Partial<Record<'monthly' | 'yearly' | 'lifetime', number>>,
-  purchase: jest.fn(async () => 'cancelled' as const),
+  purchase: jest.fn(async (..._args: unknown[]) => 'cancelled' as 'cancelled' | 'purchased'),
   restore: jest.fn(async () => false),
   revokeForTesting: jest.fn(),
 };
@@ -49,6 +59,48 @@ describe('paywall copy helpers', () => {
 describe('PaywallScreen', () => {
   beforeEach(() => {
     mockPremium.trialDays = {};
+    mockParams = {};
+    jest.mocked(track).mockClear();
+    mockRouter.back.mockClear();
+    mockRouter.replace.mockClear();
+    mockRouter.canGoBack.mockReturnValue(true);
+  });
+
+  it('reports the view with the source it was opened from', () => {
+    mockParams = { source: 'hearts' };
+    render(<PaywallScreen />);
+    expect(track).toHaveBeenCalledWith('paywall_viewed', { source: 'hearts' });
+  });
+
+  it('reports an unrecognised or missing source as unknown', () => {
+    mockParams = { source: 'somewhere' };
+    render(<PaywallScreen />);
+    expect(track).toHaveBeenCalledWith('paywall_viewed', { source: 'unknown' });
+  });
+
+  it('passes the source through to the purchase for attribution', async () => {
+    mockParams = { source: 'run_summary' };
+    render(<PaywallScreen />);
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('paywall-subscribe'));
+    });
+    expect(mockPremium.purchase).toHaveBeenCalledWith('yearly', 'run_summary');
+  });
+
+  it('closes back to whatever opened it', () => {
+    render(<PaywallScreen />);
+    fireEvent.press(screen.getByTestId('paywall-close'));
+    expect(mockRouter.back).toHaveBeenCalled();
+    expect(mockRouter.replace).not.toHaveBeenCalled();
+  });
+
+  it('closes to home when nothing is underneath (straight from onboarding)', () => {
+    mockRouter.canGoBack.mockReturnValue(false);
+    mockParams = { source: 'onboarding' };
+    render(<PaywallScreen />);
+    fireEvent.press(screen.getByTestId('paywall-close'));
+    expect(mockRouter.back).not.toHaveBeenCalled();
+    expect(mockRouter.replace).toHaveBeenCalledWith('/');
   });
 
   it('defaults to yearly and relabels the button as plans change', () => {

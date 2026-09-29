@@ -51,7 +51,7 @@ describe('CampaignMapScreen', () => {
     const first = screen.getByTestId(`stage-${medieval.stages[0]!.id}`);
     expect(first).toHaveProp('accessibilityLabel', 'Stage 1, Premium');
     fireEvent.press(first);
-    expect(mockPush).toHaveBeenCalledWith('/paywall');
+    expect(mockPush).toHaveBeenCalledWith({ pathname: '/paywall', params: { source: 'campaign' } });
   });
 
   it('lets Premium players straight into the Middle Ages', async () => {

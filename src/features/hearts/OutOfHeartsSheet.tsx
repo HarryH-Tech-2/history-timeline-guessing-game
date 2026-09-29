@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 
 import { Button, Card } from '@/components/ui';
+import { paywallHref } from '@/features/premium/paywallSource';
 import { track } from '@/services/analytics';
 
 import { useHearts } from './useHearts';
@@ -52,7 +53,7 @@ export function OutOfHeartsSheet({ onLeave }: OutOfHeartsSheetProps) {
 
           <Button
             label="Go Premium · unlimited hearts"
-            onPress={() => router.push('/paywall')}
+            onPress={() => router.push(paywallHref('hearts'))}
             testID="hearts-premium"
           />
           <Button

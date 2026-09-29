@@ -1,9 +1,12 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
 
+const mockPush = jest.fn();
 jest.mock('expo-router', () => ({
-  useRouter: () => ({ push: jest.fn(), back: jest.fn() }),
+  useRouter: () => ({ push: mockPush, back: jest.fn(), navigate: jest.fn() }),
 }));
 
+// eslint-disable-next-line import/first
+import { getCategories } from '@/data';
 // eslint-disable-next-line import/first
 import { HomeHub } from './HomeHub';
 
@@ -26,5 +29,24 @@ describe('HomeHub', () => {
     expect(screen.queryByTestId('streak-sheet')).toBeNull();
     fireEvent.press(screen.getByTestId('home-streak'));
     expect(screen.getByTestId('streak-sheet')).toBeOnTheScreen();
+  });
+
+  it('sends free players from a locked mode to the paywall, tagged', () => {
+    mockPush.mockClear();
+    render(<HomeHub />);
+    fireEvent.press(screen.getByTestId('mode-endless'));
+    expect(mockPush).toHaveBeenCalledWith({ pathname: '/paywall', params: { source: 'locked_mode' } });
+  });
+
+  it('sends free players from a locked category to the paywall, tagged', () => {
+    mockPush.mockClear();
+    const locked = getCategories().find((c) => c.active && c.premiumOnly);
+    expect(locked).toBeDefined();
+    render(<HomeHub />);
+    fireEvent.press(screen.getByTestId(`category-${locked!.id}`));
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: '/paywall',
+      params: { source: 'locked_category' },
+    });
   });
 });

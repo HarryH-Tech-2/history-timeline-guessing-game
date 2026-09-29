@@ -7,6 +7,7 @@ import { Screen } from '@/components/ui';
 import { getCategories } from '@/data';
 import { activeStreakCount, type Category } from '@/domain';
 import { usePremium } from '@/features/premium';
+import { paywallHref } from '@/features/premium/paywallSource';
 import { ProfileHeader, useProgression } from '@/features/progression';
 import { useTheme } from '@/theme';
 import { dateKey } from '@/utils/date';
@@ -253,7 +254,7 @@ export function HomeHub() {
               index={index}
               locked={locked}
               onPress={() => {
-                if (locked) router.push('/paywall');
+                if (locked) router.push(paywallHref('locked_mode'));
                 else if (mode.tab) router.navigate(mode.route);
                 else router.push(mode.route);
               }}
@@ -277,7 +278,7 @@ export function HomeHub() {
                   index={index}
                   locked={locked}
                   onPress={() =>
-                    router.push(locked ? '/paywall' : `/category/${category.id}`)
+                    router.push(locked ? paywallHref('locked_category') : `/category/${category.id}`)
                   }
                 />
               );

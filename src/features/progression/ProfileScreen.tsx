@@ -19,6 +19,7 @@ import {
 } from '@/domain';
 import { resolveDisplayName } from '@/features/leaderboard/playerName';
 import { usePremium } from '@/features/premium';
+import { paywallHref } from '@/features/premium/paywallSource';
 import { openStoreListing } from '@/features/review';
 import { useHaptics } from '@/features/haptics';
 import { useReminders } from '@/features/reminders';
@@ -312,7 +313,7 @@ export function ProfileScreen() {
           <Button
             label={isPremium ? 'Manage' : 'Subscribe'}
             variant={isPremium ? 'ghost' : 'primary'}
-            onPress={() => router.push('/paywall')}
+            onPress={() => router.push(paywallHref('profile'))}
             className="h-10 px-4"
             testID="premium-cta"
           />

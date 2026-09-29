@@ -1,4 +1,10 @@
-export type { AnalyticsEventName, AnalyticsEvents, GameMode } from './events';
+export type {
+  AnalyticsEventName,
+  AnalyticsEvents,
+  GameMode,
+  PaywallSource,
+  UpsellPlacement,
+} from './events';
 export {
   getAnalyticsClient,
   identifyPlayer,
