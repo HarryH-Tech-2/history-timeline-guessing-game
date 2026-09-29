@@ -3,6 +3,7 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { Button, Card, Screen } from '@/components/ui';
+import { SummaryUpsell } from '@/features/premium/SummaryUpsell';
 import { formatYear } from '@/features/timeline/math';
 import { track, type GameMode } from '@/services/analytics';
 import { useThemeColors } from '@/theme';
@@ -244,6 +245,9 @@ export function RunSummary({
             </View>
           </Card>
         </Animated.View>
+
+        {/* Below the run's own actions, never competing with them. */}
+        <SummaryUpsell />
       </ScrollView>
       {/* The image card lives just off the left edge, laid out at full size so
           it can be captured on demand without ever being visible. */}

@@ -2,12 +2,15 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import { Text } from 'react-native';
 import RNShare from 'react-native-share';
 
+import { summaryUpsellStore } from '@/features/premium/upsellStore';
+
 import { STORE_URL } from '../share';
 import { RunSummary } from './RunSummary';
 
 // Only `track` is used here; spreading the real barrel would drag the auth
 // provider in through a require cycle.
 jest.mock('@/services/analytics', () => ({ track: jest.fn() }));
+jest.mock('expo-router', () => ({ useRouter: () => ({ push: jest.fn() }) }));
 const { track } = jest.requireMock<typeof import('@/services/analytics')>('@/services/analytics');
 
 const shareData = {
@@ -18,6 +21,15 @@ const shareData = {
 };
 
 describe('RunSummary', () => {
+  afterEach(() => summaryUpsellStore.clear());
+
+  it('offers the Premium card below the run, outside the result card', async () => {
+    render(<RunSummary title="Run over" totalScore={0} primaryLabel="Home" onPrimary={jest.fn()} />);
+    const upsell = await screen.findByTestId('summary-upsell');
+    expect(within(screen.getByTestId('summary-card')).queryByTestId('summary-upsell')).toBeNull();
+    expect(within(upsell).getByTestId('summary-upsell-cta')).toBeOnTheScreen();
+  });
+
   it('renders an optional notice inside the summary card', () => {
     render(
       <RunSummary
