@@ -54,4 +54,22 @@ describe('RevealSheet', () => {
     expect(screen.getByTestId('next-button')).toBeOnTheScreen();
   });
 
+
+  it('tags a multiple-choice answer as scored at half', () => {
+    render(
+      <RevealSheet
+        result={evaluateGuess(question, 1969, { assisted: true })}
+        categoryColour="#123456"
+        onNext={jest.fn()}
+      />,
+    );
+    expect(screen.getByTestId('reveal-assisted-tag')).toHaveTextContent('Multiple choice · ½ points');
+  });
+
+  it('has no multiple-choice tag on an ordinary guess', () => {
+    render(
+      <RevealSheet result={evaluateGuess(question, 1969)} categoryColour="#123456" onNext={jest.fn()} />,
+    );
+    expect(screen.queryByTestId('reveal-assisted-tag')).toBeNull();
+  });
 });

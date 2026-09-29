@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, Text, useWindowDimensions, View } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   FadeIn,
@@ -62,7 +62,7 @@ function YearStepButton({
   return (
     // The wrapper spans the track (above the date strip) so the button sits at
     // its vertical centre; box-none keeps the rest of the column pannable.
-    <View pointerEvents="box-none" className={`absolute top-0 bottom-8 ${side} justify-center`}>
+    <View pointerEvents="box-none" className={`absolute top-0 bottom-10 ${side} justify-center`}>
       <Pressable
         onPress={() => {
           haptic.selection();
@@ -191,10 +191,20 @@ function ErrorBand({
       pointerEvents="none"
       entering={FadeIn.duration(400)}
       style={[style, { backgroundColor: colour, opacity: 0.14 }]}
-      className="absolute bottom-8 top-0 left-0"
+      className="absolute bottom-10 top-0 left-0"
       testID="reveal-error-band"
     />
   );
+}
+
+/**
+ * Track height by screen height: as tall as the screen allows, so short
+ * phones (and landscape) keep room for the prompt and the footer.
+ */
+export function trackHeightFor(windowHeight: number): number {
+  if (windowHeight >= 820) return 224;
+  if (windowHeight >= 720) return 192;
+  return 160;
 }
 
 /**
@@ -215,6 +225,7 @@ export function TimelineTrack({
 }: TimelineTrackProps) {
   const { translateX, scale } = controller;
   const revealed = revealYear !== undefined;
+  const { height: windowHeight } = useWindowDimensions();
   const minorTicks = useVisibleDecadeTicks(controller, anchorYear);
 
   const panStyle = useAnimatedStyle(() => ({
@@ -223,7 +234,7 @@ export function TimelineTrack({
 
   return (
     <View className="overflow-hidden border border-hair bg-bg-raised" testID="timeline">
-      <View onLayout={controller.onLayout} className="h-40">
+      <View onLayout={controller.onLayout} style={{ height: trackHeightFor(windowHeight) }}>
         <GestureDetector gesture={controller.gesture}>
           <Animated.View className="flex-1 bg-transparent">
             <Animated.View
@@ -268,7 +279,7 @@ export function TimelineTrack({
             {/* Baseline the ticks stand on, with the date strip beneath it. */}
             <View
               pointerEvents="none"
-              className="absolute bottom-8 left-0 right-0 h-px bg-hair"
+              className="absolute bottom-10 left-0 right-0 h-px bg-hair"
             />
           </Animated.View>
         </GestureDetector>

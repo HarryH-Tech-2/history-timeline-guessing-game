@@ -2,7 +2,7 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
 import { BackButton, Screen } from '@/components/ui';
-import { getRegionalQuestions, REGIONS, type Region } from '@/data';
+import { getRegionalQuestions, REGION_RUN_LENGTH, REGIONS, type Region } from '@/data';
 
 import { IconPlaque } from '../home/IconPlaque';
 
@@ -76,7 +76,9 @@ function RegionRow({
             {region.blurb}
           </Text>
           <Text className="mt-0.5 text-xs font-semibold uppercase tracking-wide text-ink-muted">
-            {count} questions
+            {count > REGION_RUN_LENGTH
+              ? `${count} questions · ${REGION_RUN_LENGTH} per run`
+              : `${count} questions`}
           </Text>
         </View>
         <Text className="text-xl text-ink-muted">›</Text>

@@ -10,10 +10,10 @@ import { RoundView, useRoundRewards } from '@/features/round';
 import { palette } from '@/theme/tokens';
 import { dateKey } from '@/utils/date';
 
-import { OutOfHeartsSheet, useHearts } from '@/features/hearts';
+import { HeartsChip, OutOfHeartsSheet, useHearts } from '@/features/hearts';
 
 import { ModeHud } from '../components/ModeHud';
-import { HintButton } from '../hints/HintButton';
+import { AssistBar } from '../hints/AssistBar';
 import { roundDetail, RunSummary, type SummaryRow } from '../components/RunSummary';
 import type { DailyRecord } from '../persistence';
 import { dailyShareData } from './shareCard';
@@ -87,7 +87,9 @@ export function DailyScreen() {
           onSubmit={session.submit}
           onNext={session.advance}
           nextLabel={onLastQuestion ? 'Finish' : 'Next'}
-          actions={<HintButton question={session.question} />}
+          assist={(c) => (
+            <AssistBar question={session.question} onSubmit={c.submit} onChoose={c.choose} />
+          )}
           hud={
             <ModeHud
               progress={{
@@ -97,6 +99,7 @@ export function DailyScreen() {
               }}
               score={session.totalScore}
               onBack={() => router.back()}
+              trailing={<HeartsChip />}
             />
           }
         />

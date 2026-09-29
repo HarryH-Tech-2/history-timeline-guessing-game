@@ -36,7 +36,12 @@ export interface ScoreModifiers {
   comboMultiplier?: number;
   /** Flat streak bonus added after multiplying. */
   streakBonus?: number;
+  /** Answered via bought multiple choice: the total is scaled by {@link ASSISTED_SCORE_FACTOR}. */
+  assisted?: boolean;
 }
+
+/** Share of the normal score a multiple-choice (assisted) answer earns. */
+export const ASSISTED_SCORE_FACTOR = 0.5;
 
 /** A guess this close (in years) or better keeps a combo alive. */
 export const COMBO_THRESHOLD_YEARS = 20;
@@ -79,7 +84,8 @@ export function comboModifiers(results: readonly RoundResult[]): ScoreModifiers 
 export function buildScore(base: number, modifiers: ScoreModifiers = {}): Score {
   const comboMultiplier = modifiers.comboMultiplier ?? 1;
   const streakBonus = modifiers.streakBonus ?? 0;
-  const total = Math.round(base * comboMultiplier + streakBonus);
+  const assist = modifiers.assisted ? ASSISTED_SCORE_FACTOR : 1;
+  const total = Math.round((base * comboMultiplier + streakBonus) * assist);
   return { base, comboMultiplier, streakBonus, total };
 }
 
@@ -101,5 +107,6 @@ export function evaluateGuess(
     errorYears,
     score: buildScore(base, modifiers),
     isPerfect: errorYears === 0,
+    ...(modifiers.assisted ? { assisted: true } : {}),
   };
 }

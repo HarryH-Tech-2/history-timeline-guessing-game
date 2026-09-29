@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useRouter, type Href } from 'expo-router';
 import Animated, { FadeInUp } from 'react-native-reanimated';
@@ -12,6 +13,7 @@ import { dateKey } from '@/utils/date';
 
 import { DailyHeroCard } from './DailyHeroCard';
 import { IconPlaque } from './IconPlaque';
+import { StreakSheet } from './StreakSheet';
 import { useContentVersion } from './useContentVersion';
 
 interface ModeCardData {
@@ -22,6 +24,8 @@ interface ModeCardData {
   route: Href;
   /** Behind the paywall: free players see a lock and land on the paywall. */
   premiumOnly?: boolean;
+  /** The route is a bottom tab: switch to it rather than pushing a screen. */
+  tab?: boolean;
 }
 
 // The Daily has its own hero card at the top of the hub; these are the rest.
@@ -39,6 +43,7 @@ const MODES: readonly ModeCardData[] = [
     description: 'Work through worlds and earn stars.',
     icon: '🗺️',
     route: '/campaign',
+    tab: true,
   },
   // Premium mode last, mirroring the premium categories at the end of their list.
   {
@@ -179,6 +184,7 @@ export function HomeHub() {
   const { state } = useProgression();
   // The Daily streak the player is on; read per render so it is right after a run.
   const streak = activeStreakCount(state.streak, dateKey());
+  const [streakOpen, setStreakOpen] = useState(false);
   // Re-render when the remote catalogue lands, so a tapped category always exists.
   useContentVersion();
 
@@ -192,8 +198,11 @@ export function HomeHub() {
           <View className="flex-1 justify-center pr-3">
             <Text className="text-3xl font-extrabold text-ink-primary">Date Guesser</Text>
           </View>
-          <View
+          <Pressable
+            onPress={() => setStreakOpen(true)}
+            accessibilityRole="button"
             accessibilityLabel={`${streak}-day streak`}
+            hitSlop={6}
             testID="home-streak"
             className="mr-2 h-10 flex-row items-center gap-1 border border-hair bg-bg-raised px-3"
           >
@@ -206,7 +215,7 @@ export function HomeHub() {
             >
               {streak}
             </Text>
-          </View>
+          </Pressable>
           <Pressable
             onPress={toggle}
             accessibilityRole="button"
@@ -222,6 +231,15 @@ export function HomeHub() {
         <ProfileHeader />
 
         <DailyHeroCard onPress={() => router.push('/daily')} />
+        <StreakSheet
+          visible={streakOpen}
+          streak={state.streak}
+          onClose={() => setStreakOpen(false)}
+          onPlay={() => {
+            setStreakOpen(false);
+            router.push('/daily');
+          }}
+        />
 
         <Text className="mt-4 text-xs font-semibold uppercase tracking-wide text-ink-muted">
           Game modes
@@ -234,7 +252,11 @@ export function HomeHub() {
               mode={mode}
               index={index}
               locked={locked}
-              onPress={() => router.push(locked ? '/paywall' : mode.route)}
+              onPress={() => {
+                if (locked) router.push('/paywall');
+                else if (mode.tab) router.navigate(mode.route);
+                else router.push(mode.route);
+              }}
             />
           );
         })}

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react-native';
+import { fireEvent, render, screen } from '@testing-library/react-native';
 
 jest.mock('expo-router', () => ({
   useRouter: () => ({ push: jest.fn(), back: jest.fn() }),
@@ -19,5 +19,12 @@ describe('HomeHub', () => {
   it('no longer offers a Topic of the day', () => {
     render(<HomeHub />);
     expect(screen.queryByTestId('topic-of-the-day')).toBeNull();
+  });
+
+  it('opens the streak celebration when the streak chip is tapped', () => {
+    render(<HomeHub />);
+    expect(screen.queryByTestId('streak-sheet')).toBeNull();
+    fireEvent.press(screen.getByTestId('home-streak'));
+    expect(screen.getByTestId('streak-sheet')).toBeOnTheScreen();
   });
 });

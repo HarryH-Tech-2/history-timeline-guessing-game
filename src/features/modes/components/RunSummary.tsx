@@ -1,5 +1,5 @@
 import { useRef, type ReactNode } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { Button, Card, Screen } from '@/components/ui';
@@ -49,6 +49,9 @@ interface RunSummaryProps {
   onPrimary: () => void;
   secondaryLabel?: string;
   onSecondary?: () => void;
+  /** A quiet text link under the buttons (e.g. Replay once Continue leads). */
+  tertiaryLabel?: string;
+  onTertiary?: () => void;
   /** Optional callout shown inside the card, just above the buttons. */
   notice?: ReactNode;
   /** When set, the run can be shared as an image card (plus the store link). */
@@ -120,6 +123,8 @@ export function RunSummary({
   onPrimary,
   secondaryLabel,
   onSecondary,
+  tertiaryLabel,
+  onTertiary,
   notice,
   share,
 }: RunSummaryProps) {
@@ -222,6 +227,19 @@ export function RunSummary({
                   variant="ghost"
                   testID="summary-secondary"
                 />
+              )}
+              {tertiaryLabel !== undefined && onTertiary !== undefined && (
+                <Pressable
+                  onPress={onTertiary}
+                  accessibilityRole="button"
+                  hitSlop={10}
+                  className="items-center py-1"
+                  testID="summary-tertiary"
+                >
+                  <Text className="text-sm font-semibold text-ink-muted underline">
+                    {tertiaryLabel}
+                  </Text>
+                </Pressable>
               )}
             </View>
           </Card>

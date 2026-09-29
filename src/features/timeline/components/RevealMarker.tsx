@@ -54,7 +54,7 @@ export function RevealMarker({
       pointerEvents="none"
       entering={FadeIn.duration(400)}
       style={[style, { width: MARKER_WIDTH }]}
-      className="absolute bottom-8 top-2 left-0 items-center"
+      className="absolute bottom-10 top-2 left-0 items-center"
       testID={testID}
     >
       <View

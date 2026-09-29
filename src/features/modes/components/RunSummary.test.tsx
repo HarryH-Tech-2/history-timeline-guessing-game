@@ -40,6 +40,30 @@ describe('RunSummary', () => {
     expect(screen.queryByTestId('summary-notice')).toBeNull();
   });
 
+  it('offers a quiet tertiary link when one is given', () => {
+    const onTertiary = jest.fn();
+    render(
+      <RunSummary
+        title="Stage cleared"
+        totalScore={0}
+        primaryLabel="Continue your quest →"
+        onPrimary={jest.fn()}
+        tertiaryLabel="Replay stage"
+        onTertiary={onTertiary}
+      />,
+    );
+    fireEvent.press(screen.getByTestId('summary-tertiary'));
+    expect(onTertiary).toHaveBeenCalled();
+    expect(screen.getByText('Replay stage')).toBeOnTheScreen();
+  });
+
+  it('has no tertiary link by default', () => {
+    render(
+      <RunSummary title="Run over" totalScore={0} primaryLabel="Home" onPrimary={jest.fn()} />,
+    );
+    expect(screen.queryByTestId('summary-tertiary')).toBeNull();
+  });
+
   it('renders no share button or card unless the run can be shared', () => {
     render(
       <RunSummary title="Run over" totalScore={0} primaryLabel="Home" onPrimary={jest.fn()} />,

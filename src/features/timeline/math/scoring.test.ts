@@ -3,6 +3,7 @@ import { QuestionSchema, type Question } from '@/domain';
 import type { RoundResult } from '@/domain';
 
 import {
+  ASSISTED_SCORE_FACTOR,
   buildScore,
   COMBO_MAX_STACKS,
   COMBO_STEP,
@@ -75,6 +76,12 @@ describe('buildScore', () => {
     const score = buildScore(800, { comboMultiplier: 1.5, streakBonus: 50 });
     expect(score.total).toBe(1250);
   });
+
+  it('halves the whole total for an assisted (multiple-choice) answer', () => {
+    expect(ASSISTED_SCORE_FACTOR).toBe(0.5);
+    const score = buildScore(800, { comboMultiplier: 1.5, streakBonus: 50, assisted: true });
+    expect(score.total).toBe(625);
+  });
 });
 
 function res(errorYears: number): RoundResult {
@@ -118,6 +125,17 @@ describe('evaluateGuess', () => {
     expect(result.errorYears).toBe(5);
     expect(result.isPerfect).toBe(false);
     expect(result.score.total).toBe(800);
+  });
+
+  it('marks an assisted answer and scores it at half', () => {
+    const result = evaluateGuess(question, 1969, { assisted: true });
+    expect(result.isPerfect).toBe(true);
+    expect(result.assisted).toBe(true);
+    expect(result.score.total).toBe(500);
+  });
+
+  it('leaves ordinary guesses unmarked', () => {
+    expect(evaluateGuess(question, 1969).assisted).toBeUndefined();
   });
 });
 

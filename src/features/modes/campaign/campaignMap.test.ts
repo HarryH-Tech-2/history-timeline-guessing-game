@@ -5,7 +5,13 @@ import type { CampaignProgress } from '../persistence';
 import {
   CAMPAIGN,
   allStages,
+  eraStatus,
+  FREE_ERA_COUNT,
+  isStagePremium,
   isStageUnlocked,
+  isWorldPremium,
+  nextStage,
+  progressSince,
   starsForResults,
 } from './campaignMap';
 
@@ -71,5 +77,77 @@ describe('campaign map', () => {
 
   it('locks unknown stage ids', () => {
     expect(isStageUnlocked('nope', {})).toBe(false);
+  });
+});
+
+describe('campaign premium gating', () => {
+  it('keeps only the first era free', () => {
+    expect(FREE_ERA_COUNT).toBe(1);
+    expect(isWorldPremium('ancient')).toBe(false);
+    for (const world of CAMPAIGN.slice(1)) expect(isWorldPremium(world.id)).toBe(true);
+  });
+
+  it('marks every stage from the Middle Ages on as premium', () => {
+    const [ancient, medieval] = CAMPAIGN;
+    expect(ancient!.stages.every((s) => !isStagePremium(s))).toBe(true);
+    expect(medieval!.stages.every((s) => isStagePremium(s))).toBe(true);
+  });
+});
+
+describe('nextStage', () => {
+  it('walks play order across era boundaries and ends after the last stage', () => {
+    const stages = allStages();
+    expect(nextStage(stages[0]!.id)?.id).toBe(stages[1]!.id);
+    const lastAncient = CAMPAIGN[0]!.stages.at(-1)!;
+    expect(nextStage(lastAncient.id)?.id).toBe(CAMPAIGN[1]!.stages[0]!.id);
+    expect(nextStage(stages.at(-1)!.id)).toBeNull();
+    expect(nextStage('nope')).toBeNull();
+  });
+});
+
+describe('eraStatus', () => {
+  const ancient = CAMPAIGN[0]!;
+
+  it('counts cleared stages and flags a fully cleared era', () => {
+    const some: CampaignProgress = { [ancient.stages[0]!.id]: { stars: 2, bestScore: 1 } };
+    expect(eraStatus(ancient, some)).toEqual({
+      cleared: 1,
+      total: ancient.stages.length,
+      complete: false,
+      mastered: false,
+    });
+    const all: CampaignProgress = Object.fromEntries(
+      ancient.stages.map((s) => [s.id, { stars: 2, bestScore: 1 }]),
+    );
+    expect(eraStatus(ancient, all)).toMatchObject({ complete: true, mastered: false });
+  });
+
+  it('calls an era mastered only at three stars everywhere', () => {
+    const all: CampaignProgress = Object.fromEntries(
+      ancient.stages.map((s) => [s.id, { stars: 3, bestScore: 1 }]),
+    );
+    expect(eraStatus(ancient, all)).toMatchObject({ complete: true, mastered: true });
+  });
+});
+
+describe('progressSince', () => {
+  const [s1, s2, s3] = allStages();
+
+  it('reports stages cleared and unlocked since the last snapshot, in play order', () => {
+    const before: CampaignProgress = { [s1!.id]: { stars: 1, bestScore: 1 } };
+    const after: CampaignProgress = {
+      [s1!.id]: { stars: 1, bestScore: 1 },
+      [s2!.id]: { stars: 2, bestScore: 1 },
+    };
+    expect(progressSince(before, after)).toEqual({
+      cleared: [s2!.id],
+      unlocked: [s3!.id],
+    });
+  });
+
+  it('ignores star upgrades on stages that were already cleared', () => {
+    const before: CampaignProgress = { [s1!.id]: { stars: 1, bestScore: 1 } };
+    const after: CampaignProgress = { [s1!.id]: { stars: 3, bestScore: 9 } };
+    expect(progressSince(before, after)).toEqual({ cleared: [], unlocked: [] });
   });
 });

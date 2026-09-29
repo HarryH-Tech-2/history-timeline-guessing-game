@@ -1,4 +1,4 @@
-import { getQuestions } from '@/data';
+import { getQuestions, isInRotation } from '@/data';
 import { DIFFICULTY_ORDER, type Question, type RoundResult } from '@/domain';
 
 import type { CampaignProgress } from '../persistence';
@@ -107,7 +107,7 @@ function chunk<T>(items: readonly T[], size: number): T[][] {
  * premium category on its own. Built once from the seed data.
  */
 function buildCampaign(): readonly CampaignWorld[] {
-  const questions = getQuestions();
+  const questions = getQuestions().filter(isInRotation);
 
   return ERAS.map((era, worldIndex) => {
     const ordered = questions
@@ -172,4 +172,69 @@ export function isStageUnlocked(stageId: string, progress: CampaignProgress): bo
   if (index <= 0) return index === 0; // first stage unlocked; unknown id locked
   const previous = stages[index - 1]!;
   return (progress[previous.id]?.stars ?? 0) >= 1;
+}
+
+/** Eras playable without Premium, counted from the start of the campaign. */
+export const FREE_ERA_COUNT = 1;
+
+/** Every era after the free ones (the Middle Ages onward) needs Premium. */
+export function isWorldPremium(worldId: string): boolean {
+  const world = getWorld(worldId);
+  return world !== undefined && world.index > FREE_ERA_COUNT;
+}
+
+export function isStagePremium(stage: CampaignStage): boolean {
+  return isWorldPremium(stage.worldId);
+}
+
+/** The stage after `stageId` in play order, crossing into the next era; null at the end. */
+export function nextStage(stageId: string): CampaignStage | null {
+  const stages = allStages();
+  const index = stages.findIndex((s) => s.id === stageId);
+  if (index < 0) return null;
+  return stages[index + 1] ?? null;
+}
+
+export interface EraStatus {
+  /** Stages with at least one star. */
+  cleared: number;
+  total: number;
+  /** Every stage cleared. */
+  complete: boolean;
+  /** Every stage at three stars. */
+  mastered: boolean;
+}
+
+export function eraStatus(world: CampaignWorld, progress: CampaignProgress): EraStatus {
+  const stars = world.stages.map((s) => progress[s.id]?.stars ?? 0);
+  const cleared = stars.filter((n) => n >= 1).length;
+  const total = world.stages.length;
+  return {
+    cleared,
+    total,
+    complete: total > 0 && cleared === total,
+    mastered: total > 0 && stars.every((n) => n >= 3),
+  };
+}
+
+export interface ProgressDelta {
+  /** Stages that went from no stars to cleared, in play order. */
+  cleared: string[];
+  /** Stages that became playable, in play order. */
+  unlocked: string[];
+}
+
+/** What changed on the map between two progress snapshots — drives the light-up sequence. */
+export function progressSince(before: CampaignProgress, after: CampaignProgress): ProgressDelta {
+  const cleared: string[] = [];
+  const unlocked: string[] = [];
+  for (const stage of allStages()) {
+    if ((before[stage.id]?.stars ?? 0) === 0 && (after[stage.id]?.stars ?? 0) >= 1) {
+      cleared.push(stage.id);
+    }
+    if (!isStageUnlocked(stage.id, before) && isStageUnlocked(stage.id, after)) {
+      unlocked.push(stage.id);
+    }
+  }
+  return { cleared, unlocked };
 }

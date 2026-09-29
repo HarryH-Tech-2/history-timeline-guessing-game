@@ -6,7 +6,7 @@ import { usePremium } from '@/features/premium';
 import { RoundView, useRoundRewards } from '@/features/round';
 
 import { ModeHud } from '../components/ModeHud';
-import { HintButton } from '../hints/HintButton';
+import { AssistBar } from '../hints/AssistBar';
 import { useEndlessSession } from './useEndlessSession';
 
 function EndlessPlay({ onHome }: { onHome: () => void }) {
@@ -27,7 +27,9 @@ function EndlessPlay({ onHome }: { onHome: () => void }) {
         result={session.result}
         onSubmit={session.submit}
         onNext={session.advance}
-        actions={<HintButton question={session.question} />}
+        assist={(c) => (
+          <AssistBar question={session.question} onSubmit={c.submit} onChoose={c.choose} />
+        )}
         hud={<ModeHud progressLabel={progressLabel} score={session.totalScore} onBack={onHome} />}
       />
     </Screen>

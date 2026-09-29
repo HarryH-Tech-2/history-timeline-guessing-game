@@ -1,6 +1,11 @@
 import { act, renderHook } from '@testing-library/react-native';
 
-import { getQuestionsByCategory, getRegionalQuestions, REGIONAL_CATEGORY_ID } from '@/data';
+import {
+  getQuestionsByCategory,
+  getRegionalQuestions,
+  REGION_RUN_LENGTH,
+  REGIONAL_CATEGORY_ID,
+} from '@/data';
 
 import { useCategorySession } from './useCategorySession';
 
@@ -40,18 +45,22 @@ describe('useCategorySession', () => {
     expect(new Set(asked)).toEqual(new Set(pool.map((q) => q.id)));
   });
 
-  it('restricts a Regional run to the chosen region', () => {
+  it('deals a Regional run of at most ten distinct questions from the chosen region', () => {
+    expect(REGION_RUN_LENGTH).toBe(10);
     const regionPool = getRegionalQuestions('oceania');
     const wholeCategory = getQuestionsByCategory(REGIONAL_CATEGORY_ID);
     expect(regionPool.length).toBeGreaterThan(0);
     expect(regionPool.length).toBeLessThan(wholeCategory.length);
+    const runLength = Math.min(REGION_RUN_LENGTH, regionPool.length);
 
     const { result } = renderHook(() => useCategorySession(REGIONAL_CATEGORY_ID, 'oceania'));
-    expect(result.current.totalQuestions).toBe(regionPool.length);
+    expect(result.current.totalQuestions).toBe(runLength);
 
-    const asked = playThrough(result, regionPool.length);
+    const asked = playThrough(result, runLength);
 
     expect(result.current.session.status).toBe('finished');
-    expect(new Set(asked)).toEqual(new Set(regionPool.map((q) => q.id)));
+    expect(new Set(asked).size).toBe(runLength);
+    const regionIds = new Set(regionPool.map((q) => q.id));
+    expect(asked.every((id) => regionIds.has(id))).toBe(true);
   });
 });

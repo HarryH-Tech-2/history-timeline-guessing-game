@@ -17,6 +17,8 @@ export const RoundResultSchema = z.object({
   errorYears: z.number().nonnegative(),
   score: ScoreSchema,
   isPerfect: z.boolean(),
+  /** Answered by picking from bought multiple choice (scored at half). */
+  assisted: z.boolean().optional(),
 });
 
 export type RoundResult = z.infer<typeof RoundResultSchema>;

@@ -455,7 +455,7 @@ export function ProfileScreen() {
           <View className="flex-1 pr-3">
             <Text className="text-base font-semibold text-ink-primary">Daily reminder</Text>
             <Text className="mt-0.5 text-xs text-ink-muted">
-              One notification in the evening when a fresh Daily is waiting.
+              One notification at 8am when a fresh Daily is waiting.
             </Text>
           </View>
           <Text className="text-base text-ink-secondary">

@@ -5,11 +5,20 @@ export interface DailyHeroStatus {
   done: boolean;
   /** The streak the player is on (or would extend by playing today). */
   streak: number;
-  /** Whole hours until the next Daily unlocks at local midnight; only when done. */
-  hoursUntilNext?: number;
+  /** "6h 30m" until the next Daily unlocks at local midnight; only when done. */
+  nextIn?: string;
 }
 
-const HOUR_MS = 60 * 60 * 1000;
+const MINUTE_MS = 60 * 1000;
+
+/** Minutes rounded up so the label never reads "0m" before the Daily flips. */
+function formatUntil(ms: number): string {
+  const totalMinutes = Math.max(1, Math.ceil(ms / MINUTE_MS));
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  if (hours === 0) return `${minutes}m`;
+  return minutes === 0 ? `${hours}h` : `${hours}h ${minutes}m`;
+}
 
 /**
  * What the home hero card says about today's Daily, derived from the
@@ -28,6 +37,5 @@ export function dailyHeroStatus({
   const live = activeStreakCount(streak, today);
   if (streak.lastDate !== today) return { done: false, streak: live };
   const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-  const hoursUntilNext = Math.max(1, Math.ceil((midnight.getTime() - now.getTime()) / HOUR_MS));
-  return { done: true, streak: live, hoursUntilNext };
+  return { done: true, streak: live, nextIn: formatUntil(midnight.getTime() - now.getTime()) };
 }

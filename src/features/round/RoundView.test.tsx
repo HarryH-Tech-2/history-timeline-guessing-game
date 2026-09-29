@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
+import { Text } from 'react-native';
 
 import { QuestionSchema, type Question } from '@/domain';
 import { SoundContext } from '@/features/sound';
@@ -87,6 +88,72 @@ describe('RoundView answer feedback', () => {
     const expected = isRightAnswer(Math.round(guessYear) - question.year) ? 'right' : 'wrong';
     expect(play).toHaveBeenCalledTimes(1);
     expect(play).toHaveBeenCalledWith(expected);
+  });
+});
+
+describe('RoundView assist footer', () => {
+  it('renders the assist footer in place of the plain submit button', () => {
+    render(
+      <RoundView
+        question={question}
+        phase="guessing"
+        result={null}
+        onSubmit={jest.fn()}
+        onNext={jest.fn()}
+        assist={() => <Text testID="custom-footer">footer</Text>}
+      />,
+    );
+    expect(screen.getByTestId('custom-footer')).toBeOnTheScreen();
+    expect(screen.queryByTestId('submit-button')).toBeNull();
+  });
+
+  it('submits a multiple-choice pick as an assisted guess, with the matching sting', () => {
+    const play = jest.fn();
+    const onSubmit = jest.fn();
+    let controls: { submit: () => void; choose: (year: number) => void } | undefined;
+    render(
+      <SoundContext.Provider
+        value={{ enabled: true, setEnabled: jest.fn(), toggle: jest.fn(), play }}
+      >
+        <RoundView
+          question={question}
+          phase="guessing"
+          result={null}
+          onSubmit={onSubmit}
+          onNext={jest.fn()}
+          assist={(c) => {
+            controls = c;
+            return null;
+          }}
+        />
+      </SoundContext.Provider>,
+    );
+
+    act(() => controls!.choose(1776));
+
+    expect(onSubmit).toHaveBeenCalledWith(1776, { assisted: true });
+    expect(play).toHaveBeenCalledWith('right');
+  });
+
+  it('submits the crosshair year from the footer submit control', () => {
+    const onSubmit = jest.fn();
+    let controls: { submit: () => void; choose: (year: number) => void } | undefined;
+    render(
+      <RoundView
+        question={question}
+        phase="guessing"
+        result={null}
+        onSubmit={onSubmit}
+        onNext={jest.fn()}
+        assist={(c) => {
+          controls = c;
+          return null;
+        }}
+      />,
+    );
+    act(() => controls!.submit());
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit.mock.calls[0]![1]).toBeUndefined();
   });
 });
 

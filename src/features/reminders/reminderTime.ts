@@ -1,6 +1,6 @@
-/** Local hour (24h) the Daily reminder fires. Early evening: after work and
- * school, before the day is written off. */
-export const REMINDER_HOUR = 19;
+/** Local hour (24h) the Daily reminder fires: 8am, so the fresh Daily lands
+ * with the morning phone check. */
+export const REMINDER_HOUR = 8;
 
 /**
  * When the next Daily reminder should fire. A single one-shot notification is

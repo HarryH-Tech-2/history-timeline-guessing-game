@@ -22,6 +22,8 @@ export interface AnalyticsEvents {
     answer_year: number;
     error_years: number;
     score: number;
+    /** Answered via bought multiple choice. */
+    assisted: boolean;
   };
   /** A play session ended (all questions done or out of lives). */
   run_completed: { mode: GameMode; rounds: number; total_score: number; exact: number };
@@ -43,6 +45,8 @@ export interface AnalyticsEvents {
   hearts_exhausted: undefined;
   /** A coin hint was bought. */
   hint_used: { question_id: string };
+  /** Multiple choice was bought for a question. */
+  multiple_choice_used: { question_id: string };
   /** A sign-in or sign-up finished successfully. */
   sign_in_completed: { method: 'google' | 'apple' | 'email' | 'playgames' };
   /** A first-run onboarding step came on screen (1-based). */

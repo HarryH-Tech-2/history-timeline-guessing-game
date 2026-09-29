@@ -112,6 +112,14 @@ export function RevealSheet({
                 {formatYear(question.year)}
               </Text>
               <Text className="mt-1 text-sm text-ink-secondary">{distanceLabel(result)}</Text>
+              {result.assisted === true && (
+                <Text
+                  className="mt-1 self-start border border-hair px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-ink-muted"
+                  testID="reveal-assisted-tag"
+                >
+                  Multiple choice · ½ points
+                </Text>
+              )}
             </View>
             <View
               className="items-center rounded-xl border px-4 py-2"

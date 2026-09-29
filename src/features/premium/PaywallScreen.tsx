@@ -263,6 +263,11 @@ export function PaywallScreen() {
               detail="Hints and streak freezes whenever you want them. Never count coins again."
             />
             <Benefit
+              icon="🗺️"
+              title="The full campaign"
+              detail="March on past the Ancient World, from the Middle Ages to the Modern Era."
+            />
+            <Benefit
               icon="♾️"
               title="Endless mode"
               detail="An unlimited run of the full catalogue, with unlimited lives."

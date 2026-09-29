@@ -47,6 +47,22 @@ describe('useGameSession', () => {
     expect(result.current.totalScore).toBe(1650);
   });
 
+  it('scores a multiple-choice answer at half and marks it assisted', () => {
+    const { result } = renderHook(() =>
+      useGameSession({
+        mode: 'category',
+        first: () => q1,
+        next: () => null,
+        modifiers: () => ({ comboMultiplier: 1 }),
+      }),
+    );
+    act(() => {
+      result.current.submit(1000, { assisted: true });
+    });
+    expect(result.current.result?.assisted).toBe(true);
+    expect(result.current.totalScore).toBe(500);
+  });
+
   it('ignores a second submit while the round is already revealed', () => {
     const queue = [q1, q2];
     const { result } = renderHook(() =>

@@ -12,6 +12,9 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { useProgression } from '@/features/progression';
+import { useSaves } from '@/features/save';
+import type { DailyRecord } from '../persistence';
+import { palette } from '@/theme/tokens';
 import { dateKey } from '@/utils/date';
 
 import { dailyHeroStatus } from './dailyHero';
@@ -62,6 +65,55 @@ function PlayPill() {
 }
 
 /**
+ * A copper wax-seal stamp: the "done" mark for today's Daily. Tilted like it
+ * was pressed by hand, it replaces the generic checkbox emoji.
+ */
+function DoneSeal() {
+  return (
+    <View
+      testID="daily-done-seal"
+      className="h-12 w-12 items-center justify-center rounded-full border-2"
+      style={{
+        borderColor: palette.accent.default,
+        backgroundColor: `${palette.accent.default}26`,
+        transform: [{ rotate: '-10deg' }],
+      }}
+    >
+      <View
+        className="h-9 w-9 items-center justify-center rounded-full border border-dashed"
+        style={{ borderColor: palette.accent.soft }}
+      >
+        <Text
+          className="text-lg font-extrabold"
+          style={{ color: palette.accent.soft, includeFontPadding: false }}
+        >
+          ✓
+        </Text>
+      </View>
+    </View>
+  );
+}
+
+/** Today's stored Daily score, or null until it is known / on another day. */
+function useTodaysDailyScore(done: boolean, today: string): number | null {
+  const { daily } = useSaves();
+  const [record, setRecord] = useState<DailyRecord | null>(null);
+
+  useEffect(() => {
+    if (!done) return;
+    let live = true;
+    void daily.read().then((stored) => {
+      if (live) setRecord(stored);
+    });
+    return () => {
+      live = false;
+    };
+  }, [daily, done, today]);
+
+  return done && record?.date === today ? record.totalScore : null;
+}
+
+/**
  * The Daily as the first thing on the home hub. It is the habit loop of the
  * game, and the numbers said almost nobody found it below the fold: one card
  * with a clear state — play now, streak on the line, or done with a countdown.
@@ -75,7 +127,9 @@ export function DailyHeroCard({ onPress }: { onPress: () => void }) {
     return () => clearInterval(id);
   }, []);
 
-  const status = dailyHeroStatus({ streak: state.streak, today: dateKey(now), now });
+  const today = dateKey(now);
+  const status = dailyHeroStatus({ streak: state.streak, today, now });
+  const todaysScore = useTodaysDailyScore(status.done, today);
   const streakLine =
     status.streak > 0
       ? status.done
@@ -83,35 +137,69 @@ export function DailyHeroCard({ onPress }: { onPress: () => void }) {
         : `🔥 ${status.streak}-day streak — play today to keep it`
       : null;
 
+  if (status.done) {
+    return (
+      <Animated.View entering={FadeInUp.springify().damping(18)}>
+        <Pressable
+          onPress={onPress}
+          accessibilityRole="button"
+          accessibilityLabel="Daily done, see your result"
+          testID="mode-daily"
+          className="flex-row items-center gap-4 overflow-hidden border-2 bg-bg-raised p-4"
+          style={{ borderColor: `${palette.accent.default}99` }}
+        >
+          <DoneSeal />
+          <View className="flex-1">
+            <Text className="text-xs font-semibold uppercase tracking-wide text-accent">
+              Come back tomorrow
+            </Text>
+            <Text className="text-xl font-extrabold text-ink-primary">Daily done</Text>
+            {todaysScore !== null && (
+              <Text
+                className="text-sm font-semibold text-ink-secondary"
+                style={{ fontVariant: ['tabular-nums'] }}
+              >
+                Today · {todaysScore.toLocaleString()} pts
+              </Text>
+            )}
+            {streakLine !== null && (
+              <Text className="text-sm font-bold text-ink-primary">{streakLine}</Text>
+            )}
+          </View>
+          <View className="items-center rounded-full border border-hair bg-bg-overlay px-3 py-1.5">
+            <Text className="text-[10px] font-semibold uppercase tracking-wide text-ink-muted">
+              Next Daily in
+            </Text>
+            <Text
+              className="text-sm font-extrabold text-ink-primary"
+              style={{ fontVariant: ['tabular-nums'] }}
+              accessibilityLabel={`Next Daily in ${status.nextIn}`}
+            >
+              {status.nextIn}
+            </Text>
+          </View>
+        </Pressable>
+      </Animated.View>
+    );
+  }
+
   return (
     <Animated.View entering={FadeInUp.springify().damping(18)}>
       <Pressable
         onPress={onPress}
         accessibilityRole="button"
-        accessibilityLabel={status.done ? 'Daily done, see your result' : "Play today's Daily"}
+        accessibilityLabel="Play today's Daily"
         testID="mode-daily"
-        className={`flex-row items-center gap-4 overflow-hidden border-2 p-4 ${
-          status.done ? 'border-hair bg-bg-raised' : 'border-accent bg-accent/10'
-        }`}
+        className="flex-row items-center gap-4 overflow-hidden border-2 border-accent bg-accent/10 p-4"
       >
-        <IconPlaque glyph={status.done ? '✅' : '📅'} />
+        <IconPlaque glyph="📅" />
         <View className="flex-1">
-          {status.done && (
-            <Text className="text-xs font-semibold uppercase tracking-wide text-accent">
-              Come back tomorrow
-            </Text>
-          )}
-          <Text className="text-xl font-extrabold text-ink-primary">
-            {status.done ? 'Daily done' : "Today's Daily"}
-          </Text>
+          <Text className="text-xl font-extrabold text-ink-primary">{"Today's Daily"}</Text>
           {streakLine !== null && (
             <Text className="text-sm text-ink-secondary">{streakLine}</Text>
           )}
-          {status.done && (
-            <Text className="text-sm text-ink-muted">Next Daily in {status.hoursUntilNext}h</Text>
-          )}
         </View>
-        {status.done ? <Text className="text-xl text-ink-muted">›</Text> : <PlayPill />}
+        <PlayPill />
       </Pressable>
     </Animated.View>
   );

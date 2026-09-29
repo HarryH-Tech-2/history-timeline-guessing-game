@@ -9,7 +9,7 @@ function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
   return <Text style={{ fontSize: 20, opacity: focused ? 1 : 0.55 }}>{emoji}</Text>;
 }
 
-/** Bottom navigation: Play, Museum, Leaderboard, Profile. */
+/** Bottom navigation: Play, Campaign, Museum, Leaderboard, Profile. */
 export default function TabsLayout() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
@@ -36,6 +36,13 @@ export default function TabsLayout() {
         options={{
           title: 'Play',
           tabBarIcon: ({ focused }) => <TabIcon emoji="🎯" focused={focused} />,
+        }}
+      />
+      <Tabs.Screen
+        name="campaign"
+        options={{
+          title: 'Campaign',
+          tabBarIcon: ({ focused }) => <TabIcon emoji="🗺️" focused={focused} />,
         }}
       />
       <Tabs.Screen

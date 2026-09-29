@@ -32,7 +32,7 @@ function MinorTickComponent({ tick, scale }: TimelineTickProps) {
     <Animated.View
       pointerEvents="none"
       style={style}
-      className="absolute bottom-8 left-0 h-7 w-px bg-ink-primary/15"
+      className="absolute bottom-10 left-0 h-10 w-px bg-ink-primary/15"
       testID={`timeline-decade-${tick.year}`}
     />
   );
@@ -72,15 +72,15 @@ function MajorTickComponent({ tick, scale }: TimelineTickProps) {
     >
       <Animated.View
         style={lineStyle}
-        className="h-14 w-px bg-ink-primary/40"
+        className="h-20 w-px bg-ink-primary/40"
         testID={`timeline-tick-line-${tick.year}`}
       />
       {/* Fixed-height date strip below the baseline. */}
       <Animated.View
         style={labelStyle}
-        className="h-8 items-center justify-center"
+        className="h-10 items-center justify-center"
       >
-        <Text numberOfLines={1} className="w-24 text-center text-xs font-medium text-ink-muted">
+        <Text numberOfLines={1} className="w-24 text-center text-sm font-medium text-ink-muted">
           {tick.label}
         </Text>
       </Animated.View>

@@ -7,7 +7,7 @@ import { palette } from '@/theme/tokens';
 import { dateKey } from '@/utils/date';
 
 import { ModeHud } from '../components/ModeHud';
-import { HintButton } from '../hints/HintButton';
+import { AssistBar } from '../hints/AssistBar';
 import { roundDetail, RunSummary, type SummaryRow } from '../components/RunSummary';
 import { prettyDate, shareDataFromResults } from '../share';
 import { isOutOfLives } from './survivalRules';
@@ -67,7 +67,9 @@ function SurvivalPlay({ onHome, onRetry }: { onHome: () => void; onRetry: () => 
         onSubmit={session.submit}
         onNext={session.advance}
         nextLabel={nextLabel}
-        actions={<HintButton question={session.question} />}
+        assist={(c) => (
+          <AssistBar question={session.question} onSubmit={c.submit} onChoose={c.choose} />
+        )}
         hud={
           <ModeHud
             progressLabel={`Round ${session.roundNumber}`}

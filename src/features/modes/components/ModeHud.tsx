@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
 import Animated, {
   Easing,
@@ -17,6 +17,8 @@ import type { RoundResult } from '@/domain';
 import { useThemeColors } from '@/theme';
 import { palette } from '@/theme/tokens';
 
+import { ScorePlaque } from './ScorePlaque';
+
 interface ModeHudProps {
   /** Left-aligned label for open-ended modes, e.g. "Round 5". Fixed-length runs rely on the bar. */
   progressLabel?: string;
@@ -33,6 +35,8 @@ interface ModeHudProps {
   startingLives?: number;
   /** Renders a back affordance that exits the mode. */
   onBack?: () => void;
+  /** Right-slot status, e.g. the hearts chip in modes that spend hearts. */
+  trailing?: ReactNode;
 }
 
 /** Survival lives: full hearts for those left, faded ones for those lost. */
@@ -165,7 +169,7 @@ function ProgressBar({
   );
 }
 
-/** A slim status bar above the prompt: back on the left, score centred, lives on the right. */
+/** A slim status bar above the prompt: back on the left, score centred, lives or hearts on the right. */
 export function ModeHud({
   progressLabel,
   progress,
@@ -173,37 +177,30 @@ export function ModeHud({
   lives,
   startingLives,
   onBack,
+  trailing,
 }: ModeHudProps) {
   return (
     <View className="gap-2 py-1">
       <View className="min-h-10 flex-row items-center justify-between">
-        <View className="w-10">
+        <View className="w-16">
           {onBack !== undefined && (
             <BackButton onPress={onBack} label="Exit mode" testID="hud-back" />
           )}
         </View>
         {/* The running score is the one number that matters mid-run: big and centred. */}
         <View className="flex-1 items-center">
-          {score !== undefined && (
-            <Text
-              className="text-2xl font-extrabold text-ink-primary"
-              style={{ fontVariant: ['tabular-nums'], includeFontPadding: false }}
-              accessibilityLabel={`Score ${score}`}
-              testID="hud-score"
-            >
-              Score: {score.toLocaleString()}
-            </Text>
-          )}
+          {score !== undefined && <ScorePlaque score={score} />}
           {progressLabel !== undefined && (
-            <Text className="text-[11px] font-semibold uppercase tracking-wide text-ink-muted">
+            <Text className="mt-0.5 text-[11px] font-semibold uppercase tracking-wide text-ink-muted">
               {progressLabel}
             </Text>
           )}
         </View>
-        <View className="min-w-10 items-end">
+        <View className="min-w-16 items-end">
           {lives !== undefined && startingLives !== undefined && (
             <Hearts lives={lives} total={startingLives} />
           )}
+          {trailing}
         </View>
       </View>
       {progress !== undefined && (

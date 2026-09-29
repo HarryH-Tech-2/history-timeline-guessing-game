@@ -15,6 +15,9 @@ export interface Region {
 /** The category whose questions are split by region. */
 export const REGIONAL_CATEGORY_ID = 'regional';
 
+/** Questions dealt per Regional run: a fresh random slice of the region each time. */
+export const REGION_RUN_LENGTH = 10;
+
 export const REGIONS: readonly Region[] = [
   { id: 'europe', name: 'Europe', icon: '🏰', blurb: 'Kingdoms, unions and revolutions.', tag: 'europe' },
   { id: 'asia', name: 'Asia', icon: '🏯', blurb: 'Dynasties, shogun and modern giants.', tag: 'asia' },

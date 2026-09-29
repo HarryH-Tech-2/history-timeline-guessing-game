@@ -1,6 +1,7 @@
 import type { Question } from '@/domain';
 
 import { REGIONAL_QUESTIONS } from './packs/regional';
+import { REGIONAL_EXPANSION } from './packs/regionalExpansion';
 import { SPACE_QUESTIONS } from './packs/space';
 import { SPORT_QUESTIONS } from './packs/sport';
 import { TRADE_QUESTIONS } from './packs/trade';
@@ -4160,4 +4161,5 @@ export const QUESTIONS: readonly Question[] = [
   ...TRADE_QUESTIONS,
   ...SPACE_QUESTIONS,
   ...REGIONAL_QUESTIONS,
+  ...REGIONAL_EXPANSION,
 ];

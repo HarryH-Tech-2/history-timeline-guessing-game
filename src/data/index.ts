@@ -4,8 +4,9 @@ import { CategorySchema, QuestionSchema, type Category, type Question } from '@/
 import { pickDeterministic, seedFromString } from '@/utils/rng';
 
 import { CATEGORIES } from './categories';
+import { REGIONAL_EXPANSION } from './packs/regionalExpansion';
 import { QUESTIONS } from './questions';
-import { REGIONAL_CATEGORY_ID, regionById, REGIONS, type Region } from './regions';
+import { REGION_RUN_LENGTH, REGIONAL_CATEGORY_ID, regionById, REGIONS, type Region } from './regions';
 import { TOPICS, type Topic } from './topics';
 
 export { QUESTION_IMAGES, imageForQuestion } from './questionImages';
@@ -141,7 +142,25 @@ export function isPremiumCategory(categoryId: string): boolean {
  * same day always reproduces it.
  */
 export function getDailyQuestions(dateKey: string, count = 8): readonly Question[] {
-  return pickDeterministic(activeQuestions, count, seedFromString(`daily-${dateKey}`));
+  return pickDeterministic(
+    activeQuestions.filter(isInRotation),
+    count,
+    seedFromString(`daily-${dateKey}`),
+  );
+}
+
+/** Ids of packs that are played only in their own category. */
+const OUT_OF_ROTATION = new Set(REGIONAL_EXPANSION.map((q) => q.id));
+
+/**
+ * Whether a question takes part in the shared, seeded modes (the Daily and the
+ * campaign). The Regional expansion does not: the Daily is seeded over the
+ * whole pool and the campaign slices it into stages, so adding questions there
+ * would give old and new builds different Dailies on the same day and move
+ * questions between stages players have already starred.
+ */
+export function isInRotation(question: Question): boolean {
+  return !OUT_OF_ROTATION.has(question.id);
 }
 
 /** Pick a random question, optionally excluding ids already seen this session. */
@@ -158,7 +177,7 @@ export function getRandomQuestion(excludeIds: ReadonlySet<string> = new Set()): 
 /* Regions                                                                   */
 /* ------------------------------------------------------------------------ */
 
-export { REGIONAL_CATEGORY_ID, REGIONS, regionById };
+export { REGION_RUN_LENGTH, REGIONAL_CATEGORY_ID, REGIONS, regionById };
 export type { Region };
 
 /**

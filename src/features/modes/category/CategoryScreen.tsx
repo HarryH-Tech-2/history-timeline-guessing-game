@@ -4,14 +4,14 @@ import { useRouter } from 'expo-router';
 
 import { BackButton, Button, Screen } from '@/components/ui';
 import { getCategoryById, REGIONAL_CATEGORY_ID, regionById } from '@/data';
-import { OutOfHeartsSheet, useHearts } from '@/features/hearts';
+import { HeartsChip, OutOfHeartsSheet, useHearts } from '@/features/hearts';
 import { usePremium } from '@/features/premium';
 import { RoundView, useRoundRewards } from '@/features/round';
 import { dateKey } from '@/utils/date';
 
 import { ModeHud } from '../components/ModeHud';
 import { roundDetail, RunSummary, type SummaryRow } from '../components/RunSummary';
-import { HintButton } from '../hints/HintButton';
+import { AssistBar } from '../hints/AssistBar';
 import { prettyDate, shareDataFromResults } from '../share';
 import { RegionPicker } from './RegionPicker';
 import { useCategorySession } from './useCategorySession';
@@ -153,7 +153,9 @@ function CategoryRun({
         onSubmit={session.submit}
         onNext={session.advance}
         nextLabel={onLastQuestion ? 'Finish' : 'Next'}
-        actions={<HintButton question={session.question} />}
+        assist={(c) => (
+          <AssistBar question={session.question} onSubmit={c.submit} onChoose={c.choose} />
+        )}
         hud={
           <ModeHud
             progress={{
@@ -163,6 +165,7 @@ function CategoryRun({
             }}
             score={session.totalScore}
             onBack={onHome}
+            trailing={<HeartsChip />}
           />
         }
       />

@@ -5,7 +5,9 @@
  * calls, so the map is code-generated rather than built at runtime).
  *
  * Usage:
- *   GEMINI_API_KEY=<key> npm run generate:images
+ *   NANOBANANA_API_KEY=<key> npm run generate:images   (nanobananaapi.ai, preferred)
+ *   GEMINI_API_KEY=<key> npm run generate:images       (Google Gemini API)
+ *   ... -- --limit 1 --concurrency 6                   (trial run / render six at a time)
  *   npm run generate:images -- --map-only   (no key: just rebuild the require-map)
  *
  * Already-generated images are skipped, so re-running only fills gaps; delete
@@ -15,7 +17,7 @@
  * This is a build-time tool. It reads the seed array directly (not via the
  * app's `@/` aliases) so it runs cleanly under tsx.
  */
-import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
 import { QUESTIONS } from '../src/data/questions';
@@ -40,12 +42,99 @@ interface InteractionStep {
 }
 
 /**
+ * Scenes described symbolically instead of literally: atrocities and
+ * disasters the image model's safety filter blocks (or that shouldn't be
+ * drawn as cartoons at all), and subjects whose literal depiction would be
+ * lettering the prompt forbids.
+ */
+const EVENT_OVERRIDES: Record<string, string> = {
+  'reg-hiroshima-bomb':
+    'the Hiroshima Peace Memorial dome standing by a quiet river, with strings of paper cranes and a memorial flame',
+  'reg-rwandan-genocide':
+    'a quiet memorial on green terraced Rwandan hills, with candles and purple mourning ribbons',
+  'reg-ebola-first-outbreak':
+    'a small 1970s mission hospital by a river in the Congo rainforest, with doctors in white coats and a microscope',
+  'reg-franz-ferdinand-assassinated':
+    'a 1914 open-top royal motorcar on a Sarajevo street beside a small stone bridge over a river',
+  'reg-hangul-promulgated':
+    'King Sejong the Great in royal Joseon robes holding a blank scroll in a palace hall',
+  // Anachronism guard: left alone, the model adds the (1973) Opera House.
+  'reg-sydney-harbour-bridge':
+    'the brand-new steel arch Sydney Harbour Bridge on opening day in the early 1930s, with vintage cars, a ceremonial ribbon and crowds, and only low 1930s buildings and bushland around the harbour (no modern skyline, no opera house)',
+  // Airline livery lettering slipped through the no-text rule.
+  'reg-khomeini-returns':
+    'a plain unmarked white jumbo jet parked on an airport apron in Tehran with a huge welcoming crowd and the Azadi Tower in the background',
+};
+
+/**
  * The year is deliberately EXCLUDED from the description: image models often
  * render it into the scene (plaques, captions), which spoils the answer in a
  * date-guessing game — and sometimes they even paint a WRONG year.
  */
 function eventDescription(q: (typeof QUESTIONS)[number]): string {
-  return `${q.title} — ${q.subtitle}`;
+  return EVENT_OVERRIDES[q.id] ?? `${q.title} — ${q.subtitle}`;
+}
+
+type Generator = (event: string) => Promise<Buffer>;
+
+const NANOBANANA_API = 'https://api.nanobananaapi.ai/api/v1/nanobanana';
+const POLL_MS = 4000;
+const POLL_TIMEOUT_MS = 4 * 60 * 1000;
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
+ * nanobananaapi.ai (Nano Banana 2, 1K, ~$0.04 an image). Asynchronous: submit
+ * a task, poll its record until it succeeds, then download the result.
+ */
+function nanoBananaGenerator(apiKey: string): Generator {
+  const headers = { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' };
+  return async (event) => {
+    const submit = await fetch(`${NANOBANANA_API}/generate-2`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        prompt: PROMPT_TEMPLATE.replace('[EVENT]', event),
+        imageUrls: [],
+        aspectRatio: '1:1',
+        resolution: '1K',
+        outputFormat: 'jpg',
+      }),
+    });
+    const submitted = (await submit.json()) as { code?: number; msg?: string; data?: { taskId?: string } };
+    const taskId = submitted.data?.taskId;
+    if (!submit.ok || submitted.code !== 200 || !taskId) {
+      throw new Error(`submit failed: ${submitted.code ?? submit.status} ${submitted.msg ?? ''}`);
+    }
+
+    const deadline = Date.now() + POLL_TIMEOUT_MS;
+    while (Date.now() < deadline) {
+      await sleep(POLL_MS);
+      const poll = await fetch(`${NANOBANANA_API}/record-info?taskId=${encodeURIComponent(taskId)}`, {
+        headers,
+      });
+      const record = (await poll.json()) as {
+        data?: {
+          successFlag?: number;
+          errorMessage?: string;
+          response?: { resultImageUrl?: string; originImageUrl?: string };
+        };
+      };
+      const flag = record.data?.successFlag;
+      if (flag === 0 || flag === undefined) continue;
+      if (flag !== 1) throw new Error(`generation failed (${flag}): ${record.data?.errorMessage ?? ''}`);
+      const url = record.data?.response?.resultImageUrl ?? record.data?.response?.originImageUrl;
+      if (!url) throw new Error('task succeeded without an image URL');
+      const image = await fetch(url);
+      if (!image.ok) throw new Error(`download failed: HTTP ${image.status}`);
+      return Buffer.from(await image.arrayBuffer());
+    }
+    throw new Error(`timed out waiting for task ${taskId}`);
+  };
+}
+
+function geminiGenerator(apiKey: string): Generator {
+  return (event) => generateImage(apiKey, event);
 }
 
 async function generateImage(apiKey: string, event: string): Promise<Buffer> {
@@ -127,36 +216,49 @@ async function main(): Promise<void> {
     return;
   }
 
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    console.error('GEMINI_API_KEY is not set. Aborting.');
+  // nanobananaapi.ai when its key is set, otherwise Google's Gemini API.
+  const nanoKey = process.env.NANOBANANA_API_KEY;
+  const geminiKey = process.env.GEMINI_API_KEY;
+  if (!nanoKey && !geminiKey) {
+    console.error('Set NANOBANANA_API_KEY or GEMINI_API_KEY. Aborting.');
     process.exitCode = 1;
     return;
   }
+  const generate = nanoKey ? nanoBananaGenerator(nanoKey) : geminiGenerator(geminiKey!);
+  console.log(`Provider: ${nanoKey ? 'nanobananaapi.ai (Nano Banana 2, 1K)' : `Gemini ${MODEL}`}`);
+
+  // `--limit N` renders at most N missing images (a cheap trial run).
+  const limitIndex = process.argv.indexOf('--limit');
+  const limit = limitIndex >= 0 ? Number(process.argv[limitIndex + 1]) : Infinity;
+
+  // `--concurrency N` renders N at once (the async provider spends most of its
+  // time waiting on the queue, so a handful in flight cuts the wall clock).
+  const concurrencyIndex = process.argv.indexOf('--concurrency');
+  const concurrency = concurrencyIndex >= 0 ? Number(process.argv[concurrencyIndex + 1]) : 1;
 
   mkdirSync(ASSETS_DIR, { recursive: true });
-  const existing = new Set(readdirSync(ASSETS_DIR));
+
+  // Rendered art is later converted to .webp, so check every extension —
+  // checking only .jpg would re-render (and re-bill) the whole catalogue.
+  const queue = QUESTIONS.filter((q) => imageFileFor(q.id) === null).slice(0, limit);
 
   let generated = 0;
   let failed = 0;
 
-  for (const question of QUESTIONS) {
-    const filename = `${question.id}.jpg`;
-    if (existing.has(filename)) {
-      console.log(`skip      ${question.id} (exists)`);
-      continue;
+  const worker = async (): Promise<void> => {
+    for (let question = queue.shift(); question; question = queue.shift()) {
+      try {
+        const image = await generate(eventDescription(question));
+        writeFileSync(path.join(ASSETS_DIR, `${question.id}.jpg`), image);
+        generated += 1;
+        console.log(`generated ${question.id} (${Math.round(image.length / 1024)} KB)`);
+      } catch (error) {
+        failed += 1;
+        console.error(`FAILED    ${question.id}: ${(error as Error).message}`);
+      }
     }
-
-    try {
-      const image = await generateImage(apiKey, eventDescription(question));
-      writeFileSync(path.join(ASSETS_DIR, filename), image);
-      generated += 1;
-      console.log(`generated ${question.id} (${Math.round(image.length / 1024)} KB)`);
-    } catch (error) {
-      failed += 1;
-      console.error(`FAILED    ${question.id}: ${(error as Error).message}`);
-    }
-  }
+  };
+  await Promise.all(Array.from({ length: Math.max(1, concurrency) }, worker));
 
   const mapped = writeRequireMap();
   console.log(`\nDone: ${generated} generated, ${failed} failed, ${mapped} in require-map.`);

@@ -56,7 +56,7 @@ function YearReadout({ centreYear, atRest }: CrosshairProps) {
       editable={false}
       underlineColorAndroid="transparent"
       accessibilityLabel="Selected year"
-      className="min-w-[72px] text-center text-lg font-bold text-accent-soft"
+      className="min-w-[96px] text-center text-2xl font-extrabold text-accent-soft"
       value={seed}
       animatedProps={animatedProps}
     />
@@ -80,9 +80,9 @@ export function Crosshair({ centreYear, atRest }: CrosshairProps) {
       </View>
 
       {/* Glow, needle and cap dot run from below the plaque down to the baseline */}
-      <View className="absolute bottom-8 w-6 bg-accent/10" style={{ top: needleTop }} />
-      <View className="absolute bottom-8 w-0.5 bg-accent" style={{ top: needleTop }} />
-      <View className="absolute bottom-8 -mb-1.5 h-3 w-3 rounded-full border-2 border-bg-raised bg-accent" />
+      <View className="absolute bottom-10 w-6 bg-accent/10" style={{ top: needleTop }} />
+      <View className="absolute bottom-10 w-0.5 bg-accent" style={{ top: needleTop }} />
+      <View className="absolute bottom-10 -mb-1.5 h-3 w-3 rounded-full border-2 border-bg-raised bg-accent" />
     </View>
   );
 }

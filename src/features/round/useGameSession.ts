@@ -20,6 +20,10 @@ export interface GameSessionConfig {
   modifiers?: (results: readonly RoundResult[]) => ScoreModifiers;
 }
 
+export interface SubmitOptions {
+  assisted?: boolean;
+}
+
 export interface GameSession {
   question: Question;
   phase: SessionPhase;
@@ -31,7 +35,8 @@ export interface GameSession {
   /** 1-based position of the current question. */
   roundNumber: number;
   totalScore: number;
-  submit: (guessYear: number) => RoundResult;
+  /** Score a guess; `assisted` marks a bought multiple-choice pick (half score). */
+  submit: (guessYear: number, options?: SubmitOptions) => RoundResult;
   advance: () => void;
 }
 
@@ -67,11 +72,14 @@ export function useGameSession(config: GameSessionConfig): GameSession {
   }, [status, results, mode]);
 
   const submit = useCallback(
-    (guessYear: number): RoundResult => {
+    (guessYear: number, options?: SubmitOptions): RoundResult => {
       // A double-tap on Submit must not score the same question twice (which
       // would also skip the next question in a fixed queue).
       if (phase === 'revealed' && result !== null) return result;
-      const evaluated = evaluateGuess(question, guessYear, modifiers?.(results));
+      const evaluated = evaluateGuess(question, guessYear, {
+        ...modifiers?.(results),
+        ...(options?.assisted ? { assisted: true } : {}),
+      });
       track('round_submitted', {
         mode,
         question_id: question.id,
@@ -81,6 +89,7 @@ export function useGameSession(config: GameSessionConfig): GameSession {
         answer_year: question.year,
         error_years: evaluated.errorYears,
         score: evaluated.score.total,
+        assisted: evaluated.assisted === true,
       });
       setResult(evaluated);
       setResults((prev) => [...prev, evaluated]);

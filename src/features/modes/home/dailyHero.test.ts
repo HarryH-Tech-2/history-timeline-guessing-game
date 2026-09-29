@@ -23,21 +23,30 @@ describe('dailyHeroStatus', () => {
     expect(status).toEqual({ done: false, streak: 3 });
   });
 
-  it('marks today done and counts whole hours until the next Daily at local midnight', () => {
+  it('marks today done and counts down to the next Daily at local midnight', () => {
     const status = dailyHeroStatus({
       streak: { count: 4, lastDate: TODAY, freezes: 0 },
       today: TODAY,
       now: new Date(2026, 8, 21, 17, 30),
     });
-    expect(status).toEqual({ done: true, streak: 4, hoursUntilNext: 7 });
+    expect(status).toEqual({ done: true, streak: 4, nextIn: '6h 30m' });
   });
 
-  it('never says zero hours, so the label reads "in 1h" right before midnight', () => {
+  it('shows whole hours without a zero-minute tail', () => {
+    const status = dailyHeroStatus({
+      streak: { count: 2, lastDate: TODAY, freezes: 0 },
+      today: TODAY,
+      now: new Date(2026, 8, 21, 21, 0),
+    });
+    expect(status.nextIn).toBe('3h');
+  });
+
+  it('drops the hours in the last hour and never says zero minutes', () => {
     const status = dailyHeroStatus({
       streak: { count: 1, lastDate: TODAY, freezes: 0 },
       today: TODAY,
-      now: new Date(2026, 8, 21, 23, 59),
+      now: new Date(2026, 8, 21, 23, 59, 30),
     });
-    expect(status).toEqual({ done: true, streak: 1, hoursUntilNext: 1 });
+    expect(status).toEqual({ done: true, streak: 1, nextIn: '1m' });
   });
 });

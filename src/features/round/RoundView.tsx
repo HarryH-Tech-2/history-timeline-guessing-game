@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { Fragment, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { ScrollView, useWindowDimensions, View } from 'react-native';
 import { useReducedMotion } from 'react-native-reanimated';
 
@@ -18,18 +18,30 @@ import { RevealSheet } from './components/RevealSheet';
 
 const DEFAULT_RANGE = { min: 1700, max: 2026 } as const;
 
+export interface AssistControls {
+  submit: () => void;
+  choose: (year: number) => void;
+}
+
 interface RoundViewProps {
   question: Question;
   phase: 'guessing' | 'revealed';
   result: RoundResult | null;
-  onSubmit: (guessYear: number) => void;
+  /** `assisted` is set when the year was picked from bought multiple choice. */
+  onSubmit: (guessYear: number, options?: { assisted: true }) => void;
   onNext: () => void;
   /** Mode-specific status bar rendered above the prompt (lives, Q x/N, ...). */
   hud?: ReactNode;
   /** Label for the advance button on the reveal sheet. */
   nextLabel?: string;
-  /** Optional control rendered next to the submit button (e.g. a hint). */
+  /** Optional content rendered above the submit control (e.g. coach marks). */
   actions?: ReactNode;
+  /**
+   * Replaces the plain Submit button with a mode's own footer (hint, multiple
+   * choice, submit). Remounted per question. `submit` scores the crosshair
+   * year; `choose` scores a picked year as an assisted guess.
+   */
+  assist?: (controls: AssistControls) => ReactNode;
   /** Optional line shown just above the reveal sheet once revealed. */
   notice?: ReactNode;
 }
@@ -48,6 +60,7 @@ export function RoundView({
   hud,
   nextLabel,
   actions,
+  assist,
   notice,
 }: RoundViewProps) {
   const controller = useTimelineTransform({ initialRange: DEFAULT_RANGE });
@@ -82,23 +95,34 @@ export function RoundView({
   // misses, and so big re-frames, are common.
   const [anchorYear, setAnchorYear] = useState<number | undefined>(undefined);
 
-  const handleSubmit = useCallback(() => {
-    setAnchorYear(question.year);
-    const guessYear = controller.readGuessYear();
-    // "Right" is a single shared threshold so the haptic and the sting agree.
-    const right = isRightAnswer(Math.round(guessYear) - question.year);
+  // Both ways of answering land here: the crosshair year, or a year picked
+  // from multiple choice (which skips the timeline and scores at half).
+  const answer = useCallback(
+    (guessYear: number, assisted: boolean) => {
+      setAnchorYear(question.year);
+      // "Right" is a single shared threshold so the haptic and the sting agree.
+      const right = isRightAnswer(Math.round(guessYear) - question.year);
 
-    haptic.notification(
-      right ? NotificationFeedbackType.Success : NotificationFeedbackType.Warning,
-    );
-    playSound(right ? 'right' : 'wrong');
+      haptic.notification(
+        right ? NotificationFeedbackType.Success : NotificationFeedbackType.Warning,
+      );
+      playSound(right ? 'right' : 'wrong');
 
-    // Show the answer with the least movement: the timeline stays where the
-    // player left it unless the true year is off screen.
-    controller.reveal(guessYear, question.year);
+      // Show the answer with the least movement: the timeline stays where the
+      // player left it unless the true year is off screen.
+      controller.reveal(guessYear, question.year);
 
-    onSubmit(guessYear);
-  }, [controller, question.year, onSubmit, playSound]);
+      if (assisted) onSubmit(guessYear, { assisted: true });
+      else onSubmit(guessYear);
+    },
+    [controller, question.year, onSubmit, playSound],
+  );
+
+  const handleSubmit = useCallback(
+    () => answer(controller.readGuessYear(), false),
+    [answer, controller],
+  );
+  const handleChoose = useCallback((year: number) => answer(year, true), [answer]);
 
   // Next can take this whole view out of the tree (the last question hands
   // over to the run summary), often while the reveal zoom is still running
@@ -172,7 +196,13 @@ export function RoundView({
       importantForAccessibility={revealed ? 'no-hide-descendants' : 'auto'}
     >
       {actions}
-      <Button label="Submit guess" onPress={handleSubmit} testID="submit-button" />
+      {assist ? (
+        <Fragment key={question.id}>
+          {assist({ submit: handleSubmit, choose: handleChoose })}
+        </Fragment>
+      ) : (
+        <Button label="Submit guess" onPress={handleSubmit} testID="submit-button" />
+      )}
     </View>
   );
 
