@@ -4,15 +4,14 @@ import { Image, Pressable, Text, View } from 'react-native';
 import { Card, ImageLightbox } from '@/components/ui';
 import { imageForQuestion } from '@/data';
 
-/** Full-size illustration edge (the old fixed h-72), and the smallest it may
- * shrink to when the screen is short. */
-const IMAGE_MAX = 288;
+/** Largest illustration edge (it is also capped at the card's width), and
+ * the smallest it may shrink to when the screen is short. */
+const IMAGE_MAX = 360;
 const IMAGE_MIN = 112;
 
 interface PromptCardProps {
   questionId: string;
   title: string;
-  subtitle: string;
   /**
    * Collapsed layout for the reveal: thumbnail plus headline only, so the
    * timeline and the reveal sheet both fit on screen without overlapping.
@@ -23,12 +22,11 @@ interface PromptCardProps {
   showImage?: boolean;
 }
 
-/** The question prompt: illustration, headline, supporting line. Tapping the
+/** The question prompt: illustration and the event's name. Tapping the
  * illustration opens it full-screen with pinch-to-zoom. */
 export function PromptCard({
   questionId,
   title,
-  subtitle,
   compact = false,
   showImage = true,
 }: PromptCardProps) {
@@ -74,11 +72,6 @@ export function PromptCard({
         >
           {title}
         </Text>
-        {subtitle.length > 0 && (
-          <Text numberOfLines={1} className="text-center text-sm text-ink-secondary">
-            {subtitle}
-          </Text>
-        )}
         {lightbox}
       </Card>
     );
@@ -89,7 +82,7 @@ export function PromptCard({
   // IMAGE_MIN) so the timeline below keeps its full height instead of being
   // squeezed and spilling over this card and the buttons.
   return (
-    <Card className="shrink items-center gap-3" style={{ minHeight: 0 }}>
+    <Card className="shrink items-center gap-3 p-4" style={{ minHeight: 0 }}>
       {image && (
         <Pressable
           onPress={() => setZoomed(true)}
@@ -97,7 +90,7 @@ export function PromptCard({
           accessibilityLabel={`Enlarge illustration of ${title}`}
           testID="prompt-image-button"
           className="shrink self-center"
-          style={{ height: IMAGE_MAX, minHeight: IMAGE_MIN, aspectRatio: 1 }}
+          style={{ height: IMAGE_MAX, minHeight: IMAGE_MIN, maxWidth: '100%', aspectRatio: 1 }}
         >
           <Image
             source={image}
@@ -112,9 +105,6 @@ export function PromptCard({
       <Text className="text-center text-2xl font-bold leading-tight text-ink-primary">
         {title}
       </Text>
-      {subtitle.length > 0 && (
-        <Text className="text-center text-base text-ink-secondary">{subtitle}</Text>
-      )}
       {lightbox}
     </Card>
   );

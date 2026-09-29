@@ -224,7 +224,6 @@ export function RoundView({
               <PromptCard
                 questionId={question.id}
                 title={question.title}
-                subtitle={question.subtitle}
                 compact={revealed}
                 showImage={!showImage}
               />
@@ -248,7 +247,6 @@ export function RoundView({
         <PromptCard
           questionId={question.id}
           title={question.title}
-          subtitle={question.subtitle}
           compact={revealed}
           showImage={!showImage}
         />
