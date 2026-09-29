@@ -12,10 +12,12 @@ import { track } from '@/services/analytics';
 import { useAuth } from '@/services/firebase/auth';
 
 import * as api from './api';
+import { challengeProgress } from './challengeProgress';
 import { compareEntries, missingQuestions } from './headToHead';
 import { HeadToHead } from './HeadToHeadView';
-import { challengeUrl, shareChallenge } from './shareInvite';
+import { challengeUrl, shareChallenge, type ChallengeVia } from './shareInvite';
 import { CHALLENGE_SIZE, type Challenge, type ChallengeEntry } from './types';
+import { noteChallengeSeen } from './useSocialBadge';
 
 const PERMANENT_SUBMIT_ERRORS = ['failed-precondition', 'not-found'];
 
@@ -25,47 +27,73 @@ type Load =
   | { kind: 'missing' }
   | { kind: 'expired' }
   | { kind: 'update' }
-  | { kind: 'ready'; challenge: Challenge; entries: ChallengeEntry[] };
+  /** `prior`: guesses already revealed in an unfinished run of this challenge. */
+  | { kind: 'ready'; challenge: Challenge; entries: ChallengeEntry[]; prior: number[] };
+
+/** Players without a uid yet still get resumable runs. */
+const progressFor = (uid: string | null, code: string) => challengeProgress(uid ?? 'guest', code);
+
+const guessesOf = (prior: readonly number[], results: readonly RoundResult[]) => [
+  ...prior,
+  ...results.map((r) => Math.round(r.guessYear)),
+];
 
 /**
  * The 8 fixed questions, played plain: no hint or multiple choice (no
- * `assist`), no hearts, no coins or other rewards.
+ * `assist`), no hearts, no coins or other rewards. Starts after the `prior`
+ * rounds already answered, and reports every revealed guess so a quit run
+ * resumes where it left off.
  */
 function ChallengeRun({
   challenge,
+  prior,
+  onProgress,
   onFinished,
 }: {
   challenge: Challenge;
-  onFinished: (results: readonly RoundResult[]) => void;
+  prior: readonly number[];
+  onProgress: (guessYears: number[]) => void;
+  onFinished: (guessYears: number[]) => void;
 }) {
   const questions = useMemo(
     () => challenge.questionIds.map((id) => getQuestionById(id)).filter((q): q is Question => !!q),
     [challenge],
   );
-  const first = useCallback(() => questions[0]!, [questions]);
+  const offset = prior.length;
+  const first = useCallback(() => questions[offset]!, [questions, offset]);
   const next = useCallback(
-    (results: readonly RoundResult[]) => questions[results.length] ?? null,
-    [questions],
+    (results: readonly RoundResult[]) => questions[offset + results.length] ?? null,
+    [questions, offset],
   );
   const session = useGameSession({ mode: 'challenge', first, next });
+
+  // Saved on reveal: once a round's answer is shown it can't be re-answered.
+  useEffect(() => {
+    if (session.results.length > 0) onProgress(guessesOf(prior, session.results));
+  }, [session.results, prior, onProgress]);
 
   const reported = useRef(false);
   useEffect(() => {
     if (session.status !== 'finished' || reported.current) return;
     reported.current = true;
-    onFinished(session.results);
-  }, [session.status, session.results, onFinished]);
+    onFinished(guessesOf(prior, session.results));
+  }, [session.status, session.results, prior, onFinished]);
 
   if (session.status === 'finished') return null;
   return (
-    <RoundView
-      question={session.question}
-      phase={session.phase}
-      result={session.result}
-      onSubmit={session.submit}
-      onNext={session.advance}
-      nextLabel={session.results.length >= questions.length ? 'Finish' : 'Next'}
-    />
+    <View className="flex-1">
+      <Text className="pt-1 text-center text-xs font-semibold text-ink-muted" testID="challenge-progress">
+        Question {offset + session.roundNumber}/{questions.length}
+      </Text>
+      <RoundView
+        question={session.question}
+        phase={session.phase}
+        result={session.result}
+        onSubmit={session.submit}
+        onNext={session.advance}
+        nextLabel={offset + session.results.length >= questions.length ? 'Finish' : 'Next'}
+      />
+    </View>
   );
 }
 
@@ -80,11 +108,21 @@ async function fetchLoad(code: string, uid: string | null): Promise<Load> {
   const lacking = missingQuestions(challenge, (id) => !!getQuestionById(id));
   if (lacking.length > 0 || challenge.questionIds.length !== CHALLENGE_SIZE) return { kind: 'update' };
   const played = entries.some((e) => e.uid === uid);
-  if (!played && Date.now() > challenge.expiresAt) return { kind: 'expired' };
-  return { kind: 'ready', challenge, entries };
+  const progress = progressFor(uid, code);
+  if (played) {
+    // Submitted (maybe from another device): the saved run is finished with.
+    progress.clear().catch(() => undefined);
+    return { kind: 'ready', challenge, entries, prior: [] };
+  }
+  if (Date.now() > challenge.expiresAt) {
+    progress.clear().catch(() => undefined);
+    return { kind: 'expired' };
+  }
+  const prior = (await progress.read()).slice(0, CHALLENGE_SIZE);
+  return { kind: 'ready', challenge, entries, prior };
 }
 
-export function ChallengeScreen({ code, via }: { code: string; via: 'link' | 'code' }) {
+export function ChallengeScreen({ code, via }: { code: string; via: ChallengeVia }) {
   const router = useRouter();
   const { uid } = useAuth();
   const { state } = useProgression();
@@ -137,16 +175,24 @@ export function ChallengeScreen({ code, via }: { code: string; via: 'link' | 'co
           return;
         }
       }
+      await progressFor(uid, code)
+        .clear()
+        .catch(() => undefined);
       setJustPlayed(true);
       setPending(null);
       reload();
     },
-    [code, name, reload],
+    [code, name, reload, uid],
   );
 
-  const onFinished = useCallback(
-    (results: readonly RoundResult[]) => void submit(results.map((r) => Math.round(r.guessYear))),
-    [submit],
+  const onFinished = useCallback((guessYears: number[]) => void submit(guessYears), [submit]);
+  const onProgress = useCallback(
+    (guessYears: number[]) => {
+      progressFor(uid, code)
+        .write(guessYears)
+        .catch(() => undefined);
+    },
+    [uid, code],
   );
 
   const comparison = useMemo(
@@ -154,6 +200,27 @@ export function ChallengeScreen({ code, via }: { code: string; via: 'link' | 'co
     [load, uid],
   );
   const played = load.kind === 'ready' && load.entries.some((e) => e.uid === uid);
+  /** Every round answered but never submitted (the app closed first). */
+  const unsent = load.kind === 'ready' && !played && load.prior.length >= CHALLENGE_SIZE;
+
+  const autoSubmitted = useRef(false);
+  useEffect(() => {
+    if (!unsent || load.kind !== 'ready' || autoSubmitted.current) return;
+    autoSubmitted.current = true;
+    void submit(load.prior);
+  }, [unsent, load, submit]);
+
+  // Opening a challenge counts as seeing its entries (own play included), so
+  // the Social tab dot doesn't light up for results already on screen.
+  const seenCount = useRef<number | null>(null);
+  useEffect(() => {
+    if (load.kind !== 'ready' || !uid) return;
+    const count = load.entries.length;
+    if (seenCount.current === count) return;
+    seenCount.current = count;
+    api.markSeen(uid, code, count).catch(() => undefined);
+    noteChallengeSeen(uid, code, count);
+  }, [load, uid, code]);
 
   const trackedCompletion = useRef(false);
   useEffect(() => {
@@ -203,13 +270,13 @@ export function ChallengeScreen({ code, via }: { code: string; via: 'link' | 'co
 
   const { challenge } = load;
 
-  if (pending) {
+  if (pending || unsent) {
     return (
       <Screen className="items-center justify-center gap-4 px-5">
         {error ? (
           <>
             <Text className="text-center text-base text-ink-primary">{error.message}</Text>
-            {error.retry && (
+            {error.retry && pending && (
               <Button label="Try again" onPress={() => void submit(pending)} testID="challenge-submit-retry" />
             )}
             <Button label="Back" variant="ghost" onPress={leave} testID="challenge-submit-back" />
@@ -229,7 +296,12 @@ export function ChallengeScreen({ code, via }: { code: string; via: 'link' | 'co
             {uid === challenge.creatorUid ? 'Your challenge' : `${challenge.creatorName}’s challenge`}
           </Text>
         </View>
-        <ChallengeRun challenge={challenge} onFinished={onFinished} />
+        <ChallengeRun
+          challenge={challenge}
+          prior={load.prior}
+          onProgress={onProgress}
+          onFinished={onFinished}
+        />
       </Screen>
     );
   }
@@ -240,7 +312,10 @@ export function ChallengeScreen({ code, via }: { code: string; via: 'link' | 'co
         comparison={comparison}
         creatorName={challenge.creatorName}
         onDone={leave}
-        onShare={() => void shareChallenge(challengeUrl(code), name)}
+        // Only the creator's own challenge is theirs to pass on.
+        onShare={
+          uid === challenge.creatorUid ? () => void shareChallenge(challengeUrl(code), name) : undefined
+        }
       />
     </Screen>
   );

@@ -12,7 +12,7 @@ const mockShare = jest.fn(() => Promise.resolve());
 jest.mock('./shareInvite', () => ({ shareChallenge: (...a: unknown[]) => mockShare(...(a as [])) }));
 
 // eslint-disable-next-line import/first
-import { ChallengeFromRun } from './ChallengeFromRun';
+import { ChallengeFromRun, runGuessYears } from './ChallengeFromRun';
 
 const ids = ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8'];
 
@@ -59,5 +59,24 @@ describe('ChallengeFromRun', () => {
     expect(mockApi.createChallenge).toHaveBeenCalledTimes(1);
     resolve({ code: 'ABC234', url: 'https://x/c/ABC234' });
     await waitFor(() => expect(mockShare).toHaveBeenCalledTimes(1));
+  });
+
+  it('sends the run’s guesses so the creator’s entry is recorded with the challenge', async () => {
+    mockApi.createChallenge.mockResolvedValue({ code: 'ABC234', url: 'https://x/c/ABC234' });
+    const guesses = [1, 2, 3, 4, 5, 6, 7, 8];
+    render(<ChallengeFromRun questionIds={ids} guessYears={guesses} source="daily" />);
+    fireEvent.press(screen.getByTestId('challenge-from-run'));
+    await waitFor(() => expect(mockShare).toHaveBeenCalled());
+    expect(mockApi.createChallenge).toHaveBeenCalledWith({
+      questionIds: ids,
+      guessYears: guesses,
+      name: expect.any(String),
+    });
+  });
+
+  it('turns a run’s rounds into whole guess years, or nothing when any is missing', () => {
+    expect(runGuessYears([{ guessYear: 1066.4 }, { guessYear: -44 }])).toEqual([1066, -44]);
+    // Daily records saved by older builds have no guessYear.
+    expect(runGuessYears([{ guessYear: 1066 }, {}])).toBeUndefined();
   });
 });

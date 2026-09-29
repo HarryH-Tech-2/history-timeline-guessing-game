@@ -88,4 +88,11 @@ describe('GroupsPanel', () => {
     expect(mockPush).toHaveBeenCalledWith({ pathname: '/g/[code]', params: { code: 'ABC234', via: 'code' } });
     await waitFor(() => expect(mockApi.fetchSocialState).toHaveBeenCalled());
   });
+
+  it('says “1 member” for a group of one', async () => {
+    mockApi.fetchSocialState.mockResolvedValue({ groupIds: ['g1'], challengeCodes: [], seen: {} });
+    mockApi.fetchGroup.mockResolvedValue({ ...group('g1', 'Solo'), memberUids: ['me'] });
+    render(<GroupsPanel />);
+    expect(await screen.findByText('1 member ›')).toBeOnTheScreen();
+  });
 });

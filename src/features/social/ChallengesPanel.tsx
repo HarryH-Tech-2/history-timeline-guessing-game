@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { FlatList, Pressable, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 
@@ -44,6 +44,8 @@ export function ChallengesPanel() {
   const [error, setError] = useState<string | null>(null);
   const [loadError, setLoadError] = useState(false);
   const [attempt, setAttempt] = useState(0);
+  // `busy` only disables the button after a re-render; this blocks a second tap before that.
+  const inFlight = useRef(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -71,16 +73,19 @@ export function ChallengesPanel() {
   );
 
   const create = async () => {
+    if (inFlight.current) return;
+    inFlight.current = true;
     setBusy(true);
     setError(null);
     try {
       const { code, url } = await api.createChallenge({ name });
       track('challenge_created', { source: 'random' });
       await shareChallenge(url, name);
-      router.push({ pathname: '/c/[code]', params: { code } });
+      router.push({ pathname: '/c/[code]', params: { code, via: 'list' } });
     } catch (e) {
       setError(api.socialErrorMessage(e));
     } finally {
+      inFlight.current = false;
       setBusy(false);
     }
   };
@@ -127,7 +132,9 @@ export function ChallengesPanel() {
       }
       renderItem={({ item }) => (
         <Pressable
-          onPress={() => router.push({ pathname: '/c/[code]', params: { code: item.challenge.code } })}
+          onPress={() =>
+            router.push({ pathname: '/c/[code]', params: { code: item.challenge.code, via: 'list' } })
+          }
           className="flex-row items-center justify-between border border-hair bg-bg-raised p-4"
           testID={`challenge-row-${item.challenge.code}`}
         >

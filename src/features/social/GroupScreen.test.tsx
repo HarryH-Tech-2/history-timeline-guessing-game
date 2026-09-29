@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { Alert, type AlertButton } from 'react-native';
 
 import { weekKey } from '@/utils/date';
 
@@ -49,6 +50,16 @@ describe('GroupScreen', () => {
     mockCanGoBack = true;
   });
 
+  /** Press Leave group, then the confirm dialog's button labelled `choice`. */
+  async function leaveVia(choice: 'Leave' | 'Cancel') {
+    const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
+    fireEvent.press(await screen.findByTestId('group-leave'));
+    expect(alert).toHaveBeenCalledTimes(1);
+    const buttons = (alert.mock.calls[0]![2] ?? []) as AlertButton[];
+    buttons.find((b) => b.text === choice)?.onPress?.();
+    alert.mockRestore();
+  }
+
   it('shows this week’s board; members without a row score 0 and house rows never appear', async () => {
     mockApi.fetchGroup.mockResolvedValue(group);
     mockApi.fetchMemberRows.mockResolvedValue([
@@ -92,7 +103,7 @@ describe('GroupScreen', () => {
     mockApi.fetchMemberRows.mockResolvedValue([]);
     mockApi.leaveGroup.mockResolvedValue({ ok: true });
     render(<GroupScreen groupId="g1" />);
-    fireEvent.press(await screen.findByTestId('group-leave'));
+    await leaveVia('Leave');
     await waitFor(() => expect(mockBack).toHaveBeenCalled());
     expect(mockApi.leaveGroup).toHaveBeenCalledWith('g1');
     expect(mockTrack).toHaveBeenCalledWith('group_left');
@@ -103,8 +114,16 @@ describe('GroupScreen', () => {
     mockApi.fetchMemberRows.mockResolvedValue([]);
     mockApi.leaveGroup.mockRejectedValue(new Error('offline'));
     render(<GroupScreen groupId="g1" />);
-    fireEvent.press(await screen.findByTestId('group-leave'));
+    await leaveVia('Leave');
     expect(await screen.findByText(/Couldn’t reach the server/)).toBeOnTheScreen();
     expect(mockBack).not.toHaveBeenCalled();
+  });
+
+  it('asks before leaving, and Cancel keeps the player in the group', async () => {
+    mockApi.fetchGroup.mockResolvedValue(group);
+    mockApi.fetchMemberRows.mockResolvedValue([]);
+    render(<GroupScreen groupId="g1" />);
+    await leaveVia('Cancel');
+    expect(mockApi.leaveGroup).not.toHaveBeenCalled();
   });
 });

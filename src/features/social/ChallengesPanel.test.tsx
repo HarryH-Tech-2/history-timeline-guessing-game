@@ -69,6 +69,8 @@ describe('ChallengesPanel', () => {
     expect(screen.getByText('Sam’s challenge')).toBeOnTheScreen();
     expect(screen.getByText('It’s a tie')).toBeOnTheScreen();
     expect(mockApi.markSeen).toHaveBeenCalledWith('me', 'ABC234', 2);
+    fireEvent.press(screen.getByTestId('challenge-row-ABC234'));
+    expect(mockPush).toHaveBeenCalledWith({ pathname: '/c/[code]', params: { code: 'ABC234', via: 'list' } });
   });
 
   it('shows an error with retry when the list cannot load', async () => {
@@ -93,7 +95,7 @@ describe('ChallengesPanel', () => {
       fireEvent.press(screen.getByTestId('challenge-create'));
     });
     expect(mockShare).toHaveBeenCalledWith('https://x/c/XYZ789', expect.any(String));
-    expect(mockPush).toHaveBeenCalledWith({ pathname: '/c/[code]', params: { code: 'XYZ789' } });
+    expect(mockPush).toHaveBeenCalledWith({ pathname: '/c/[code]', params: { code: 'XYZ789', via: 'list' } });
   });
 
   it('skips the seen write when the entry count has not changed', async () => {
@@ -120,5 +122,20 @@ describe('ChallengesPanel', () => {
     await waitFor(() => expect(screen.getByTestId('challenge-row-ABC234')).toBeOnTheScreen());
     expect(mockApi.markSeen).toHaveBeenCalledWith('me', 'ABC234', 2);
     await waitFor(() => expect(badge.result.current).toBe(false));
+  });
+
+  it('only creates one challenge when tapped twice quickly', async () => {
+    mockApi.fetchSocialState.mockResolvedValue({ challengeCodes: [], groupIds: [], seen: {} });
+    let resolve!: (v: { code: string; url: string }) => void;
+    mockApi.createChallenge.mockReturnValue(new Promise((r) => (resolve = r)));
+    render(<ChallengesPanel />);
+    const button = screen.getByTestId('challenge-create');
+    act(() => {
+      fireEvent.press(button);
+      fireEvent.press(button);
+    });
+    expect(mockApi.createChallenge).toHaveBeenCalledTimes(1);
+    await act(async () => resolve({ code: 'XYZ789', url: 'https://x/c/XYZ789' }));
+    await waitFor(() => expect(mockShare).toHaveBeenCalledTimes(1));
   });
 });

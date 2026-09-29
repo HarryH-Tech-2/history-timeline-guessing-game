@@ -35,7 +35,8 @@ async function db() {
   return { firestore: getFirebaseDb(), fs };
 }
 
-export const createChallenge = (input: { questionIds?: string[]; name: string }) =>
+/** `guessYears` (with `questionIds` only) records the creator's own run as their entry. */
+export const createChallenge = (input: { questionIds?: string[]; guessYears?: number[]; name: string }) =>
   call<typeof input, { code: string; url: string }>('createChallenge', input);
 
 export async function submitChallengeEntry(input: {

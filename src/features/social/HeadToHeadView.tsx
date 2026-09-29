@@ -24,6 +24,11 @@ export function HeadToHead({
       <Text className="text-center text-3xl font-extrabold text-ink-primary">
         {statusLine(comparison, creatorName)}
       </Text>
+      {comparison.kind !== 'versus' && comparison.me && (
+        <Text className="text-center text-lg font-bold text-ink-secondary">
+          Your score: {comparison.me.total.toLocaleString()}
+        </Text>
+      )}
       {comparison.kind === 'versus' &&
         comparison.rounds.map((r) => (
           <View key={r.questionId} className="border border-hair bg-bg-raised p-3">

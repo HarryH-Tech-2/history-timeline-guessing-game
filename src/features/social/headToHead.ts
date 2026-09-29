@@ -10,7 +10,7 @@ type Round = {
 };
 
 export type Comparison =
-  | { kind: 'waiting' }
+  | { kind: 'waiting'; me: ChallengeEntry | null }
   | { kind: 'versus'; me: ChallengeEntry; them: ChallengeEntry; outcome: 'won' | 'lost' | 'tie'; rounds: Round[] }
   | { kind: 'creator'; me: ChallengeEntry | null; challengers: ChallengeEntry[] };
 
@@ -32,7 +32,7 @@ export function compareEntries(
     return { kind: 'creator', me, challengers };
   }
   const them = entries.find((e) => e.uid === challenge.creatorUid);
-  if (!me || !them) return { kind: 'waiting' };
+  if (!me || !them) return { kind: 'waiting', me };
   const outcome = me.total === them.total ? 'tie' : me.total > them.total ? 'won' : 'lost';
   const rounds = challenge.questionIds.map((questionId, i): Round => {
     const myScore = me.roundScores[i] ?? 0;

@@ -57,8 +57,8 @@ export interface AnalyticsEvents {
   onboarding_completed: { choice: 'daily' | 'explore'; named: boolean; reminders: boolean };
   /** A head-to-head challenge was created (and its share sheet opened). */
   challenge_created: { source: 'random' | 'daily' | 'campaign' };
-  /** A challenge screen was opened, from a link or a typed code. */
-  challenge_opened: { via: 'link' | 'code' };
+  /** A challenge screen was opened: from a real link, a typed code, or inside the app (list row / after creating). */
+  challenge_opened: { via: 'link' | 'code' | 'list' };
   /** A challenge run was submitted; `won` is null for a tie or when there is no result yet. */
   challenge_completed: { won: boolean | null };
   /** A friends group was created. */

@@ -3,6 +3,7 @@ import Share from 'react-native-share';
 import {
   challengeShareMessage,
   challengeUrl,
+  challengeVia,
   groupUrl,
   normaliseCode,
   shareChallenge,
@@ -37,5 +38,12 @@ describe('shareChallenge', () => {
     );
     open.mockRejectedValueOnce(new Error('User did not share'));
     await expect(shareChallenge(challengeUrl('ABC234'), 'Sam')).resolves.toBeUndefined();
+  });
+
+  it('reads how a challenge was opened from the route param, defaulting to a link', () => {
+    expect(challengeVia('code')).toBe('code');
+    expect(challengeVia('list')).toBe('list');
+    expect(challengeVia(undefined)).toBe('link');
+    expect(challengeVia('nonsense')).toBe('link');
   });
 });

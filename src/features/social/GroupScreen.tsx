@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, FlatList, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 
 import { BackButton, Button, Screen } from '@/components/ui';
@@ -60,6 +60,12 @@ export function GroupScreen({ groupId }: { groupId: string }) {
     setLoad({ kind: 'loading' });
     setAttempt((n) => n + 1);
   };
+
+  const confirmLeave = (group: Group) =>
+    Alert.alert(`Leave ${group.name}?`, 'You’ll need a new invite to rejoin.', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Leave', style: 'destructive', onPress: () => void leaveGroup(group) },
+    ]);
 
   const leaveGroup = async (group: Group) => {
     setLeaving(true);
@@ -138,7 +144,7 @@ export function GroupScreen({ groupId }: { groupId: string }) {
               variant="ghost"
               testID="group-leave"
               disabled={leaving}
-              onPress={() => void leaveGroup(group)}
+              onPress={() => confirmLeave(group)}
             />
           </View>
         }

@@ -12,8 +12,11 @@ const entry = (uid: string, scores: number[]): ChallengeEntry => ({
 const eight = (n: number) => Array.from({ length: 8 }, () => n);
 
 describe('compareEntries', () => {
-  it('waits while the creator has not played', () => {
-    expect(compareEntries(challenge, [entry('me', eight(500))], 'me').kind).toBe('waiting');
+  it('waits while the creator has not played, keeping my own entry', () => {
+    const r = compareEntries(challenge, [entry('me', eight(500))], 'me');
+    expect(r.kind).toBe('waiting');
+    expect(r.kind === 'waiting' && r.me?.total).toBe(4000);
+    expect(compareEntries(challenge, [], 'me')).toEqual({ kind: 'waiting', me: null });
   });
 
   it('compares a challenger with the creator round by round', () => {

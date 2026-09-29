@@ -7,7 +7,7 @@ import { activeStreakCount } from '@/domain';
 import { useProgression } from '@/features/progression';
 import { ReminderNudge } from '@/features/reminders';
 import { RoundView, useRoundRewards } from '@/features/round';
-import { ChallengeFromRun } from '@/features/social/ChallengeFromRun';
+import { ChallengeFromRun, runGuessYears } from '@/features/social/ChallengeFromRun';
 import { palette } from '@/theme/tokens';
 import { dateKey } from '@/utils/date';
 
@@ -51,7 +51,11 @@ function DailySummary({ record, onHome }: { record: DailyRecord; onHome: () => v
       notice={
         <View className="gap-2">
           <ReminderNudge />
-          <ChallengeFromRun questionIds={record.rounds.map((r) => r.questionId)} source="daily" />
+          <ChallengeFromRun
+            questionIds={record.rounds.map((r) => r.questionId)}
+            guessYears={runGuessYears(record.rounds)}
+            source="daily"
+          />
         </View>
       }
       // Share is the primary action on purpose: the card is the game's

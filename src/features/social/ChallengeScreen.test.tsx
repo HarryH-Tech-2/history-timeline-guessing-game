@@ -1,9 +1,11 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 
 const mockApi = {
   fetchChallenge: jest.fn(),
   fetchEntries: jest.fn(),
   submitChallengeEntry: jest.fn(),
+  markSeen: jest.fn(() => Promise.resolve()),
   isAlreadyPlayed: (err: unknown) =>
     (err as { code?: string } | null)?.code === 'functions/already-exists',
   socialErrorCode: (err: unknown) =>
@@ -19,6 +21,7 @@ jest.mock('./api', () => ({
   fetchChallenge: (...a: unknown[]) => mockApi.fetchChallenge(...a),
   fetchEntries: (...a: unknown[]) => mockApi.fetchEntries(...a),
   submitChallengeEntry: (...a: unknown[]) => mockApi.submitChallengeEntry(...a),
+  markSeen: (...a: unknown[]) => mockApi.markSeen(...(a as [])),
   isAlreadyPlayed: (err: unknown) => mockApi.isAlreadyPlayed(err),
   socialErrorCode: (err: unknown) => mockApi.socialErrorCode(err),
   socialErrorMessage: (err: unknown) => mockApi.socialErrorMessage(err),
@@ -31,6 +34,11 @@ jest.mock('expo-router', () => ({
 }));
 let mockUid = 'me';
 jest.mock('@/services/firebase/auth', () => ({ useAuth: () => ({ uid: mockUid }) }));
+const mockShare = jest.fn(() => Promise.resolve());
+jest.mock('./shareInvite', () => ({
+  ...jest.requireActual('./shareInvite'),
+  shareChallenge: (...a: unknown[]) => mockShare(...(a as [])),
+}));
 const mockTrack = jest.fn();
 jest.mock('@/services/analytics', () => ({
   track: (...args: unknown[]) => mockTrack(...args),
@@ -38,6 +46,7 @@ jest.mock('@/services/analytics', () => ({
 // A stand-in round: a press guesses 1900 while guessing, and advances once
 // revealed. Records its props so tests can check challenge runs get no assist.
 const mockRoundProps: Record<string, unknown>[] = [];
+let mockGuess = 1900;
 jest.mock('@/features/round', () => {
   const { Pressable, Text } = require('react-native');
   const { useGameSession } = jest.requireActual('@/features/round/useGameSession');
@@ -53,7 +62,7 @@ jest.mock('@/features/round', () => {
       return (
         <Pressable
           testID="fake-round"
-          onPress={() => (props.phase === 'guessing' ? props.onSubmit(1900) : props.onNext())}
+          onPress={() => (props.phase === 'guessing' ? props.onSubmit(mockGuess) : props.onNext())}
         >
           <Text>{props.question.id}</Text>
         </Pressable>
@@ -91,6 +100,14 @@ const e = (uid: string, s: number) => ({
   finishedAt: 1,
 });
 
+async function press(times: number) {
+  for (let i = 0; i < times; i++) {
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('fake-round'));
+    });
+  }
+}
+
 async function playEightRounds() {
   for (let i = 0; i < 16; i++) {
     await act(async () => {
@@ -100,8 +117,10 @@ async function playEightRounds() {
 }
 
 describe('ChallengeScreen', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.clearAllMocks();
+    await AsyncStorage.clear();
+    mockGuess = 1900;
     mockRoundProps.length = 0;
     mockUid = 'me';
     mockCanGoBack = true;
@@ -256,5 +275,104 @@ describe('ChallengeScreen', () => {
     expect(screen.queryByTestId('challenge-submit-retry')).toBeNull();
     fireEvent.press(screen.getByTestId('challenge-submit-back'));
     expect(mockBack).toHaveBeenCalled();
+  });
+
+  it('resumes a quit run at the next unanswered round, keeping the earlier guesses', async () => {
+    mockApi.fetchChallenge.mockResolvedValue({ ...base, questionIds: ids });
+    mockApi.fetchEntries.mockResolvedValue([e('sam', 600)]);
+    mockApi.submitChallengeEntry.mockResolvedValue({});
+    const first = render(<ChallengeScreen code="ABC234" via="link" />);
+    await waitFor(() => expect(screen.getByText('Question 1/8')).toBeOnTheScreen());
+    mockGuess = 1500;
+    // Submit round 1, next, round 2, next, round 3: round 3's answer is revealed.
+    await press(5);
+    first.unmount();
+
+    mockGuess = 1900;
+    render(<ChallengeScreen code="ABC234" via="link" />);
+    await waitFor(() => expect(screen.getByText('Question 4/8')).toBeOnTheScreen());
+    expect(screen.getByText(ids[3]!)).toBeOnTheScreen();
+    // Rounds 4–8: submit + next (Finish) each.
+    await press(10);
+    await waitFor(() => expect(mockApi.submitChallengeEntry).toHaveBeenCalledTimes(1));
+    expect(mockApi.submitChallengeEntry).toHaveBeenCalledWith(
+      expect.objectContaining({ guessYears: [1500, 1500, 1500, 1900, 1900, 1900, 1900, 1900] }),
+    );
+  });
+
+  it('forgets the stored progress once the entry is submitted', async () => {
+    mockApi.fetchChallenge.mockResolvedValue({ ...base, questionIds: ids });
+    mockApi.fetchEntries.mockResolvedValueOnce([e('sam', 600)]);
+    mockApi.fetchEntries.mockResolvedValue([e('sam', 600), e('me', 700)]);
+    mockApi.submitChallengeEntry.mockResolvedValue({});
+    render(<ChallengeScreen code="ABC234" via="link" />);
+    await waitFor(() => expect(screen.getByTestId('fake-round')).toBeOnTheScreen());
+    await playEightRounds();
+    await waitFor(() => expect(screen.getByTestId('head-to-head')).toBeOnTheScreen());
+    const keys = await AsyncStorage.getAllKeys();
+    expect(keys.filter((k) => k.includes('ABC234'))).toEqual([]);
+  });
+
+  it('submits a fully answered run straight away if the app closed before submitting', async () => {
+    mockApi.fetchChallenge.mockResolvedValue({ ...base, questionIds: ids });
+    mockApi.fetchEntries.mockResolvedValue([e('sam', 600)]);
+    mockApi.submitChallengeEntry.mockRejectedValue(new Error('offline'));
+    const first = render(<ChallengeScreen code="ABC234" via="link" />);
+    await waitFor(() => expect(screen.getByTestId('fake-round')).toBeOnTheScreen());
+    await playEightRounds();
+    await waitFor(() => expect(screen.getByTestId('challenge-submit-retry')).toBeOnTheScreen());
+    first.unmount();
+
+    mockApi.submitChallengeEntry.mockReset().mockResolvedValue({});
+    mockApi.fetchEntries.mockResolvedValueOnce([e('sam', 600)]);
+    mockApi.fetchEntries.mockResolvedValue([e('sam', 600), e('me', 700)]);
+    render(<ChallengeScreen code="ABC234" via="link" />);
+    await waitFor(() => expect(screen.getByTestId('head-to-head')).toBeOnTheScreen());
+    expect(mockApi.submitChallengeEntry).toHaveBeenCalledTimes(1);
+    expect(mockApi.submitChallengeEntry).toHaveBeenCalledWith(
+      expect.objectContaining({ guessYears: Array(8).fill(1900) }),
+    );
+  });
+
+  it('offers “Challenge more friends” only to the creator', async () => {
+    mockApi.fetchChallenge.mockResolvedValue({ ...base, questionIds: ids });
+    mockApi.fetchEntries.mockResolvedValue([e('sam', 600), e('me', 700)]);
+    const view = render(<ChallengeScreen code="ABC234" via="link" />);
+    await waitFor(() => expect(screen.getByTestId('head-to-head')).toBeOnTheScreen());
+    expect(screen.queryByText(/Challenge more friends/)).toBeNull();
+    view.unmount();
+
+    mockUid = 'sam';
+    render(<ChallengeScreen code="ABC234" via="link" />);
+    await waitFor(() => expect(screen.getByTestId('head-to-head')).toBeOnTheScreen());
+    fireEvent.press(screen.getByText(/Challenge more friends/));
+    expect(mockShare).toHaveBeenCalled();
+  });
+
+  it('shows my own total while waiting for the creator, and to the creator', async () => {
+    mockApi.fetchChallenge.mockResolvedValue({ ...base, questionIds: ids });
+    mockApi.fetchEntries.mockResolvedValue([e('me', 700)]);
+    const view = render(<ChallengeScreen code="ABC234" via="link" />);
+    await waitFor(() => expect(screen.getByText('Waiting for Sam')).toBeOnTheScreen());
+    expect(screen.getByText('Your score: 5,600')).toBeOnTheScreen();
+    view.unmount();
+
+    mockUid = 'sam';
+    mockApi.fetchEntries.mockResolvedValue([e('sam', 600)]);
+    render(<ChallengeScreen code="ABC234" via="link" />);
+    await waitFor(() => expect(screen.getByText('Waiting for friends')).toBeOnTheScreen());
+    expect(screen.getByText('Your score: 4,800')).toBeOnTheScreen();
+  });
+
+  it('marks the challenge seen with its entry count once loaded', async () => {
+    mockApi.fetchChallenge.mockResolvedValue({ ...base, questionIds: ids });
+    mockApi.fetchEntries.mockResolvedValueOnce([e('sam', 600)]);
+    mockApi.fetchEntries.mockResolvedValue([e('sam', 600), e('me', 700)]);
+    mockApi.submitChallengeEntry.mockResolvedValue({});
+    render(<ChallengeScreen code="ABC234" via="link" />);
+    await waitFor(() => expect(mockApi.markSeen).toHaveBeenCalledWith('me', 'ABC234', 1));
+    await playEightRounds();
+    await waitFor(() => expect(mockApi.markSeen).toHaveBeenCalledWith('me', 'ABC234', 2));
+    expect(mockApi.markSeen).toHaveBeenCalledTimes(2);
   });
 });

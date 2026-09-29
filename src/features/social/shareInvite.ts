@@ -17,6 +17,17 @@ export function groupShareMessage(groupName: string, url: string): string {
   return `Join "${groupName}" on Date Guesser and compete each week: ${url} (code ${code})`;
 }
 
+export type ChallengeVia = 'link' | 'code' | 'list';
+
+/**
+ * How a challenge screen was reached, from the route's `via` param. Only the
+ * app's own pushes set it ('code' typed, 'list' from the Challenges list or
+ * right after creating); a real app link carries none.
+ */
+export function challengeVia(raw: string | undefined): ChallengeVia {
+  return raw === 'code' || raw === 'list' ? raw : 'link';
+}
+
 export function normaliseCode(raw: string): string | null {
   const code = raw.toUpperCase().replace(/\s+/g, '');
   return CODE.test(code) ? code : null;

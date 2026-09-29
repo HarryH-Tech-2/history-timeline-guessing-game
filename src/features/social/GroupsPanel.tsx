@@ -134,7 +134,7 @@ export function GroupsPanel() {
           <Text className="flex-1 pr-3 text-base font-bold text-ink-primary" numberOfLines={1}>
             {item.name}
           </Text>
-          <Text className="text-sm text-ink-muted">{item.memberUids.length} members ›</Text>
+          <Text className="text-sm text-ink-muted">{item.memberUids.length} {item.memberUids.length === 1 ? 'member' : 'members'} ›</Text>
         </Pressable>
       )}
     />

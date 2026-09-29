@@ -11,17 +11,27 @@ import * as api from './api';
 import { shareChallenge } from './shareInvite';
 import { CHALLENGE_SIZE } from './types';
 
+/** A run's guesses as whole years for a challenge entry, or undefined if any round lacks one. */
+export function runGuessYears(rounds: readonly { guessYear?: number }[]): number[] | undefined {
+  const years = rounds.map((r) => r.guessYear);
+  return years.every((y): y is number => typeof y === 'number') ? years.map(Math.round) : undefined;
+}
+
 /**
  * "Challenge a friend with these questions" on a run summary: turns the run's
  * questions into a challenge and opens the share sheet. Guests can use it too
  * (they have anonymous uids). Renders nothing unless the run had exactly
- * CHALLENGE_SIZE questions.
+ * CHALLENGE_SIZE questions. With `guessYears` the run itself becomes the
+ * creator's entry, so friends get a result as soon as they finish.
  */
 export function ChallengeFromRun({
   questionIds,
+  guessYears,
   source,
 }: {
   questionIds: string[];
+  /** The run's own guesses, in question order: recorded as the creator's entry. */
+  guessYears?: number[];
   source: 'daily' | 'campaign';
 }) {
   const { uid } = useAuth();
@@ -39,7 +49,9 @@ export function ChallengeFromRun({
     setBusy(true);
     setError(null);
     try {
-      const { url } = await api.createChallenge({ questionIds, name });
+      const { url } = await api.createChallenge(
+        guessYears ? { questionIds, guessYears, name } : { questionIds, name },
+      );
       track('challenge_created', { source });
       await shareChallenge(url, name);
     } catch (e) {
