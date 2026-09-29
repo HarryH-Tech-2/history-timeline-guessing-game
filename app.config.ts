@@ -18,12 +18,38 @@ const VARIANTS = {
   preview: { suffix: '.preview', label: 'Preview', scheme: 'chronos-preview' },
 } as const;
 
+/** Hosting domain that serves the /c/ (challenge) and /g/ (group) invite pages. */
+const LINK_HOST = 'history-date-timeline-guesser.web.app';
+
+/**
+ * Android App Links for invite URLs, on every variant. Verification needs each
+ * package's signing SHA-256 in web/.well-known/assetlinks.json. iOS universal
+ * links are deliberately left out until there is an Apple Team ID and AASA file.
+ */
+const withLinks = (config: ExpoConfig): ExpoConfig => ({
+  ...config,
+  android: {
+    ...config.android,
+    intentFilters: [
+      {
+        action: 'VIEW',
+        autoVerify: true,
+        data: [
+          { scheme: 'https', host: LINK_HOST, pathPrefix: '/c/' },
+          { scheme: 'https', host: LINK_HOST, pathPrefix: '/g/' },
+        ],
+        category: ['BROWSABLE', 'DEFAULT'],
+      },
+    ],
+  },
+});
+
 export default ({ config }: ConfigContext): ExpoConfig => {
   const env = process.env.EXPO_PUBLIC_APP_ENV;
   const variant = env === 'development' || env === 'preview' ? VARIANTS[env] : null;
-  if (!variant) return config as ExpoConfig;
+  if (!variant) return withLinks(config as ExpoConfig);
 
-  return {
+  return withLinks({
     ...config,
     name: `${config.name} (${variant.label})`,
     scheme: variant.scheme,
@@ -31,5 +57,5 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       ...config.android,
       package: `${config.android?.package}${variant.suffix}`,
     },
-  } as ExpoConfig;
+  } as ExpoConfig);
 };

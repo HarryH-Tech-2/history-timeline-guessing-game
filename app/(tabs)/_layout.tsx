@@ -2,6 +2,7 @@ import { Text } from 'react-native';
 import { Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useSocialBadge } from '@/features/social/useSocialBadge';
 import { useTheme } from '@/theme';
 
 /** Emoji tab glyph; dims when the tab is inactive. */
@@ -13,6 +14,7 @@ function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
 export default function TabsLayout() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
+  const socialBadge = useSocialBadge();
 
   return (
     <Tabs
@@ -57,6 +59,14 @@ export default function TabsLayout() {
         options={{
           title: 'Social',
           tabBarIcon: ({ focused }) => <TabIcon emoji="👥" focused={focused} />,
+          // Empty string renders a plain dot: a challenge has results not yet opened.
+          tabBarBadge: socialBadge ? '' : undefined,
+          tabBarBadgeStyle: {
+            backgroundColor: colors.accent.default,
+            minWidth: 10,
+            height: 10,
+            borderRadius: 5,
+          },
         }}
       />
       <Tabs.Screen

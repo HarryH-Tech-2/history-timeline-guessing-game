@@ -7,6 +7,7 @@ import { activeStreakCount } from '@/domain';
 import { useProgression } from '@/features/progression';
 import { ReminderNudge } from '@/features/reminders';
 import { RoundView, useRoundRewards } from '@/features/round';
+import { ChallengeFromRun } from '@/features/social/ChallengeFromRun';
 import { palette } from '@/theme/tokens';
 import { dateKey } from '@/utils/date';
 
@@ -46,7 +47,13 @@ function DailySummary({ record, onHome }: { record: DailyRecord; onHome: () => v
       ]}
       rounds={rounds}
       // Just finished today's: the natural moment to offer tomorrow's reminder.
-      notice={<ReminderNudge />}
+      // Replaying today's eight as a challenge is the Daily's social hook.
+      notice={
+        <View className="gap-2">
+          <ReminderNudge />
+          <ChallengeFromRun questionIds={record.rounds.map((r) => r.questionId)} source="daily" />
+        </View>
+      }
       // Share is the primary action on purpose: the card is the game's
       // main word-of-mouth lever (user decision, 2026-09-01).
       share={{ data: dailyShareData(record), mode: 'daily', primary: true }}
