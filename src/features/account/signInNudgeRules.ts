@@ -3,11 +3,16 @@ import { z } from 'zod';
 import { createStore } from '@/storage';
 
 /**
- * Moments after which a guest may be nudged to sign in. Only the first is
+ * Moments after which a guest may be nudged to sign in. Not all are
  * wired today; the record is keyed by milestone so more can be added without
  * a migration.
  */
-export type SignInNudgeMilestone = 'campaign-first-stage' | 'level-up' | 'museum-first-artefact';
+export type SignInNudgeMilestone =
+  | 'campaign-first-stage'
+  | 'level-up'
+  | 'museum-first-artefact'
+  // Creating or joining a private group (Social → Groups).
+  | 'social-groups';
 
 const SignInNudgeSchema = z.object({
   /** Milestone → epoch ms when its nudge was shown. */

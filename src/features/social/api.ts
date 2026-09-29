@@ -79,9 +79,26 @@ export async function fetchGroup(id: string): Promise<Group | null> {
     if (!snap.exists()) return null;
     const parsed = GroupSchema.safeParse({ id, ...snap.data() });
     return parsed.success ? parsed.data : null;
-  } catch {
-    return null; // not a member any more → permission denied
+  } catch (e) {
+    // Rules deny reads to non-members: left or removed, not a failure.
+    if ((e as { code?: unknown } | null)?.code === 'permission-denied') return null;
+    throw e; // offline or unavailable → the caller shows retry
   }
+}
+
+/** Members' public leaderboard rows, 30 ids per query (the group cap). */
+export async function fetchMemberRows(
+  uids: string[],
+): Promise<{ uid: string; displayName: string; weekKey?: string; weekXp?: number }[]> {
+  if (uids.length === 0) return [];
+  const { firestore, fs } = await db();
+  const snap = await fs.getDocs(
+    fs.query(fs.collection(firestore, 'leaderboard'), fs.where(fs.documentId(), 'in', uids.slice(0, 30))),
+  );
+  return snap.docs.map((d) => {
+    const data = d.data() as { displayName?: string; weekKey?: string; weekXp?: number };
+    return { uid: d.id, displayName: data.displayName ?? '', weekKey: data.weekKey, weekXp: data.weekXp };
+  });
 }
 
 export async function fetchSocialState(uid: string): Promise<SocialState> {
