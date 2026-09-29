@@ -28,6 +28,15 @@ export function eraInView(sections: readonly EraSection[], probeY: number): stri
   return current;
 }
 
+/**
+ * Whether an era's banner has scrolled up under the sticky bar (its bottom at
+ * or above `probeY`, the bar's bottom in content space). Until then the banner
+ * itself names the era, so the sticky bar stays hidden rather than repeat it.
+ */
+export function bannerTucked(bannerBottom: number | undefined, probeY: number): boolean {
+  return bannerBottom !== undefined && bannerBottom <= probeY;
+}
+
 export type NodeState = 'locked' | 'premium' | 'frontier' | 'completed' | 'mastered' | 'open';
 
 /** How a stage button looks, from its place in the campaign. */

@@ -1,5 +1,13 @@
+import { useEffect } from 'react';
 import { Text, View } from 'react-native';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import Animated, {
+  cancelAnimation,
+  FadeIn,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
 import type { CampaignWorld } from '../campaignMap';
 import { eraNumeral } from './constants';
@@ -12,7 +20,8 @@ const BAR_LIP = 4;
  * Slim era-coloured bar pinned over the top of the map, naming the era in
  * view ("ERA II · The Middle Ages") with its stars, and the whole journey's
  * stars small on the right. Swaps (with a quick fade) as the player scrolls
- * from one era into the next.
+ * from one era into the next, and fades out while the era's own banner is
+ * still showing beneath it so the two never repeat each other.
  */
 export function StickyEraBar({
   world,
@@ -20,18 +29,34 @@ export function StickyEraBar({
   total,
   journeyEarned,
   journeyTotal,
+  visible,
 }: {
   world: CampaignWorld;
   earned: number;
   total: number;
   journeyEarned: number;
   journeyTotal: number;
+  /** False while the in-view era's banner is still visible below the bar. */
+  visible: boolean;
 }) {
   const ink = inkOn(world.colour);
+  const reducedMotion = useReducedMotion();
+  const shown = useSharedValue(visible ? 1 : 0);
+
+  useEffect(() => {
+    const target = visible ? 1 : 0;
+    shown.value = reducedMotion ? target : withTiming(target, { duration: 200 });
+    return () => cancelAnimation(shown);
+  }, [visible, reducedMotion, shown]);
+
+  const fadeStyle = useAnimatedStyle(() => ({ opacity: shown.value }));
+
   return (
-    <View
+    <Animated.View
       pointerEvents="none"
-      style={{ position: 'absolute', top: 8, left: 16, right: 16 }}
+      style={[fadeStyle, { position: 'absolute', top: 8, left: 16, right: 16 }]}
+      accessibilityElementsHidden={!visible}
+      importantForAccessibility={visible ? 'auto' : 'no-hide-descendants'}
       testID="sticky-era-bar"
     >
       <View style={{ paddingBottom: BAR_LIP }}>
@@ -50,7 +75,11 @@ export function StickyEraBar({
           key={world.id}
           entering={FadeIn.duration(180)}
           className="flex-row items-center gap-2 px-4"
-          style={{ height: 40, borderRadius: 16, backgroundColor: world.colour }}
+          style={{
+            height: 40,
+            borderRadius: 16,
+            backgroundColor: world.colour,
+          }}
         >
           <Text
             className="flex-1 text-sm font-extrabold"
@@ -75,6 +104,6 @@ export function StickyEraBar({
           </View>
         </Animated.View>
       </View>
-    </View>
+    </Animated.View>
   );
 }

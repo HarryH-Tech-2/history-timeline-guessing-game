@@ -2,7 +2,7 @@ import { View } from 'react-native';
 
 import type { CampaignProgress } from '../../persistence';
 import { isStageUnlocked, type CampaignStage, type CampaignWorld } from '../campaignMap';
-import { STEP_Y, trailX } from './constants';
+import { stageCentreY, STEP_Y, TRAIL_TOP, trailX } from './constants';
 import { StageButton } from './StageButton';
 import { TrailDots } from './TrailDots';
 
@@ -44,12 +44,12 @@ export function EraTrail({
 }) {
   const centres = world.stages.map((_, i) => ({
     x: trailX(startIndex + i, width),
-    y: i * STEP_Y + STEP_Y / 2,
+    y: stageCentreY(i),
   }));
 
   return (
     <View
-      style={{ height: world.stages.length * STEP_Y + 14 }}
+      style={{ height: TRAIL_TOP + world.stages.length * STEP_Y + 14 }}
       onLayout={(e) => onLayoutY(e.nativeEvent.layout.y)}
     >
       {centres.slice(0, -1).map((from, i) => {

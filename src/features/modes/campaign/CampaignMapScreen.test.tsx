@@ -31,6 +31,8 @@ jest.mock('@/features/premium', () => ({
 import { CampaignMapScreen } from './CampaignMapScreen';
 
 const ancient = CAMPAIGN[0]!;
+/** The sticky bar hides itself from accessibility while the era's banner shows. */
+const HIDDEN = { includeHiddenElements: true };
 const medieval = CAMPAIGN[1]!;
 
 async function seed(progress: CampaignProgress) {
@@ -87,7 +89,7 @@ describe('CampaignMapScreen', () => {
     render(<CampaignMapScreen />);
     await waitFor(() => expect(screen.getByTestId('era-mastered')).toBeOnTheScreen());
     const total = CAMPAIGN.reduce((n, w) => n + w.stages.length, 0);
-    expect(screen.getByTestId('journey-stars')).toHaveTextContent(
+    expect(screen.getByTestId('journey-stars', HIDDEN)).toHaveTextContent(
       `★ ${ancient.stages.length * 3}/${total * 3}`,
     );
     const first = screen.getByTestId(`stage-${ancient.stages[0]!.id}`);
@@ -97,19 +99,23 @@ describe('CampaignMapScreen', () => {
   it('shows no seals and no journey stars on a fresh campaign', async () => {
     mockPremium = true;
     render(<CampaignMapScreen />);
-    await waitFor(() => expect(screen.getByTestId('journey-stars')).toHaveTextContent(/^★ 0\//));
+    await waitFor(() => expect(screen.getByTestId('journey-stars', HIDDEN)).toHaveTextContent(/^★ 0\//));
     expect(screen.queryByTestId('era-complete')).toBeNull();
     expect(screen.queryAllByTestId('trail-dot-lit')).toHaveLength(0);
   });
 
-  it('opens with the first era in the sticky bar and START on the first stage', async () => {
+  it('opens on the first era, its painting behind, and START on the first stage', async () => {
     render(<CampaignMapScreen />);
     await waitFor(() =>
-      expect(screen.getByTestId('sticky-era-title')).toHaveTextContent(
+      expect(screen.getByTestId('sticky-era-title', HIDDEN)).toHaveTextContent(
         `ERA I · ${ancient.name}`,
       ),
     );
-    expect(screen.getByTestId('sticky-era-stars')).toHaveTextContent(
+    // The era's own banner is still on screen, so the sticky bar holds back.
+    expect(screen.getByTestId('sticky-era-bar', HIDDEN)).toHaveProp('accessibilityElementsHidden', true);
+    expect(screen.getByTestId(`era-backdrop-${ancient.id}`)).toBeOnTheScreen();
+    expect(screen.queryByTestId(`era-backdrop-${medieval.id}`)).toBeNull();
+    expect(screen.getByTestId('sticky-era-stars', HIDDEN)).toHaveTextContent(
       `★ 0/${ancient.stages.length * 3}`,
     );
     const first = screen.getByTestId(`stage-${ancient.stages[0]!.id}`);

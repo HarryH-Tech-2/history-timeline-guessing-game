@@ -1,4 +1,4 @@
-import { DARK_INK, eraInView, inkOn, nodeState, shade } from './mapVisuals';
+import { bannerTucked, DARK_INK, eraInView, inkOn, nodeState, shade } from './mapVisuals';
 
 describe('eraInView', () => {
   const sections = [
@@ -24,6 +24,22 @@ describe('eraInView', () => {
 
   it('is undefined with nothing measured', () => {
     expect(eraInView([], 100)).toBeUndefined();
+  });
+});
+
+describe('bannerTucked', () => {
+  it('is false while the banner still shows below the probe line', () => {
+    expect(bannerTucked(200, 100)).toBe(false);
+    expect(bannerTucked(101, 100)).toBe(false);
+  });
+
+  it('is true once the banner has scrolled up under the probe line', () => {
+    expect(bannerTucked(100, 100)).toBe(true);
+    expect(bannerTucked(40, 100)).toBe(true);
+  });
+
+  it('is false before the banner has been measured', () => {
+    expect(bannerTucked(undefined, 1000)).toBe(false);
   });
 });
 

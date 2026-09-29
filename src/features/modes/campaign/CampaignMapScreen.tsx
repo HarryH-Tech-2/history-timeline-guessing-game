@@ -8,12 +8,11 @@ import {
 } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import Animated, { FadeIn } from 'react-native-reanimated';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Screen } from '@/components/ui';
 import { usePremium } from '@/features/premium';
 import { paywallHref } from '@/features/premium/paywallSource';
 import { useSaves } from '@/features/save';
-import { useThemeColors } from '@/theme';
 
 import type { CampaignProgress } from '../persistence';
 import {
@@ -26,23 +25,24 @@ import {
   progressSince,
   type CampaignStage,
 } from './campaignMap';
-import { SEQUENCE_DELAY_MS, STEP_Y, STICKY_BAR_SPACE } from './map/constants';
-import { EraBackdrop, type BackdropSection } from './map/EraBackdrop';
+import { SEQUENCE_DELAY_MS, stageCentreY, STICKY_BAR_SPACE } from './map/constants';
+import { EraBackdrop } from './map/EraBackdrop';
 import { EraBanner } from './map/EraBanner';
 import { EraTrail, NO_CELEBRATION, type Celebration } from './map/EraTrail';
-import { eraInView } from './map/mapVisuals';
+import { bannerTucked, eraInView } from './map/mapVisuals';
 import { StickyEraBar } from './map/StickyEraBar';
 
 /**
  * The campaign map: a Duolingo-style trail of round 3D stage buttons winding
- * down through a painted scene per era. Each era opens with a chunky banner;
- * a slim sticky bar names the era currently in view. The pieces live in
+ * down over a fixed, full-screen painting of the era in view (cross-fading as
+ * the player scrolls between eras). Each era opens with a chunky banner; once
+ * it scrolls away a slim sticky bar names the era instead. The pieces live in
  * ./map; this screen composes them and owns scrolling and the since-last-visit
  * light-up sequence.
  */
 
-/** Space under the last era so its final stage clears the tab bar. */
-const BOTTOM_PAD = 40;
+/** Space under the last era so its final stage sits well clear of the tab bar. */
+const BOTTOM_PAD = 64;
 
 function starsIn(stages: readonly CampaignStage[], progress: CampaignProgress): number {
   return stages.reduce((n, s) => n + (progress[s.id]?.stars ?? 0), 0);
@@ -63,19 +63,15 @@ function frontierOf(progress: CampaignProgress): CampaignStage | undefined {
  */
 export function CampaignMapScreen() {
   const router = useRouter();
-  const colors = useThemeColors();
   const { width, height } = useWindowDimensions();
   const { isReady, campaign } = useSaves();
   const { isPremium } = usePremium();
   const [progress, setProgress] = useState<CampaignProgress>({});
-  const [contentHeight, setContentHeight] = useState(0);
   const [celebration, setCelebration] = useState<Celebration>(NO_CELEBRATION);
-  /** Each era section's measured box, for painting its backdrop. */
-  const [sectionBoxes, setSectionBoxes] = useState<Record<string, { y: number; height: number }>>(
-    {},
-  );
-  /** The era scrolled into view, named in the sticky bar. */
+  /** The era scrolled into view: its painting fills the screen and the sticky bar names it. */
   const [viewEraId, setViewEraId] = useState(CAMPAIGN[0]?.id);
+  /** Whether that era's own banner has scrolled up under the sticky bar. */
+  const [barVisible, setBarVisible] = useState(false);
 
   const scrollRef = useRef<ScrollView>(null);
   /** Progress as of the last visit, per save store — what "new" is measured against. */
@@ -85,19 +81,39 @@ export function CampaignMapScreen() {
   const trailY = useRef(new Map<string, number>());
   const pendingScroll = useRef<{ stageId: string; animated: boolean } | null>(null);
   const viewEraRef = useRef(viewEraId);
+  const barVisibleRef = useRef(barVisible);
+  const scrollY = useRef(0);
 
   const stages = allStages();
   const frontierId = frontierOf(progress)?.id;
   /** Global play-order position of each stage, for a continuous trail phase. */
   const orderOf = new Map(stages.map((s, i) => [s.id, i]));
 
-  /** Point the sticky bar at whichever era sits under it at scroll offset `y`. */
+  /**
+   * Point the backdrop and sticky bar at whichever era sits under the bar at
+   * scroll offset `y`, and show the bar only once that era's banner is tucked
+   * up beneath it.
+   */
   const trackEra = useCallback((y: number) => {
+    scrollY.current = y;
+    const probe = y + STICKY_BAR_SPACE;
     const sections = [...eraY.current].map(([id, top]) => ({ id, y: top }));
-    const id = eraInView(sections, y + STICKY_BAR_SPACE);
-    if (id !== undefined && id !== viewEraRef.current) {
+    const id = eraInView(sections, probe);
+    if (id === undefined) return;
+    if (id !== viewEraRef.current) {
       viewEraRef.current = id;
       setViewEraId(id);
+    }
+    // The trail starts where the banner block ends.
+    const top = eraY.current.get(id);
+    const bannerEnd = trailY.current.get(id);
+    const tucked = bannerTucked(
+      top !== undefined && bannerEnd !== undefined ? top + bannerEnd : undefined,
+      probe,
+    );
+    if (tucked !== barVisibleRef.current) {
+      barVisibleRef.current = tucked;
+      setBarVisible(tucked);
     }
   }, []);
 
@@ -116,25 +132,18 @@ export function CampaignMapScreen() {
     const trail = trailY.current.get(stage.worldId);
     if (wrapper === undefined || trail === undefined) return;
     pendingScroll.current = null;
-    const y = wrapper + trail + (stage.index - 1) * STEP_Y + STEP_Y / 2;
+    const y = wrapper + trail + stageCentreY(stage.index - 1);
     const offset = Math.max(0, y - height / 3);
     scrollRef.current?.scrollTo({ y: offset, animated: target.animated });
     // A programmatic jump doesn't always report a scroll event; keep the bar honest.
     trackEra(offset);
   }, [height, trackEra]);
 
-  const measureSection = useCallback(
-    (worldId: string, y: number, sectionHeight: number) => {
-      eraY.current.set(worldId, y);
-      setSectionBoxes((boxes) => {
-        const box = boxes[worldId];
-        if (box?.y === y && box.height === sectionHeight) return boxes;
-        return { ...boxes, [worldId]: { y, height: sectionHeight } };
-      });
-      tryScroll();
-    },
-    [tryScroll],
-  );
+  /** Record where an era section (or its trail) sits, then settle scroll and bar. */
+  const measured = useCallback(() => {
+    tryScroll();
+    trackEra(scrollY.current);
+  }, [tryScroll, trackEra]);
 
   useFocusEffect(
     useCallback(() => {
@@ -187,86 +196,79 @@ export function CampaignMapScreen() {
     [router, isPremium],
   );
 
-  // Paint each era from its section's top (the first from the very top) down
-  // to where the next begins; the last runs on to the end of the content.
-  const measured = CAMPAIGN.filter((w) => sectionBoxes[w.id] !== undefined);
-  const backdrop: BackdropSection[] = measured.map((world, i) => {
-    const box = sectionBoxes[world.id]!;
-    const next = measured[i + 1];
-    const top = i === 0 ? 0 : box.y;
-    const end =
-      next !== undefined
-        ? sectionBoxes[next.id]!.y
-        : Math.max(box.y + box.height, contentHeight);
-    return { id: world.id, top, height: end - top };
-  });
-
   const viewWorld = CAMPAIGN.find((w) => w.id === viewEraId) ?? CAMPAIGN[0];
 
   return (
-    <Screen>
-      <ScrollView
-        ref={scrollRef}
-        showsVerticalScrollIndicator={false}
-        onScroll={onScroll}
-        scrollEventThrottle={32}
-      >
-        <Animated.View
-          entering={FadeIn.duration(300)}
-          style={{ paddingTop: STICKY_BAR_SPACE - 24, paddingBottom: BOTTOM_PAD }}
-          onLayout={(e) => setContentHeight(e.nativeEvent.layout.height)}
+    // Not <Screen>: the painting must run under the status bar and right down
+    // to the tab bar, so only the content honours the safe area.
+    <View className="flex-1 bg-bg-base">
+      {viewEraId !== undefined && <EraBackdrop eraId={viewEraId} />}
+      <SafeAreaView edges={['top', 'left', 'right']} className="flex-1">
+        <ScrollView
+          ref={scrollRef}
+          showsVerticalScrollIndicator={false}
+          onScroll={onScroll}
+          scrollEventThrottle={32}
         >
-          {backdrop.length > 0 && <EraBackdrop sections={backdrop} wash={colors.bg.base} />}
-
-          {CAMPAIGN.map((world) => {
-            const startIndex = orderOf.get(world.stages[0]?.id ?? '') ?? 0;
-            const premiumLocked = isWorldPremium(world.id) && !isPremium;
-            const firstStage = world.stages[0];
-            const opened = firstStage !== undefined && celebration.unlocked.has(firstStage.id);
-            return (
-              <View
-                key={world.id}
-                onLayout={(e) =>
-                  measureSection(world.id, e.nativeEvent.layout.y, e.nativeEvent.layout.height)
-                }
-              >
-                <EraBanner
-                  world={world}
-                  status={eraStatus(world, progress)}
-                  earned={starsIn(world.stages, progress)}
-                  total={world.stages.length * 3}
-                  premiumLocked={premiumLocked}
-                  shimmerToken={opened ? celebration.token : undefined}
-                />
-                <EraTrail
-                  world={world}
-                  startIndex={startIndex}
-                  width={width}
-                  progress={progress}
-                  frontierId={frontierId}
-                  premiumLocked={premiumLocked}
-                  celebration={celebration}
-                  onOpenStage={(stage) => openStage(world.id, stage)}
-                  onLayoutY={(y) => {
-                    trailY.current.set(world.id, y);
-                    tryScroll();
+          <Animated.View
+            entering={FadeIn.duration(300)}
+            style={{
+              paddingTop: STICKY_BAR_SPACE - 24,
+              paddingBottom: BOTTOM_PAD,
+            }}
+          >
+            {CAMPAIGN.map((world) => {
+              const startIndex = orderOf.get(world.stages[0]?.id ?? '') ?? 0;
+              const premiumLocked = isWorldPremium(world.id) && !isPremium;
+              const firstStage = world.stages[0];
+              const opened = firstStage !== undefined && celebration.unlocked.has(firstStage.id);
+              return (
+                <View
+                  key={world.id}
+                  onLayout={(e) => {
+                    eraY.current.set(world.id, e.nativeEvent.layout.y);
+                    measured();
                   }}
-                />
-              </View>
-            );
-          })}
-        </Animated.View>
-      </ScrollView>
+                >
+                  <EraBanner
+                    world={world}
+                    status={eraStatus(world, progress)}
+                    earned={starsIn(world.stages, progress)}
+                    total={world.stages.length * 3}
+                    premiumLocked={premiumLocked}
+                    shimmerToken={opened ? celebration.token : undefined}
+                  />
+                  <EraTrail
+                    world={world}
+                    startIndex={startIndex}
+                    width={width}
+                    progress={progress}
+                    frontierId={frontierId}
+                    premiumLocked={premiumLocked}
+                    celebration={celebration}
+                    onOpenStage={(stage) => openStage(world.id, stage)}
+                    onLayoutY={(y) => {
+                      trailY.current.set(world.id, y);
+                      measured();
+                    }}
+                  />
+                </View>
+              );
+            })}
+          </Animated.View>
+        </ScrollView>
 
-      {viewWorld !== undefined && (
-        <StickyEraBar
-          world={viewWorld}
-          earned={starsIn(viewWorld.stages, progress)}
-          total={viewWorld.stages.length * 3}
-          journeyEarned={starsIn(stages, progress)}
-          journeyTotal={stages.length * 3}
-        />
-      )}
-    </Screen>
+        {viewWorld !== undefined && (
+          <StickyEraBar
+            world={viewWorld}
+            earned={starsIn(viewWorld.stages, progress)}
+            total={viewWorld.stages.length * 3}
+            journeyEarned={starsIn(stages, progress)}
+            journeyTotal={stages.length * 3}
+            visible={barVisible}
+          />
+        )}
+      </SafeAreaView>
+    </View>
   );
 }
