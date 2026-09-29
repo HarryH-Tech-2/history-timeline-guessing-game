@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 
 const mockApi = { createChallenge: jest.fn() };
 jest.mock('./api', () => ({
@@ -44,5 +44,20 @@ describe('ChallengeFromRun', () => {
     fireEvent.press(screen.getByTestId('challenge-from-run'));
     await waitFor(() => expect(mockShare).toHaveBeenCalled());
     expect(screen.queryByText(/Couldn’t reach the server/)).toBeNull();
+  });
+
+  it('only creates one challenge when tapped twice quickly', async () => {
+    let resolve!: (v: { code: string; url: string }) => void;
+    mockApi.createChallenge.mockReturnValue(new Promise((r) => (resolve = r)));
+    render(<ChallengeFromRun questionIds={ids} source="daily" />);
+    const button = screen.getByTestId('challenge-from-run');
+    // Both taps land before React re-renders the button as disabled.
+    act(() => {
+      fireEvent.press(button);
+      fireEvent.press(button);
+    });
+    expect(mockApi.createChallenge).toHaveBeenCalledTimes(1);
+    resolve({ code: 'ABC234', url: 'https://x/c/ABC234' });
+    await waitFor(() => expect(mockShare).toHaveBeenCalledTimes(1));
   });
 });

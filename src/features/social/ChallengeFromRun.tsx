@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Text, View } from 'react-native';
 
 import { Button } from '@/components/ui';
@@ -28,10 +28,14 @@ export function ChallengeFromRun({
   const { state } = useProgression();
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  // `busy` only disables the button after a re-render; this blocks a second tap before that.
+  const inFlight = useRef(false);
   if (questionIds.length !== CHALLENGE_SIZE) return null;
   const name = resolveDisplayName(state.displayName, uid);
 
   const create = async () => {
+    if (inFlight.current) return;
+    inFlight.current = true;
     setBusy(true);
     setError(null);
     try {
@@ -41,6 +45,7 @@ export function ChallengeFromRun({
     } catch (e) {
       setError(api.socialErrorMessage(e));
     } finally {
+      inFlight.current = false;
       setBusy(false);
     }
   };

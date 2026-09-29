@@ -13,6 +13,7 @@ import { CodeEntry } from './CodeEntry';
 import { compareEntries, statusLine } from './headToHead';
 import { shareChallenge } from './shareInvite';
 import type { Challenge, ChallengeEntry } from './types';
+import { noteChallengeSeen } from './useSocialBadge';
 
 type Row = { challenge: Challenge; entries: ChallengeEntry[] };
 
@@ -25,6 +26,8 @@ async function loadRow(uid: string, code: string, seen: number | undefined): Pro
     if (!challenge) return null;
     // Only write when the count moved, not for every row on every focus.
     if (seen !== entries.length) api.markSeen(uid, code, entries.length).catch(() => undefined);
+    // Clear the Social tab dot now rather than at the next foreground check.
+    noteChallengeSeen(uid, code, entries.length);
     return { challenge, entries };
   } catch {
     return null; // one unreadable challenge shouldn't hide the rest
