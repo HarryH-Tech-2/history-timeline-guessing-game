@@ -40,11 +40,19 @@ export function canJoinGroup(
   return 'ok';
 }
 
-/** Member order is join order, so index 0 after removal is the longest-standing. */
+/**
+ * Member order is join order, so index 0 after removal is the longest-standing.
+ * 'none' when the group is gone or `uid` isn't in it: no group write, though
+ * the caller still drops the id from the player's own list.
+ */
 export function afterLeave(
-  group: { ownerUid: string; memberUids: string[] },
+  group: { ownerUid: string; memberUids: string[] } | undefined,
   uid: string,
-): { kind: 'delete' } | { kind: 'update'; ownerUid: string; memberUids: string[] } {
+):
+  | { kind: 'none' }
+  | { kind: 'delete' }
+  | { kind: 'update'; ownerUid: string; memberUids: string[] } {
+  if (!group || !group.memberUids.includes(uid)) return { kind: 'none' };
   const memberUids = group.memberUids.filter((m) => m !== uid);
   if (memberUids.length === 0) return { kind: 'delete' };
   const ownerUid = group.ownerUid === uid ? memberUids[0]! : group.ownerUid;

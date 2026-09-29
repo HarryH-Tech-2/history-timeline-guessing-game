@@ -98,3 +98,8 @@ test('entry verdict: wrong-length or non-integer guesses are invalid, before any
     { kind: 'invalid-guesses' },
   );
 });
+
+test('leaving a missing group, or one you are not in, changes no group doc', () => {
+  assert.deepEqual(afterLeave(undefined, 'a'), { kind: 'none' });
+  assert.deepEqual(afterLeave({ ownerUid: 'b', memberUids: ['b'] }, 'a'), { kind: 'none' });
+});

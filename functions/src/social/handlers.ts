@@ -12,6 +12,7 @@ import {
   entryVerdict,
   MAX_GROUPS_PER_PLAYER,
   pickQuestionIds,
+  validateGuessYears,
 } from './rules';
 import { scoreEntry } from './scoring';
 
@@ -46,32 +47,98 @@ export function parseQuestionIds(raw: unknown): string[] | null {
 const socialState = (uid: string) =>
   getFirestore().collection('users').doc(uid).collection('social').doc('state');
 
-/** Mint a code no doc in `collection` uses yet. */
-async function freshCode(collection: 'challenges' | 'groupInvites'): Promise<string> {
-  const db = getFirestore();
-  for (let attempt = 0; attempt < 8; attempt += 1) {
-    const code = mintCode();
-    if (!(await db.collection(collection).doc(code).get()).exists) return code;
+const MAX_CODE_ATTEMPTS = 8;
+
+/** Firestore's ALREADY_EXISTS (gRPC 6): a create() hit a doc that is already there. */
+function isAlreadyExists(e: unknown): boolean {
+  const code = (e as { code?: unknown } | null)?.code;
+  return code === 6 || code === 'already-exists';
+}
+
+/**
+ * Run `write` with a freshly minted code. `write` must create() the coded doc,
+ * so a collision fails the write itself (no check-then-write race); it is
+ * retried with a new code a bounded number of times.
+ */
+export async function withFreshCode<T>(
+  write: (code: string) => Promise<T>,
+  mint: () => string = mintCode,
+): Promise<T> {
+  for (let attempt = 0; attempt < MAX_CODE_ATTEMPTS; attempt += 1) {
+    try {
+      return await write(mint());
+    } catch (e) {
+      if (!isAlreadyExists(e)) throw e;
+    }
   }
   throw new HttpsError('resource-exhausted', 'Could not mint a code, try again.');
 }
 
+export type CreateRequest =
+  | { kind: 'ok'; questionIds: string[]; guessYears: number[] | null }
+  | { kind: 'invalid'; reason: string };
+
+/**
+ * No ids: a random challenge. Ids from a finished run may bring that run's
+ * guesses, which become the creator's entry; guesses alone mean nothing.
+ */
+export function parseCreateChallenge(data: { questionIds?: unknown; guessYears?: unknown }): CreateRequest {
+  if (data.questionIds === undefined) {
+    if (data.guessYears !== undefined) return { kind: 'invalid', reason: 'Guesses need their questions.' };
+    return { kind: 'ok', questionIds: pickQuestionIds(rotationPool()), guessYears: null };
+  }
+  const questionIds = parseQuestionIds(data.questionIds);
+  if (!questionIds) return { kind: 'invalid', reason: 'Unknown questions.' };
+  if (data.guessYears === undefined) return { kind: 'ok', questionIds, guessYears: null };
+  const guessYears = validateGuessYears(data.guessYears);
+  if (!guessYears) return { kind: 'invalid', reason: 'Bad guesses.' };
+  return { kind: 'ok', questionIds, guessYears };
+}
+
+/** Server-side score of guesses against the catalogue's true years. */
+export function scoreGuesses(
+  questionIds: readonly string[],
+  guessYears: readonly number[],
+): { roundScores: number[]; total: number } {
+  const years = questionIds.map((id) => yearOf(id));
+  if (years.some((y) => y === undefined)) throw new HttpsError('internal', 'Catalogue mismatch.');
+  return scoreEntry(years as number[], guessYears);
+}
+
 export const createChallenge = onCall(opts, async (req) => {
   const uid = uidOf(req);
-  const data = (req.data ?? {}) as { questionIds?: unknown; name?: unknown };
-  const questionIds =
-    data.questionIds === undefined ? pickQuestionIds(rotationPool()) : parseQuestionIds(data.questionIds);
-  if (!questionIds) throw new HttpsError('invalid-argument', 'Unknown questions.');
-  const code = await freshCode('challenges');
-  const now = Date.now();
-  await getFirestore().collection('challenges').doc(code).set({
-    creatorUid: uid,
-    creatorName: nameOf(data.name),
-    questionIds,
-    createdAt: now,
-    expiresAt: now + CHALLENGE_TTL_MS,
+  const data = (req.data ?? {}) as { questionIds?: unknown; guessYears?: unknown; name?: unknown };
+  const parsed = parseCreateChallenge(data);
+  if (parsed.kind === 'invalid') throw new HttpsError('invalid-argument', parsed.reason);
+  const { questionIds, guessYears } = parsed;
+  const name = nameOf(data.name);
+  const db = getFirestore();
+  const code = await withFreshCode(async (code) => {
+    const now = Date.now();
+    const challengeRef = db.collection('challenges').doc(code);
+    // One batch: the challenge, the creator's entry (when they already played
+    // these questions) and their list of codes land together or not at all.
+    const batch = db.batch();
+    batch.create(challengeRef, {
+      creatorUid: uid,
+      creatorName: name,
+      questionIds,
+      createdAt: now,
+      expiresAt: now + CHALLENGE_TTL_MS,
+    });
+    if (guessYears) {
+      const entry: ChallengeEntryDoc = {
+        name,
+        guessYears,
+        ...scoreGuesses(questionIds, guessYears),
+        finishedAt: now,
+      };
+      batch.create(challengeRef.collection('entries').doc(uid), entry);
+    }
+    batch.set(socialState(uid), { challengeCodes: FieldValue.arrayUnion(code) }, { merge: true });
+    await batch.commit();
+    return code;
   });
-  await socialState(uid).set({ challengeCodes: FieldValue.arrayUnion(code) }, { merge: true });
   return { code, url: `${HOST}/c/${code}` };
 });
 
@@ -86,8 +153,9 @@ export const submitChallengeEntry = onCall(opts, async (req) => {
   // concurrent entries from different players cannot overwrite each other.
   // The transaction only has to serialise one uid racing itself.
   const entryRef = challengeRef.collection('entries').doc(uid);
+  const code = data.code;
 
-  const entry = await db.runTransaction(async (tx) => {
+  return db.runTransaction(async (tx) => {
     const [challenge, existing] = await Promise.all([tx.get(challengeRef), tx.get(entryRef)]);
     const c = challenge.exists
       ? (challenge.data() as { questionIds: string[]; expiresAt: number })
@@ -110,9 +178,7 @@ export const submitChallengeEntry = onCall(opts, async (req) => {
       case 'ok':
         break;
     }
-    const years = c!.questionIds.map((id) => yearOf(id));
-    if (years.some((y) => y === undefined)) throw new HttpsError('internal', 'Catalogue mismatch.');
-    const { roundScores, total } = scoreEntry(years as number[], verdict.guessYears);
+    const { roundScores, total } = scoreGuesses(c!.questionIds, verdict.guessYears);
     const doc: ChallengeEntryDoc = {
       name: nameOf(data.name),
       guessYears: verdict.guessYears,
@@ -123,10 +189,9 @@ export const submitChallengeEntry = onCall(opts, async (req) => {
     // create(), not set(): the write itself fails if an entry already exists,
     // so a stored entry can never be replaced.
     tx.create(entryRef, doc);
+    tx.set(socialState(uid), { challengeCodes: FieldValue.arrayUnion(code) }, { merge: true });
     return doc;
   });
-  await socialState(uid).set({ challengeCodes: FieldValue.arrayUnion(data.code) }, { merge: true });
-  return entry;
 });
 
 export const createGroup = onCall(opts, async (req) => {
@@ -139,20 +204,22 @@ export const createGroup = onCall(opts, async (req) => {
   if (groupIds.length >= MAX_GROUPS_PER_PLAYER) {
     throw new HttpsError('failed-precondition', 'You are in too many groups.');
   }
-  const inviteCode = await freshCode('groupInvites');
-  const groupRef = db.collection('groups').doc();
-  const batch = db.batch();
-  batch.set(groupRef, {
-    name: check.name,
-    ownerUid: uid,
-    inviteCode,
-    memberUids: [uid],
-    createdAt: Date.now(),
+  return withFreshCode(async (inviteCode) => {
+    const groupRef = db.collection('groups').doc();
+    const batch = db.batch();
+    batch.set(groupRef, {
+      name: check.name,
+      ownerUid: uid,
+      inviteCode,
+      memberUids: [uid],
+      createdAt: Date.now(),
+    });
+    // create(): a taken invite code fails the whole batch, which retries with a new code.
+    batch.create(db.collection('groupInvites').doc(inviteCode), { groupId: groupRef.id });
+    batch.set(socialState(uid), { groupIds: FieldValue.arrayUnion(groupRef.id) }, { merge: true });
+    await batch.commit();
+    return { groupId: groupRef.id, inviteCode, url: `${HOST}/g/${inviteCode}` };
   });
-  batch.set(db.collection('groupInvites').doc(inviteCode), { groupId: groupRef.id });
-  batch.set(socialState(uid), { groupIds: FieldValue.arrayUnion(groupRef.id) }, { merge: true });
-  await batch.commit();
-  return { groupId: groupRef.id, inviteCode, url: `${HOST}/g/${inviteCode}` };
 });
 
 export const joinGroup = onCall(opts, async (req) => {
@@ -191,16 +258,17 @@ export const leaveGroup = onCall(opts, async (req) => {
   const groupRef = db.collection('groups').doc(groupId);
   await db.runTransaction(async (tx) => {
     const group = await tx.get(groupRef);
-    if (!group.exists) return;
-    const g = group.data() as { ownerUid: string; memberUids: string[]; inviteCode: string };
-    if (!g.memberUids.includes(uid)) return;
+    const g = group.exists
+      ? (group.data() as { ownerUid: string; memberUids: string[]; inviteCode: string })
+      : undefined;
     const next = afterLeave(g, uid);
     if (next.kind === 'delete') {
       tx.delete(groupRef);
-      tx.delete(db.collection('groupInvites').doc(g.inviteCode));
-    } else {
+      tx.delete(db.collection('groupInvites').doc(g!.inviteCode));
+    } else if (next.kind === 'update') {
       tx.update(groupRef, { ownerUid: next.ownerUid, memberUids: next.memberUids });
     }
+    // Always, even when the group is gone or already left, so a stale id clears.
     tx.set(socialState(uid), { groupIds: FieldValue.arrayRemove(groupId) }, { merge: true });
   });
   return { ok: true };

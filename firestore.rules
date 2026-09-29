@@ -83,8 +83,10 @@ service cloud.firestore {
 
     // Social: challenges and groups. Written only by Cloud Functions (Admin
     // SDK), so every client write is denied; entries are server-scored.
+    // Challenges: `get` only, so a code is the way in and nobody can list or
+    // enumerate them. Entries stay readable as a list (the head-to-head needs it).
     match /challenges/{code} {
-      allow read: if isSignedIn();
+      allow get: if isSignedIn();
       allow write: if false;
 
       match /entries/{uid} {

@@ -8,7 +8,7 @@ import {
   initializeTestEnvironment,
   type RulesTestEnvironment,
 } from '@firebase/rules-unit-testing';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, setDoc } from 'firebase/firestore';
 
 let env: RulesTestEnvironment;
 
@@ -35,6 +35,12 @@ test('signed-in players read challenges and entries; nobody writes them', async 
   await assertFails(setDoc(doc(db, 'challenges/NEW234'), { creatorUid: 'b' }));
   await assertFails(setDoc(doc(db, 'challenges/ABC234/entries/b'), { total: 8000 }));
   await assertFails(getDoc(doc(env.unauthenticatedContext().firestore(), 'challenges/ABC234')));
+});
+
+test('challenges cannot be listed (a code is the only way in), but a challenge’s entries can', async () => {
+  const db = env.authenticatedContext('b').firestore();
+  await assertFails(getDocs(collection(db, 'challenges')));
+  await assertSucceeds(getDocs(collection(db, 'challenges/ABC234/entries')));
 });
 
 test('only members read a group; invites are server-only', async () => {
