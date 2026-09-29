@@ -81,6 +81,27 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Social: challenges and groups. Written only by Cloud Functions (Admin
+    // SDK), so every client write is denied; entries are server-scored.
+    match /challenges/{code} {
+      allow read: if isSignedIn();
+      allow write: if false;
+
+      match /entries/{uid} {
+        allow read: if isSignedIn();
+        allow write: if false;
+      }
+    }
+
+    match /groups/{groupId} {
+      allow read: if isSignedIn() && request.auth.uid in resource.data.memberUids;
+      allow write: if false;
+    }
+
+    match /groupInvites/{code} {
+      allow read, write: if false;
+    }
+
     // Explicit default-deny for any collection not handled above.
     match /{document=**} {
       allow read, write: if false;
