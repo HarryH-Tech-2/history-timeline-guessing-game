@@ -105,6 +105,14 @@ const EVENT_OVERRIDES: Record<string, string> = {
     'a 1790s fur-trader explorer in a tricorn hat and frontier coat standing on a coastal granite boulder beside a cedar-bark canoe with voyageurs and Indigenous guides, a Pacific fjord with cliffs and cedars, the boulder completely bare and smooth, no writing, no letters, no inscription anywhere',
   'rte-bering-sights-alaska':
     'two small 1700s Russian sailing packet ships with plain white flags carrying a simple blue diagonal cross approaching a snowy volcanic Alaskan coast with a tall snow-capped peak, sailors in dark coats in a rowboat near an ice-rimmed shore, no writing, no tricolour flags',
+  'rte-expedition-of-the-thousand':
+    'a small Italian harbour in 1860 with two plain black-hulled steamships at a stone quay, hundreds of volunteers in red shirts boarding by gangplanks, a leader in a red shirt and poncho on the deck, plain unmarked hulls, no writing, no ship names, no letters anywhere',
+  'rte-golden-spike':
+    'two 1860s wood-burning steam locomotives nose to nose on a single track in a desert valley, workers and officials gathered around a small ceremonial gold spike being tapped into the last rail tie, flags and top hats, plain unmarked locomotive tenders, no writing, no numbers, no letters anywhere',
+  'rte-lincoln-assassinated':
+    'a candlelit 1860s theatre with a box balcony decorated in bunting, a tall bearded man in a black suit seated in a rocking chair beside a woman in a grey gown, ONE lone man in a dark suit stepping in behind them from the back of the box holding a small pistol, audience below, actors on stage, no writing',
+  'rte-emancipation-proclamation':
+    'a Union Army camp in autumn 1862 with white tents, blue-coated soldiers, and a crowd of freed families in period clothing cheering, a broken iron chain lying on the bare ground, a tall man in a black frock coat and stovepipe hat holding a scroll on a small wooden platform, a flagpole with the American flag, no writing, no food items on the ground',
 };
 
 /**

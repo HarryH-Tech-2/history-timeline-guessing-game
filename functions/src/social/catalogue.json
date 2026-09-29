@@ -1910,5 +1910,125 @@
  "rte-giordano-bruno-burned": {
   "year": 1600,
   "inRotation": false
+ },
+ "rte-napoleon-crowned-emperor": {
+  "year": 1804,
+  "inRotation": false
+ },
+ "rte-fort-sumter": {
+  "year": 1861,
+  "inRotation": false
+ },
+ "rte-emancipation-proclamation": {
+  "year": 1863,
+  "inRotation": false
+ },
+ "rte-lincoln-assassinated": {
+  "year": 1865,
+  "inRotation": false
+ },
+ "rte-slavery-abolition-act": {
+  "year": 1833,
+  "inRotation": false
+ },
+ "rte-chile-independence": {
+  "year": 1818,
+  "inRotation": false
+ },
+ "rte-peterloo-massacre": {
+  "year": 1819,
+  "inRotation": false
+ },
+ "rte-expedition-of-the-thousand": {
+  "year": 1860,
+  "inRotation": false
+ },
+ "rte-russian-serfs-freed": {
+  "year": 1861,
+  "inRotation": false
+ },
+ "rte-paris-commune": {
+  "year": 1871,
+  "inRotation": false
+ },
+ "rte-frankfurt-parliament": {
+  "year": 1848,
+  "inRotation": false
+ },
+ "rte-decembrist-revolt": {
+  "year": 1825,
+  "inRotation": false
+ },
+ "rte-belgian-independence": {
+  "year": 1830,
+  "inRotation": false
+ },
+ "rte-maximilian-executed": {
+  "year": 1867,
+  "inRotation": false
+ },
+ "rte-brazil-republic": {
+  "year": 1889,
+  "inRotation": false
+ },
+ "rte-roentgen-x-rays": {
+  "year": 1895,
+  "inRotation": false
+ },
+ "rte-golden-spike": {
+  "year": 1869,
+  "inRotation": false
+ },
+ "rte-edison-phonograph": {
+  "year": 1877,
+  "inRotation": false
+ },
+ "rte-brooklyn-bridge": {
+  "year": 1883,
+  "inRotation": false
+ },
+ "rte-nobel-dynamite": {
+  "year": 1867,
+  "inRotation": false
+ },
+ "rte-stockton-darlington-railway": {
+  "year": 1825,
+  "inRotation": false
+ },
+ "rte-faraday-induction": {
+  "year": 1831,
+  "inRotation": false
+ },
+ "rte-ss-great-britain": {
+  "year": 1843,
+  "inRotation": false
+ },
+ "rte-mendeleev-periodic-table": {
+  "year": 1869,
+  "inRotation": false
+ },
+ "rte-pasteur-rabies-vaccine": {
+  "year": 1885,
+  "inRotation": false
+ },
+ "rte-fulton-steamboat": {
+  "year": 1807,
+  "inRotation": false
+ },
+ "rte-ether-day": {
+  "year": 1846,
+  "inRotation": false
+ },
+ "rte-broad-street-pump": {
+  "year": 1854,
+  "inRotation": false
+ },
+ "rte-transatlantic-telegraph-cable": {
+  "year": 1858,
+  "inRotation": false
+ },
+ "rte-koch-tuberculosis": {
+  "year": 1882,
+  "inRotation": false
  }
 }
