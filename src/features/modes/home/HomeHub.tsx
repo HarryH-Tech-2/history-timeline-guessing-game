@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useRouter, type Href } from 'expo-router';
 import Animated, { FadeInUp } from 'react-native-reanimated';
@@ -9,6 +9,7 @@ import { activeStreakCount, type Category } from '@/domain';
 import { usePremium } from '@/features/premium';
 import { paywallHref } from '@/features/premium/paywallSource';
 import { ProfileHeader, useProgression } from '@/features/progression';
+import { track } from '@/services/analytics';
 import { useTheme } from '@/theme';
 import { dateKey } from '@/utils/date';
 
@@ -181,8 +182,16 @@ function ComingSoonBanner() {
 export function HomeHub() {
   const router = useRouter();
   const { mode, toggle } = useTheme();
-  const { isPremium } = usePremium();
+  const { isPremium, isLoading: premiumLoading } = usePremium();
   const { state } = useProgression();
+  // Wait for the cached entitlement so a subscriber never sees the chip flash.
+  const showPremiumChip = !isPremium && !premiumLoading;
+  const chipReported = useRef(false);
+  useEffect(() => {
+    if (!showPremiumChip || chipReported.current) return;
+    chipReported.current = true;
+    track('upsell_shown', { placement: 'home_chip' });
+  }, [showPremiumChip]);
   // The Daily streak the player is on; read per render so it is right after a run.
   const streak = activeStreakCount(state.streak, dateKey());
   const [streakOpen, setStreakOpen] = useState(false);
@@ -196,9 +205,37 @@ export function HomeHub() {
         showsVerticalScrollIndicator={false}
       >
         <View className="mb-2 flex-row items-start justify-between">
-          <View className="flex-1 justify-center pr-3">
-            <Text className="text-3xl font-extrabold text-ink-primary">Date Guesser</Text>
+          <View className="h-10 flex-1 justify-center pr-3">
+            {/* Shrinks rather than wraps so the header chips fit a narrow phone. */}
+            <Text
+              className="text-3xl font-extrabold text-ink-primary"
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.55}
+            >
+              Date Guesser
+            </Text>
           </View>
+          {showPremiumChip && (
+            <Pressable
+              onPress={() => router.push(paywallHref('home_chip'))}
+              accessibilityRole="button"
+              accessibilityLabel="See Premium"
+              hitSlop={6}
+              testID="home-premium"
+              className="mr-2 h-10 flex-row items-center gap-1 border border-accent/60 bg-bg-raised px-2"
+            >
+              <Text className="text-sm" style={{ includeFontPadding: false }}>
+                👑
+              </Text>
+              <Text
+                className="text-sm font-extrabold text-accent"
+                style={{ includeFontPadding: false }}
+              >
+                Premium
+              </Text>
+            </Pressable>
+          )}
           <Pressable
             onPress={() => setStreakOpen(true)}
             accessibilityRole="button"

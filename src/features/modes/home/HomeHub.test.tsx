@@ -5,8 +5,20 @@ jest.mock('expo-router', () => ({
   useRouter: () => ({ push: mockPush, back: jest.fn(), navigate: jest.fn() }),
 }));
 
+jest.mock('@/services/analytics', () => ({ track: jest.fn() }));
+const mockPremium = { isPremium: false };
+jest.mock('@/features/premium/PremiumProvider', () => ({
+  ...jest.requireActual('@/features/premium/PremiumProvider'),
+  usePremium: () => ({
+    ...jest.requireActual('@/features/premium/PremiumProvider').usePremium(),
+    isPremium: mockPremium.isPremium,
+  }),
+}));
+
 // eslint-disable-next-line import/first
 import { getCategories } from '@/data';
+// eslint-disable-next-line import/first
+import { track } from '@/services/analytics';
 // eslint-disable-next-line import/first
 import { HomeHub } from './HomeHub';
 
@@ -47,6 +59,36 @@ describe('HomeHub', () => {
     expect(mockPush).toHaveBeenCalledWith({
       pathname: '/paywall',
       params: { source: 'locked_category' },
+    });
+  });
+
+  describe('Premium chip', () => {
+    beforeEach(() => {
+      mockPremium.isPremium = false;
+      mockPush.mockClear();
+      jest.mocked(track).mockClear();
+    });
+
+    it('shows free players a Premium chip in the header and reports it once', () => {
+      const { rerender } = render(<HomeHub />);
+      expect(screen.getByTestId('home-premium')).toHaveTextContent(/Premium/);
+      rerender(<HomeHub />);
+      expect(jest.mocked(track).mock.calls.filter(([e]) => e === 'upsell_shown')).toEqual([
+        ['upsell_shown', { placement: 'home_chip' }],
+      ]);
+    });
+
+    it('opens the paywall tagged home_chip', () => {
+      render(<HomeHub />);
+      fireEvent.press(screen.getByTestId('home-premium'));
+      expect(mockPush).toHaveBeenCalledWith({ pathname: '/paywall', params: { source: 'home_chip' } });
+    });
+
+    it('is hidden for Premium players', () => {
+      mockPremium.isPremium = true;
+      render(<HomeHub />);
+      expect(screen.queryByTestId('home-premium')).toBeNull();
+      expect(track).not.toHaveBeenCalledWith('upsell_shown', expect.anything());
     });
   });
 });
