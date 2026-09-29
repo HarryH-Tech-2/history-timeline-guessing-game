@@ -356,8 +356,13 @@ const EMPTY_COPY: Record<Board, string> = {
   all: 'No scores yet — play a round to claim the top spot!',
 };
 
+/** The screen chrome, or nothing when hosted inside another screen (the Social tab). Module-level so it never remounts. */
+function Frame({ embedded, children }: { embedded: boolean; children: ReactNode }) {
+  return embedded ? <>{children}</> : <Screen edges={['top']}>{children}</Screen>;
+}
+
 /** Global rankings — today's Daily, this week's XP, or all time. Degrades to a friendly notice offline. */
-export function LeaderboardScreen() {
+export function LeaderboardScreen({ embedded = false }: { embedded?: boolean } = {}) {
   const { uid } = useAuth();
   const { state, setDisplayName } = useProgression();
   const colors = useThemeColors();
@@ -483,7 +488,7 @@ export function LeaderboardScreen() {
 
   if (!isFirebaseConfigured) {
     return (
-      <Screen edges={['top']}>
+      <Frame embedded={embedded}>
         <Backdrop>
           <View className="flex-1 items-center justify-center px-5">
             <Text className="mb-2 text-center text-3xl font-extrabold text-ink-primary">
@@ -495,14 +500,14 @@ export function LeaderboardScreen() {
             </Text>
           </View>
         </Backdrop>
-      </Screen>
+      </Frame>
     );
   }
 
   return (
     // Top edge only: the tab bar already owns the bottom inset, and a second
     // bottom inset here chopped the backdrop artwork off short of the bar.
-    <Screen edges={['top']}>
+    <Frame embedded={embedded}>
       <Backdrop>
         <FlatList
           data={loading ? [] : listEntries}
@@ -558,6 +563,6 @@ export function LeaderboardScreen() {
           onClose={() => setEditingName(false)}
         />
       </Backdrop>
-    </Screen>
+    </Frame>
   );
 }
