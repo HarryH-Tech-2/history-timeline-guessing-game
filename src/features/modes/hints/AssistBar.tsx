@@ -21,8 +21,8 @@ interface AssistBarProps {
   onChoose: (year: number) => void;
 }
 
-/** A coin-priced helper chip: glyph and name, with the price in a small
- * badge on the right (a tick once it has been used this round). */
+/** A small coin-priced helper pill, sized to its content: glyph, name and
+ * price (a tick once it has been used this round). */
 function AssistButton({
   glyph,
   label,
@@ -50,29 +50,23 @@ function AssistButton({
       accessibilityState={{ disabled: inactive }}
       testID={testID}
       className={cn(
-        'h-12 flex-1 flex-row items-center justify-between rounded-xl border px-3.5 active:opacity-70',
+        'h-10 flex-row items-center gap-1.5 rounded-full border px-4 active:opacity-70',
         used ? 'border-hair bg-bg-overlay' : 'border-accent/35 bg-accent/5',
       )}
       style={{ opacity: disabled && !used ? 0.45 : 1 }}
     >
-      <View className="flex-row items-center gap-2">
-        <Text className="text-base" style={{ includeFontPadding: false }}>
-          {glyph}
-        </Text>
-        <Text
-          className={cn('text-sm font-bold', used ? 'text-ink-muted' : 'text-ink-primary')}
-          numberOfLines={1}
-        >
-          {label}
-        </Text>
-      </View>
-      <View
-        className={cn('rounded-full px-2.5 py-1', used ? 'bg-transparent' : 'bg-bg-raised')}
+      <Text className="text-sm" style={{ includeFontPadding: false }}>
+        {glyph}
+      </Text>
+      <Text
+        className={cn('text-sm font-bold', used ? 'text-ink-muted' : 'text-ink-primary')}
+        numberOfLines={1}
       >
-        <Text className="text-xs font-bold text-ink-secondary" numberOfLines={1}>
-          {used ? '✓ Used' : price}
-        </Text>
-      </View>
+        {label}
+      </Text>
+      <Text className="text-xs font-semibold text-ink-muted" numberOfLines={1}>
+        {used ? '· ✓ Used' : `· ${price}`}
+      </Text>
     </Pressable>
   );
 }
@@ -160,7 +154,7 @@ export function AssistBar({ question, onSubmit, onChoose }: AssistBarProps) {
         </Animated.View>
       )}
 
-      <View className="flex-row gap-3" testID="assist-row">
+      <View className="flex-row justify-center gap-3" testID="assist-row">
         <AssistButton
           glyph="💡"
           label="Hint"
