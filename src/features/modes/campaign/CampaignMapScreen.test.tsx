@@ -10,7 +10,7 @@ import {
 import { useSaves } from '@/features/save';
 
 import type { CampaignProgress } from '../persistence';
-import { CAMPAIGN } from './campaignMap';
+import { allStagesIncludingRoutes, CAMPAIGN, worldStages } from './campaignMap';
 
 const mockPush = jest.fn();
 jest.mock('expo-router', () => ({
@@ -34,6 +34,7 @@ const ancient = CAMPAIGN[0]!;
 /** The sticky bar hides itself from accessibility while the era's banner shows. */
 const HIDDEN = { includeHiddenElements: true };
 const medieval = CAMPAIGN[1]!;
+const ancientAll = worldStages(ancient).map((s) => s.id);
 
 async function seed(progress: CampaignProgress) {
   const saves = renderHook(useSaves).result.current;
@@ -52,7 +53,7 @@ describe('CampaignMapScreen', () => {
   afterEach(() => seed({}));
 
   it('crowns the Middle Ages onward for free players and routes them to the paywall', async () => {
-    await seed(cleared(ancient.stages.map((s) => s.id)));
+    await seed(cleared(ancientAll));
     render(<CampaignMapScreen />);
     await waitFor(() => expect(screen.getAllByTestId('era-premium').length).toBeGreaterThan(0));
     expect(screen.getAllByTestId('era-premium')).toHaveLength(CAMPAIGN.length - 1);
@@ -65,7 +66,7 @@ describe('CampaignMapScreen', () => {
 
   it('lets Premium players straight into the Middle Ages', async () => {
     mockPremium = true;
-    await seed(cleared(ancient.stages.map((s) => s.id)));
+    await seed(cleared(ancientAll));
     render(<CampaignMapScreen />);
     await waitFor(() => expect(screen.getByTestId('era-complete')).toBeOnTheScreen());
     expect(screen.queryByTestId('era-premium')).toBeNull();
@@ -85,12 +86,12 @@ describe('CampaignMapScreen', () => {
   });
 
   it('marks a fully three-starred era as mastered and tallies the journey stars', async () => {
-    await seed(cleared(ancient.stages.map((s) => s.id), 3));
+    await seed(cleared(ancientAll, 3));
     render(<CampaignMapScreen />);
     await waitFor(() => expect(screen.getByTestId('era-mastered')).toBeOnTheScreen());
-    const total = CAMPAIGN.reduce((n, w) => n + w.stages.length, 0);
+    const total = allStagesIncludingRoutes().length;
     expect(screen.getByTestId('journey-stars', HIDDEN)).toHaveTextContent(
-      `★ ${ancient.stages.length * 3}/${total * 3}`,
+      `★ ${ancientAll.length * 3}/${total * 3}`,
     );
     const first = screen.getByTestId(`stage-${ancient.stages[0]!.id}`);
     expect(within(first).getByTestId('stage-face-mastered')).toBeOnTheScreen();
@@ -116,7 +117,7 @@ describe('CampaignMapScreen', () => {
     expect(screen.getByTestId(`era-backdrop-${ancient.id}`)).toBeOnTheScreen();
     expect(screen.queryByTestId(`era-backdrop-${medieval.id}`)).toBeNull();
     expect(screen.getByTestId('sticky-era-stars', HIDDEN)).toHaveTextContent(
-      `★ 0/${ancient.stages.length * 3}`,
+      `★ 0/${ancientAll.length * 3}`,
     );
     const first = screen.getByTestId(`stage-${ancient.stages[0]!.id}`);
     expect(within(first).getByTestId('stage-face-frontier')).toBeOnTheScreen();

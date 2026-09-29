@@ -262,60 +262,215 @@ export function starsForResults(results: readonly RoundResult[]): number {
   return 1;
 }
 
+function starsOf(progress: CampaignProgress, stageId: string): number {
+  return progress[stageId]?.stars ?? 0;
+}
+
+function isCleared(progress: CampaignProgress, stageId: string): boolean {
+  return starsOf(progress, stageId) >= 1;
+}
+
+/** Where a stage sits: its world and, for a route stage, its route. */
+function locate(
+  stageId: string,
+  worlds: readonly CampaignWorld[],
+): { world: CampaignWorld; stage: CampaignStage; route?: CampaignRoute } | undefined {
+  for (const world of worlds) {
+    const main = world.stages.find((s) => s.id === stageId);
+    if (main) return { world, stage: main };
+    for (const route of world.routes) {
+      const stage = route.stages.find((s) => s.id === stageId);
+      if (stage) return { world, stage, route };
+    }
+  }
+  return undefined;
+}
+
+/** The main stage after `stageId` on the main path, crossing eras. */
+function nextMainStage(stageId: string, worlds: readonly CampaignWorld[]): CampaignStage | undefined {
+  const main = allStages(worlds);
+  const i = main.findIndex((s) => s.id === stageId);
+  return i < 0 ? undefined : main[i + 1];
+}
+
+/** Routes that fork after `stageId`. */
+function routesAfter(stageId: string, worlds: readonly CampaignWorld[]): CampaignRoute[] {
+  return worlds.flatMap((w) => w.routes.filter((r) => r.afterStageId === stageId));
+}
+
+/** Where a route rejoins the main path: the main stage right after its fork. */
+export function rejoinStageOf(
+  route: CampaignRoute,
+  worlds: readonly CampaignWorld[] = CAMPAIGN,
+): CampaignStage | undefined {
+  return nextMainStage(route.afterStageId, worlds);
+}
+
 /**
- * A stage is playable if it's the very first stage, or the previous stage in
- * play order has earned at least one star. This naturally gates later eras
- * behind earlier ones.
+ * Whether a stage is playable:
+ *  1. it already has a star (protects every existing player, even past a fork);
+ *  2. it is the very first stage;
+ *  3. route stage 1 once its fork stage has a star; later route stages once the
+ *     previous route stage has one;
+ *  4. the main stage right after a fork once the last stage of EITHER route has one;
+ *  5. any other main stage once the previous main stage has one.
+ * This also gates later eras behind earlier ones. Unknown ids are locked.
  */
-export function isStageUnlocked(stageId: string, progress: CampaignProgress): boolean {
-  const stages = allStages();
-  const index = stages.findIndex((s) => s.id === stageId);
-  if (index <= 0) return index === 0; // first stage unlocked; unknown id locked
-  const previous = stages[index - 1]!;
-  return (progress[previous.id]?.stars ?? 0) >= 1;
+export function isStageUnlocked(
+  stageId: string,
+  progress: CampaignProgress,
+  worlds: readonly CampaignWorld[] = CAMPAIGN,
+): boolean {
+  const found = locate(stageId, worlds);
+  if (found === undefined) return false;
+  if (isCleared(progress, stageId)) return true;
+  if (found.route !== undefined) {
+    const i = found.stage.index - 1;
+    const previousId = i === 0 ? found.route.afterStageId : found.route.stages[i - 1]!.id;
+    return isCleared(progress, previousId);
+  }
+  const main = allStages(worlds);
+  const index = main.findIndex((s) => s.id === stageId);
+  if (index === 0) return true;
+  const previous = main[index - 1]!;
+  const fork = routesAfter(previous.id, worlds);
+  if (fork.length > 0) {
+    return fork.some((route) => isCleared(progress, route.stages.at(-1)!.id));
+  }
+  return isCleared(progress, previous.id);
 }
 
 /** Eras playable without Premium, counted from the start of the campaign. */
 export const FREE_ERA_COUNT = 1;
 
 /** Every era after the free ones (the Middle Ages onward) needs Premium. */
-export function isWorldPremium(worldId: string): boolean {
-  const world = getWorld(worldId);
+export function isWorldPremium(worldId: string, worlds: readonly CampaignWorld[] = CAMPAIGN): boolean {
+  const world = getWorld(worldId, worlds);
   return world !== undefined && world.index > FREE_ERA_COUNT;
 }
 
-export function isStagePremium(stage: CampaignStage): boolean {
-  return isWorldPremium(stage.worldId);
+/** Route stages are priced like their era. */
+export function isStagePremium(
+  stage: CampaignStage,
+  worlds: readonly CampaignWorld[] = CAMPAIGN,
+): boolean {
+  return isWorldPremium(stage.worldId, worlds);
 }
 
-/** The stage after `stageId` in play order, crossing into the next era; null at the end. */
-export function nextStage(stageId: string): CampaignStage | null {
-  const stages = allStages();
-  const index = stages.findIndex((s) => s.id === stageId);
-  if (index < 0) return null;
-  return stages[index + 1] ?? null;
+/** What follows a stage: another stage, a fork for the player to choose at, or the end. */
+export type NextStep =
+  | { kind: 'stage'; stage: CampaignStage }
+  | { kind: 'fork'; forkStageId: string }
+  | { kind: 'end' };
+
+/**
+ * The step after `stageId`: within a route the next route stage, after a
+ * route's last stage its rejoin stage, at a fork stage the fork itself (the
+ * player picks a route on the map), otherwise the next main stage.
+ */
+export function nextStage(stageId: string, worlds: readonly CampaignWorld[] = CAMPAIGN): NextStep {
+  const found = locate(stageId, worlds);
+  if (found === undefined) return { kind: 'end' };
+  if (found.route !== undefined) {
+    const following = found.route.stages[found.stage.index];
+    if (following !== undefined) return { kind: 'stage', stage: following };
+    const rejoin = rejoinStageOf(found.route, worlds);
+    return rejoin === undefined ? { kind: 'end' } : { kind: 'stage', stage: rejoin };
+  }
+  if (routesAfter(stageId, worlds).length > 0) return { kind: 'fork', forkStageId: stageId };
+  const next = nextMainStage(stageId, worlds);
+  return next === undefined ? { kind: 'end' } : { kind: 'stage', stage: next };
 }
 
 export interface EraStatus {
-  /** Stages with at least one star. */
+  /** Stages with at least one star, route stages included. */
   cleared: number;
+  /** Every stage of the era, route stages included. */
   total: number;
-  /** Every stage cleared. */
+  /** Every main stage and every stage of at least one route cleared. */
   complete: boolean;
-  /** Every stage at three stars. */
+  /** Every stage (main and both routes) at three stars. */
   mastered: boolean;
 }
 
 export function eraStatus(world: CampaignWorld, progress: CampaignProgress): EraStatus {
-  const stars = world.stages.map((s) => progress[s.id]?.stars ?? 0);
-  const cleared = stars.filter((n) => n >= 1).length;
-  const total = world.stages.length;
+  const all = worldStages(world);
+  const cleared = all.filter((s) => isCleared(progress, s.id)).length;
+  const total = all.length;
+  const mainDone = world.stages.every((s) => isCleared(progress, s.id));
+  const routeDone =
+    world.routes.length === 0 ||
+    world.routes.some((r) => r.stages.every((s) => isCleared(progress, s.id)));
   return {
     cleared,
     total,
-    complete: total > 0 && cleared === total,
-    mastered: total > 0 && stars.every((n) => n >= 3),
+    complete: total > 0 && mainDone && routeDone,
+    mastered: total > 0 && all.every((s) => starsOf(progress, s.id) >= 3),
   };
+}
+
+/** Stars earned across some stages. */
+export function starsEarned(stages: readonly CampaignStage[], progress: CampaignProgress): number {
+  return stages.reduce((n, s) => n + starsOf(progress, s.id), 0);
+}
+
+/**
+ * Route stages the frontier passes over: every route of a settled fork (one
+ * route finished, or the player already past the rejoin stage — e.g. from
+ * before forks existed), and the unchosen route once the player has starred a
+ * stage of the other.
+ */
+function passedRouteStageIds(
+  progress: CampaignProgress,
+  worlds: readonly CampaignWorld[],
+): ReadonlySet<string> {
+  const skip = new Set<string>();
+  for (const world of worlds) {
+    const [first] = world.routes;
+    if (first === undefined) continue;
+    const rejoin = rejoinStageOf(first, worlds);
+    const settled =
+      world.routes.some((r) => r.stages.every((s) => isCleared(progress, s.id))) ||
+      (rejoin !== undefined && isCleared(progress, rejoin.id));
+    const chosen = world.routes.find((r) => r.stages.some((s) => isCleared(progress, s.id)));
+    for (const route of world.routes) {
+      if (settled || (chosen !== undefined && route !== chosen)) {
+        for (const s of route.stages) skip.add(s.id);
+      }
+    }
+  }
+  return skip;
+}
+
+/** The next stage to play: the first unlocked, unstarred stage in play order the frontier hasn't passed. */
+export function frontierStage(
+  progress: CampaignProgress,
+  worlds: readonly CampaignWorld[] = CAMPAIGN,
+): CampaignStage | undefined {
+  const passed = passedRouteStageIds(progress, worlds);
+  return allStagesIncludingRoutes(worlds).find(
+    (s) => !passed.has(s.id) && !isCleared(progress, s.id) && isStageUnlocked(s.id, progress, worlds),
+  );
+}
+
+/** Stages wearing the frontier pulse: the frontier, plus the other route's opener at a fresh fork. */
+export function pulseStageIds(
+  progress: CampaignProgress,
+  worlds: readonly CampaignWorld[] = CAMPAIGN,
+): ReadonlySet<string> {
+  const frontier = frontierStage(progress, worlds);
+  const ids = new Set<string>();
+  if (frontier === undefined) return ids;
+  ids.add(frontier.id);
+  if (frontier.routeId !== undefined && frontier.index === 1) {
+    for (const route of getWorld(frontier.worldId, worlds)?.routes ?? []) {
+      const opener = route.stages[0];
+      if (opener !== undefined && !isCleared(progress, opener.id) && isStageUnlocked(opener.id, progress, worlds)) {
+        ids.add(opener.id);
+      }
+    }
+  }
+  return ids;
 }
 
 export interface ProgressDelta {
@@ -326,14 +481,16 @@ export interface ProgressDelta {
 }
 
 /** What changed on the map between two progress snapshots — drives the light-up sequence. */
-export function progressSince(before: CampaignProgress, after: CampaignProgress): ProgressDelta {
+export function progressSince(
+  before: CampaignProgress,
+  after: CampaignProgress,
+  worlds: readonly CampaignWorld[] = CAMPAIGN,
+): ProgressDelta {
   const cleared: string[] = [];
   const unlocked: string[] = [];
-  for (const stage of allStages()) {
-    if ((before[stage.id]?.stars ?? 0) === 0 && (after[stage.id]?.stars ?? 0) >= 1) {
-      cleared.push(stage.id);
-    }
-    if (!isStageUnlocked(stage.id, before) && isStageUnlocked(stage.id, after)) {
+  for (const stage of allStagesIncludingRoutes(worlds)) {
+    if (!isCleared(before, stage.id) && isCleared(after, stage.id)) cleared.push(stage.id);
+    if (!isStageUnlocked(stage.id, before, worlds) && isStageUnlocked(stage.id, after, worlds)) {
       unlocked.push(stage.id);
     }
   }

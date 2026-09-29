@@ -17,13 +17,16 @@ import { useSaves } from '@/features/save';
 import type { CampaignProgress } from '../persistence';
 import {
   allStages,
+  allStagesIncludingRoutes,
   CAMPAIGN,
   eraStatus,
+  frontierStage,
   isStagePremium,
-  isStageUnlocked,
   isWorldPremium,
   progressSince,
+  starsEarned,
   type CampaignStage,
+  worldStages,
 } from './campaignMap';
 import { SEQUENCE_DELAY_MS, stageCentreY, STICKY_BAR_SPACE } from './map/constants';
 import { EraBackdrop } from './map/EraBackdrop';
@@ -43,17 +46,6 @@ import { StickyEraBar } from './map/StickyEraBar';
 
 /** Space under the last era so its final stage sits well clear of the tab bar. */
 const BOTTOM_PAD = 64;
-
-function starsIn(stages: readonly CampaignStage[], progress: CampaignProgress): number {
-  return stages.reduce((n, s) => n + (progress[s.id]?.stars ?? 0), 0);
-}
-
-/** The next stage to play: the first unlocked one without a star. */
-function frontierOf(progress: CampaignProgress): CampaignStage | undefined {
-  return allStages().find(
-    (s) => isStageUnlocked(s.id, progress) && (progress[s.id]?.stars ?? 0) === 0,
-  );
-}
 
 /**
  * The campaign map (the Campaign tab): a winding trail of era worlds, gated by
@@ -85,7 +77,7 @@ export function CampaignMapScreen() {
   const scrollY = useRef(0);
 
   const stages = allStages();
-  const frontierId = frontierOf(progress)?.id;
+  const frontierId = frontierStage(progress)?.id;
   /** Global play-order position of each stage, for a continuous trail phase. */
   const orderOf = new Map(stages.map((s, i) => [s.id, i]));
 
@@ -126,7 +118,7 @@ export function CampaignMapScreen() {
   const tryScroll = useCallback(() => {
     const target = pendingScroll.current;
     if (target === null) return;
-    const stage = allStages().find((s) => s.id === target.stageId);
+    const stage = allStagesIncludingRoutes().find((s) => s.id === target.stageId);
     if (!stage) return;
     const wrapper = eraY.current.get(stage.worldId);
     const trail = trailY.current.get(stage.worldId);
@@ -155,7 +147,7 @@ export function CampaignMapScreen() {
         const previous = seen.current?.store === campaign ? seen.current.progress : null;
         seen.current = { store: campaign, progress: p };
         setProgress(p);
-        const next = frontierOf(p);
+        const next = frontierStage(p);
         if (previous === null) {
           // First visit: open on the stage to play, without fanfare.
           if (next) pendingScroll.current = { stageId: next.id, animated: false };
@@ -233,8 +225,8 @@ export function CampaignMapScreen() {
                   <EraBanner
                     world={world}
                     status={eraStatus(world, progress)}
-                    earned={starsIn(world.stages, progress)}
-                    total={world.stages.length * 3}
+                    earned={starsEarned(worldStages(world), progress)}
+                    total={worldStages(world).length * 3}
                     premiumLocked={premiumLocked}
                     shimmerToken={opened ? celebration.token : undefined}
                   />
@@ -261,10 +253,10 @@ export function CampaignMapScreen() {
         {viewWorld !== undefined && (
           <StickyEraBar
             world={viewWorld}
-            earned={starsIn(viewWorld.stages, progress)}
-            total={viewWorld.stages.length * 3}
-            journeyEarned={starsIn(stages, progress)}
-            journeyTotal={stages.length * 3}
+            earned={starsEarned(worldStages(viewWorld), progress)}
+            total={worldStages(viewWorld).length * 3}
+            journeyEarned={starsEarned(allStagesIncludingRoutes(), progress)}
+            journeyTotal={allStagesIncludingRoutes().length * 3}
             visible={barVisible}
           />
         )}

@@ -8,6 +8,10 @@ import {
   allStagesIncludingRoutes,
   buildCampaign,
   forkAfterIndex,
+  frontierStage,
+  pulseStageIds,
+  rejoinStageOf,
+  starsEarned,
   getRoute,
   getStage,
   worldStages,
@@ -106,64 +110,6 @@ describe('campaign premium gating', () => {
   });
 });
 
-describe('nextStage', () => {
-  it('walks play order across era boundaries and ends after the last stage', () => {
-    const stages = allStages();
-    expect(nextStage(stages[0]!.id)?.id).toBe(stages[1]!.id);
-    const lastAncient = CAMPAIGN[0]!.stages.at(-1)!;
-    expect(nextStage(lastAncient.id)?.id).toBe(CAMPAIGN[1]!.stages[0]!.id);
-    expect(nextStage(stages.at(-1)!.id)).toBeNull();
-    expect(nextStage('nope')).toBeNull();
-  });
-});
-
-describe('eraStatus', () => {
-  const ancient = CAMPAIGN[0]!;
-
-  it('counts cleared stages and flags a fully cleared era', () => {
-    const some: CampaignProgress = { [ancient.stages[0]!.id]: { stars: 2, bestScore: 1 } };
-    expect(eraStatus(ancient, some)).toEqual({
-      cleared: 1,
-      total: ancient.stages.length,
-      complete: false,
-      mastered: false,
-    });
-    const all: CampaignProgress = Object.fromEntries(
-      ancient.stages.map((s) => [s.id, { stars: 2, bestScore: 1 }]),
-    );
-    expect(eraStatus(ancient, all)).toMatchObject({ complete: true, mastered: false });
-  });
-
-  it('calls an era mastered only at three stars everywhere', () => {
-    const all: CampaignProgress = Object.fromEntries(
-      ancient.stages.map((s) => [s.id, { stars: 3, bestScore: 1 }]),
-    );
-    expect(eraStatus(ancient, all)).toMatchObject({ complete: true, mastered: true });
-  });
-});
-
-describe('progressSince', () => {
-  const [s1, s2, s3] = allStages();
-
-  it('reports stages cleared and unlocked since the last snapshot, in play order', () => {
-    const before: CampaignProgress = { [s1!.id]: { stars: 1, bestScore: 1 } };
-    const after: CampaignProgress = {
-      [s1!.id]: { stars: 1, bestScore: 1 },
-      [s2!.id]: { stars: 2, bestScore: 1 },
-    };
-    expect(progressSince(before, after)).toEqual({
-      cleared: [s2!.id],
-      unlocked: [s3!.id],
-    });
-  });
-
-  it('ignores star upgrades on stages that were already cleared', () => {
-    const before: CampaignProgress = { [s1!.id]: { stars: 1, bestScore: 1 } };
-    const after: CampaignProgress = { [s1!.id]: { stars: 3, bestScore: 9 } };
-    expect(progressSince(before, after)).toEqual({ cleared: [], unlocked: [] });
-  });
-});
-
 describe('routes data model', () => {
   const [ancient, medieval] = FIXTURE_WORLDS;
 
@@ -225,5 +171,181 @@ describe('routes data model', () => {
     expect(getRoute(stage!, FIXTURE_WORLDS)?.name).toBe('East Road');
     expect(getRoute(getStage('ancient', 'ancient-s1', FIXTURE_WORLDS)!, FIXTURE_WORLDS)).toBeUndefined();
     expect(getStage('ancient', 'medieval-east-s1', FIXTURE_WORLDS)).toBeUndefined();
+  });
+});
+
+function starred(ids: readonly string[], stars = 1): CampaignProgress {
+  return Object.fromEntries(ids.map((id) => [id, { stars, bestScore: 100 }]));
+}
+
+const W = FIXTURE_WORLDS;
+const north = ['ancient-north-s1', 'ancient-north-s2', 'ancient-north-s3'];
+const south = ['ancient-south-s1', 'ancient-south-s2', 'ancient-south-s3'];
+const ancientMain = ['ancient-s1', 'ancient-s2', 'ancient-s3', 'ancient-s4', 'ancient-s5', 'ancient-s6'];
+
+describe('route unlocking', () => {
+  it('opens both routes once the fork stage has a star, and keeps the rejoin shut', () => {
+    const atFork = starred(['ancient-s1', 'ancient-s2']);
+    expect(isStageUnlocked('ancient-north-s1', {}, W)).toBe(false);
+    expect(isStageUnlocked('ancient-north-s1', atFork, W)).toBe(true);
+    expect(isStageUnlocked('ancient-south-s1', atFork, W)).toBe(true);
+    expect(isStageUnlocked('ancient-north-s2', atFork, W)).toBe(false);
+    expect(isStageUnlocked('ancient-s3', atFork, W)).toBe(false);
+  });
+
+  it('walks a route one starred stage at a time', () => {
+    const p = starred(['ancient-s1', 'ancient-s2', 'ancient-north-s1']);
+    expect(isStageUnlocked('ancient-north-s2', p, W)).toBe(true);
+    expect(isStageUnlocked('ancient-north-s3', p, W)).toBe(false);
+  });
+
+  it('rejoins the main path after the last stage of either route', () => {
+    expect(isStageUnlocked('ancient-s3', starred(['ancient-s1', 'ancient-s2', ...north]), W)).toBe(true);
+    expect(isStageUnlocked('ancient-s3', starred(['ancient-s1', 'ancient-s2', ...south]), W)).toBe(true);
+    expect(isStageUnlocked('ancient-s3', starred(['ancient-s1', 'ancient-s2', ...north.slice(0, 2)]), W)).toBe(false);
+    // A one-stage route: its only stage is its last.
+    expect(isStageUnlocked('medieval-s2', starred(['medieval-s1', 'medieval-east-s1']), W)).toBe(true);
+  });
+
+  it('keeps every stage a legacy player already starred, past the fork included', () => {
+    const legacy = starred(ancientMain);
+    for (const id of ancientMain) expect(isStageUnlocked(id, legacy, W)).toBe(true);
+    expect(isStageUnlocked('medieval-s1', legacy, W)).toBe(true);
+    expect(isStageUnlocked('ancient-north-s1', legacy, W)).toBe(true);
+    // Rule 1 on its own: a starred stage is open even if its predecessor is not.
+    expect(isStageUnlocked('ancient-s5', starred(['ancient-s5']), W)).toBe(true);
+  });
+
+  it('keeps the real campaign fully unlocked for a player with stars everywhere', () => {
+    const all = starred(allStagesIncludingRoutes().map((s) => s.id));
+    for (const s of allStagesIncludingRoutes()) expect(isStageUnlocked(s.id, all)).toBe(true);
+  });
+
+  it('prices route stages like their era', () => {
+    expect(isStagePremium(getStage('ancient', 'ancient-north-s1', W)!, W)).toBe(false);
+    expect(isStagePremium(getStage('medieval', 'medieval-east-s1', W)!, W)).toBe(true);
+  });
+});
+
+describe('nextStage', () => {
+  it('walks the main path across eras and ends after the last stage', () => {
+    const stages = allStages();
+    expect(nextStage(stages[0]!.id)).toEqual({ kind: 'stage', stage: stages[1] });
+    const lastAncient = CAMPAIGN[0]!.stages.at(-1)!;
+    expect(nextStage(lastAncient.id)).toEqual({ kind: 'stage', stage: CAMPAIGN[1]!.stages[0] });
+    expect(nextStage(stages.at(-1)!.id)).toEqual({ kind: 'end' });
+    expect(nextStage('nope')).toEqual({ kind: 'end' });
+  });
+
+  it('stops at a fork, walks a route, and rejoins after its last stage', () => {
+    const at = (id: string) => nextStage(id, W);
+    expect(at('ancient-s1')).toEqual({ kind: 'stage', stage: getStage('ancient', 'ancient-s2', W) });
+    expect(at('ancient-s2')).toEqual({ kind: 'fork', forkStageId: 'ancient-s2' });
+    expect(at('ancient-north-s1')).toEqual({ kind: 'stage', stage: getStage('ancient', 'ancient-north-s2', W) });
+    expect(at('ancient-north-s3')).toEqual({ kind: 'stage', stage: getStage('ancient', 'ancient-s3', W) });
+    expect(at('ancient-south-s3')).toEqual({ kind: 'stage', stage: getStage('ancient', 'ancient-s3', W) });
+    expect(at('ancient-s6')).toEqual({ kind: 'stage', stage: getStage('medieval', 'medieval-s1', W) });
+    expect(at('medieval-s1')).toEqual({ kind: 'fork', forkStageId: 'medieval-s1' });
+    expect(at('medieval-east-s1')).toEqual({ kind: 'stage', stage: getStage('medieval', 'medieval-s2', W) });
+    expect(at('medieval-s2')).toEqual({ kind: 'end' });
+    expect(rejoinStageOf(W[0]!.routes[0]!, W)?.id).toBe('ancient-s3');
+  });
+});
+
+describe('eraStatus', () => {
+  const ancient = W[0]!;
+
+  it('counts route stages in the tally', () => {
+    expect(eraStatus(ancient, starred(['ancient-s1'], 2))).toEqual({
+      cleared: 1,
+      total: 12,
+      complete: false,
+      mastered: false,
+    });
+  });
+
+  it('is complete with the main path and one whole route', () => {
+    expect(eraStatus(ancient, starred(ancientMain, 2)).complete).toBe(false);
+    expect(eraStatus(ancient, starred([...ancientMain, ...north.slice(0, 2)], 2)).complete).toBe(false);
+    expect(eraStatus(ancient, starred([...ancientMain, ...south], 2))).toMatchObject({
+      cleared: 9,
+      complete: true,
+      mastered: false,
+    });
+  });
+
+  it('is mastered only at three stars on every stage of both routes', () => {
+    expect(eraStatus(ancient, starred([...ancientMain, ...north], 3)).mastered).toBe(false);
+    expect(eraStatus(ancient, starred([...ancientMain, ...north, ...south], 3))).toMatchObject({
+      complete: true,
+      mastered: true,
+    });
+  });
+
+  it('keeps the old rule for an era without routes', () => {
+    const [plain] = buildCampaign(FIXTURE_POOL, [], FIXTURE_ROUTE_SPECS);
+    expect(eraStatus(plain!, starred(ancientMain, 3))).toMatchObject({ complete: true, mastered: true });
+  });
+
+  it('sums stars over any stages', () => {
+    expect(starsEarned(worldStages(ancient), { 'ancient-s1': { stars: 2, bestScore: 1 }, 'ancient-north-s1': { stars: 3, bestScore: 1 } })).toBe(5);
+  });
+});
+
+describe('frontierStage', () => {
+  const at = (ids: readonly string[]) => frontierStage(starred(ids), W)?.id;
+
+  it('starts at the first stage and leads into route A at a fresh fork', () => {
+    expect(at([])).toBe('ancient-s1');
+    expect(at(['ancient-s1', 'ancient-s2'])).toBe('ancient-north-s1');
+    expect([...pulseStageIds(starred(['ancient-s1', 'ancient-s2']), W)]).toEqual([
+      'ancient-north-s1',
+      'ancient-south-s1',
+    ]);
+  });
+
+  it('follows the route the player chose', () => {
+    expect(at(['ancient-s1', 'ancient-s2', 'ancient-south-s1'])).toBe('ancient-south-s2');
+    expect([...pulseStageIds(starred(['ancient-s1', 'ancient-s2', 'ancient-south-s1']), W)]).toEqual([
+      'ancient-south-s2',
+    ]);
+  });
+
+  it('moves on to the rejoin once a route is finished, leaving the other open', () => {
+    const p = ['ancient-s1', 'ancient-s2', ...north];
+    expect(at(p)).toBe('ancient-s3');
+    expect(isStageUnlocked('ancient-south-s1', starred(p), W)).toBe(true);
+  });
+
+  it('never drags a legacy player back to a fork they are already past', () => {
+    expect(at(ancientMain)).toBe('medieval-s1');
+    expect(at(['ancient-s1', 'ancient-s2', 'ancient-s3'])).toBe('ancient-s4');
+  });
+
+  it('is undefined once everything is starred', () => {
+    expect(at(allStagesIncludingRoutes(W).map((s) => s.id))).toBeUndefined();
+    expect(pulseStageIds(starred(allStagesIncludingRoutes(W).map((s) => s.id)), W).size).toBe(0);
+  });
+});
+
+describe('progressSince', () => {
+  it('reports stages cleared and unlocked, route stages included, in play order', () => {
+    const before = starred(['ancient-s1']);
+    const after = starred(['ancient-s1', 'ancient-s2']);
+    expect(progressSince(before, after, W)).toEqual({
+      cleared: ['ancient-s2'],
+      unlocked: ['ancient-north-s1', 'ancient-south-s1'],
+    });
+    expect(progressSince(starred(['ancient-s1', 'ancient-s2', ...north.slice(0, 2)]), starred(['ancient-s1', 'ancient-s2', ...north]), W)).toEqual({
+      cleared: ['ancient-north-s3'],
+      unlocked: ['ancient-s3'],
+    });
+  });
+
+  it('ignores star upgrades on stages that were already cleared', () => {
+    expect(progressSince(starred(['ancient-s1']), starred(['ancient-s1'], 3), W)).toEqual({
+      cleared: [],
+      unlocked: [],
+    });
   });
 });
