@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import { Text, View } from 'react-native';
 import Animated, {
   cancelAnimation,
@@ -8,6 +8,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
 import type { CampaignWorld } from '../campaignMap';
 import { eraNumeral } from './constants';
@@ -41,6 +42,10 @@ export function StickyEraBar({
 }) {
   const ink = inkOn(world.colour);
   const reducedMotion = useReducedMotion();
+  // Absolute children ignore the SafeAreaView's padding, so the status-bar
+  // inset is added here or the bar slides up under the clock and icons.
+  // (Read from context with a 0 fallback so it also renders without a provider.)
+  const safeTop = useContext(SafeAreaInsetsContext)?.top ?? 0;
   const shown = useSharedValue(visible ? 1 : 0);
 
   useEffect(() => {
@@ -54,7 +59,7 @@ export function StickyEraBar({
   return (
     <Animated.View
       pointerEvents="none"
-      style={[fadeStyle, { position: 'absolute', top: 8, left: 16, right: 16 }]}
+      style={[fadeStyle, { position: 'absolute', top: safeTop + 8, left: 16, right: 16 }]}
       accessibilityElementsHidden={!visible}
       importantForAccessibility={visible ? 'auto' : 'no-hide-descendants'}
       testID="sticky-era-bar"
