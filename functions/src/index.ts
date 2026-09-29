@@ -18,6 +18,13 @@ import { logger } from 'firebase-functions/v2';
 import { decideLink, type LinkAction } from './link';
 
 export { refreshHouseBoards } from './houseBoards';
+export {
+  createChallenge,
+  createGroup,
+  joinGroup,
+  leaveGroup,
+  submitChallengeEntry,
+} from './social/handlers';
 
 initializeApp();
 

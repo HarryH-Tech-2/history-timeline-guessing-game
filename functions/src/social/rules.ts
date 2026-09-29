@@ -50,3 +50,29 @@ export function afterLeave(
   const ownerUid = group.ownerUid === uid ? memberUids[0]! : group.ownerUid;
   return { kind: 'update', ownerUid, memberUids };
 }
+
+export type EntryVerdict =
+  | { kind: 'ok'; guessYears: number[] }
+  | { kind: 'not-found' }
+  | { kind: 'expired' }
+  | { kind: 'already-entered' }
+  | { kind: 'invalid-guesses' };
+
+/**
+ * Whether this uid may submit an entry. Guesses are judged first so a bad
+ * payload is rejected the same way whatever the stored state. A challenge is
+ * open up to and including `expiresAt`.
+ */
+export function entryVerdict(input: {
+  challenge: { expiresAt: number } | undefined;
+  entryExists: boolean;
+  guessYears: unknown;
+  now: number;
+}): EntryVerdict {
+  const guessYears = validateGuessYears(input.guessYears);
+  if (!guessYears) return { kind: 'invalid-guesses' };
+  if (!input.challenge) return { kind: 'not-found' };
+  if (input.now > input.challenge.expiresAt) return { kind: 'expired' };
+  if (input.entryExists) return { kind: 'already-entered' };
+  return { kind: 'ok', guessYears };
+}
