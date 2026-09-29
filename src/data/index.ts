@@ -4,12 +4,14 @@ import { CategorySchema, QuestionSchema, type Category, type Question } from '@/
 import { pickDeterministic, seedFromString } from '@/utils/rng';
 
 import { CATEGORIES } from './categories';
-import { REGIONAL_EXPANSION } from './packs/regionalExpansion';
+import { CAMPAIGN_ROUTES } from './packs/campaignRoutes';
 import { QUESTIONS } from './questions';
 import { REGION_RUN_LENGTH, REGIONAL_CATEGORY_ID, regionById, REGIONS, type Region } from './regions';
+import { OUT_OF_ROTATION_IDS } from './rotation';
 import { TOPICS, type Topic } from './topics';
 
 export { QUESTION_IMAGES, imageForQuestion } from './questionImages';
+export { CAMPAIGN_ROUTE_SPECS, type CampaignRouteSpec } from './packs/campaignRoutes';
 
 /**
  * Validate the local seed at module load. Bad data fails loudly and early
@@ -149,18 +151,23 @@ export function getDailyQuestions(dateKey: string, count = 8): readonly Question
   );
 }
 
-/** Ids of packs that are played only in their own category. */
-const OUT_OF_ROTATION = new Set(REGIONAL_EXPANSION.map((q) => q.id));
-
 /**
  * Whether a question takes part in the shared, seeded modes (the Daily and the
- * campaign). The Regional expansion does not: the Daily is seeded over the
- * whole pool and the campaign slices it into stages, so adding questions there
- * would give old and new builds different Dailies on the same day and move
- * questions between stages players have already starred.
+ * campaign main path). The Regional expansion and the campaign route questions
+ * do not: the Daily is seeded over the whole pool and the campaign slices it
+ * into stages, so adding questions there would give old and new builds
+ * different Dailies on the same day and move questions between stages players
+ * have already starred.
  */
 export function isInRotation(question: Question): boolean {
-  return !OUT_OF_ROTATION.has(question.id);
+  return !OUT_OF_ROTATION_IDS.has(question.id);
+}
+
+const ROUTE_QUESTION_IDS = new Set(CAMPAIGN_ROUTES.map((q) => q.id));
+
+/** Whether a question belongs to a campaign route fork (by pack membership, not tag). */
+export function isCampaignRouteQuestion(question: Question): boolean {
+  return ROUTE_QUESTION_IDS.has(question.id);
 }
 
 /** Pick a random question, optionally excluding ids already seen this session. */

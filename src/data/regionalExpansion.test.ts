@@ -2,6 +2,7 @@ import { CAMPAIGN } from '@/features/modes/campaign/campaignMap';
 
 import { getDailyQuestions, getQuestions, getRegionalQuestions, isInRotation, REGIONS } from './index';
 import { imageForQuestion } from './questionImages';
+import { CAMPAIGN_ROUTES } from './packs/campaignRoutes';
 import { REGIONAL_EXPANSION } from './packs/regionalExpansion';
 
 const expansionIds = new Set(REGIONAL_EXPANSION.map((q) => q.id));
@@ -84,6 +85,8 @@ describe('Rotation (Daily and campaign) is unchanged by the expansion', () => {
   });
 
   it('keeps the original questions in rotation', () => {
-    expect(getQuestions().filter(isInRotation)).toHaveLength(getQuestions().length - 83);
+    expect(getQuestions().filter(isInRotation)).toHaveLength(
+      getQuestions().length - 83 - CAMPAIGN_ROUTES.length,
+    );
   });
 });
