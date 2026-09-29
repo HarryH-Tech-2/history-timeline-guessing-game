@@ -1,0 +1,18 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.harryhh.historydateguesser",
+      "sha256_cert_fingerprints": ["53:82:71:70:E3:AF:7B:C4:66:21:83:A9:3F:3C:AF:B9:B1:C7:16:FD:70:C2:C0:A1:47:EE:3D:B1:40:5D:19:94"]
+    }
+  },
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.harryhh.historydateguesser.dev",
+      "sha256_cert_fingerprints": ["5D:15:30:A8:97:40:0A:FD:6F:01:77:8D:A3:49:A2:D9:65:D0:25:D1:B9:7B:B7:51:4C:D5:7C:EF:58:64:33:45"]
+    }
+  }
+]

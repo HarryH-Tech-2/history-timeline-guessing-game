@@ -3,7 +3,18 @@
     "public": "web",
     "cleanUrls": true,
     "ignore": [
-      "**/.*"
+      "firebase.json",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/c/**",
+        "destination": "/c/index.html"
+      },
+      {
+        "source": "/g/**",
+        "destination": "/g/index.html"
+      }
     ]
   },
   "firestore": {
