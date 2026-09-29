@@ -19,6 +19,8 @@ const mockReminders = {
   enable: jest.fn(async () => true),
   disable: jest.fn(),
 };
+const mockPremium = { isPremium: false };
+jest.mock('@/features/premium/PremiumProvider', () => ({ usePremium: () => mockPremium }));
 jest.mock('@/features/reminders', () => ({ useReminders: () => mockReminders }));
 
 const { track } = jest.requireMock<typeof import('@/services/analytics')>('@/services/analytics');
@@ -28,6 +30,7 @@ describe('OnboardingScreen', () => {
     jest.mocked(track).mockClear();
     mockRouter.replace.mockClear();
     mockRouter.push.mockClear();
+    mockPremium.isPremium = false;
   });
   afterEach(() => onboardingStore.clear());
 
@@ -62,6 +65,54 @@ describe('OnboardingScreen', () => {
     await waitFor(() => expect(mockRouter.replace).toHaveBeenCalledWith('/(tabs)'));
     expect(mockRouter.push).toHaveBeenCalledWith('/daily');
     expect((await onboardingStore.read()).completedAt).toEqual(expect.any(Number));
+  });
+
+  /** Walk to the last step and finish it via Explore. */
+  async function finishViaExplore() {
+    render(<OnboardingScreen />);
+    fireEvent.press(screen.getByTestId('onboarding-next'));
+    fireEvent.press(screen.getByTestId('submit-button'));
+    fireEvent.press(screen.getByTestId('next-button'));
+    await waitFor(() => expect(screen.getByTestId('onboarding-reason-2')).toBeOnTheScreen());
+    fireEvent.press(screen.getByTestId('onboarding-next'));
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('onboarding-explore'));
+    });
+    await waitFor(() => expect(mockRouter.replace).toHaveBeenCalledWith('/(tabs)'));
+  }
+
+  const ONBOARDING_PAYWALL = { pathname: '/paywall', params: { source: 'onboarding' } };
+
+  it('offers Premium once at the end of onboarding to a free player', async () => {
+    await finishViaExplore();
+    expect(mockRouter.push).toHaveBeenCalledWith(ONBOARDING_PAYWALL);
+    expect(mockRouter.push).toHaveBeenCalledTimes(1);
+  });
+
+  it('puts the Premium offer on top of the Daily when that was the choice', async () => {
+    render(<OnboardingScreen />);
+    fireEvent.press(screen.getByTestId('onboarding-next'));
+    fireEvent.press(screen.getByTestId('submit-button'));
+    fireEvent.press(screen.getByTestId('next-button'));
+    await waitFor(() => expect(screen.getByTestId('onboarding-reason-2')).toBeOnTheScreen());
+    fireEvent.press(screen.getByTestId('onboarding-next'));
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('onboarding-play-daily'));
+    });
+    await waitFor(() => expect(mockRouter.push).toHaveBeenCalledWith(ONBOARDING_PAYWALL));
+    expect(mockRouter.push.mock.calls).toEqual([['/daily'], [ONBOARDING_PAYWALL]]);
+  });
+
+  it('sends a Premium player straight home', async () => {
+    mockPremium.isPremium = true;
+    await finishViaExplore();
+    expect(mockRouter.push).not.toHaveBeenCalled();
+  });
+
+  it('never offers it twice, even if the flow is run again', async () => {
+    await onboardingStore.write({ completedAt: 1 });
+    await finishViaExplore();
+    expect(mockRouter.push).not.toHaveBeenCalled();
   });
 
   it('records a skip with the step it happened on and goes home', async () => {

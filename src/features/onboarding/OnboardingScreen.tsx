@@ -4,9 +4,11 @@ import { useRouter } from 'expo-router';
 import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 
 import { Screen } from '@/components/ui';
+import { usePremium } from '@/features/premium/PremiumProvider';
+import { paywallHref } from '@/features/premium/paywallSource';
 import { track } from '@/services/analytics';
 
-import { completeOnboarding } from './onboardingStore';
+import { completeOnboarding, onboardingStore } from './onboardingStore';
 import { FirstGuessStep } from './steps/FirstGuessStep';
 import { SetupStep, type SetupOutcome } from './steps/SetupStep';
 import { WelcomeStep } from './steps/WelcomeStep';
@@ -41,6 +43,7 @@ function Dots({ step }: { step: number }) {
  */
 export function OnboardingScreen() {
   const router = useRouter();
+  const { isPremium } = usePremium();
   const [step, setStep] = useState(0);
 
   useEffect(() => {
@@ -48,17 +51,22 @@ export function OnboardingScreen() {
   }, [step]);
 
   const leave = useCallback(
-    async (destination: 'daily' | 'home') => {
+    async (destination: 'daily' | 'home', offerPremium: boolean) => {
+      // Guard on the device flag so the soft paywall can only ever show once.
+      const firstFinish = (await onboardingStore.read()).completedAt === null;
       await completeOnboarding();
       router.replace('/(tabs)');
       if (destination === 'daily') router.push('/daily');
+      // A finished (not skipped) flow ends on a soft Premium pitch, over
+      // wherever they chose to go; closing it lands them there.
+      if (offerPremium && firstFinish && !isPremium) router.push(paywallHref('onboarding'));
     },
-    [router],
+    [router, isPremium],
   );
 
   const skip = useCallback(() => {
     track('onboarding_skipped', { step: step + 1 });
-    void leave('home');
+    void leave('home', false);
   }, [leave, step]);
 
   const finish = useCallback(
@@ -68,7 +76,7 @@ export function OnboardingScreen() {
         named: outcome.named,
         reminders: outcome.reminders,
       });
-      void leave(outcome.choice === 'daily' ? 'daily' : 'home');
+      void leave(outcome.choice === 'daily' ? 'daily' : 'home', true);
     },
     [leave],
   );
