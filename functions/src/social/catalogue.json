@@ -1670,5 +1670,125 @@
  "rte-death-of-tiberius-gracchus": {
   "year": -133,
   "inRotation": false
+ },
+ "rte-saladin-retakes-jerusalem": {
+  "year": 1187,
+  "inRotation": false
+ },
+ "rte-templars-arrested": {
+  "year": 1307,
+  "inRotation": false
+ },
+ "rte-joan-of-arc-burned": {
+  "year": 1431,
+  "inRotation": false
+ },
+ "rte-fall-of-acre": {
+  "year": 1291,
+  "inRotation": false
+ },
+ "rte-black-prince-poitiers": {
+  "year": 1356,
+  "inRotation": false
+ },
+ "rte-las-navas-de-tolosa": {
+  "year": 1212,
+  "inRotation": false
+ },
+ "rte-battle-on-the-ice": {
+  "year": 1242,
+  "inRotation": false
+ },
+ "rte-battle-of-castillon": {
+  "year": 1453,
+  "inRotation": false
+ },
+ "rte-barbarossa-drowns": {
+  "year": 1190,
+  "inRotation": false
+ },
+ "rte-battle-of-sluys": {
+  "year": 1340,
+  "inRotation": false
+ },
+ "rte-battle-of-arsuf": {
+  "year": 1191,
+  "inRotation": false
+ },
+ "rte-battle-of-montgisard": {
+  "year": 1177,
+  "inRotation": false
+ },
+ "rte-siege-of-lisbon": {
+  "year": 1147,
+  "inRotation": false
+ },
+ "rte-krak-des-chevaliers-falls": {
+  "year": 1271,
+  "inRotation": false
+ },
+ "rte-battle-of-nicopolis": {
+  "year": 1396,
+  "inRotation": false
+ },
+ "rte-tang-dynasty-founded": {
+  "year": 618,
+  "inRotation": false
+ },
+ "rte-song-dynasty-founded": {
+  "year": 960,
+  "inRotation": false
+ },
+ "rte-ming-dynasty-founded": {
+  "year": 1368,
+  "inRotation": false
+ },
+ "rte-death-of-genghis-khan": {
+  "year": 1227,
+  "inRotation": false
+ },
+ "rte-kamikaze-destroys-mongol-fleet": {
+  "year": 1281,
+  "inRotation": false
+ },
+ "rte-yuan-dynasty-proclaimed": {
+  "year": 1271,
+  "inRotation": false
+ },
+ "rte-battle-of-legnica": {
+  "year": 1241,
+  "inRotation": false
+ },
+ "rte-diamond-sutra-printed": {
+  "year": 868,
+  "inRotation": false
+ },
+ "rte-timur-sacks-delhi": {
+  "year": 1398,
+  "inRotation": false
+ },
+ "rte-mongol-siege-of-kyiv": {
+  "year": 1240,
+  "inRotation": false
+ },
+ "rte-battle-of-yamen": {
+  "year": 1279,
+  "inRotation": false
+ },
+ "rte-battle-of-the-kalka": {
+  "year": 1223,
+  "inRotation": false
+ },
+ "rte-battle-of-chioggia": {
+  "year": 1380,
+  "inRotation": false
+ },
+ "rte-battle-of-the-zab": {
+  "year": 750,
+  "inRotation": false
+ },
+ "rte-treaty-of-stralsund": {
+  "year": 1370,
+  "inRotation": false
  }
 }

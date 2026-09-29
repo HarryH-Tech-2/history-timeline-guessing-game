@@ -79,6 +79,21 @@ const EVENT_OVERRIDES: Record<string, string> = {
     'a grand late Roman ceremony in a new city on the Bosporus, with a porphyry column topped by a gilded statue, a chariot-racing hippodrome, colonnaded forums and harbours full of galleys (no domed mosques, no minarets)',
   'rte-death-of-cleopatra':
     'the Egyptian queen Cleopatra lying on a golden couch in a Ptolemaic palace chamber with lotus columns, an asp in a basket of figs and grieving handmaidens, walls painted with plain colour bands and no hieroglyphs',
+  // Medieval routes (2026-09-29): first renders showed lettering, characters or anachronisms.
+  'rte-ming-dynasty-founded':
+    'the first Ming emperor in gold-and-red armour on horseback leading soldiers through the gate of a Chinese walled city at dawn, with plain red and yellow flags carrying only a dragon or plain colour, no characters or writing anywhere',
+  'rte-tang-dynasty-founded':
+    'a founding emperor in golden robes being enthroned on a raised dais in a Tang-style palace courtyard with officials bowing, plain coloured silk banners with no writing or symbols, no characters anywhere',
+  'rte-song-dynasty-founded':
+    'a general in yellow imperial robes being draped in a yellow cloak by cheering soldiers on a dirt road outside a Chinese city gate, plain coloured banners with no writing, no characters anywhere',
+  'rte-yuan-dynasty-proclaimed':
+    'Kublai Khan in Mongol-Chinese silk robes on a throne under a domed canopy in a Chinese palace courtyard as officials in Chinese and Mongol dress kneel, all banners and boards completely blank with no writing, no characters, no letters',
+  'rte-diamond-sutra-printed':
+    'a Tang-dynasty craftsman in a plain robe peeling a long blank paper sheet from a carved wooden printing block on a wooden workshop table, with ink pot, brush and rolled scrolls, all paper showing only blurry grey texture and no writing or characters',
+  'rte-battle-of-nicopolis':
+    'a medieval crusader cavalry charge of French and Hungarian knights in plate and mail uphill against Ottoman lines with wooden stakes, a Danube riverside stone fortress town in the background with plain roofs, no minarets and no domes',
+  'rte-treaty-of-stralsund':
+    'a medieval Danish king in a blue robe kneeling before Hanseatic merchants in dark furred gowns at a table with a blank parchment inside a red-brick Baltic port town hall courtyard, ships with plain unmarked flags in the harbour, no writing or signs anywhere',
 };
 
 /**
