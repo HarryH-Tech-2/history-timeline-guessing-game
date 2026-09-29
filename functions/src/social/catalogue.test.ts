@@ -14,3 +14,9 @@ test('keeps the Regional expansion out of the random pool', () => {
   assert.ok(pool.length > 200);
   assert.ok(!pool.includes('reg-edict-of-milan'));
 });
+
+test('keeps campaign route questions out of the random pool', () => {
+  assert.equal(yearOf('rte-battle-of-pydna'), -168);
+  assert.ok(!rotationPool().includes('rte-battle-of-pydna'));
+  assert.ok(!rotationPool().includes('rte-fall-of-nineveh'));
+});

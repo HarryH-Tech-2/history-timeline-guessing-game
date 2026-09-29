@@ -64,6 +64,21 @@ const EVENT_OVERRIDES: Record<string, string> = {
   // Airline livery lettering slipped through the no-text rule.
   'reg-khomeini-returns':
     'a plain unmarked white jumbo jet parked on an airport apron in Tehran with a huge welcoming crowd and the Azadi Tower in the background',
+  // Campaign routes (2026-09-29): first renders showed lettering or anachronisms.
+  'rte-siege-of-lachish':
+    'Assyrian soldiers with ladders, archers and a wooden battering ram on an earthen siege ramp against the stone walls of a hilltop Judean town, with no cannons or gunpowder',
+  'rte-death-of-julian':
+    'a late Roman emperor in a gilded helmet slumped on his horse beside a Mesopotamian riverbank with palm trees and Persian cavalry, all banners plain red without symbols',
+  'rte-great-fire-of-rome':
+    'ancient Rome ablaze at night around the long Circus Maximus, with flat-roofed brick Roman apartment blocks, marble temples on the Palatine Hill and citizens fleeing (no timber-framed houses)',
+  'rte-battle-of-the-milvian-bridge':
+    'Roman legions clashing on an old stone arch bridge over the river Tiber, soldiers falling into the water, with plain unmarked shields and plain purple banners',
+  'rte-council-of-nicaea':
+    'Roman emperor Constantine in purple robes seated among robed bishops on wooden benches in a columned late Roman hall, with plain walls and no mosaics, books or writing',
+  'rte-constantinople-inaugurated':
+    'a grand late Roman ceremony in a new city on the Bosporus, with a porphyry column topped by a gilded statue, a chariot-racing hippodrome, colonnaded forums and harbours full of galleys (no domed mosques, no minarets)',
+  'rte-death-of-cleopatra':
+    'the Egyptian queen Cleopatra lying on a golden couch in a Ptolemaic palace chamber with lotus columns, an asp in a basket of figs and grieving handmaidens, walls painted with plain colour bands and no hieroglyphs',
 };
 
 /**

@@ -1550,5 +1550,125 @@
  "reg-christchurch-earthquake": {
   "year": 2011,
   "inRotation": false
+ },
+ "rte-siege-of-tyre": {
+  "year": -332,
+  "inRotation": false
+ },
+ "rte-death-of-alexander": {
+  "year": -323,
+  "inRotation": false
+ },
+ "rte-battle-of-carrhae": {
+  "year": -53,
+  "inRotation": false
+ },
+ "rte-death-of-cleopatra": {
+  "year": -30,
+  "inRotation": false
+ },
+ "rte-destruction-of-second-temple": {
+  "year": 70,
+  "inRotation": false
+ },
+ "rte-fall-of-nineveh": {
+  "year": -612,
+  "inRotation": false
+ },
+ "rte-battle-of-pelusium": {
+  "year": -525,
+  "inRotation": false
+ },
+ "rte-burning-of-persepolis": {
+  "year": -330,
+  "inRotation": false
+ },
+ "rte-pompey-takes-jerusalem": {
+  "year": -63,
+  "inRotation": false
+ },
+ "rte-death-of-julian": {
+  "year": 363,
+  "inRotation": false
+ },
+ "rte-siege-of-lachish": {
+  "year": -701,
+  "inRotation": false
+ },
+ "rte-battle-of-megiddo-609": {
+  "year": -609,
+  "inRotation": false
+ },
+ "rte-battle-of-raphia": {
+  "year": -217,
+  "inRotation": false
+ },
+ "rte-battle-of-hormozdgan": {
+  "year": 224,
+  "inRotation": false
+ },
+ "rte-battle-of-emesa": {
+  "year": 272,
+  "inRotation": false
+ },
+ "rte-crossing-the-rubicon": {
+  "year": -49,
+  "inRotation": false
+ },
+ "rte-octavian-becomes-augustus": {
+  "year": -27,
+  "inRotation": false
+ },
+ "rte-great-fire-of-rome": {
+  "year": 64,
+  "inRotation": false
+ },
+ "rte-battle-of-the-milvian-bridge": {
+  "year": 312,
+  "inRotation": false
+ },
+ "rte-visigoths-sack-rome": {
+  "year": 410,
+  "inRotation": false
+ },
+ "rte-battle-of-chaeronea": {
+  "year": -338,
+  "inRotation": false
+ },
+ "rte-battle-of-issus": {
+  "year": -333,
+  "inRotation": false
+ },
+ "rte-council-of-nicaea": {
+  "year": 325,
+  "inRotation": false
+ },
+ "rte-constantinople-inaugurated": {
+  "year": 330,
+  "inRotation": false
+ },
+ "rte-battle-of-the-catalaunian-plains": {
+  "year": 451,
+  "inRotation": false
+ },
+ "rte-battle-of-leuctra": {
+  "year": -371,
+  "inRotation": false
+ },
+ "rte-battle-of-ipsus": {
+  "year": -301,
+  "inRotation": false
+ },
+ "rte-battle-of-cynoscephalae": {
+  "year": -197,
+  "inRotation": false
+ },
+ "rte-battle-of-pydna": {
+  "year": -168,
+  "inRotation": false
+ },
+ "rte-death-of-tiberius-gracchus": {
+  "year": -133,
+  "inRotation": false
  }
 }
