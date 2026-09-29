@@ -1790,5 +1790,125 @@
  "rte-treaty-of-stralsund": {
   "year": 1370,
   "inRotation": false
+ },
+ "rte-balboa-sights-pacific": {
+  "year": 1513,
+  "inRotation": false
+ },
+ "rte-magellan-enters-strait": {
+  "year": 1520,
+  "inRotation": false
+ },
+ "rte-st-augustine-founded": {
+  "year": 1565,
+  "inRotation": false
+ },
+ "rte-hudson-new-york-bay": {
+  "year": 1609,
+  "inRotation": false
+ },
+ "rte-cook-killed-hawaii": {
+  "year": 1779,
+  "inRotation": false
+ },
+ "rte-ponce-de-leon-florida": {
+  "year": 1513,
+  "inRotation": false
+ },
+ "rte-cartier-cross-gaspe": {
+  "year": 1534,
+  "inRotation": false
+ },
+ "rte-de-soto-mississippi": {
+  "year": 1541,
+  "inRotation": false
+ },
+ "rte-roggeveen-easter-island": {
+  "year": 1722,
+  "inRotation": false
+ },
+ "rte-la-salle-claims-louisiana": {
+  "year": 1682,
+  "inRotation": false
+ },
+ "rte-mendana-solomon-islands": {
+  "year": 1568,
+  "inRotation": false
+ },
+ "rte-orellana-amazon-mouth": {
+  "year": 1542,
+  "inRotation": false
+ },
+ "rte-bering-sights-alaska": {
+  "year": 1741,
+  "inRotation": false
+ },
+ "rte-cook-antarctic-circle": {
+  "year": 1773,
+  "inRotation": false
+ },
+ "rte-mackenzie-reaches-pacific": {
+  "year": 1793,
+  "inRotation": false
+ },
+ "rte-luther-diet-of-worms": {
+  "year": 1521,
+  "inRotation": false
+ },
+ "rte-copernicus-de-revolutionibus": {
+  "year": 1543,
+  "inRotation": false
+ },
+ "rte-st-bartholomews-day-massacre": {
+  "year": 1572,
+  "inRotation": false
+ },
+ "rte-galileo-sentenced": {
+  "year": 1633,
+  "inRotation": false
+ },
+ "rte-king-james-bible": {
+  "year": 1611,
+  "inRotation": false
+ },
+ "rte-act-of-supremacy": {
+  "year": 1534,
+  "inRotation": false
+ },
+ "rte-edict-of-nantes": {
+  "year": 1598,
+  "inRotation": false
+ },
+ "rte-peace-of-augsburg": {
+  "year": 1555,
+  "inRotation": false
+ },
+ "rte-sidereus-nuncius": {
+  "year": 1610,
+  "inRotation": false
+ },
+ "rte-sack-of-rome": {
+  "year": 1527,
+  "inRotation": false
+ },
+ "rte-council-of-trent-opens": {
+  "year": 1545,
+  "inRotation": false
+ },
+ "rte-vesalius-fabrica": {
+  "year": 1543,
+  "inRotation": false
+ },
+ "rte-harvey-de-motu-cordis": {
+  "year": 1628,
+  "inRotation": false
+ },
+ "rte-battle-of-white-mountain": {
+  "year": 1620,
+  "inRotation": false
+ },
+ "rte-giordano-bruno-burned": {
+  "year": 1600,
+  "inRotation": false
  }
 }

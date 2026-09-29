@@ -94,6 +94,17 @@ const EVENT_OVERRIDES: Record<string, string> = {
     'a medieval crusader cavalry charge of French and Hungarian knights in plate and mail uphill against Ottoman lines with wooden stakes, a Danube riverside stone fortress town in the background with plain roofs, no minarets and no domes',
   'rte-treaty-of-stralsund':
     'a medieval Danish king in a blue robe kneeling before Hanseatic merchants in dark furred gowns at a table with a blank parchment inside a red-brick Baltic port town hall courtyard, ships with plain unmarked flags in the harbour, no writing or signs anywhere',
+  // Early Modern routes (2026-09-29): first renders showed lettering or anachronistic flags.
+  'rte-cartier-cross-gaspe':
+    'the French explorer Jacques Cartier in a blue doublet and plumed hat raising a tall plain wooden cross on a rocky Gaspé shore with a few French sailors in 1500s dress and Indigenous Iroquoian men watching, a small plain blue shield with three golden fleurs-de-lis hanging on the cross, two carracks anchored in the bay, no writing, no letters, no tricolour flag anywhere',
+  'rte-copernicus-de-revolutionibus':
+    'Nicolaus Copernicus in a dark scholar robe and cap beside a round wooden orrery model with a glowing golden sun at the centre and small planets on circular brass orbits including a small blue Earth, an astrolabe and unmarked closed books on his desk, no text, no letters, no labels anywhere',
+  'rte-hudson-new-york-bay':
+    'a small 1600s Dutch three-masted ship with plain blank cream sails sailing into a wide forested river estuary with tall autumn trees, Lenape bark wigwams with smoke and dugout canoes along the shore, a plain orange-white-blue flag, no lettering or symbols on the sails',
+  'rte-mackenzie-reaches-pacific':
+    'a 1790s fur-trader explorer in a tricorn hat and frontier coat standing on a coastal granite boulder beside a cedar-bark canoe with voyageurs and Indigenous guides, a Pacific fjord with cliffs and cedars, the boulder completely bare and smooth, no writing, no letters, no inscription anywhere',
+  'rte-bering-sights-alaska':
+    'two small 1700s Russian sailing packet ships with plain white flags carrying a simple blue diagonal cross approaching a snowy volcanic Alaskan coast with a tall snow-capped peak, sailors in dark coats in a rowboat near an ice-rimmed shore, no writing, no tricolour flags',
 };
 
 /**
