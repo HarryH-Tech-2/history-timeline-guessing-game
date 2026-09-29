@@ -1,4 +1,11 @@
-import { fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react-native';
+import {
+  fireEvent,
+  render,
+  renderHook,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react-native';
 
 import { useSaves } from '@/features/save';
 
@@ -75,21 +82,62 @@ describe('CampaignMapScreen', () => {
     await waitFor(() => expect(screen.getAllByTestId('trail-dot-lit')).toHaveLength(10));
   });
 
-  it('marks a fully three-starred era as mastered and fills the journey bar', async () => {
+  it('marks a fully three-starred era as mastered and tallies the journey stars', async () => {
     await seed(cleared(ancient.stages.map((s) => s.id), 3));
     render(<CampaignMapScreen />);
     await waitFor(() => expect(screen.getByTestId('era-mastered')).toBeOnTheScreen());
     const total = CAMPAIGN.reduce((n, w) => n + w.stages.length, 0);
-    expect(screen.getByTestId('journey-percent')).toHaveTextContent(
-      `${Math.round((ancient.stages.length / total) * 100)}%`,
+    expect(screen.getByTestId('journey-stars')).toHaveTextContent(
+      `★ ${ancient.stages.length * 3}/${total * 3}`,
     );
+    const first = screen.getByTestId(`stage-${ancient.stages[0]!.id}`);
+    expect(within(first).getByTestId('stage-face-mastered')).toBeOnTheScreen();
   });
 
-  it('shows no seals and an empty journey on a fresh campaign', async () => {
+  it('shows no seals and no journey stars on a fresh campaign', async () => {
     mockPremium = true;
     render(<CampaignMapScreen />);
-    await waitFor(() => expect(screen.getByTestId('journey-percent')).toHaveTextContent('0%'));
+    await waitFor(() => expect(screen.getByTestId('journey-stars')).toHaveTextContent(/^★ 0\//));
     expect(screen.queryByTestId('era-complete')).toBeNull();
     expect(screen.queryAllByTestId('trail-dot-lit')).toHaveLength(0);
+  });
+
+  it('opens with the first era in the sticky bar and START on the first stage', async () => {
+    render(<CampaignMapScreen />);
+    await waitFor(() =>
+      expect(screen.getByTestId('sticky-era-title')).toHaveTextContent(
+        `ERA I · ${ancient.name}`,
+      ),
+    );
+    expect(screen.getByTestId('sticky-era-stars')).toHaveTextContent(
+      `★ 0/${ancient.stages.length * 3}`,
+    );
+    const first = screen.getByTestId(`stage-${ancient.stages[0]!.id}`);
+    expect(within(first).getByTestId('stage-face-frontier')).toBeOnTheScreen();
+    expect(screen.getAllByTestId('start-bubble')).toHaveLength(1);
+    expect(screen.getByTestId('start-bubble')).toHaveTextContent('START');
+    expect(screen.getByLabelText('Minerva the owl')).toBeOnTheScreen();
+  });
+
+  it('draws cleared stages starred, the next one as the frontier and the rest locked', async () => {
+    await seed(cleared([ancient.stages[0]!.id], 2));
+    render(<CampaignMapScreen />);
+    const [s1, s2, s3] = ancient.stages.map((s) => s.id);
+    await waitFor(() =>
+      expect(
+        within(screen.getByTestId(`stage-${s1}`)).getByTestId('stage-face-completed'),
+      ).toBeOnTheScreen(),
+    );
+    expect(within(screen.getByTestId(`stage-${s1}`)).getByText('★')).toBeOnTheScreen();
+    expect(
+      within(screen.getByTestId(`stage-${s2}`)).getByTestId('stage-face-frontier'),
+    ).toBeOnTheScreen();
+    const locked = screen.getByTestId(`stage-${s3}`);
+    expect(within(locked).getByTestId('stage-face-locked')).toBeOnTheScreen();
+    expect(within(locked).getByText('🔒')).toBeOnTheScreen();
+    expect(locked).toHaveProp('accessibilityLabel', 'Stage 3, locked');
+    // Free player: the premium eras' stages wear crowns.
+    const premium = screen.getByTestId(`stage-${medieval.stages[1]!.id}`);
+    expect(within(premium).getByTestId('stage-face-premium')).toBeOnTheScreen();
   });
 });
