@@ -1,0 +1,1554 @@
+{
+ "evt-moon-landing": {
+  "year": 1969,
+  "inRotation": true
+ },
+ "evt-berlin-wall": {
+  "year": 1989,
+  "inRotation": true
+ },
+ "evt-french-revolution": {
+  "year": 1789,
+  "inRotation": true
+ },
+ "evt-magna-carta": {
+  "year": 1215,
+  "inRotation": true
+ },
+ "evt-us-independence": {
+  "year": 1776,
+  "inRotation": true
+ },
+ "evt-constantinople": {
+  "year": 1453,
+  "inRotation": true
+ },
+ "evt-columbus": {
+  "year": 1492,
+  "inRotation": true
+ },
+ "evt-russian-revolution": {
+  "year": 1917,
+  "inRotation": true
+ },
+ "evt-titanic": {
+  "year": 1912,
+  "inRotation": true
+ },
+ "evt-great-fire-london": {
+  "year": 1666,
+  "inRotation": true
+ },
+ "bat-hastings": {
+  "year": 1066,
+  "inRotation": true
+ },
+ "bat-waterloo": {
+  "year": 1815,
+  "inRotation": true
+ },
+ "bat-gettysburg": {
+  "year": 1863,
+  "inRotation": true
+ },
+ "bat-thermopylae": {
+  "year": -480,
+  "inRotation": true
+ },
+ "bat-agincourt": {
+  "year": 1415,
+  "inRotation": true
+ },
+ "bat-stalingrad": {
+  "year": 1942,
+  "inRotation": true
+ },
+ "bat-trafalgar": {
+  "year": 1805,
+  "inRotation": true
+ },
+ "bat-actium": {
+  "year": -31,
+  "inRotation": true
+ },
+ "bat-tours": {
+  "year": 732,
+  "inRotation": true
+ },
+ "bat-bannockburn": {
+  "year": 1314,
+  "inRotation": true
+ },
+ "ppl-einstein": {
+  "year": 1879,
+  "inRotation": true
+ },
+ "ppl-curie": {
+  "year": 1867,
+  "inRotation": true
+ },
+ "ppl-davinci": {
+  "year": 1452,
+  "inRotation": true
+ },
+ "ppl-newton": {
+  "year": 1643,
+  "inRotation": true
+ },
+ "ppl-shakespeare": {
+  "year": 1564,
+  "inRotation": true
+ },
+ "ppl-napoleon": {
+  "year": 1769,
+  "inRotation": true
+ },
+ "ppl-gandhi": {
+  "year": 1869,
+  "inRotation": true
+ },
+ "ppl-mandela": {
+  "year": 1918,
+  "inRotation": true
+ },
+ "ppl-darwin": {
+  "year": 1809,
+  "inRotation": true
+ },
+ "tec-telephone": {
+  "year": 1876,
+  "inRotation": true
+ },
+ "tec-powered-flight": {
+  "year": 1903,
+  "inRotation": true
+ },
+ "tec-television": {
+  "year": 1926,
+  "inRotation": true
+ },
+ "tec-transistor": {
+  "year": 1947,
+  "inRotation": true
+ },
+ "tec-world-wide-web": {
+  "year": 1991,
+  "inRotation": true
+ },
+ "tec-iphone": {
+  "year": 2007,
+  "inRotation": true
+ },
+ "tec-chatgpt": {
+  "year": 2022,
+  "inRotation": true
+ },
+ "tec-steam-engine": {
+  "year": 1769,
+  "inRotation": true
+ },
+ "tec-nuclear-reactor": {
+  "year": 1942,
+  "inRotation": true
+ },
+ "evt-caesar-assassination": {
+  "year": -44,
+  "inRotation": true
+ },
+ "evt-vesuvius": {
+  "year": 79,
+  "inRotation": true
+ },
+ "evt-lindisfarne": {
+  "year": 793,
+  "inRotation": true
+ },
+ "evt-black-death": {
+  "year": 1347,
+  "inRotation": true
+ },
+ "evt-gold-rush": {
+  "year": 1848,
+  "inRotation": true
+ },
+ "bat-marathon": {
+  "year": -490,
+  "inRotation": true
+ },
+ "bat-cannae": {
+  "year": -216,
+  "inRotation": true
+ },
+ "bat-lepanto": {
+  "year": 1571,
+  "inRotation": true
+ },
+ "bat-spanish-armada": {
+  "year": 1588,
+  "inRotation": true
+ },
+ "bat-vienna": {
+  "year": 1683,
+  "inRotation": true
+ },
+ "ppl-alexander": {
+  "year": -356,
+  "inRotation": true
+ },
+ "ppl-caesar": {
+  "year": -100,
+  "inRotation": true
+ },
+ "ppl-mozart": {
+  "year": 1756,
+  "inRotation": true
+ },
+ "ppl-victoria": {
+  "year": 1819,
+  "inRotation": true
+ },
+ "tec-paper": {
+  "year": 105,
+  "inRotation": true
+ },
+ "tec-telescope": {
+  "year": 1608,
+  "inRotation": true
+ },
+ "tec-vaccination": {
+  "year": 1796,
+  "inRotation": true
+ },
+ "tec-locomotive": {
+  "year": 1804,
+  "inRotation": true
+ },
+ "tec-photography": {
+  "year": 1839,
+  "inRotation": true
+ },
+ "tec-penicillin": {
+  "year": 1928,
+  "inRotation": true
+ },
+ "evt-justinian-plague": {
+  "year": 541,
+  "inRotation": true
+ },
+ "evt-boston-tea-party": {
+  "year": 1773,
+  "inRotation": true
+ },
+ "evt-rosetta-stone": {
+  "year": 1799,
+  "inRotation": true
+ },
+ "evt-great-exhibition": {
+  "year": 1851,
+  "inRotation": true
+ },
+ "evt-krakatoa": {
+  "year": 1883,
+  "inRotation": true
+ },
+ "evt-sf-earthquake": {
+  "year": 1906,
+  "inRotation": true
+ },
+ "evt-versailles-treaty": {
+  "year": 1919,
+  "inRotation": true
+ },
+ "evt-tutankhamun": {
+  "year": 1922,
+  "inRotation": true
+ },
+ "evt-wall-street-crash": {
+  "year": 1929,
+  "inRotation": true
+ },
+ "evt-hindenburg": {
+  "year": 1937,
+  "inRotation": true
+ },
+ "evt-chernobyl": {
+  "year": 1986,
+  "inRotation": true
+ },
+ "bat-gaugamela": {
+  "year": -331,
+  "inRotation": true
+ },
+ "bat-zama": {
+  "year": -202,
+  "inRotation": true
+ },
+ "bat-alesia": {
+  "year": -52,
+  "inRotation": true
+ },
+ "bat-teutoburg": {
+  "year": 9,
+  "inRotation": true
+ },
+ "bat-adrianople": {
+  "year": 378,
+  "inRotation": true
+ },
+ "bat-jerusalem-1099": {
+  "year": 1099,
+  "inRotation": true
+ },
+ "bat-crecy": {
+  "year": 1346,
+  "inRotation": true
+ },
+ "bat-orleans": {
+  "year": 1429,
+  "inRotation": true
+ },
+ "bat-bosworth": {
+  "year": 1485,
+  "inRotation": true
+ },
+ "bat-culloden": {
+  "year": 1746,
+  "inRotation": true
+ },
+ "bat-yorktown": {
+  "year": 1781,
+  "inRotation": true
+ },
+ "bat-austerlitz": {
+  "year": 1805,
+  "inRotation": true
+ },
+ "bat-somme": {
+  "year": 1916,
+  "inRotation": true
+ },
+ "bat-midway": {
+  "year": 1942,
+  "inRotation": true
+ },
+ "bat-dday": {
+  "year": 1944,
+  "inRotation": true
+ },
+ "ppl-aristotle": {
+  "year": -384,
+  "inRotation": true
+ },
+ "ppl-augustus": {
+  "year": -63,
+  "inRotation": true
+ },
+ "ppl-elizabeth-i": {
+  "year": 1533,
+  "inRotation": true
+ },
+ "ppl-galileo": {
+  "year": 1564,
+  "inRotation": true
+ },
+ "ppl-washington": {
+  "year": 1732,
+  "inRotation": true
+ },
+ "ppl-lincoln": {
+  "year": 1809,
+  "inRotation": true
+ },
+ "ppl-nightingale": {
+  "year": 1820,
+  "inRotation": true
+ },
+ "ppl-van-gogh": {
+  "year": 1853,
+  "inRotation": true
+ },
+ "ppl-churchill": {
+  "year": 1874,
+  "inRotation": true
+ },
+ "ppl-mlk": {
+  "year": 1929,
+  "inRotation": true
+ },
+ "ppl-anne-frank": {
+  "year": 1929,
+  "inRotation": true
+ },
+ "tec-spinning-jenny": {
+  "year": 1764,
+  "inRotation": true
+ },
+ "tec-hot-air-balloon": {
+  "year": 1783,
+  "inRotation": true
+ },
+ "tec-telegraph": {
+  "year": 1844,
+  "inRotation": true
+ },
+ "tec-light-bulb": {
+  "year": 1879,
+  "inRotation": true
+ },
+ "tec-automobile": {
+  "year": 1886,
+  "inRotation": true
+ },
+ "tec-transatlantic-radio": {
+  "year": 1901,
+  "inRotation": true
+ },
+ "tec-eniac": {
+  "year": 1946,
+  "inRotation": true
+ },
+ "tec-dna-double-helix": {
+  "year": 1953,
+  "inRotation": true
+ },
+ "tec-sputnik": {
+  "year": 1957,
+  "inRotation": true
+ },
+ "tec-heart-transplant": {
+  "year": 1967,
+  "inRotation": true
+ },
+ "art-parthenon": {
+  "year": -432,
+  "inRotation": true
+ },
+ "art-david": {
+  "year": 1504,
+  "inRotation": true
+ },
+ "art-sistine-chapel": {
+  "year": 1512,
+  "inRotation": true
+ },
+ "art-globe-theatre": {
+  "year": 1599,
+  "inRotation": true
+ },
+ "art-don-quixote": {
+  "year": 1605,
+  "inRotation": true
+ },
+ "art-first-opera-house": {
+  "year": 1637,
+  "inRotation": true
+ },
+ "art-taj-mahal": {
+  "year": 1653,
+  "inRotation": true
+ },
+ "art-beethoven-ninth": {
+  "year": 1824,
+  "inRotation": true
+ },
+ "art-swan-lake": {
+  "year": 1877,
+  "inRotation": true
+ },
+ "art-eiffel-tower": {
+  "year": 1889,
+  "inRotation": true
+ },
+ "art-starry-night": {
+  "year": 1889,
+  "inRotation": true
+ },
+ "art-the-scream": {
+  "year": 1893,
+  "inRotation": true
+ },
+ "art-lumiere-cinema": {
+  "year": 1895,
+  "inRotation": true
+ },
+ "art-academy-awards": {
+  "year": 1929,
+  "inRotation": true
+ },
+ "art-snow-white": {
+  "year": 1937,
+  "inRotation": true
+ },
+ "art-wizard-of-oz": {
+  "year": 1939,
+  "inRotation": true
+ },
+ "art-elvis-first-single": {
+  "year": 1954,
+  "inRotation": true
+ },
+ "art-beatles-ed-sullivan": {
+  "year": 1964,
+  "inRotation": true
+ },
+ "art-woodstock": {
+  "year": 1969,
+  "inRotation": true
+ },
+ "art-sydney-opera-house": {
+  "year": 1973,
+  "inRotation": true
+ },
+ "art-thriller": {
+  "year": 1982,
+  "inRotation": true
+ },
+ "art-harry-potter": {
+  "year": 1997,
+  "inRotation": true
+ },
+ "phi-socrates-trial": {
+  "year": -399,
+  "inRotation": true
+ },
+ "phi-utopia": {
+  "year": 1516,
+  "inRotation": true
+ },
+ "phi-discourse-method": {
+  "year": 1637,
+  "inRotation": true
+ },
+ "phi-leviathan": {
+  "year": 1651,
+  "inRotation": true
+ },
+ "phi-spinoza-ethics": {
+  "year": 1677,
+  "inRotation": true
+ },
+ "phi-locke-essay": {
+  "year": 1689,
+  "inRotation": true
+ },
+ "phi-social-contract": {
+  "year": 1762,
+  "inRotation": true
+ },
+ "phi-wealth-of-nations": {
+  "year": 1776,
+  "inRotation": true
+ },
+ "phi-critique-pure-reason": {
+  "year": 1781,
+  "inRotation": true
+ },
+ "phi-vindication": {
+  "year": 1792,
+  "inRotation": true
+ },
+ "phi-communist-manifesto": {
+  "year": 1848,
+  "inRotation": true
+ },
+ "phi-on-liberty": {
+  "year": 1859,
+  "inRotation": true
+ },
+ "phi-zarathustra": {
+  "year": 1883,
+  "inRotation": true
+ },
+ "phi-being-and-time": {
+  "year": 1927,
+  "inRotation": true
+ },
+ "phi-second-sex": {
+  "year": 1949,
+  "inRotation": true
+ },
+ "phi-theory-of-justice": {
+  "year": 1971,
+  "inRotation": true
+ },
+ "art-empire-state": {
+  "year": 1931,
+  "inRotation": true
+ },
+ "evt-fall-western-rome": {
+  "year": 476,
+  "inRotation": true
+ },
+ "evt-charlemagne-crowned": {
+  "year": 800,
+  "inRotation": true
+ },
+ "evt-great-schism": {
+  "year": 1054,
+  "inRotation": true
+ },
+ "evt-domesday-book": {
+  "year": 1086,
+  "inRotation": true
+ },
+ "evt-council-clermont": {
+  "year": 1095,
+  "inRotation": true
+ },
+ "evt-hijra": {
+  "year": 622,
+  "inRotation": true
+ },
+ "evt-hannibal-alps": {
+  "year": -218,
+  "inRotation": true
+ },
+ "evt-baghdad-founded": {
+  "year": 762,
+  "inRotation": true
+ },
+ "evt-genghis-proclaimed": {
+  "year": 1206,
+  "inRotation": true
+ },
+ "evt-sack-constantinople-1204": {
+  "year": 1204,
+  "inRotation": true
+ },
+ "bat-salamis": {
+  "year": -480,
+  "inRotation": true
+ },
+ "bat-red-cliffs": {
+  "year": 208,
+  "inRotation": true
+ },
+ "bat-manzikert": {
+  "year": 1071,
+  "inRotation": true
+ },
+ "bat-hattin": {
+  "year": 1187,
+  "inRotation": true
+ },
+ "bat-ain-jalut": {
+  "year": 1260,
+  "inRotation": true
+ },
+ "bat-grunwald": {
+  "year": 1410,
+  "inRotation": true
+ },
+ "ppl-cicero": {
+  "year": -106,
+  "inRotation": true
+ },
+ "ppl-marcus-aurelius": {
+  "year": 121,
+  "inRotation": true
+ },
+ "ppl-augustine": {
+  "year": 354,
+  "inRotation": true
+ },
+ "ppl-hadrian": {
+  "year": 76,
+  "inRotation": true
+ },
+ "ppl-petrarch": {
+  "year": 1304,
+  "inRotation": true
+ },
+ "tec-printing-press": {
+  "year": 1455,
+  "inRotation": true
+ },
+ "tec-gunpowder-formula": {
+  "year": 1044,
+  "inRotation": true
+ },
+ "tec-su-song-clock": {
+  "year": 1094,
+  "inRotation": true
+ },
+ "art-hagia-sophia": {
+  "year": 537,
+  "inRotation": true
+ },
+ "art-notre-dame": {
+  "year": 1163,
+  "inRotation": true
+ },
+ "phi-city-of-god": {
+  "year": 426,
+  "inRotation": true
+ },
+ "con-tenochtitlan": {
+  "year": 1521,
+  "inRotation": true
+ },
+ "con-panama-canal": {
+  "year": 1914,
+  "inRotation": true
+ },
+ "con-brazil-independence": {
+  "year": 1822,
+  "inRotation": true
+ },
+ "con-machu-picchu": {
+  "year": 1911,
+  "inRotation": true
+ },
+ "con-suez-canal": {
+  "year": 1869,
+  "inRotation": true
+ },
+ "con-mansa-musa": {
+  "year": 1324,
+  "inRotation": true
+ },
+ "con-ghana-independence": {
+  "year": 1957,
+  "inRotation": true
+ },
+ "con-meiji-restoration": {
+  "year": 1868,
+  "inRotation": true
+ },
+ "con-india-independence": {
+  "year": 1947,
+  "inRotation": true
+ },
+ "con-australia-federation": {
+  "year": 1901,
+  "inRotation": true
+ },
+ "con-treaty-waitangi": {
+  "year": 1840,
+  "inRotation": true
+ },
+ "con-antarctica-sighted": {
+  "year": 1820,
+  "inRotation": true
+ },
+ "con-amundsen-pole": {
+  "year": 1911,
+  "inRotation": true
+ },
+ "con-treaty-of-rome": {
+  "year": 1957,
+  "inRotation": true
+ },
+ "exp-marco-polo": {
+  "year": 1271,
+  "inRotation": true
+ },
+ "exp-ibn-battuta": {
+  "year": 1325,
+  "inRotation": true
+ },
+ "exp-zheng-he": {
+  "year": 1405,
+  "inRotation": true
+ },
+ "exp-vasco-da-gama": {
+  "year": 1498,
+  "inRotation": true
+ },
+ "exp-magellan": {
+  "year": 1522,
+  "inRotation": true
+ },
+ "exp-drake": {
+  "year": 1580,
+  "inRotation": true
+ },
+ "exp-cook-botany-bay": {
+  "year": 1770,
+  "inRotation": true
+ },
+ "exp-lewis-clark": {
+  "year": 1804,
+  "inRotation": true
+ },
+ "exp-livingstone-stanley": {
+  "year": 1871,
+  "inRotation": true
+ },
+ "exp-shackleton": {
+  "year": 1916,
+  "inRotation": true
+ },
+ "exp-lindbergh": {
+  "year": 1927,
+  "inRotation": true
+ },
+ "exp-earhart": {
+  "year": 1932,
+  "inRotation": true
+ },
+ "exp-everest": {
+  "year": 1953,
+  "inRotation": true
+ },
+ "exp-trieste": {
+  "year": 1960,
+  "inRotation": true
+ },
+ "exp-gagarin": {
+  "year": 1961,
+  "inRotation": true
+ },
+ "trt-verdun": {
+  "year": 843,
+  "inRotation": true
+ },
+ "trt-tordesillas": {
+  "year": 1494,
+  "inRotation": true
+ },
+ "trt-westphalia": {
+  "year": 1648,
+  "inRotation": true
+ },
+ "trt-utrecht": {
+  "year": 1713,
+  "inRotation": true
+ },
+ "trt-paris-1783": {
+  "year": 1783,
+  "inRotation": true
+ },
+ "trt-vienna-congress": {
+  "year": 1815,
+  "inRotation": true
+ },
+ "trt-nanking": {
+  "year": 1842,
+  "inRotation": true
+ },
+ "trt-guadalupe-hidalgo": {
+  "year": 1848,
+  "inRotation": true
+ },
+ "trt-brest-litovsk": {
+  "year": 1918,
+  "inRotation": true
+ },
+ "trt-munich-agreement": {
+  "year": 1938,
+  "inRotation": true
+ },
+ "trt-un-charter": {
+  "year": 1945,
+  "inRotation": true
+ },
+ "trt-nato": {
+  "year": 1949,
+  "inRotation": true
+ },
+ "trt-antarctic-treaty": {
+  "year": 1959,
+  "inRotation": true
+ },
+ "trt-camp-david": {
+  "year": 1978,
+  "inRotation": true
+ },
+ "trt-maastricht": {
+  "year": 1992,
+  "inRotation": true
+ },
+ "trt-good-friday": {
+  "year": 1998,
+  "inRotation": true
+ },
+ "trt-paris-climate": {
+  "year": 2015,
+  "inRotation": true
+ },
+ "spt-rugby-first-international": {
+  "year": 1871,
+  "inRotation": true
+ },
+ "spt-fa-cup-final": {
+  "year": 1872,
+  "inRotation": true
+ },
+ "spt-first-test-match": {
+  "year": 1877,
+  "inRotation": true
+ },
+ "spt-wimbledon": {
+  "year": 1877,
+  "inRotation": true
+ },
+ "spt-modern-olympics": {
+  "year": 1896,
+  "inRotation": true
+ },
+ "spt-tour-de-france": {
+  "year": 1903,
+  "inRotation": true
+ },
+ "spt-winter-olympics": {
+  "year": 1924,
+  "inRotation": true
+ },
+ "spt-world-cup-1930": {
+  "year": 1930,
+  "inRotation": true
+ },
+ "spt-jesse-owens": {
+  "year": 1936,
+  "inRotation": true
+ },
+ "spt-jackie-robinson": {
+  "year": 1947,
+  "inRotation": true
+ },
+ "spt-formula-one": {
+  "year": 1950,
+  "inRotation": true
+ },
+ "spt-bannister-mile": {
+  "year": 1954,
+  "inRotation": true
+ },
+ "spt-super-bowl": {
+  "year": 1967,
+  "inRotation": true
+ },
+ "spt-rumble-jungle": {
+  "year": 1974,
+  "inRotation": true
+ },
+ "spt-comaneci": {
+  "year": 1976,
+  "inRotation": true
+ },
+ "spt-miracle-on-ice": {
+  "year": 1980,
+  "inRotation": true
+ },
+ "spt-hand-of-god": {
+  "year": 1986,
+  "inRotation": true
+ },
+ "spt-bolt-9-58": {
+  "year": 2009,
+  "inRotation": true
+ },
+ "trd-jiaozi": {
+  "year": 1024,
+  "inRotation": true
+ },
+ "trd-medici-bank": {
+  "year": 1397,
+  "inRotation": true
+ },
+ "trd-east-india-company": {
+  "year": 1600,
+  "inRotation": true
+ },
+ "trd-voc": {
+  "year": 1602,
+  "inRotation": true
+ },
+ "trd-tulip-mania": {
+  "year": 1637,
+  "inRotation": true
+ },
+ "trd-bank-of-england": {
+  "year": 1694,
+  "inRotation": true
+ },
+ "trd-south-sea-bubble": {
+  "year": 1720,
+  "inRotation": true
+ },
+ "trd-buttonwood": {
+  "year": 1792,
+  "inRotation": true
+ },
+ "trd-erie-canal": {
+  "year": 1825,
+  "inRotation": true
+ },
+ "trd-corn-laws": {
+  "year": 1846,
+  "inRotation": true
+ },
+ "trd-federal-reserve": {
+  "year": 1913,
+  "inRotation": true
+ },
+ "trd-bretton-woods": {
+  "year": 1944,
+  "inRotation": true
+ },
+ "trd-diners-club": {
+  "year": 1950,
+  "inRotation": true
+ },
+ "trd-first-atm": {
+  "year": 1967,
+  "inRotation": true
+ },
+ "trd-nixon-shock": {
+  "year": 1971,
+  "inRotation": true
+ },
+ "trd-black-monday": {
+  "year": 1987,
+  "inRotation": true
+ },
+ "trd-euro-cash": {
+  "year": 2002,
+  "inRotation": true
+ },
+ "trd-lehman": {
+  "year": 2008,
+  "inRotation": true
+ },
+ "spc-laika": {
+  "year": 1957,
+  "inRotation": true
+ },
+ "spc-nasa-founded": {
+  "year": 1958,
+  "inRotation": true
+ },
+ "spc-luna-2": {
+  "year": 1959,
+  "inRotation": true
+ },
+ "spc-shepard": {
+  "year": 1961,
+  "inRotation": true
+ },
+ "spc-tereshkova": {
+  "year": 1963,
+  "inRotation": true
+ },
+ "spc-leonov-spacewalk": {
+  "year": 1965,
+  "inRotation": true
+ },
+ "spc-apollo-8": {
+  "year": 1968,
+  "inRotation": true
+ },
+ "spc-apollo-13": {
+  "year": 1970,
+  "inRotation": true
+ },
+ "spc-salyut-1": {
+  "year": 1971,
+  "inRotation": true
+ },
+ "spc-apollo-soyuz": {
+  "year": 1975,
+  "inRotation": true
+ },
+ "spc-viking-1": {
+  "year": 1976,
+  "inRotation": true
+ },
+ "spc-voyager-1": {
+  "year": 1977,
+  "inRotation": true
+ },
+ "spc-shuttle-columbia": {
+  "year": 1981,
+  "inRotation": true
+ },
+ "spc-sally-ride": {
+  "year": 1983,
+  "inRotation": true
+ },
+ "spc-challenger": {
+  "year": 1986,
+  "inRotation": true
+ },
+ "spc-mir": {
+  "year": 1986,
+  "inRotation": true
+ },
+ "spc-hubble": {
+  "year": 1990,
+  "inRotation": true
+ },
+ "spc-iss-zarya": {
+  "year": 1998,
+  "inRotation": true
+ },
+ "spc-falcon-1": {
+  "year": 2008,
+  "inRotation": true
+ },
+ "spc-curiosity": {
+  "year": 2012,
+  "inRotation": true
+ },
+ "spc-new-horizons-pluto": {
+  "year": 2015,
+  "inRotation": true
+ },
+ "spc-black-hole-image": {
+  "year": 2019,
+  "inRotation": true
+ },
+ "spc-jwst": {
+  "year": 2021,
+  "inRotation": true
+ },
+ "spc-artemis-1": {
+  "year": 2022,
+  "inRotation": true
+ },
+ "reg-kalmar-union": {
+  "year": 1397,
+  "inRotation": true
+ },
+ "reg-granada-falls": {
+  "year": 1492,
+  "inRotation": true
+ },
+ "reg-st-petersburg": {
+  "year": 1703,
+  "inRotation": true
+ },
+ "reg-italy-unified": {
+  "year": 1861,
+  "inRotation": true
+ },
+ "reg-easter-rising": {
+  "year": 1916,
+  "inRotation": true
+ },
+ "reg-velvet-revolution": {
+  "year": 1989,
+  "inRotation": true
+ },
+ "reg-forbidden-city": {
+  "year": 1420,
+  "inRotation": true
+ },
+ "reg-tokugawa-shogunate": {
+  "year": 1603,
+  "inRotation": true
+ },
+ "reg-singapore-founded": {
+  "year": 1819,
+  "inRotation": true
+ },
+ "reg-hong-kong-handover": {
+  "year": 1997,
+  "inRotation": true
+ },
+ "reg-berlin-conference": {
+  "year": 1884,
+  "inRotation": true
+ },
+ "reg-adwa": {
+  "year": 1896,
+  "inRotation": true
+ },
+ "reg-algeria-independence": {
+  "year": 1962,
+  "inRotation": true
+ },
+ "reg-south-africa-1994": {
+  "year": 1994,
+  "inRotation": true
+ },
+ "reg-mayflower": {
+  "year": 1620,
+  "inRotation": true
+ },
+ "reg-haiti-independence": {
+  "year": 1804,
+  "inRotation": true
+ },
+ "reg-mexico-independence": {
+  "year": 1821,
+  "inRotation": true
+ },
+ "reg-canada-confederation": {
+  "year": 1867,
+  "inRotation": true
+ },
+ "reg-cuban-revolution": {
+  "year": 1959,
+  "inRotation": true
+ },
+ "reg-atahualpa-captured": {
+  "year": 1532,
+  "inRotation": true
+ },
+ "reg-argentina-independence": {
+  "year": 1816,
+  "inRotation": true
+ },
+ "reg-ayacucho": {
+  "year": 1824,
+  "inRotation": true
+ },
+ "reg-brasilia": {
+  "year": 1960,
+  "inRotation": true
+ },
+ "reg-tasman-new-zealand": {
+  "year": 1642,
+  "inRotation": true
+ },
+ "reg-first-fleet": {
+  "year": 1788,
+  "inRotation": true
+ },
+ "reg-eureka-stockade": {
+  "year": 1854,
+  "inRotation": true
+ },
+ "reg-nz-suffrage": {
+  "year": 1893,
+  "inRotation": true
+ },
+ "reg-png-independence": {
+  "year": 1975,
+  "inRotation": true
+ },
+ "reg-edict-of-milan": {
+  "year": 313,
+  "inRotation": false
+ },
+ "reg-battle-of-lechfeld": {
+  "year": 955,
+  "inRotation": false
+ },
+ "reg-battle-of-clontarf": {
+  "year": 1014,
+  "inRotation": false
+ },
+ "reg-pisa-tower-begun": {
+  "year": 1173,
+  "inRotation": false
+ },
+ "reg-ninety-five-theses": {
+  "year": 1517,
+  "inRotation": false
+ },
+ "reg-gunpowder-plot": {
+  "year": 1605,
+  "inRotation": false
+ },
+ "reg-defenestration-of-prague": {
+  "year": 1618,
+  "inRotation": false
+ },
+ "reg-lisbon-earthquake": {
+  "year": 1755,
+  "inRotation": false
+ },
+ "reg-london-underground-opens": {
+  "year": 1863,
+  "inRotation": false
+ },
+ "reg-german-empire-proclaimed": {
+  "year": 1871,
+  "inRotation": false
+ },
+ "reg-franz-ferdinand-assassinated": {
+  "year": 1914,
+  "inRotation": false
+ },
+ "reg-carnation-revolution": {
+  "year": 1974,
+  "inRotation": false
+ },
+ "reg-channel-tunnel-opens": {
+  "year": 1994,
+  "inRotation": false
+ },
+ "reg-prc-proclaimed": {
+  "year": 1949,
+  "inRotation": false
+ },
+ "reg-hiroshima-bomb": {
+  "year": 1945,
+  "inRotation": false
+ },
+ "reg-meerut-uprising": {
+  "year": 1857,
+  "inRotation": false
+ },
+ "reg-fall-of-saigon": {
+  "year": 1975,
+  "inRotation": false
+ },
+ "reg-khomeini-returns": {
+  "year": 1979,
+  "inRotation": false
+ },
+ "reg-qin-unification": {
+  "year": -221,
+  "inRotation": false
+ },
+ "reg-sekigahara": {
+  "year": 1600,
+  "inRotation": false
+ },
+ "reg-plassey": {
+  "year": 1757,
+  "inRotation": false
+ },
+ "reg-mongol-sack-baghdad": {
+  "year": 1258,
+  "inRotation": false
+ },
+ "reg-wuchang-uprising": {
+  "year": 1911,
+  "inRotation": false
+ },
+ "reg-hangul-promulgated": {
+  "year": 1446,
+  "inRotation": false
+ },
+ "reg-cyrus-takes-babylon": {
+  "year": -539,
+  "inRotation": false
+ },
+ "reg-battle-of-talas": {
+  "year": 751,
+  "inRotation": false
+ },
+ "reg-capture-of-malacca": {
+  "year": 1511,
+  "inRotation": false
+ },
+ "reg-carthage-destroyed": {
+  "year": -146,
+  "inRotation": false
+ },
+ "reg-cairo-founded": {
+  "year": 969,
+  "inRotation": false
+ },
+ "reg-tondibi": {
+  "year": 1591,
+  "inRotation": false
+ },
+ "reg-cape-town-founded": {
+  "year": 1652,
+  "inRotation": false
+ },
+ "reg-liberia-independence": {
+  "year": 1847,
+  "inRotation": false
+ },
+ "reg-victoria-falls": {
+  "year": 1855,
+  "inRotation": false
+ },
+ "reg-isandlwana": {
+  "year": 1879,
+  "inRotation": false
+ },
+ "reg-fall-of-khartoum": {
+  "year": 1885,
+  "inRotation": false
+ },
+ "reg-anglo-zanzibar-war": {
+  "year": 1896,
+  "inRotation": false
+ },
+ "reg-lucy-discovered": {
+  "year": 1974,
+  "inRotation": false
+ },
+ "reg-ebola-first-outbreak": {
+  "year": 1976,
+  "inRotation": false
+ },
+ "reg-rwandan-genocide": {
+  "year": 1994,
+  "inRotation": false
+ },
+ "reg-world-cup-south-africa": {
+  "year": 2010,
+  "inRotation": false
+ },
+ "reg-ben-ali-flees": {
+  "year": 2011,
+  "inRotation": false
+ },
+ "reg-pakal-palenque": {
+  "year": 615,
+  "inRotation": false
+ },
+ "reg-jamestown": {
+  "year": 1607,
+  "inRotation": false
+ },
+ "reg-quebec-founded": {
+  "year": 1608,
+  "inRotation": false
+ },
+ "reg-port-royal-quake": {
+  "year": 1692,
+  "inRotation": false
+ },
+ "reg-plains-of-abraham": {
+  "year": 1759,
+  "inRotation": false
+ },
+ "reg-louisiana-purchase": {
+  "year": 1803,
+  "inRotation": false
+ },
+ "reg-alamo": {
+  "year": 1836,
+  "inRotation": false
+ },
+ "reg-battle-of-puebla": {
+  "year": 1862,
+  "inRotation": false
+ },
+ "reg-last-spike": {
+  "year": 1885,
+  "inRotation": false
+ },
+ "reg-mexican-revolution": {
+  "year": 1910,
+  "inRotation": false
+ },
+ "reg-halifax-explosion": {
+  "year": 1917,
+  "inRotation": false
+ },
+ "reg-cuban-missile-crisis": {
+  "year": 1962,
+  "inRotation": false
+ },
+ "reg-mexico-city-olympics": {
+  "year": 1968,
+  "inRotation": false
+ },
+ "reg-haiti-earthquake": {
+  "year": 2010,
+  "inRotation": false
+ },
+ "reg-cabral-brazil": {
+  "year": 1500,
+  "inRotation": false
+ },
+ "reg-lima-founded": {
+  "year": 1535,
+  "inRotation": false
+ },
+ "reg-potosi-silver": {
+  "year": 1545,
+  "inRotation": false
+ },
+ "reg-buenos-aires-garay": {
+  "year": 1580,
+  "inRotation": false
+ },
+ "reg-tupac-amaru-ii": {
+  "year": 1780,
+  "inRotation": false
+ },
+ "reg-portuguese-court-rio": {
+  "year": 1808,
+  "inRotation": false
+ },
+ "reg-venezuela-independence": {
+  "year": 1811,
+  "inRotation": false
+ },
+ "reg-boyaca": {
+  "year": 1819,
+  "inRotation": false
+ },
+ "reg-darwin-galapagos": {
+  "year": 1835,
+  "inRotation": false
+ },
+ "reg-paraguayan-war": {
+  "year": 1864,
+  "inRotation": false
+ },
+ "reg-war-of-the-pacific": {
+  "year": 1879,
+  "inRotation": false
+ },
+ "reg-lei-aurea": {
+  "year": 1888,
+  "inRotation": false
+ },
+ "reg-valdivia-earthquake": {
+  "year": 1960,
+  "inRotation": false
+ },
+ "reg-chile-coup": {
+  "year": 1973,
+  "inRotation": false
+ },
+ "reg-dirk-hartog-landing": {
+  "year": 1616,
+  "inRotation": false
+ },
+ "reg-wallis-tahiti": {
+  "year": 1767,
+  "inRotation": false
+ },
+ "reg-bounty-mutiny": {
+  "year": 1789,
+  "inRotation": false
+ },
+ "reg-australian-gold-rush": {
+  "year": 1851,
+  "inRotation": false
+ },
+ "reg-first-melbourne-cup": {
+  "year": 1861,
+  "inRotation": false
+ },
+ "reg-fiji-cession": {
+  "year": 1874,
+  "inRotation": false
+ },
+ "reg-tonga-constitution": {
+  "year": 1875,
+  "inRotation": false
+ },
+ "reg-ned-kelly-glenrowan": {
+  "year": 1880,
+  "inRotation": false
+ },
+ "reg-hawkes-bay-earthquake": {
+  "year": 1931,
+  "inRotation": false
+ },
+ "reg-sydney-harbour-bridge": {
+  "year": 1932,
+  "inRotation": false
+ },
+ "reg-castle-bravo": {
+  "year": 1954,
+  "inRotation": false
+ },
+ "reg-samoa-independence": {
+  "year": 1962,
+  "inRotation": false
+ },
+ "reg-rainbow-warrior": {
+  "year": 1985,
+  "inRotation": false
+ },
+ "reg-christchurch-earthquake": {
+  "year": 2011,
+  "inRotation": false
+ }
+}

@@ -60,6 +60,7 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "test": "jest",
+    "export:catalogue": "tsx scripts/exportCatalogueForFunctions.ts",
     "postinstall": "patch-package",
     "seed:firestore": "tsx scripts/seedFirestore.ts",
     "generate:images": "tsx scripts/generateQuestionImages.ts",

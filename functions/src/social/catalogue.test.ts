@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import { test } from 'node:test';
+
+import { hasQuestion, rotationPool, yearOf } from './catalogue';
+
+test('knows bundled questions and their years', () => {
+  assert.equal(hasQuestion('reg-granada-falls'), true);
+  assert.equal(yearOf('reg-granada-falls'), 1492);
+  assert.equal(yearOf('nope'), undefined);
+});
+
+test('keeps the Regional expansion out of the random pool', () => {
+  const pool = rotationPool();
+  assert.ok(pool.length > 200);
+  assert.ok(!pool.includes('reg-edict-of-milan'));
+});
