@@ -1,3 +1,5 @@
+import Share from 'react-native-share';
+
 export const SOCIAL_HOST = 'https://history-date-timeline-guesser.web.app';
 const CODE = /^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{6}$/;
 
@@ -18,4 +20,22 @@ export function groupShareMessage(groupName: string, url: string): string {
 export function normaliseCode(raw: string): string | null {
   const code = raw.toUpperCase().replace(/\s+/g, '');
   return CODE.test(code) ? code : null;
+}
+
+/** Opens the OS share sheet with a challenge invite. Never throws. */
+export async function shareChallenge(url: string, name: string): Promise<void> {
+  try {
+    await Share.open({ message: challengeShareMessage(name, url), failOnCancel: false });
+  } catch {
+    // dismissed or no share target
+  }
+}
+
+/** Opens the OS share sheet with a group invite. Never throws. */
+export async function shareGroup(url: string, groupName: string): Promise<void> {
+  try {
+    await Share.open({ message: groupShareMessage(groupName, url), failOnCancel: false });
+  } catch {
+    // dismissed
+  }
 }

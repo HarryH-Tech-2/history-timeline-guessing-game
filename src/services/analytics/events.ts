@@ -1,5 +1,5 @@
 /** The play modes, as reported on every session event. */
-export type GameMode = 'daily' | 'survival' | 'endless' | 'campaign' | 'category' | 'topic';
+export type GameMode = 'daily' | 'survival' | 'endless' | 'campaign' | 'category' | 'topic' | 'challenge';
 
 /**
  * Every usage event the app records, with the properties each carries. One
@@ -55,6 +55,18 @@ export interface AnalyticsEvents {
   onboarding_skipped: { step: number };
   /** Onboarding finished: where they went, and what they set up. */
   onboarding_completed: { choice: 'daily' | 'explore'; named: boolean; reminders: boolean };
+  /** A head-to-head challenge was created (and its share sheet opened). */
+  challenge_created: { source: 'random' | 'daily' | 'campaign' };
+  /** A challenge screen was opened, from a link or a typed code. */
+  challenge_opened: { via: 'link' | 'code' };
+  /** A challenge run was submitted; `won` is null for a tie or when there is no result yet. */
+  challenge_completed: { won: boolean | null };
+  /** A friends group was created. */
+  group_created: undefined;
+  /** A friends group was joined, from a link or a typed code. */
+  group_joined: { via: 'link' | 'code' };
+  /** A friends group was left. */
+  group_left: undefined;
 }
 
 export type AnalyticsEventName = keyof AnalyticsEvents;

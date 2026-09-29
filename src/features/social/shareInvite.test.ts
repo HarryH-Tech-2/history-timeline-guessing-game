@@ -1,4 +1,12 @@
-import { challengeShareMessage, challengeUrl, groupUrl, normaliseCode } from './shareInvite';
+import Share from 'react-native-share';
+
+import {
+  challengeShareMessage,
+  challengeUrl,
+  groupUrl,
+  normaliseCode,
+  shareChallenge,
+} from './shareInvite';
 
 describe('share invites', () => {
   it('builds links on the hosting domain', () => {
@@ -16,5 +24,18 @@ describe('share invites', () => {
     expect(normaliseCode(' abc 234 ')).toBe('ABC234');
     expect(normaliseCode('ABC23')).toBeNull();
     expect(normaliseCode('ABC230')).toBeNull();
+  });
+});
+
+describe('shareChallenge', () => {
+  it('opens the share sheet with the invite and swallows a dismissal', async () => {
+    // react-native-share is mocked globally in jest-setup.ts.
+    const open = Share.open as unknown as jest.Mock;
+    await shareChallenge(challengeUrl('ABC234'), 'Sam');
+    expect(open).toHaveBeenCalledWith(
+      expect.objectContaining({ message: challengeShareMessage('Sam', challengeUrl('ABC234')) }),
+    );
+    open.mockRejectedValueOnce(new Error('User did not share'));
+    await expect(shareChallenge(challengeUrl('ABC234'), 'Sam')).resolves.toBeUndefined();
   });
 });
