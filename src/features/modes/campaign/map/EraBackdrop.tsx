@@ -12,7 +12,7 @@ const ERA_ART: Record<string, ImageSourcePropType> = {
 };
 
 /** How long one era's painting takes to dissolve into the next. */
-const CROSSFADE_MS = 400;
+export const CROSSFADE_MS = 200;
 
 function Painting({ eraId }: { eraId: string }) {
   const art = ERA_ART[eraId];

@@ -91,3 +91,12 @@ export function shade(hex: string, amount: number): string {
     .join('');
   return `#${out.toUpperCase()}`;
 }
+
+/**
+ * The content-space line that decides which era's painting is shown: the
+ * vertical middle of the viewport, so the next era's scenery arrives as soon
+ * as its banner crosses the middle of the screen.
+ */
+export function backdropProbe(scrollY: number, viewportHeight: number): number {
+  return scrollY + viewportHeight / 2;
+}

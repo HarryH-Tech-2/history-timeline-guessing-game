@@ -33,14 +33,14 @@ import { SEQUENCE_DELAY_MS, STICKY_BAR_SPACE } from './map/constants';
 import { EraBackdrop } from './map/EraBackdrop';
 import { EraBanner } from './map/EraBanner';
 import { EraTrail, NO_CELEBRATION, type Celebration } from './map/EraTrail';
-import { bannerTucked, eraInView } from './map/mapVisuals';
+import { backdropProbe, bannerTucked, eraInView } from './map/mapVisuals';
 import { StickyEraBar } from './map/StickyEraBar';
 import { eraTrailLayout, type TrailLayout } from './map/trailLayout';
 
 /**
  * The campaign map: a Duolingo-style trail of round 3D stage buttons winding
  * down over a fixed, full-screen painting of the era in view (cross-fading as
- * the player scrolls between eras). Each era opens with a chunky banner; once
+ * each new era crosses the middle of the screen). Each era opens with a chunky banner; once
  * it scrolls away a slim sticky bar names the era instead. The pieces live in
  * ./map; this screen composes them and owns scrolling and the since-last-visit
  * light-up sequence.
@@ -80,6 +80,11 @@ export function CampaignMapScreen() {
   const eraY = useRef(new Map<string, number>());
   const trailY = useRef(new Map<string, number>());
   const pendingScroll = useRef<{ stageId: string; animated: boolean } | null>(null);
+  /** The era whose painting fills the screen: switches when its section crosses the middle. */
+  const [backdropEraId, setBackdropEraId] = useState(CAMPAIGN[0]?.id);
+  const backdropEraRef = useRef(backdropEraId);
+  /** The scroll view's own height (the visible map), measured on layout. */
+  const viewportH = useRef(height);
   const viewEraRef = useRef(viewEraId);
   const barVisibleRef = useRef(barVisible);
   const scrollY = useRef(0);
@@ -103,14 +108,19 @@ export function CampaignMapScreen() {
   const pulseIds = pulseStageIds(progress);
 
   /**
-   * Point the backdrop and sticky bar at whichever era sits under the bar at
-   * scroll offset `y`, and show the bar only once that era's banner is tucked
-   * up beneath it.
+   * Point the backdrop at the era crossing the middle of the viewport and the
+   * sticky bar at the era under the bar at scroll offset `y`, showing the bar
+   * only once that era's banner is tucked up beneath it.
    */
   const trackEra = useCallback((y: number) => {
     scrollY.current = y;
     const probe = y + STICKY_BAR_SPACE;
     const sections = [...eraY.current].map(([id, top]) => ({ id, y: top }));
+    const backdropId = eraInView(sections, backdropProbe(y, viewportH.current));
+    if (backdropId !== undefined && backdropId !== backdropEraRef.current) {
+      backdropEraRef.current = backdropId;
+      setBackdropEraId(backdropId);
+    }
     const id = eraInView(sections, probe);
     if (id === undefined) return;
     if (id !== viewEraRef.current) {
@@ -226,10 +236,15 @@ export function CampaignMapScreen() {
     // Not <Screen>: the painting must run under the status bar and right down
     // to the tab bar, so only the content honours the safe area.
     <View className="flex-1 bg-bg-base">
-      {viewEraId !== undefined && <EraBackdrop eraId={viewEraId} />}
+      {backdropEraId !== undefined && <EraBackdrop eraId={backdropEraId} />}
       <SafeAreaView edges={['top', 'left', 'right']} className="flex-1">
         <ScrollView
           ref={scrollRef}
+          testID="campaign-scroll"
+          onLayout={(e) => {
+            viewportH.current = e.nativeEvent.layout.height;
+            trackEra(scrollY.current);
+          }}
           showsVerticalScrollIndicator={false}
           onScroll={onScroll}
           scrollEventThrottle={32}

@@ -262,4 +262,27 @@ describe('CampaignMapScreen', () => {
       scrollTo.mockRestore();
     });
   });
+
+  it('swaps the painting once the next era crosses the middle of the screen', async () => {
+    render(<CampaignMapScreen />);
+    await waitFor(() => expect(screen.getByTestId(`era-backdrop-${ancient.id}`)).toBeOnTheScreen());
+    const scroll = screen.getByTestId('campaign-scroll');
+    const layout = (y: number, height: number) => ({
+      nativeEvent: { layout: { x: 0, y, width: 400, height } },
+    });
+    fireEvent(scroll, 'layout', layout(0, 800));
+    fireEvent(screen.getByTestId(`era-section-${ancient.id}`), 'layout', layout(0, 1500));
+    fireEvent(screen.getByTestId(`era-section-${medieval.id}`), 'layout', layout(1500, 2000));
+    const scrollTo = (y: number) =>
+      fireEvent.scroll(scroll, { nativeEvent: { contentOffset: { x: 0, y } } });
+
+    // The Middle Ages section starts 500 px down: below the middle line (400).
+    scrollTo(1000);
+    expect(screen.queryByTestId(`era-backdrop-${medieval.id}`)).toBeNull();
+    // Now 350 px down: past the middle, so its painting takes over...
+    scrollTo(1150);
+    expect(screen.getByTestId(`era-backdrop-${medieval.id}`)).toBeOnTheScreen();
+    // ...while the sticky bar still names the era under it.
+    expect(screen.getByTestId('sticky-era-title', HIDDEN)).toHaveTextContent(`ERA I · ${ancient.name}`);
+  });
 });
