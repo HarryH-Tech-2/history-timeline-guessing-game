@@ -512,7 +512,6 @@ export const ANCIENT_ROUTE_QUESTIONS: readonly Question[] = [
     title: 'The Battle of the Catalaunian Plains',
     subtitle: 'Romans and Visigoths halt Attila the Hun',
     year: 451,
-    month: 6,
     difficulty: 'medium',
     country: 'France',
     region: 'Champagne',
