@@ -24,7 +24,7 @@ describe('syncDailyReminder', () => {
       date: new Date(2026, 8, 22, REMINDER_HOUR, 0, 0, 0),
       channelId: 'daily-reminder',
     });
-    expect(call.content.title).toMatch(/Daily/);
+    expect(call.content.title).toMatch(/^Your daily is ready/);
   });
 
   it('only cancels when reminders are off', async () => {
