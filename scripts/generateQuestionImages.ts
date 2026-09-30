@@ -113,6 +113,23 @@ const EVENT_OVERRIDES: Record<string, string> = {
     'a candlelit 1860s theatre with a box balcony decorated in bunting, a tall bearded man in a black suit seated in a rocking chair beside a woman in a grey gown, ONE lone man in a dark suit stepping in behind them from the back of the box holding a small pistol, audience below, actors on stage, no writing',
   'rte-emancipation-proclamation':
     'a Union Army camp in autumn 1862 with white tents, blue-coated soldiers, and a crowd of freed families in period clothing cheering, a broken iron chain lying on the bare ground, a tall man in a black frock coat and stovepipe hat holding a scroll on a small wooden platform, a flagpole with the American flag, no writing, no food items on the ground',
+  // Campaign routes, Modern Era (2026-09-29): first renders showed lettering.
+  'rte-operation-dynamo':
+    'the beach and harbour mole at Dunkirk with long orderly queues of soldiers in khaki, small civilian boats and fishing boats ferrying them to plain unmarked grey destroyers, smoke rising over the seafront, all hulls completely blank with no markings',
+  'rte-ve-day':
+    'a joyful crowd of civilians and soldiers dancing in a European city street with plain coloured bunting and waving flags, an army jeep, a stone triumphal arch behind, all vehicles plain with no lettering or signs',
+  'rte-second-el-alamein':
+    'a wide North African desert battlefield with British Sherman and Crusader tanks advancing across sand dunes, minefield stakes with plain red flags, artillery and trucks, no text or labels anywhere on the ground',
+  'rte-polio-vaccine-safe':
+    'a cheerful 1950s town square where nurses, doctors in white coats and smiling children with parents celebrate with confetti outside a plain brick clinic with a blank sign, vials of vaccine on a table, no words or signs anywhere',
+  'rte-comet-jetliner-service':
+    'a sleek silver 1950s four-engine jet airliner with a plain unmarked white and silver fuselage, engines buried in the wing roots, taking off from an airfield with a plain terminal building and blank signs, passengers boarding by stairs, no lettering',
+  'rte-concorde-service':
+    'two white supersonic delta-wing airliners with completely plain unmarked white fuselages and plain blue tail fins parked at a modern airport apron with boarding stairs and passengers, no lettering, logos or flags',
+  'rte-macintosh-release':
+    'a small cream 1980s all-in-one compact computer with a tiny screen showing a smiling face icon, on a wooden shop counter with shoppers curiously watching, plain unmarked cardboard boxes on shelves, no lettering or logos',
+  'rte-arpanet-first-message':
+    'two 1960s room-sized computers in separate rooms linked by a thick cable, a young researcher at a teletype terminal typing in each room, a glowing line of connection between them, plain screens and panels with no text or letters',
 };
 
 /**

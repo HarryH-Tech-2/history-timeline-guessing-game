@@ -15,7 +15,7 @@ import { imageForQuestion } from './questionImages';
 import { OUT_OF_ROTATION_IDS } from './rotation';
 
 /** Eras whose 30 route questions are written. Each content task appends its era. */
-const COMPLETE_ERAS: readonly string[] = ['ancient', 'medieval', 'early-modern', 'nineteenth'];
+const COMPLETE_ERAS: readonly string[] = ['ancient', 'medieval', 'early-modern', 'nineteenth', 'modern'];
 
 /** Inclusive year span of each campaign era (ERAS in campaignMap.ts: 500 is Ancient). */
 const ERA_YEARS: Record<string, readonly [number, number]> = {

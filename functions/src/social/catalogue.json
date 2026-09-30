@@ -2030,5 +2030,125 @@
  "rte-koch-tuberculosis": {
   "year": 1882,
   "inRotation": false
+ },
+ "rte-gallipoli-landings": {
+  "year": 1915,
+  "inRotation": false
+ },
+ "rte-armistice-compiegne": {
+  "year": 1918,
+  "inRotation": false
+ },
+ "rte-invasion-of-poland": {
+  "year": 1939,
+  "inRotation": false
+ },
+ "rte-operation-dynamo": {
+  "year": 1940,
+  "inRotation": false
+ },
+ "rte-pearl-harbor": {
+  "year": 1941,
+  "inRotation": false
+ },
+ "rte-ve-day": {
+  "year": 1945,
+  "inRotation": false
+ },
+ "rte-sinking-of-lusitania": {
+  "year": 1915,
+  "inRotation": false
+ },
+ "rte-battle-of-verdun": {
+  "year": 1916,
+  "inRotation": false
+ },
+ "rte-operation-barbarossa": {
+  "year": 1941,
+  "inRotation": false
+ },
+ "rte-second-el-alamein": {
+  "year": 1942,
+  "inRotation": false
+ },
+ "rte-battle-of-tannenberg": {
+  "year": 1914,
+  "inRotation": false
+ },
+ "rte-battle-of-jutland": {
+  "year": 1916,
+  "inRotation": false
+ },
+ "rte-battle-of-amiens": {
+  "year": 1918,
+  "inRotation": false
+ },
+ "rte-battle-of-kursk": {
+  "year": 1943,
+  "inRotation": false
+ },
+ "rte-battle-of-leyte-gulf": {
+  "year": 1944,
+  "inRotation": false
+ },
+ "rte-intel-4004": {
+  "year": 1971,
+  "inRotation": false
+ },
+ "rte-polio-vaccine-safe": {
+  "year": 1955,
+  "inRotation": false
+ },
+ "rte-first-mobile-phone-call": {
+  "year": 1973,
+  "inRotation": false
+ },
+ "rte-louise-brown-born": {
+  "year": 1978,
+  "inRotation": false
+ },
+ "rte-ibm-pc": {
+  "year": 1981,
+  "inRotation": false
+ },
+ "rte-dolly-the-sheep": {
+  "year": 1996,
+  "inRotation": false
+ },
+ "rte-comet-jetliner-service": {
+  "year": 1952,
+  "inRotation": false
+ },
+ "rte-telstar-launch": {
+  "year": 1962,
+  "inRotation": false
+ },
+ "rte-arpanet-first-message": {
+  "year": 1969,
+  "inRotation": false
+ },
+ "rte-concorde-service": {
+  "year": 1976,
+  "inRotation": false
+ },
+ "rte-macintosh-release": {
+  "year": 1984,
+  "inRotation": false
+ },
+ "rte-insulin-first-patient": {
+  "year": 1922,
+  "inRotation": false
+ },
+ "rte-goddard-rocket": {
+  "year": 1926,
+  "inRotation": false
+ },
+ "rte-heinkel-he-178": {
+  "year": 1939,
+  "inRotation": false
+ },
+ "rte-first-implanted-pacemaker": {
+  "year": 1958,
+  "inRotation": false
  }
 }
