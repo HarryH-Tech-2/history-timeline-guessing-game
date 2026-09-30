@@ -65,8 +65,7 @@ export const EraTrail = memo(function EraTrail({
       {layout.segments.map((segment) => (
         <TrailDots
           key={`${segment.fromId}>${segment.toId}`}
-          from={segment.from}
-          to={segment.to}
+          dots={segment.dots}
           colour={world.colour}
           lit={starsOf(segment.fromId) >= 1}
           lighting={celebration.cleared.has(segment.fromId)}
@@ -80,6 +79,8 @@ export const EraTrail = memo(function EraTrail({
           colour={world.colour}
           earned={banner.route.stages.reduce((n, s) => n + starsOf(s.id), 0)}
           total={banner.route.stages.length * 3}
+          cleared={banner.route.stages.every((s) => starsOf(s.id) >= 1)}
+          locked={!(standings.get(banner.route.stages[0]?.id ?? '')?.unlocked ?? false)}
           left={banner.left}
           top={banner.top}
           width={banner.width}

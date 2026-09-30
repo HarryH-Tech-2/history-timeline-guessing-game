@@ -1,4 +1,4 @@
-import { backdropProbe, bannerTucked, DARK_INK, eraInView, inkOn, nodeState, shade } from './mapVisuals';
+import { backdropProbe, bannerTucked, DARK_INK, eraInView, inkOn, nodeState, shade, tint } from './mapVisuals';
 
 describe('eraInView', () => {
   const sections = [
@@ -89,6 +89,14 @@ describe('shade', () => {
     expect(shade('#FFFFFF', 0.5)).toBe('#808080');
     expect(shade('#E8564E', 0)).toBe('#E8564E');
     expect(shade('#E8564E', 1)).toBe('#000000');
+  });
+});
+
+describe('tint', () => {
+  it('lightens each channel towards white by the given fraction', () => {
+    expect(tint('#000000', 0.5)).toBe('#808080');
+    expect(tint('#E8564E', 0)).toBe('#E8564E');
+    expect(tint('#E8564E', 1)).toBe('#FFFFFF');
   });
 });
 

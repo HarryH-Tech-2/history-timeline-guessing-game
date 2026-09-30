@@ -92,6 +92,15 @@ export function shade(hex: string, amount: number): string {
   return `#${out.toUpperCase()}`;
 }
 
+/** `hex` lightened by `amount` towards white (0 = unchanged, 1 = white) — soft tints and lips. */
+export function tint(hex: string, amount: number): string {
+  const out = channels(hex)
+    .map((c) => Math.round(c + (255 - c) * amount))
+    .map((c) => c.toString(16).padStart(2, '0'))
+    .join('');
+  return `#${out.toUpperCase()}`;
+}
+
 /**
  * The content-space line that decides which era's painting is shown: the
  * vertical middle of the viewport, so the next era's scenery arrives as soon

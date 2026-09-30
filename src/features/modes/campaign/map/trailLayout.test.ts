@@ -81,6 +81,26 @@ describe('eraTrailLayout', () => {
     expect(routeLane(1, width).centre - routeLane(0, width).centre).toBeGreaterThan(NODE + 20);
   });
 
+  it('dots each connector along its curve, clear of the buttons and the route banners', () => {
+    const layout = eraTrailLayout(ancient, 0, W);
+    for (const segment of layout.segments) {
+      expect(segment.dots.length).toBeGreaterThan(0);
+      for (const d of segment.dots) {
+        expect(Math.hypot(d.x - segment.from.x, d.y - segment.from.y)).toBeGreaterThanOrEqual(NODE / 2);
+        expect(Math.hypot(d.x - segment.to.x, d.y - segment.to.y)).toBeGreaterThanOrEqual(NODE / 2);
+        for (const b of layout.banners) {
+          const under =
+            d.x >= b.left && d.x <= b.left + b.width && d.y >= b.top && d.y <= b.top + ROUTE_BANNER_H;
+          expect(under).toBe(false);
+        }
+      }
+    }
+    // Fork connectors bend out into their lane: not a straight line from the fork.
+    const out = layout.segments.find((s) => s.toId === 'ancient-north-s1')!;
+    const firstDot = out.dots[0]!;
+    expect(Math.abs(firstDot.x - out.from.x)).toBeLessThan(Math.abs(firstDot.y - out.from.y));
+  });
+
   it('grows the trail by the fork section', () => {
     const layout = eraTrailLayout(ancient, 0, W);
     const lowest = Math.max(...layout.nodes.map((n) => n.y));

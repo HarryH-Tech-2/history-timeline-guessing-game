@@ -15,8 +15,13 @@ export const STEP_Y = 124;
 export const TRAIL_TOP = 64;
 /** How far (fraction of the usable half-width) the trail swings side to side. */
 export const SWING = 0.62;
-/** Dots drawn between consecutive buttons. */
+/**
+ * Nominal dots per connector: the light-up sequence spreads each segment's
+ * dots over this many staggers, whatever its length.
+ */
 export const TRAIL_DOTS = 5;
+/** Distance between trail dots along the curved connector. */
+export const TRAIL_DOT_SPACING = 13;
 /** Delay between trail dots lighting up in the unlock sequence. */
 export const DOT_STAGGER_MS = 90;
 /** When the light-up sequence starts after the map regains focus. */

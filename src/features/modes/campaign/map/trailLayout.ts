@@ -1,18 +1,18 @@
 import type { CampaignRoute, CampaignStage, CampaignWorld } from '../campaignMap';
 import {
+  NODE,
   ROUTE_BANNER_H,
   ROUTE_BANNER_TOP,
   routeLane,
   stageCentreY,
   STEP_Y,
   TRAIL_TOP,
+  TRAIL_DOT_SPACING,
   trailX,
 } from './constants';
+import { curveDots, type Point } from './trailCurve';
 
-export interface Point {
-  x: number;
-  y: number;
-}
+export type { Point } from './trailCurve';
 
 export interface TrailNode extends Point {
   stage: CampaignStage;
@@ -25,6 +25,8 @@ export interface TrailSegment {
   toId: string;
   from: Point;
   to: Point;
+  /** Where the connector's dots sit, along the S-curve from `from` to `to`. */
+  dots: readonly Point[];
 }
 
 export interface RouteBannerSpot {
@@ -81,9 +83,19 @@ export function eraTrailLayout(world: CampaignWorld, startIndex: number, width: 
     shift = lastRowY + STEP_Y - stageCentreY(i + 1);
   });
 
+  // Dots stay clear of the buttons and never run under a route banner.
+  const avoid = banners.map((b) => ({
+    left: b.left - 4,
+    top: b.top - 4,
+    width: b.width + 8,
+    height: ROUTE_BANNER_H + 8,
+  }));
   const segments: TrailSegment[] = [];
   const link = (from: CampaignStage, to: CampaignStage) => {
-    segments.push({ fromId: from.id, toId: to.id, from: at.get(from.id)!, to: at.get(to.id)! });
+    const a = at.get(from.id)!;
+    const b = at.get(to.id)!;
+    const dots = curveDots(a, b, { radius: NODE / 2 + 6, spacing: TRAIL_DOT_SPACING, avoid });
+    segments.push({ fromId: from.id, toId: to.id, from: a, to: b, dots });
   };
   main.forEach((stage, i) => {
     const next = main[i + 1];

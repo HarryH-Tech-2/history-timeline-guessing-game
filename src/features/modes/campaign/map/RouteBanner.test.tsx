@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react-native';
+import { render, screen, within } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
 
 import { CAMPAIGN } from '../campaignMap';
@@ -28,10 +28,24 @@ describe('RouteBanner', () => {
     const box = StyleSheet.flatten(banner.props.style);
     expect(box).toMatchObject({ left: lane.left, width: lane.width, overflow: 'hidden' });
 
-    const name = screen.getByText(`${longest.icon} ${longest.name}`);
+    expect(within(screen.getByTestId(`route-badge-${longest.id}`)).getByText(longest.icon)).toBeOnTheScreen();
+    const name = screen.getByText(longest.name);
     expect(name).toHaveProp('numberOfLines', 1);
     expect(name).toHaveProp('adjustsFontSizeToFit', true);
     expect(name).toHaveProp('ellipsizeMode', 'tail');
     expect(screen.getByTestId(`route-stars-${longest.id}`)).toHaveTextContent('★ 4/9');
+  });
+
+  it('ticks the badge of a cleared route and fades a route not reached yet', () => {
+    const [route] = routes;
+    const lane = routeLane(0, 392);
+    const props = { route: route!, colour: '#C2553A', total: 9, left: lane.left, top: 0, width: lane.width };
+    const { rerender } = render(<RouteBanner {...props} earned={3} cleared />);
+    expect(screen.getByTestId(`route-cleared-${route!.id}`)).toHaveTextContent('✓');
+    expect(StyleSheet.flatten(screen.getByTestId(`route-${route!.id}`).props.style).opacity).toBe(1);
+
+    rerender(<RouteBanner {...props} earned={0} locked />);
+    expect(screen.queryByTestId(`route-cleared-${route!.id}`)).toBeNull();
+    expect(StyleSheet.flatten(screen.getByTestId(`route-${route!.id}`).props.style).opacity).toBe(0.75);
   });
 });

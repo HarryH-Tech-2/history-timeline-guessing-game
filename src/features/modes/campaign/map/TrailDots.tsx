@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { memo, useEffect } from 'react';
 import { View } from 'react-native';
 import Animated, {
   cancelAnimation,
@@ -9,7 +9,8 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { DOT_STAGGER_MS, NODE, SEQUENCE_DELAY_MS, TRAIL_DOTS } from './constants';
+import { DOT_STAGGER_MS, SEQUENCE_DELAY_MS, TRAIL_DOTS } from './constants';
+import type { Point } from './trailCurve';
 
 /** One trail dot; `lightDelay` fades its lit colour in as part of the unlock sequence. */
 function TrailDot({
@@ -74,45 +75,39 @@ function TrailDot({
 }
 
 /**
- * Dotted trail segment between two buttons. Lit in the era colour once
- * the stage it leaves from is cleared — the road behind the player glows, the
- * road ahead stays faint.
+ * Dotted trail segment between two buttons, its dots precomputed along an
+ * S-curve by the trail layout. Lit in the era colour once the stage it leaves
+ * from is cleared — the road behind the player glows, the road ahead stays
+ * faint. The light-up runs over the same time whatever the segment's length.
  */
-export function TrailDots({
-  from,
-  to,
+export const TrailDots = memo(function TrailDots({
+  dots,
   colour,
   lit,
   lighting,
   token,
 }: {
-  from: { x: number; y: number };
-  to: { x: number; y: number };
+  dots: readonly Point[];
   colour: string;
   lit: boolean;
   /** This segment was lit since the last visit: light it dot by dot. */
   lighting: boolean;
   token: number;
 }) {
-  // Spread the dots over the gap between the two buttons, not under them.
-  const length = Math.hypot(to.x - from.x, to.y - from.y);
-  const pad = length > 0 ? Math.min(0.4, (NODE / 2 + 6) / length) : 0;
+  const stagger = dots.length > 1 ? ((TRAIL_DOTS - 1) * DOT_STAGGER_MS) / (dots.length - 1) : 0;
   return (
     <>
-      {Array.from({ length: TRAIL_DOTS }, (_, i) => {
-        const t = pad + (1 - 2 * pad) * (i / (TRAIL_DOTS - 1));
-        return (
-          <TrailDot
-            key={i}
-            left={from.x + (to.x - from.x) * t}
-            top={from.y + (to.y - from.y) * t}
-            colour={colour}
-            lit={lit}
-            lightDelay={lighting ? SEQUENCE_DELAY_MS + 200 + i * DOT_STAGGER_MS : null}
-            token={token}
-          />
-        );
-      })}
+      {dots.map((dot, i) => (
+        <TrailDot
+          key={i}
+          left={dot.x}
+          top={dot.y}
+          colour={colour}
+          lit={lit}
+          lightDelay={lighting ? SEQUENCE_DELAY_MS + 200 + i * stagger : null}
+          token={token}
+        />
+      ))}
     </>
   );
-}
+});

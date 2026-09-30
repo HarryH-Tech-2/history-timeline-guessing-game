@@ -61,6 +61,16 @@ async function seed(progress: CampaignProgress) {
   await saves.campaign.write(progress);
 }
 
+/** Dots on the Ancient trail's connectors leaving `stageIds`: the ones lit once they're cleared. */
+function litDots(stageIds: readonly string[]): number {
+  const start = allStages().findIndex((s) => s.id === ancient.stages[0]!.id);
+  return eraTrailLayout(ancient, start, Dimensions.get('window').width)
+    .segments.filter((s) => stageIds.includes(s.fromId))
+    .reduce((n, s) => n + s.dots.length, 0);
+}
+const ONE_SEGMENT = () => litDots([ancient.stages[0]!.id]);
+const TO_THE_FORK = () => litDots([ancient.stages[0]!.id, ancient.stages[1]!.id]);
+
 function cleared(stageIds: readonly string[], stars = 1): CampaignProgress {
   return Object.fromEntries(stageIds.map((id) => [id, { stars, bestScore: 100 }]));
 }
@@ -104,8 +114,8 @@ describe('CampaignMapScreen', () => {
   it('lights the trail behind cleared stages only', async () => {
     await seed(cleared([ancient.stages[0]!.id]));
     render(<CampaignMapScreen />);
-    // One cleared stage lights the one segment leaving it, five dots.
-    await waitFor(() => expect(screen.getAllByTestId('trail-dot-lit')).toHaveLength(5));
+    // One cleared stage lights the one segment leaving it.
+    await waitFor(() => expect(screen.getAllByTestId('trail-dot-lit')).toHaveLength(ONE_SEGMENT()));
   });
 
   it('marks a fully three-starred era as mastered and tallies the journey stars', async () => {
@@ -186,7 +196,7 @@ describe('CampaignMapScreen', () => {
     render(<CampaignMapScreen />);
     await waitFor(() => expect(screen.getByTestId(`route-${routeA!.id}`)).toBeOnTheScreen());
     expect(screen.getByTestId(`route-${routeB!.id}`)).toBeOnTheScreen();
-    expect(screen.getByText(`${routeA!.icon} ${routeA!.name}`)).toBeOnTheScreen();
+    expect(screen.getByText(routeA!.name)).toBeOnTheScreen();
     expect(screen.getByTestId(`route-stars-${routeA!.id}`)).toHaveTextContent('★ 0/9');
 
     const a1 = screen.getByTestId(`stage-${routeA!.stages[0]!.id}`);
@@ -203,8 +213,8 @@ describe('CampaignMapScreen', () => {
     expect(
       within(screen.getByTestId(`stage-${ancient.stages[2]!.id}`)).getByTestId('stage-face-locked'),
     ).toBeOnTheScreen();
-    // s1→s2 plus both connectors out of the fork: three segments of five dots.
-    expect(screen.getAllByTestId('trail-dot-lit')).toHaveLength(15);
+    // s1→s2 plus both connectors out of the fork.
+    expect(screen.getAllByTestId('trail-dot-lit')).toHaveLength(TO_THE_FORK());
 
     fireEvent.press(b1);
     expect(mockPush).toHaveBeenCalledWith({
@@ -267,7 +277,7 @@ describe('CampaignMapScreen', () => {
       const scrollTo = jest.spyOn(ScrollView.prototype, 'scrollTo');
       await seed(atFork());
       render(<CampaignMapScreen />);
-      await waitFor(() => expect(screen.getAllByTestId('trail-dot-lit')).toHaveLength(15));
+      await waitFor(() => expect(screen.getAllByTestId('trail-dot-lit')).toHaveLength(TO_THE_FORK()));
       await layOutAncient();
       expect(scrollTo).toHaveBeenLastCalledWith({
         y: offsetOf(ancient.routes[0]!.stages[0]!.id),
@@ -282,7 +292,7 @@ describe('CampaignMapScreen', () => {
       mockSearch = { focus: ancient.stages[1]!.id };
       await seed(atFork());
       render(<CampaignMapScreen />);
-      await waitFor(() => expect(screen.getAllByTestId('trail-dot-lit')).toHaveLength(15));
+      await waitFor(() => expect(screen.getAllByTestId('trail-dot-lit')).toHaveLength(TO_THE_FORK()));
       await layOutAncient();
       expect(scrollTo).toHaveBeenLastCalledWith({
         y: offsetOf(ancient.stages[1]!.id),
@@ -300,7 +310,7 @@ describe('CampaignMapScreen', () => {
       const saves = renderHook(useSaves).result.current;
       await saves.campaign.write(cleared([ancient.stages[0]!.id]));
       const { rerender } = render(<CampaignMapScreen />);
-      await waitFor(() => expect(screen.getAllByTestId('trail-dot-lit')).toHaveLength(5));
+      await waitFor(() => expect(screen.getAllByTestId('trail-dot-lit')).toHaveLength(ONE_SEGMENT()));
       await layOutAncient();
       expect(scrollTo).toHaveBeenLastCalledWith({ y: offsetOf(fork), animated: false });
 
@@ -320,7 +330,7 @@ describe('CampaignMapScreen', () => {
       await act(async () => {
         mockFocus.cleanup = mockFocus.callback?.();
       });
-      await waitFor(() => expect(screen.getAllByTestId('trail-dot-lit')).toHaveLength(15));
+      await waitFor(() => expect(screen.getAllByTestId('trail-dot-lit')).toHaveLength(TO_THE_FORK()));
       await waitFor(
         () => expect(scrollTo).toHaveBeenLastCalledWith({ y: offsetOf(fork), animated: true }),
         { timeout: 5000 },
