@@ -12,20 +12,21 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { DOT_STAGGER_MS, SEQUENCE_DELAY_MS, TRAIL_DOTS } from './constants';
+import { DOT_STAGGER_MS, SEQUENCE_DELAY_MS, TRAIL_DOT_SPACING, TRAIL_DOTS } from './constants';
 import type { RoadDot } from './trailCurve';
 
 /**
- * A road dash is a capsule along the road's heading: short enough that the
- * faint ones leave gaps at the dot spacing, while lit ones nearly touch and
- * read as a glowing band.
+ * The road is drawn as a run of capsules along its heading, each longer than
+ * the dot spacing so neighbours overlap into one solid line. The rim is a
+ * separate pass underneath, so the joins between capsules never show.
  */
-const DASH_W = 13;
-const DASH_H = 8;
-const LIT_W = 17;
-const LIT_H = 12;
-/** Each dash's box, centred on its point on the road. */
-const BOX = 24;
+const DASH_LEN = TRAIL_DOT_SPACING + 12;
+const FAINT_THICK = 7;
+const FAINT_RIM = 1.5;
+const LIT_THICK = 10;
+const LIT_RIM = 2;
+/** Each capsule's box, centred on its point on the road: roomy enough for any rotation. */
+const BOX = DASH_LEN + 2 * LIT_RIM + 4;
 /** How long the beckoning spark takes to run the length of its connector. */
 const BECKON_MS = 1400;
 
@@ -92,29 +93,38 @@ function Spark({ dots, colour }: { dots: readonly RoadDot[]; colour: string }) {
   );
 }
 
-const FAINT_DASH = {
-  width: DASH_W,
-  height: DASH_H,
-  borderRadius: DASH_H / 2,
-  backgroundColor: 'rgba(255,250,238,0.85)',
-  borderWidth: 1,
-  borderColor: 'rgba(29,23,18,0.3)',
-} as const;
-
-function litDash(colour: string) {
+/** One capsule of the road, `rim` wider all round when drawn as the outline pass. */
+function capsule(thick: number, rim: number, colour: string) {
+  const h = thick + 2 * rim;
   return {
     position: 'absolute',
-    width: LIT_W,
-    height: LIT_H,
-    borderRadius: LIT_H / 2,
+    width: DASH_LEN + 2 * rim,
+    height: h,
+    borderRadius: h / 2,
     backgroundColor: colour,
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
   } as const;
 }
 
-/** A lit dash fading in over the faint one, `delay` ms into the unlock sequence. */
-function LightingDash({ colour, delay, token }: { colour: string; delay: number; token: number }) {
+/** Opaque, so overlapping capsules read as one even band. */
+const FAINT_FILL = capsule(FAINT_THICK, 0, '#FFF8EA');
+const FAINT_OUTLINE = capsule(FAINT_THICK, FAINT_RIM, '#8F7D63');
+const LIT_OUTLINE = capsule(LIT_THICK, LIT_RIM, '#FFFFFF');
+const litFill = (colour: string) => capsule(LIT_THICK, 0, colour);
+
+type Layer = 'outline' | 'fill';
+
+/** A lit capsule fading in over the faint one, `delay` ms into the unlock sequence. */
+function LightingDash({
+  layer,
+  colour,
+  delay,
+  token,
+}: {
+  layer: Layer;
+  colour: string;
+  delay: number;
+  token: number;
+}) {
   const reducedMotion = useReducedMotion();
   const glow = useSharedValue(reducedMotion ? 1 : 0);
 
@@ -126,27 +136,35 @@ function LightingDash({ colour, delay, token }: { colour: string; delay: number;
   }, [delay, token, reducedMotion, glow]);
 
   const style = useAnimatedStyle(() => ({ opacity: glow.value }));
-  return (
+  return layer === 'outline' ? (
     <>
-      <View style={FAINT_DASH} />
-      <Animated.View testID="trail-dot-lit" style={[style, litDash(colour)]} />
+      <View style={FAINT_OUTLINE} />
+      <Animated.View style={[style, LIT_OUTLINE]} />
+    </>
+  ) : (
+    <>
+      <View style={FAINT_FILL} />
+      <Animated.View testID="trail-dot-lit" style={[style, litFill(colour)]} />
     </>
   );
 }
 
 /**
- * One dash of the road, turned to follow the curve: a faint parchment dash,
- * or once lit an era-coloured one with a white rim. Plain views unless it is
- * lighting up (`lightDelay`, part of the unlock sequence) — a map has
- * hundreds of these, so the resting ones carry no hooks at all.
+ * One capsule of the road, turned to follow the curve, in one layer: the rim
+ * (outline pass) or the body (fill pass). Faint parchment until lit, then the
+ * era colour with a white rim. Plain views unless it is lighting up
+ * (`lightDelay`, part of the unlock sequence) — a map has hundreds of these,
+ * so the resting ones carry no hooks at all.
  */
 function TrailDot({
+  layer,
   dot,
   colour,
   lit,
   lightDelay,
   token,
 }: {
+  layer: Layer;
   dot: RoadDot;
   colour: string;
   lit: boolean;
@@ -155,7 +173,11 @@ function TrailDot({
 }) {
   return (
     <View
+      pointerEvents="none"
       style={{
+        position: 'absolute',
+        left: dot.x - BOX / 2,
+        top: dot.y - BOX / 2,
         width: BOX,
         height: BOX,
         alignItems: 'center',
@@ -164,18 +186,20 @@ function TrailDot({
       }}
     >
       {!lit ? (
-        <View style={FAINT_DASH} />
+        <View style={layer === 'outline' ? FAINT_OUTLINE : FAINT_FILL} />
       ) : lightDelay !== null ? (
-        <LightingDash colour={colour} delay={lightDelay} token={token} />
+        <LightingDash layer={layer} colour={colour} delay={lightDelay} token={token} />
+      ) : layer === 'outline' ? (
+        <View style={LIT_OUTLINE} />
       ) : (
-        <View testID="trail-dot-lit" style={litDash(colour)} />
+        <View testID="trail-dot-lit" style={litFill(colour)} />
       )}
     </View>
   );
 }
 
 /**
- * Dotted road between two points on the map, its dashes precomputed along an
+ * Solid road between two points on the map, its capsules precomputed along an
  * S-curve by the trail layout. Lit in the era colour once the stage it leaves
  * from is cleared — the road behind the player glows, the road ahead stays
  * faint. The light-up runs over the same time whatever the segment's length.
@@ -202,21 +226,19 @@ export const TrailDots = memo(function TrailDots({
   const stagger = dots.length > 1 ? ((TRAIL_DOTS - 1) * DOT_STAGGER_MS) / (dots.length - 1) : 0;
   return (
     <>
-      {dots.map((dot, i) => (
-        <View
-          key={i}
-          pointerEvents="none"
-          style={{ position: 'absolute', left: dot.x - BOX / 2, top: dot.y - BOX / 2 }}
-        >
+      {(['outline', 'fill'] as const).map((layer) =>
+        dots.map((dot, i) => (
           <TrailDot
+            key={`${layer}${i}`}
+            layer={layer}
             dot={dot}
             colour={colour}
             lit={lit}
             lightDelay={lighting ? SEQUENCE_DELAY_MS + 200 + i * stagger : null}
             token={token}
           />
-        </View>
-      ))}
+        )),
+      )}
       {beckon && !reducedMotion && dots.length > 1 && <Spark dots={dots} colour={colour} />}
     </>
   );

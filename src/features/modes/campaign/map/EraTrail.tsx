@@ -37,7 +37,7 @@ export interface StageStanding {
 
 /**
  * One era's stretch of the trail, drawn from its precomputed layout: the
- * dotted road, the fork's route banners, the stage buttons on top, and the
+ * solid road, the fork's route banners, the stage buttons on top, and the
  * era's trophy at the end. Memoised:
  * scrolling re-renders the screen, but a trail only redraws when its own
  * inputs change.

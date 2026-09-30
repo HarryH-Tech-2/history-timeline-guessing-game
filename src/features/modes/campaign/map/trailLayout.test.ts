@@ -142,7 +142,7 @@ describe('eraTrailLayout', () => {
     }
   });
 
-  it('spaces stages well apart and lays each connector as a close-dotted road', () => {
+  it('spaces stages well apart and lays each connector as a continuous road', () => {
     const layout = eraTrailLayout(ancient, 0, W);
     const main = layout.nodes.filter((n) => n.route === undefined);
     for (let i = 1; i < main.length; i += 1) {
