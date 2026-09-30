@@ -7,14 +7,26 @@ import {
   within,
 } from '@testing-library/react-native';
 
+import { Dimensions, ScrollView } from 'react-native';
+
 import { useSaves } from '@/features/save';
 
 import type { CampaignProgress } from '../persistence';
-import { allStagesIncludingRoutes, CAMPAIGN, worldStages } from './campaignMap';
+import { allStages, allStagesIncludingRoutes, CAMPAIGN, worldStages } from './campaignMap';
+import { eraTrailLayout } from './map/trailLayout';
 
 const mockPush = jest.fn();
+const mockSetParams = jest.fn();
+let mockSearch: { focus?: string } = {};
 jest.mock('expo-router', () => ({
-  useRouter: () => ({ push: mockPush, back: jest.fn(), navigate: jest.fn(), replace: jest.fn() }),
+  useRouter: () => ({
+    push: mockPush,
+    back: jest.fn(),
+    navigate: jest.fn(),
+    replace: jest.fn(),
+    setParams: mockSetParams,
+  }),
+  useLocalSearchParams: () => mockSearch,
   // Run the focus callback like a mount effect.
   useFocusEffect: (callback: () => void | (() => void)) => {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -48,6 +60,8 @@ function cleared(stageIds: readonly string[], stars = 1): CampaignProgress {
 describe('CampaignMapScreen', () => {
   beforeEach(() => {
     mockPush.mockClear();
+    mockSetParams.mockClear();
+    mockSearch = {};
     mockPremium = false;
   });
   afterEach(() => seed({}));
@@ -79,10 +93,10 @@ describe('CampaignMapScreen', () => {
   });
 
   it('lights the trail behind cleared stages only', async () => {
-    await seed(cleared([ancient.stages[0]!.id, ancient.stages[1]!.id]));
+    await seed(cleared([ancient.stages[0]!.id]));
     render(<CampaignMapScreen />);
-    // Two cleared stages light the two segments leaving them, five dots each.
-    await waitFor(() => expect(screen.getAllByTestId('trail-dot-lit')).toHaveLength(10));
+    // One cleared stage lights the one segment leaving it, five dots.
+    await waitFor(() => expect(screen.getAllByTestId('trail-dot-lit')).toHaveLength(5));
   });
 
   it('marks a fully three-starred era as mastered and tallies the journey stars', async () => {
@@ -146,5 +160,106 @@ describe('CampaignMapScreen', () => {
     // Free player: the premium eras' stages wear crowns.
     const premium = screen.getByTestId(`stage-${medieval.stages[1]!.id}`);
     expect(within(premium).getByTestId('stage-face-premium')).toBeOnTheScreen();
+  });
+  it('forks the trail after the fork stage into two bannered, playable routes', async () => {
+    const [routeA, routeB] = ancient.routes;
+    await seed(cleared([ancient.stages[0]!.id, ancient.stages[1]!.id]));
+    render(<CampaignMapScreen />);
+    await waitFor(() => expect(screen.getByTestId(`route-${routeA!.id}`)).toBeOnTheScreen());
+    expect(screen.getByTestId(`route-${routeB!.id}`)).toBeOnTheScreen();
+    expect(screen.getByText(`${routeA!.icon} ${routeA!.name}`)).toBeOnTheScreen();
+    expect(screen.getByTestId(`route-stars-${routeA!.id}`)).toHaveTextContent('★ 0/9');
+
+    const a1 = screen.getByTestId(`stage-${routeA!.stages[0]!.id}`);
+    const b1 = screen.getByTestId(`stage-${routeB!.stages[0]!.id}`);
+    expect(within(a1).getByTestId('stage-face-frontier')).toBeOnTheScreen();
+    expect(within(b1).getByTestId('stage-face-open')).toBeOnTheScreen();
+    expect(within(a1).getByTestId('frontier-pulse')).toBeOnTheScreen();
+    expect(within(b1).getByTestId('frontier-pulse')).toBeOnTheScreen();
+    expect(screen.getAllByTestId('start-bubble')).toHaveLength(1);
+    expect(b1).toHaveProp('accessibilityLabel', `${routeB!.name}, Stage 1`);
+    // The rejoin stage waits for a whole route.
+    expect(
+      within(screen.getByTestId(`stage-${ancient.stages[2]!.id}`)).getByTestId('stage-face-locked'),
+    ).toBeOnTheScreen();
+    // s1→s2 plus both connectors out of the fork: three segments of five dots.
+    expect(screen.getAllByTestId('trail-dot-lit')).toHaveLength(15);
+
+    fireEvent.press(b1);
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: '/campaign/[world]/[stage]',
+      params: { world: ancient.id, stage: routeB!.stages[0]!.id },
+    });
+  });
+
+  it('reopens the main path after one whole route and leaves the other open', async () => {
+    const [routeA, routeB] = ancient.routes;
+    await seed(cleared([ancient.stages[0]!.id, ancient.stages[1]!.id, ...routeA!.stages.map((s) => s.id)]));
+    render(<CampaignMapScreen />);
+    const rejoin = await screen.findByTestId(`stage-${ancient.stages[2]!.id}`);
+    await waitFor(() => expect(within(rejoin).getByTestId('stage-face-frontier')).toBeOnTheScreen());
+    expect(
+      within(screen.getByTestId(`stage-${routeB!.stages[0]!.id}`)).getByTestId('stage-face-open'),
+    ).toBeOnTheScreen();
+    expect(screen.getByTestId(`route-stars-${routeA!.id}`)).toHaveTextContent('★ 3/9');
+  });
+
+  it('sends a free player tapping a Middle Ages route stage to the paywall', async () => {
+    const [crusades] = medieval.routes;
+    await seed(cleared(ancientAll));
+    render(<CampaignMapScreen />);
+    const node = await screen.findByTestId(`stage-${crusades!.stages[0]!.id}`);
+    expect(node).toHaveProp('accessibilityLabel', `${crusades!.name}, Stage 1, Premium`);
+    fireEvent.press(node);
+    expect(mockPush).toHaveBeenCalledWith({ pathname: '/paywall', params: { source: 'campaign' } });
+  });
+  describe('opening scroll', () => {
+    const ERA_TOP = 40;
+    const TRAIL_TOP_IN_ERA = 200;
+    /** Where the map scrolls to put `stageId` (an Ancient stage) a third of the way down. */
+    function offsetOf(stageId: string): number {
+      const { width, height } = Dimensions.get('window');
+      const start = allStages().findIndex((s) => s.id === ancient.stages[0]!.id);
+      const node = eraTrailLayout(ancient, start, width).nodes.find((n) => n.stage.id === stageId)!;
+      return Math.max(0, ERA_TOP + TRAIL_TOP_IN_ERA + node.y - height / 3);
+    }
+    async function layOutAncient() {
+      const trail = await screen.findByTestId(`era-trail-${ancient.id}`);
+      fireEvent(trail, 'layout', { nativeEvent: { layout: { y: TRAIL_TOP_IN_ERA } } });
+      fireEvent(screen.getByTestId(`era-section-${ancient.id}`), 'layout', {
+        nativeEvent: { layout: { y: ERA_TOP } },
+      });
+    }
+    const atFork = () => cleared([ancient.stages[0]!.id, ancient.stages[1]!.id]);
+
+    it('opens on the frontier stage by default', async () => {
+      const scrollTo = jest.spyOn(ScrollView.prototype, 'scrollTo');
+      await seed(atFork());
+      render(<CampaignMapScreen />);
+      await waitFor(() => expect(screen.getAllByTestId('trail-dot-lit')).toHaveLength(15));
+      await layOutAncient();
+      expect(scrollTo).toHaveBeenLastCalledWith({
+        y: offsetOf(ancient.routes[0]!.stages[0]!.id),
+        animated: false,
+      });
+      expect(mockSetParams).not.toHaveBeenCalled();
+      scrollTo.mockRestore();
+    });
+
+    it('opens on the focus stage instead when one is asked for, and consumes it', async () => {
+      const scrollTo = jest.spyOn(ScrollView.prototype, 'scrollTo');
+      mockSearch = { focus: ancient.stages[1]!.id };
+      await seed(atFork());
+      render(<CampaignMapScreen />);
+      await waitFor(() => expect(screen.getAllByTestId('trail-dot-lit')).toHaveLength(15));
+      await layOutAncient();
+      expect(scrollTo).toHaveBeenLastCalledWith({
+        y: offsetOf(ancient.stages[1]!.id),
+        animated: false,
+      });
+      expect(offsetOf(ancient.stages[1]!.id)).not.toBe(offsetOf(ancient.routes[0]!.stages[0]!.id));
+      expect(mockSetParams).toHaveBeenCalledWith({ focus: undefined });
+      scrollTo.mockRestore();
+    });
   });
 });

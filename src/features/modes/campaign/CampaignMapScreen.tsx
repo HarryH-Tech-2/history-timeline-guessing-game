@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   ScrollView,
   useWindowDimensions,
@@ -6,7 +6,7 @@ import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
 } from 'react-native';
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -24,16 +24,18 @@ import {
   isStagePremium,
   isWorldPremium,
   progressSince,
+  pulseStageIds,
   starsEarned,
   type CampaignStage,
   worldStages,
 } from './campaignMap';
-import { SEQUENCE_DELAY_MS, stageCentreY, STICKY_BAR_SPACE } from './map/constants';
+import { SEQUENCE_DELAY_MS, STICKY_BAR_SPACE } from './map/constants';
 import { EraBackdrop } from './map/EraBackdrop';
 import { EraBanner } from './map/EraBanner';
 import { EraTrail, NO_CELEBRATION, type Celebration } from './map/EraTrail';
 import { bannerTucked, eraInView } from './map/mapVisuals';
 import { StickyEraBar } from './map/StickyEraBar';
+import { eraTrailLayout, type TrailLayout } from './map/trailLayout';
 
 /**
  * The campaign map: a Duolingo-style trail of round 3D stage buttons winding
@@ -55,6 +57,12 @@ const BOTTOM_PAD = 64;
  */
 export function CampaignMapScreen() {
   const router = useRouter();
+  /**
+   * `focus`: a stage to open the map on, overriding the frontier scroll —
+   * "Continue your quest" after the stage before a fork lands on the fork.
+   */
+  const { focus } = useLocalSearchParams<{ focus?: string }>();
+  const focusRef = useRef(focus);
   const { width, height } = useWindowDimensions();
   const { isReady, campaign } = useSaves();
   const { isPremium } = usePremium();
@@ -76,10 +84,23 @@ export function CampaignMapScreen() {
   const barVisibleRef = useRef(barVisible);
   const scrollY = useRef(0);
 
-  const stages = allStages();
   const frontierId = frontierStage(progress)?.id;
-  /** Global play-order position of each stage, for a continuous trail phase. */
-  const orderOf = new Map(stages.map((s, i) => [s.id, i]));
+  /** Each era's trail geometry; the swing phase runs on along the main path. */
+  const layouts = useMemo(() => {
+    const orderOf = new Map(allStages().map((s, i) => [s.id, i]));
+    return new Map(
+      CAMPAIGN.map(
+        (w) => [w.id, eraTrailLayout(w, orderOf.get(w.stages[0]?.id ?? '') ?? 0, width)] as const,
+      ),
+    );
+  }, [width]);
+  const layoutsRef = useRef<ReadonlyMap<string, TrailLayout>>(layouts);
+  // Latest values for the scroll/focus callbacks, without re-running the focus effect.
+  useLayoutEffect(() => {
+    focusRef.current = focus;
+    layoutsRef.current = layouts;
+  }, [focus, layouts]);
+  const pulseIds = pulseStageIds(progress);
 
   /**
    * Point the backdrop and sticky bar at whichever era sits under the bar at
@@ -122,9 +143,10 @@ export function CampaignMapScreen() {
     if (!stage) return;
     const wrapper = eraY.current.get(stage.worldId);
     const trail = trailY.current.get(stage.worldId);
-    if (wrapper === undefined || trail === undefined) return;
+    const node = layoutsRef.current.get(stage.worldId)?.nodes.find((n) => n.stage.id === stage.id);
+    if (wrapper === undefined || trail === undefined || node === undefined) return;
     pendingScroll.current = null;
-    const y = wrapper + trail + stageCentreY(stage.index - 1);
+    const y = wrapper + trail + node.y;
     const offset = Math.max(0, y - height / 3);
     scrollRef.current?.scrollTo({ y: offset, animated: target.animated });
     // A programmatic jump doesn't always report a scroll event; keep the bar honest.
@@ -147,15 +169,25 @@ export function CampaignMapScreen() {
         const previous = seen.current?.store === campaign ? seen.current.progress : null;
         seen.current = { store: campaign, progress: p };
         setProgress(p);
-        const next = frontierStage(p);
+        // A requested focus (the fork, after "Continue your quest") wins over
+        // the frontier; consume it so a later visit to the tab doesn't jump back.
+        const focusId = focusRef.current;
+        if (focusId !== undefined) router.setParams({ focus: undefined });
+        const targetId = focusId ?? frontierStage(p)?.id;
         if (previous === null) {
           // First visit: open on the stage to play, without fanfare.
-          if (next) pendingScroll.current = { stageId: next.id, animated: false };
+          if (targetId !== undefined) pendingScroll.current = { stageId: targetId, animated: false };
           tryScroll();
           return;
         }
         const delta = progressSince(previous, p);
-        if (delta.cleared.length === 0 && delta.unlocked.length === 0) return;
+        if (delta.cleared.length === 0 && delta.unlocked.length === 0) {
+          if (focusId !== undefined) {
+            pendingScroll.current = { stageId: focusId, animated: true };
+            tryScroll();
+          }
+          return;
+        }
         setCelebration((c) => ({
           token: c.token + 1,
           cleared: new Set(delta.cleared),
@@ -163,7 +195,7 @@ export function CampaignMapScreen() {
         }));
         // Follow the trail to the new frontier as the lights run along it.
         timer = setTimeout(() => {
-          if (next) pendingScroll.current = { stageId: next.id, animated: true };
+          if (targetId !== undefined) pendingScroll.current = { stageId: targetId, animated: true };
           tryScroll();
         }, SEQUENCE_DELAY_MS + 300);
       });
@@ -171,7 +203,7 @@ export function CampaignMapScreen() {
         active = false;
         if (timer !== undefined) clearTimeout(timer);
       };
-    }, [isReady, campaign, tryScroll]),
+    }, [isReady, campaign, tryScroll, router]),
   );
 
   const openStage = useCallback(
@@ -210,13 +242,13 @@ export function CampaignMapScreen() {
             }}
           >
             {CAMPAIGN.map((world) => {
-              const startIndex = orderOf.get(world.stages[0]?.id ?? '') ?? 0;
               const premiumLocked = isWorldPremium(world.id) && !isPremium;
               const firstStage = world.stages[0];
               const opened = firstStage !== undefined && celebration.unlocked.has(firstStage.id);
               return (
                 <View
                   key={world.id}
+                  testID={`era-section-${world.id}`}
                   onLayout={(e) => {
                     eraY.current.set(world.id, e.nativeEvent.layout.y);
                     measured();
@@ -232,10 +264,11 @@ export function CampaignMapScreen() {
                   />
                   <EraTrail
                     world={world}
-                    startIndex={startIndex}
+                    layout={layouts.get(world.id)!}
                     width={width}
                     progress={progress}
                     frontierId={frontierId}
+                    pulseIds={pulseIds}
                     premiumLocked={premiumLocked}
                     celebration={celebration}
                     onOpenStage={(stage) => openStage(world.id, stage)}

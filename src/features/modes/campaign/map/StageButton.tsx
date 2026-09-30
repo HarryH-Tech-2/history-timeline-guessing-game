@@ -91,6 +91,7 @@ function FrontierPulse({ colour, size }: { colour: string; size: number }) {
   return (
     <Animated.View
       pointerEvents="none"
+      testID="frontier-pulse"
       style={[
         style,
         {
@@ -118,9 +119,11 @@ function FrontierPulse({ colour, size }: { colour: string; size: number }) {
  */
 export function StageButton({
   stage,
+  routeName,
   colour,
   unlocked,
   frontier,
+  pulse,
   premiumLocked,
   stars,
   x,
@@ -130,10 +133,14 @@ export function StageButton({
   onPress,
 }: {
   stage: CampaignStage;
+  /** Route stages: the route's name, for the accessibility label. */
+  routeName?: string;
   colour: string;
   unlocked: boolean;
   /** The next stage to play. */
   frontier: boolean;
+  /** Wear the frontier pulse without being the frontier (the other route's opener at a fork). */
+  pulse?: boolean;
   /** Premium stage for a free player: a crown, and tapping opens the paywall. */
   premiumLocked: boolean;
   stars: number;
@@ -186,7 +193,7 @@ export function StageButton({
   const size = frontier ? FRONTIER_NODE : NODE;
   const look = faceOf(state, colour, stage, premiumLocked);
   const playable = unlocked || premiumLocked;
-  const label = `Stage ${stage.index}${premiumLocked ? ', Premium' : unlocked ? '' : ', locked'}`;
+  const label = `${routeName !== undefined ? `${routeName}, ` : ''}Stage ${stage.index}${premiumLocked ? ', Premium' : unlocked ? '' : ', locked'}`;
   const done = stars > 0;
 
   return (
@@ -240,7 +247,9 @@ export function StageButton({
         >
           {({ pressed }) => (
             <>
-              {frontier && !reducedMotion && <FrontierPulse colour={colour} size={size} />}
+              {(frontier || pulse === true) && !reducedMotion && (
+                <FrontierPulse colour={colour} size={size} />
+              )}
               {/* The lip: a darker circle the face sits on. */}
               <View
                 style={{

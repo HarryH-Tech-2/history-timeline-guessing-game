@@ -1,9 +1,15 @@
 import { View } from 'react-native';
 
 import type { CampaignProgress } from '../../persistence';
-import { isStageUnlocked, type CampaignStage, type CampaignWorld } from '../campaignMap';
-import { stageCentreY, STEP_Y, TRAIL_TOP, trailX } from './constants';
+import {
+  isStageUnlocked,
+  starsEarned,
+  type CampaignStage,
+  type CampaignWorld,
+} from '../campaignMap';
+import { RouteBanner } from './RouteBanner';
 import { StageButton } from './StageButton';
+import type { TrailLayout } from './trailLayout';
 import { TrailDots } from './TrailDots';
 
 /** Stages that just changed since the last visit, and a token to replay the sequence. */
@@ -16,75 +22,81 @@ export interface Celebration {
 export const NO_CELEBRATION: Celebration = { token: 0, cleared: new Set(), unlocked: new Set() };
 
 /**
- * One era's stretch of the trail: a panel whose height comes from the stage
- * count, with buttons swinging left and right along a sine path. `startIndex`
- * keeps the swing phase continuous across eras so the whole campaign reads as
- * one road.
+ * One era's stretch of the trail, drawn from its precomputed layout: dotted
+ * segments, the fork's route banners, then the stage buttons on top.
  */
 export function EraTrail({
   world,
-  startIndex,
+  layout,
   width,
   progress,
   frontierId,
+  pulseIds,
   premiumLocked,
   celebration,
   onOpenStage,
   onLayoutY,
 }: {
   world: CampaignWorld;
-  startIndex: number;
+  layout: TrailLayout;
   width: number;
   progress: CampaignProgress;
   frontierId?: string;
+  /** Stages wearing the frontier pulse (both route openers at a fresh fork). */
+  pulseIds: ReadonlySet<string>;
   premiumLocked: boolean;
   celebration: Celebration;
   onOpenStage: (stage: CampaignStage) => void;
   onLayoutY: (y: number) => void;
 }) {
-  const centres = world.stages.map((_, i) => ({
-    x: trailX(startIndex + i, width),
-    y: stageCentreY(i),
-  }));
-
   return (
     <View
-      style={{ height: TRAIL_TOP + world.stages.length * STEP_Y + 14 }}
-      onLayout={(e) => onLayoutY(e.nativeEvent.layout.y)}
-    >
-      {centres.slice(0, -1).map((from, i) => {
-        const fromStage = world.stages[i]!;
-        return (
-          <TrailDots
-            key={i}
-            from={from}
-            to={centres[i + 1]!}
-            colour={world.colour}
-            lit={(progress[fromStage.id]?.stars ?? 0) >= 1}
-            lighting={celebration.cleared.has(fromStage.id)}
-            token={celebration.token}
-          />
-        );
-      })}
-      {world.stages.map((stage, i) => {
+      testID={`era-trail-${world.id}`}
+      style={{ height: layout.height }}
+      onLayout={(e) => onLayoutY(e.nativeEvent.layout.y)}>
+      {layout.segments.map((segment) => (
+        <TrailDots
+          key={`${segment.fromId}>${segment.toId}`}
+          from={segment.from}
+          to={segment.to}
+          colour={world.colour}
+          lit={(progress[segment.fromId]?.stars ?? 0) >= 1}
+          lighting={celebration.cleared.has(segment.fromId)}
+          token={celebration.token}
+        />
+      ))}
+      {layout.banners.map((banner) => (
+        <RouteBanner
+          key={banner.route.id}
+          route={banner.route}
+          colour={world.colour}
+          earned={starsEarned(banner.route.stages, progress)}
+          total={banner.route.stages.length * 3}
+          left={banner.left}
+          top={banner.top}
+          width={banner.width}
+        />
+      ))}
+      {layout.nodes.map(({ stage, route, x, y }) => {
         const kind = celebration.cleared.has(stage.id)
           ? 'cleared'
           : celebration.unlocked.has(stage.id)
             ? 'unlocked'
             : null;
-        const centre = centres[i]!;
         return (
           <StageButton
             key={stage.id}
             stage={stage}
+            routeName={route?.name}
             colour={world.colour}
             unlocked={isStageUnlocked(stage.id, progress)}
             frontier={stage.id === frontierId}
+            pulse={pulseIds.has(stage.id)}
             premiumLocked={premiumLocked}
             stars={progress[stage.id]?.stars ?? 0}
-            x={centre.x}
-            y={centre.y}
-            owlSide={centre.x > width / 2 ? 'left' : 'right'}
+            x={x}
+            y={y}
+            owlSide={x > width / 2 ? 'left' : 'right'}
             celebrate={kind === null ? null : { token: celebration.token, kind }}
             onPress={() => onOpenStage(stage)}
           />

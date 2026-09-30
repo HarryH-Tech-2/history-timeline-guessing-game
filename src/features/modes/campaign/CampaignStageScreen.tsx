@@ -64,7 +64,10 @@ function StagePlay({
         }}
         primaryLabel={cta.label}
         onPrimary={() => onQuest(cta.action)}
-        {...(cta.action.kind === 'map'
+        // After the final stage there's no map to go "back" to besides the
+        // primary; at a fork the primary lands on the fork, so the plain way
+        // back stays on offer as for any mid-campaign stage.
+        {...(cta.action.kind === 'map' && cta.action.focusStageId === undefined
           ? { secondaryLabel: 'Replay', onSecondary: onRetry }
           : {
               secondaryLabel: 'Back to map',
@@ -155,8 +158,13 @@ export function CampaignStageScreen() {
   const colour = getWorld(stage.worldId)?.colour ?? palette.accent.default;
 
   const onQuest = (action: QuestAction) => {
-    if (action.kind === 'map') router.back();
-    else if (action.kind === 'paywall') router.push(paywallHref('campaign'));
+    if (action.kind === 'map') {
+      // At a fork: back down to the map tab, opened on the fork itself —
+      // popping to it rather than pushing, so this stage doesn't stay stacked.
+      if (action.focusStageId !== undefined) {
+        router.dismissTo({ pathname: '/campaign', params: { focus: action.focusStageId } });
+      } else router.back();
+    } else if (action.kind === 'paywall') router.push(paywallHref('campaign'));
     else
       router.replace({
         pathname: '/campaign/[world]/[stage]',
