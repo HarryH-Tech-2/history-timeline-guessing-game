@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Image, View, type ImageSourcePropType } from 'react-native';
-import Animated, { FadeIn, useReducedMotion } from 'react-native-reanimated';
+import Animated, {
+  cancelAnimation,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
 /** One painted scene per era, each with a calm winding road down its centre. */
 const ERA_ART: Record<string, ImageSourcePropType> = {
@@ -52,11 +58,28 @@ export function EraBackdrop({ eraId }: { eraId: string }) {
   }
 
   const outgoing = layers.outgoing;
+  // The fade is a shared value we own, not a layout ("entering") animation:
+  // eras can change several times during one fast fling, and an interrupted
+  // entering animation can leave the new painting stuck invisible (seen on
+  // device for the 19th century and Modern Era). Whatever happens to the
+  // animation, the painting is forced fully opaque once the outgoing one goes.
+  const fade = useSharedValue(1);
   useEffect(() => {
-    if (outgoing === undefined) return;
-    const timer = setTimeout(() => setLayers((l) => ({ current: l.current })), CROSSFADE_MS + 50);
+    if (outgoing === undefined) {
+      cancelAnimation(fade);
+      fade.value = 1;
+      return;
+    }
+    fade.value = 0;
+    fade.value = withTiming(1, { duration: CROSSFADE_MS });
+    const timer = setTimeout(() => {
+      cancelAnimation(fade);
+      fade.value = 1;
+      setLayers((l) => ({ current: l.current }));
+    }, CROSSFADE_MS + 50);
     return () => clearTimeout(timer);
-  }, [outgoing]);
+  }, [outgoing, fade]);
+  const fadeStyle = useAnimatedStyle(() => ({ opacity: fade.value }));
 
   return (
     <View
@@ -72,10 +95,7 @@ export function EraBackdrop({ eraId }: { eraId: string }) {
       )}
       <Animated.View
         key={layers.current}
-        entering={
-          outgoing === undefined || reducedMotion ? undefined : FadeIn.duration(CROSSFADE_MS)
-        }
-        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+        style={[{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }, fadeStyle]}
       >
         <Painting eraId={layers.current} />
       </Animated.View>
