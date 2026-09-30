@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+import { type ComponentProps, useEffect } from 'react';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { Image, Pressable, Text, View } from 'react-native';
 import Animated, {
   cancelAnimation,
@@ -34,38 +35,80 @@ const OWL_WIDTH = Math.round(OWL_HEIGHT * (601 / 640));
 const GOLD = '#F5C542';
 const LOCKED_FACE = '#D6D2CA';
 const LOCKED_LIP = '#A29C91';
+/** Muted grey for an era icon on a premium-locked face. */
+const PREMIUM_INK = '#8F897F';
+const CROWN_BADGE = 22;
+const DARK_BADGE = '#2A221B';
 
-/** Face colour, lip colour and glyph for each button state. */
+type IconName = ComponentProps<typeof MaterialCommunityIcons>['name'];
+
+type Glyph = { kind: 'text'; text: string } | { kind: 'icon'; name: IconName };
+
+/**
+ * Face colour, lip colour and glyph (text or era icon) for each button state.
+ * `glyphSize` is px for text glyphs and a fraction of the button size for icons.
+ */
 function faceOf(
   state: NodeState,
   colour: string,
-  symbol: string,
+  icon: IconName,
   premiumLocked: boolean,
-): { face: string; lip: string; glyph: string; ink: string; glyphSize: number } {
+): {
+  face: string;
+  lip: string;
+  glyph: Glyph;
+  ink: string;
+  glyphSize: number;
+  crownBadge: boolean;
+} {
   switch (state) {
     case 'locked':
-      return { face: LOCKED_FACE, lip: LOCKED_LIP, glyph: '🔒', ink: '#6F695F', glyphSize: 22 };
+      return {
+        face: LOCKED_FACE,
+        lip: LOCKED_LIP,
+        glyph: { kind: 'text', text: '🔒' },
+        ink: '#6F695F',
+        glyphSize: 22,
+        crownBadge: false,
+      };
     case 'premium':
-      return { face: LOCKED_FACE, lip: LOCKED_LIP, glyph: '👑', ink: '#6F695F', glyphSize: 24 };
+      // The era's own icon, greyed out, so later eras still look distinct; a
+      // small crown in the corner says why it's shut.
+      return {
+        face: LOCKED_FACE,
+        lip: LOCKED_LIP,
+        glyph: { kind: 'icon', name: icon },
+        ink: PREMIUM_INK,
+        glyphSize: 0.42,
+        crownBadge: true,
+      };
     case 'mastered':
-      return { face: GOLD, lip: shade(GOLD, 0.3), glyph: '👑', ink: '#FFFFFF', glyphSize: 26 };
+      return {
+        face: GOLD,
+        lip: shade(GOLD, 0.3),
+        glyph: { kind: 'text', text: '👑' },
+        ink: '#FFFFFF',
+        glyphSize: 26,
+        crownBadge: false,
+      };
     case 'completed':
-      return { face: colour, lip: shade(colour, 0.3), glyph: '★', ink: '#FFFFFF', glyphSize: 32 };
-    case 'frontier':
       return {
         face: colour,
         lip: shade(colour, 0.3),
-        glyph: premiumLocked ? '👑' : symbol,
-        ink: inkOn(colour),
-        glyphSize: premiumLocked ? 30 : 32,
+        glyph: { kind: 'text', text: '★' },
+        ink: '#FFFFFF',
+        glyphSize: 32,
+        crownBadge: false,
       };
+    case 'frontier':
     case 'open':
       return {
         face: colour,
         lip: shade(colour, 0.3),
-        glyph: symbol,
+        glyph: { kind: 'icon', name: icon },
         ink: inkOn(colour),
-        glyphSize: 28,
+        glyphSize: 0.42,
+        crownBadge: premiumLocked,
       };
   }
 }
@@ -119,7 +162,7 @@ function FrontierPulse({ colour, size }: { colour: string; size: number }) {
  */
 export function StageButton({
   stage,
-  symbol,
+  icon,
   routeName,
   colour,
   unlocked,
@@ -135,8 +178,8 @@ export function StageButton({
   onPress,
 }: {
   stage: CampaignStage;
-  /** Face symbol while the stage is playable (see `stageSymbol`); the label keeps the number. */
-  symbol: string;
+  /** The era/route icon on the face (see `stageIcon`); the label keeps the number. */
+  icon: string;
   /** Route stages: the route's name, for the accessibility label. */
   routeName?: string;
   colour: string;
@@ -145,7 +188,7 @@ export function StageButton({
   frontier: boolean;
   /** Wear the frontier pulse without being the frontier (the other route's opener at a fork). */
   pulse?: boolean;
-  /** Premium stage for a free player: a crown, and tapping opens the paywall. */
+  /** Premium stage for a free player: a crown badge, and tapping opens the paywall. */
   premiumLocked: boolean;
   stars: number;
   /** Centre of the button, in the era trail's coordinates. */
@@ -197,7 +240,7 @@ export function StageButton({
 
   const state = nodeState({ unlocked, frontier, premiumLocked, stars });
   const size = frontier ? FRONTIER_NODE : NODE;
-  const look = faceOf(state, colour, symbol, premiumLocked);
+  const look = faceOf(state, colour, icon as IconName, premiumLocked);
   const playable = unlocked || premiumLocked;
   const label = `${routeName !== undefined ? `${routeName}, ` : ''}Stage ${stage.index}${premiumLocked ? ', Premium' : unlocked ? '' : ', locked'}`;
   const done = stars > 0;
@@ -282,21 +325,59 @@ export function StageButton({
                   justifyContent: 'center',
                 }}
               >
-                <Text
-                  className="font-black"
+                {look.glyph.kind === 'icon' ? (
+                  // Wrapped so the name is findable before the icon font loads.
+                  <View testID={`stage-icon-${look.glyph.name}`}>
+                    <MaterialCommunityIcons
+                      name={look.glyph.name}
+                      size={Math.round(size * look.glyphSize)}
+                      color={look.ink}
+                      style={{
+                        textShadowColor:
+                          look.ink === '#FFFFFF' ? 'rgba(0,0,0,0.25)' : 'transparent',
+                        textShadowOffset: { width: 0, height: 1 },
+                        textShadowRadius: 2,
+                      }}
+                    />
+                  </View>
+                ) : (
+                  <Text
+                    className="font-black"
+                    style={{
+                      fontSize: look.glyphSize,
+                      color: look.ink,
+                      includeFontPadding: false,
+                      opacity: state === 'locked' ? 0.75 : 1,
+                      textShadowColor: look.ink === '#FFFFFF' ? 'rgba(0,0,0,0.25)' : 'transparent',
+                      textShadowOffset: { width: 0, height: 1 },
+                      textShadowRadius: 2,
+                    }}
+                  >
+                    {look.glyph.text}
+                  </Text>
+                )}
+              </View>
+              {look.crownBadge && (
+                <View
+                  pointerEvents="none"
+                  testID="stage-crown-badge"
                   style={{
-                    fontSize: look.glyphSize,
-                    color: look.ink,
-                    includeFontPadding: false,
-                    opacity: state === 'locked' ? 0.75 : 1,
-                    textShadowColor: look.ink === '#FFFFFF' ? 'rgba(0,0,0,0.25)' : 'transparent',
-                    textShadowOffset: { width: 0, height: 1 },
-                    textShadowRadius: 2,
+                    position: 'absolute',
+                    top: (pressed ? LIP : 0) - 4,
+                    right: -4,
+                    width: CROWN_BADGE,
+                    height: CROWN_BADGE,
+                    borderRadius: CROWN_BADGE / 2,
+                    backgroundColor: DARK_BADGE,
+                    borderWidth: 1.5,
+                    borderColor: GOLD,
+                    alignItems: 'center',
+                    justifyContent: 'center',
                   }}
                 >
-                  {look.glyph}
-                </Text>
-              </View>
+                  <MaterialCommunityIcons name="crown" size={14} color={GOLD} />
+                </View>
+              )}
             </>
           )}
         </Pressable>

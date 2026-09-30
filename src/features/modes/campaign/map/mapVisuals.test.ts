@@ -4,15 +4,19 @@ import {
   bannerTucked,
   DARK_INK,
   eraInView,
-  FINALE_SYMBOL,
+  DEFAULT_ICONS,
+  ERA_ICONS,
+  FINALE_ICON,
   inkOn,
   nodeState,
-  ROUTE_SYMBOL,
+  ROUTE_ICON,
+  ROUTE_ICONS,
   shade,
-  STAGE_SYMBOLS,
-  stageSymbol,
+  stageIcon,
   tint,
 } from './mapVisuals';
+import { CAMPAIGN_ROUTE_SPECS } from '../../../../data/packs/campaignRoutes/routes';
+import glyphMap from '@expo/vector-icons/build/vendor/react-native-vector-icons/glyphmaps/MaterialCommunityIcons.json';
 
 describe('eraInView', () => {
   const sections = [
@@ -121,32 +125,53 @@ describe('backdropProbe', () => {
   });
 });
 
-describe('stageSymbol', () => {
+describe('stageIcon', () => {
   const world = FIXTURE_WORLDS[0]!;
 
-  it('cycles main stages through the themed set, the same symbol every time', () => {
+  it('cycles main stages through the era set, the same icon every time', () => {
     const body = world.stages.slice(0, -1);
-    const symbols = body.map((s) => stageSymbol(s, world));
-    expect(symbols).toEqual(body.map((s) => stageSymbol(s, world)));
-    symbols.forEach((symbol) => expect(STAGE_SYMBOLS).toContain(symbol));
-    for (let i = 1; i < symbols.length; i += 1) expect(symbols[i]).not.toBe(symbols[i - 1]);
+    const icons = body.map((s) => stageIcon(s, world).icon);
+    expect(icons).toEqual(body.map((s) => stageIcon(s, world).icon));
+    const set = ERA_ICONS[world.id] ?? DEFAULT_ICONS;
+    icons.forEach((icon) => expect(set).toContain(icon));
+    for (let i = 1; i < icons.length; i += 1) expect(icons[i]).not.toBe(icons[i - 1]);
+  });
+
+  it('gives each era its own set, offset by era', () => {
+    const stage = { ...world.stages[0]!, routeId: undefined };
+    const at = (id: string, index: number) => stageIcon(stage, { ...world, id, index }).icon;
+    expect(at('ancient', 1)).toBe('pyramid');
+    expect(at('medieval', 2)).toBe('sword-cross');
+    expect(at('modern', 5)).toBe('laptop');
+    expect(at('unknown-era', 1)).toBe(DEFAULT_ICONS[0]);
   });
 
   it('marks the era finale on the last main stage', () => {
-    expect(stageSymbol(world.stages.at(-1)!, world)).toBe(FINALE_SYMBOL);
+    expect(stageIcon(world.stages.at(-1)!, world)).toEqual({
+      icon: FINALE_ICON,
+    });
   });
 
-  it('marks every route stage with the route pennant', () => {
+  it("marks route stages with their route's icon, falling back for unknown routes", () => {
     const routeStages = world.routes.flatMap((r) => r.stages);
     expect(routeStages.length).toBeGreaterThan(0);
-    for (const s of routeStages) expect(stageSymbol(s, world)).toBe(ROUTE_SYMBOL);
+    for (const s of routeStages) expect(stageIcon(s, world).icon).toBe(ROUTE_ICON);
+    const voyage = { ...routeStages[0]!, routeId: 'voyages' };
+    expect(stageIcon(voyage, world).icon).toBe('sail-boat');
   });
 
-  it('never uses digits or colour-emoji forms', () => {
-    for (const symbol of [...STAGE_SYMBOLS, FINALE_SYMBOL, ROUTE_SYMBOL]) {
-      expect(symbol).not.toMatch(/\d/);
-      expect(symbol).not.toMatch(/\uFE0F/);
-      expect([...symbol.replace('\uFE0E', '')]).toHaveLength(1);
-    }
+  it('themes every real route', () => {
+    for (const route of CAMPAIGN_ROUTE_SPECS) expect(ROUTE_ICONS[route.id]).toBeDefined();
+  });
+
+  it('only uses names that exist in the MaterialCommunityIcons glyph map', () => {
+    const names = [
+      ...Object.values(ERA_ICONS).flat(),
+      ...DEFAULT_ICONS,
+      FINALE_ICON,
+      ROUTE_ICON,
+      ...Object.values(ROUTE_ICONS),
+    ];
+    for (const name of names) expect(Object.keys(glyphMap)).toContain(name);
   });
 });

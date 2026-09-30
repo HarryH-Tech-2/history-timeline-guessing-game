@@ -112,25 +112,71 @@ export function backdropProbe(scrollY: number, viewportHeight: number): number {
   return scrollY + viewportHeight / 2;
 }
 
-/**
- * Face symbols for playable main stages, cycled by position: quill, compass
- * rose, sun, star, castle, ankh. All plain text glyphs (no colour-emoji
- * forms), so they take the button's ink like the old stage numbers did.
- */
-export const STAGE_SYMBOLS = ['\u270E', '\u2725', '\u263C', '\u2726', '\u265C', '\u2625'] as const;
-/** The era's final main stage: a fleur-de-lis, forced to its text form. */
-export const FINALE_SYMBOL = '\u269C\uFE0E';
-/** Every route stage: a pennant, so side paths read as side paths. */
-export const ROUTE_SYMBOL = '\u2691';
+/** A face icon: a MaterialCommunityIcons glyph name. */
+export interface StageIcon {
+  icon: string;
+}
 
 /**
- * The symbol on a playable stage's face. Stable per stage: route stages wear
- * the route pennant, the era's last main stage its finale mark, and the rest
- * cycle through `STAGE_SYMBOLS` (offset by era so eras don't all open alike).
+ * Face icons for each era's main stages, cycled by position along the path,
+ * so every era's buttons read as that period at a glance.
  */
-export function stageSymbol(stage: CampaignStage, world: CampaignWorld): string {
-  if (stage.routeId !== undefined) return ROUTE_SYMBOL;
-  if (stage.index === world.stages.length) return FINALE_SYMBOL;
-  const i = (stage.index - 1 + world.index - 1) % STAGE_SYMBOLS.length;
-  return STAGE_SYMBOLS[i]!;
+export const ERA_ICONS: Readonly<Record<string, readonly string[]>> = {
+  ancient: [
+    'pyramid',
+    'pillar',
+    'horse-variant',
+    'shield-sun',
+    'script-text',
+    'white-balance-sunny',
+  ],
+  medieval: ['castle', 'sword-cross', 'bow-arrow', 'shield', 'chess-rook', 'church'],
+  'early-modern': ['sail-boat', 'compass-rose', 'feather', 'telescope', 'map', 'anchor'],
+  nineteenth: ['train', 'factory', 'cog', 'lightbulb-on', 'hammer-wrench', 'phone-classic'],
+  modern: [
+    'rocket-launch',
+    'airplane',
+    'atom',
+    'television-classic',
+    'laptop',
+    'satellite-variant',
+  ],
+};
+/** Fallback set for an era without its own (keeps new eras playable). */
+export const DEFAULT_ICONS = [
+  'star-four-points',
+  'compass',
+  'feather',
+  'map',
+  'flag',
+  'script-text',
+] as const;
+/** The era's final main stage. */
+export const FINALE_ICON = 'trophy';
+/** Each route's own theme; unknown routes fall back to `ROUTE_ICON`. */
+export const ROUTE_ICONS: Readonly<Record<string, string>> = {
+  'egypt-near-east': 'pyramid',
+  'greece-rome': 'pillar',
+  'crusades-castles': 'shield-cross',
+  'silk-road': 'caravan',
+  voyages: 'sail-boat',
+  renaissance: 'palette',
+  revolutions: 'flag',
+  'steam-science': 'train',
+  'world-at-war': 'medal',
+  'space-tech': 'rocket',
+};
+export const ROUTE_ICON = 'map-marker-path';
+
+/**
+ * The icon on a stage's face. Stable per stage: route stages wear their
+ * route's icon, the era's last main stage a trophy, and the rest cycle
+ * through the era's set (offset by era so eras don't all open alike).
+ */
+export function stageIcon(stage: CampaignStage, world: CampaignWorld): StageIcon {
+  if (stage.routeId !== undefined) return { icon: ROUTE_ICONS[stage.routeId] ?? ROUTE_ICON };
+  if (stage.index === world.stages.length) return { icon: FINALE_ICON };
+  const set = ERA_ICONS[world.id] ?? DEFAULT_ICONS;
+  const i = (stage.index - 1 + world.index - 1) % set.length;
+  return { icon: set[i]! };
 }

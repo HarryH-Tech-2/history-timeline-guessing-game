@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { View } from 'react-native';
 
 import type { CampaignStage, CampaignWorld } from '../campaignMap';
-import { stageSymbol } from './mapVisuals';
+import { stageIcon } from './mapVisuals';
 import { RouteBanner } from './RouteBanner';
 import { StageButton } from './StageButton';
 import type { TrailLayout } from './trailLayout';
@@ -97,7 +97,7 @@ export const EraTrail = memo(function EraTrail({
           <StageButton
             key={stage.id}
             stage={stage}
-            symbol={stageSymbol(stage, world)}
+            icon={stageIcon(stage, world).icon}
             routeName={route?.name}
             colour={world.colour}
             unlocked={standings.get(stage.id)?.unlocked ?? false}

@@ -186,9 +186,11 @@ describe('CampaignMapScreen', () => {
     expect(within(locked).getByTestId('stage-face-locked')).toBeOnTheScreen();
     expect(within(locked).getByText('🔒')).toBeOnTheScreen();
     expect(locked).toHaveProp('accessibilityLabel', 'Stage 3, locked');
-    // Free player: the premium eras' stages wear crowns.
+    // Free player: the premium eras' stages keep their era icon, with a crown badge.
     const premium = screen.getByTestId(`stage-${medieval.stages[1]!.id}`);
     expect(within(premium).getByTestId('stage-face-premium')).toBeOnTheScreen();
+    expect(within(premium).getByTestId('stage-crown-badge')).toBeOnTheScreen();
+    expect(within(premium).getByTestId('stage-icon-bow-arrow')).toBeOnTheScreen();
   });
   it('forks the trail after the fork stage into two bannered, playable routes', async () => {
     const [routeA, routeB] = ancient.routes;
