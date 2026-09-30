@@ -127,7 +127,7 @@ const EVENT_OVERRIDES: Record<string, string> = {
   'rte-concorde-service':
     'two white supersonic delta-wing airliners with completely plain unmarked white fuselages and plain blue tail fins parked at a modern airport apron with boarding stairs and passengers, no lettering, logos or flags',
   'rte-macintosh-release':
-    'a small cream 1980s all-in-one compact computer with a tiny screen showing a smiling face icon, on a wooden shop counter with shoppers curiously watching, plain unmarked cardboard boxes on shelves, no lettering or logos',
+    'a plain beige 1980s all-in-one compact computer with a blank softly glowing screen, on a wooden shop counter with shoppers curiously watching, plain unmarked cardboard boxes on shelves; the computer and boxes are completely unbranded: no logos, no emblems, no badges, no faces or icons on the screen, no text or lettering anywhere',
   'rte-arpanet-first-message':
     'two 1960s room-sized computers in separate rooms linked by a thick cable, a young researcher at a teletype terminal typing in each room, a glowing line of connection between them, plain screens and panels with no text or letters',
 };
