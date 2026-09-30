@@ -1,4 +1,5 @@
 import {
+  act,
   fireEvent,
   render,
   renderHook,
@@ -13,11 +14,14 @@ import { useSaves } from '@/features/save';
 
 import type { CampaignProgress } from '../persistence';
 import { allStages, allStagesIncludingRoutes, CAMPAIGN, worldStages } from './campaignMap';
+import { SEQUENCE_DELAY_MS } from './map/constants';
 import { eraTrailLayout } from './map/trailLayout';
 
 const mockPush = jest.fn();
 const mockSetParams = jest.fn();
 let mockSearch: { focus?: string } = {};
+/** The latest focus callback and its cleanup, so a test can blur and refocus the tab. */
+let mockFocus: { callback?: () => void | (() => void); cleanup?: void | (() => void) } = {};
 jest.mock('expo-router', () => ({
   useRouter: () => ({
     push: mockPush,
@@ -29,8 +33,12 @@ jest.mock('expo-router', () => ({
   useLocalSearchParams: () => mockSearch,
   // Run the focus callback like a mount effect.
   useFocusEffect: (callback: () => void | (() => void)) => {
+    mockFocus.callback = callback;
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    require('react').useEffect(callback, []);
+    require('react').useEffect(() => {
+      mockFocus.cleanup = callback();
+      return () => mockFocus.cleanup?.();
+    }, []);
   },
 }));
 
@@ -62,6 +70,7 @@ describe('CampaignMapScreen', () => {
     mockPush.mockClear();
     mockSetParams.mockClear();
     mockSearch = {};
+    mockFocus = {};
     mockPremium = false;
   });
   afterEach(() => seed({}));
@@ -269,6 +278,43 @@ describe('CampaignMapScreen', () => {
       });
       expect(offsetOf(ancient.stages[1]!.id)).not.toBe(offsetOf(ancient.routes[0]!.stages[0]!.id));
       expect(mockSetParams).toHaveBeenCalledWith({ focus: undefined });
+      scrollTo.mockRestore();
+    });
+
+    it('scrolls to the fork asked for when the tab regains focus after clearing it', async () => {
+      const scrollTo = jest.spyOn(ScrollView.prototype, 'scrollTo');
+      const fork = ancient.stages[1]!.id;
+      // Keep the store handle: seeding again would replace the rendered screen.
+      const saves = renderHook(useSaves).result.current;
+      await saves.campaign.write(cleared([ancient.stages[0]!.id]));
+      const { rerender } = render(<CampaignMapScreen />);
+      await waitFor(() => expect(screen.getAllByTestId('trail-dot-lit')).toHaveLength(5));
+      await layOutAncient();
+      expect(scrollTo).toHaveBeenLastCalledWith({ y: offsetOf(fork), animated: false });
+
+      // Away playing the fork stage; "Continue your quest" brings the player back to it.
+      await act(async () => {
+        mockFocus.cleanup?.();
+        await saves.campaign.write(atFork());
+      });
+      let scrolledAt: number | undefined;
+      scrollTo.mockClear();
+      scrollTo.mockImplementation(() => {
+        scrolledAt ??= Date.now();
+      });
+      mockSearch = { focus: fork };
+      rerender(<CampaignMapScreen />);
+      const focusedAt = Date.now();
+      await act(async () => {
+        mockFocus.cleanup = mockFocus.callback?.();
+      });
+      await waitFor(() => expect(screen.getAllByTestId('trail-dot-lit')).toHaveLength(15));
+      await waitFor(() =>
+        expect(scrollTo).toHaveBeenLastCalledWith({ y: offsetOf(fork), animated: true }),
+      );
+      // The light-up runs first; only then does the map follow the trail to the fork.
+      expect(scrolledAt! - focusedAt).toBeGreaterThanOrEqual(SEQUENCE_DELAY_MS);
+      expect(mockSetParams).toHaveBeenLastCalledWith({ focus: undefined });
       scrollTo.mockRestore();
     });
   });
