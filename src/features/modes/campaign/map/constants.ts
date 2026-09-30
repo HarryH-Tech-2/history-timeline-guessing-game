@@ -41,3 +41,18 @@ export function stageCentreY(i: number): number {
 export function eraNumeral(index: number): string {
   return ROMAN[index - 1] ?? String(index);
 }
+
+/** Below the fork stage's centre: where its route banners start (clear of its star pill). */
+export const ROUTE_BANNER_TOP = 72;
+/** Height of a route banner, lip included. */
+export const ROUTE_BANNER_H = 52;
+/** Side margin of the route lanes, and the gap between the two banners. */
+export const ROUTE_GUTTER = 16;
+export const ROUTE_GAP = 12;
+
+/** Lane `lane` (0 = left, 1 = right) of a fork: its banner's box and the lane's centre line. */
+export function routeLane(lane: number, width: number): { left: number; width: number; centre: number } {
+  const laneWidth = (width - 2 * ROUTE_GUTTER - ROUTE_GAP) / 2;
+  const left = ROUTE_GUTTER + lane * (laneWidth + ROUTE_GAP);
+  return { left, width: laneWidth, centre: left + laneWidth / 2 };
+}
