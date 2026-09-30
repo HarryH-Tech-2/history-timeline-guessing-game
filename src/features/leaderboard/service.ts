@@ -35,7 +35,16 @@ export async function publishEntry(uid: string, entry: LeaderboardWrite): Promis
       import('@/services/firebase/client'),
       import('firebase/firestore'),
     ]);
-    await setDoc(doc(getFirebaseDb(), COLLECTION, uid), entry, { merge: true });
+    const ref = doc(getFirebaseDb(), COLLECTION, uid);
+    try {
+      await setDoc(ref, entry, { merge: true });
+    } catch (error) {
+      // Rules deployed before `avatar` was allowed reject the whole row: bank
+      // the score without it rather than dropping off the board.
+      if (entry.avatar === undefined || (error as { code?: string }).code !== 'permission-denied') throw error;
+      const { avatar: _avatar, ...withoutAvatar } = entry;
+      await setDoc(ref, withoutAvatar, { merge: true });
+    }
   } catch {
     // Intentionally ignored — the local profile is the source of truth.
   }

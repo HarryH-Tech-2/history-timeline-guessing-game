@@ -14,6 +14,7 @@ import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { Screen } from '@/components/ui';
 import { isFirebaseConfigured } from '@/config/env';
 import { levelForXp, titleForLevel } from '@/domain';
+import { AVATARS } from '@/features/progression/avatars';
 import { PlayerNameSheet } from '@/features/progression/components/PlayerNameSheet';
 import { useProgression } from '@/features/progression';
 import { formatNumber, t } from '@/i18n';
@@ -90,6 +91,23 @@ function initialOf(name: string): string {
   return (name.trim()[0] ?? '?').toUpperCase();
 }
 
+/** What sits in a player's medallion: their avatar, else (rows from older builds) their initial. */
+function Medallion({ entry, className, style }: { entry: LeaderboardEntry; className: string; style?: object }) {
+  const emoji = AVATARS.find((a) => a.id === entry.avatar)?.emoji;
+  if (emoji !== undefined) {
+    return (
+      <Text className="text-xl" testID={`leaderboard-avatar-${entry.uid}`}>
+        {emoji}
+      </Text>
+    );
+  }
+  return (
+    <Text className={className} style={style}>
+      {initialOf(entry.displayName)}
+    </Text>
+  );
+}
+
 /** "Historian · L13": the era title for a level, with the number kept small. */
 function rankLine(xp: number): string {
   const level = levelForXp(xp);
@@ -155,14 +173,12 @@ function PodiumColumn({
     >
       {place === 1 && <Text className="text-2xl">👑</Text>}
 
-      {/* Initial medallion with a metal ring */}
+      {/* Avatar (or initial) medallion with a metal ring */}
       <View
         className="h-14 w-14 items-center justify-center rounded-full border-2 bg-bg-raised"
         style={{ borderColor: metal.tint }}
       >
-        <Text className="text-xl font-extrabold" style={{ color: metal.tint }}>
-          {initialOf(entry.displayName)}
-        </Text>
+        <Medallion entry={entry} className="text-xl font-extrabold" style={{ color: metal.tint }} />
       </View>
 
       <View className="items-center gap-0.5">
@@ -272,9 +288,7 @@ function Row({
             isMe ? 'border-2 border-accent bg-accent/20' : 'bg-bg-overlay'
           }`}
         >
-          <Text className={`text-sm font-bold ${isMe ? 'text-accent' : 'text-ink-secondary'}`}>
-            {initialOf(entry.displayName)}
-          </Text>
+          <Medallion entry={entry} className={`text-sm font-bold ${isMe ? 'text-accent' : 'text-ink-secondary'}`} />
         </View>
         <View className="flex-1">
           <View className="flex-row items-center gap-2">

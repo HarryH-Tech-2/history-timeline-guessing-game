@@ -2,6 +2,8 @@ import { z } from 'zod';
 
 /** Max length enforced both here and in the Firestore security rules. */
 export const MAX_DISPLAY_NAME = 24;
+/** Max avatar id length, likewise mirrored in the rules. */
+export const MAX_AVATAR_ID = 24;
 
 /** The shape written to `leaderboard/{uid}` (the uid is the document id). */
 /** XP a player needs before they are published to, or shown on, the board. */
@@ -26,6 +28,8 @@ export const LeaderboardWriteSchema = z.object({
   /** "Today" board: score of the Daily finished on `dailyDate`. Absent until one is played. */
   dailyDate: z.string().optional(),
   dailyScore: z.number().nonnegative().optional(),
+  /** The player's profile avatar id (see features/progression/avatars). Absent from older builds. */
+  avatar: z.string().max(MAX_AVATAR_ID).optional(),
 });
 export type LeaderboardWrite = z.infer<typeof LeaderboardWriteSchema>;
 

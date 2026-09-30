@@ -2,7 +2,9 @@ import { useEffect, useRef } from 'react';
 
 import { isFirebaseConfigured } from '@/config/env';
 import { levelForXp } from '@/domain';
+import { usePremium } from '@/features/premium/PremiumProvider';
 import { useProgression } from '@/features/progression';
+import { resolveAvatar } from '@/features/progression/avatars';
 import { useAuth } from '@/services/firebase/auth';
 
 import { weekKey } from '@/utils/date';
@@ -35,7 +37,10 @@ export function useLeaderboardSync(): void {
   const lastPublishedAt = useRef(0);
   const pending = useRef<{ timer: ReturnType<typeof setTimeout>; run: () => void } | null>(null);
 
+  const { isPremium } = usePremium();
   const displayName = resolveDisplayName(state.displayName, uid);
+  // What the profile shows: a lapsed Premium avatar publishes as the owl.
+  const avatar = resolveAvatar(state.avatar, isPremium).id;
 
   // Flush a held write if the hook unmounts (sign-out, app root re-mount).
   useEffect(
@@ -57,7 +62,7 @@ export function useLeaderboardSync(): void {
     const week = weekKey();
     const weekXp = state.weekly.key === week ? state.weekly.xp : 0;
     const daily = state.lastDaily;
-    const key = `${uid}:${state.xp}:${displayName}:${week}:${weekXp}:${daily?.date}:${daily?.score}`;
+    const key = `${uid}:${state.xp}:${displayName}:${avatar}:${week}:${weekXp}:${daily?.date}:${daily?.score}`;
     if (key === lastPublished.current) return;
     lastPublished.current = key;
 
@@ -70,6 +75,7 @@ export function useLeaderboardSync(): void {
         updatedAt: Date.now(),
         weekKey: week,
         weekXp,
+        avatar,
         // Firestore rejects `undefined`, so the Daily fields only appear once one exists.
         ...(daily ? { dailyDate: daily.date, dailyScore: daily.score } : {}),
       });
@@ -87,5 +93,5 @@ export function useLeaderboardSync(): void {
       run();
     }, PUBLISH_DEBOUNCE_MS - sinceLast);
     pending.current = { timer, run };
-  }, [uid, isSignedIn, isLoading, state.xp, state.weekly, state.lastDaily, displayName]);
+  }, [uid, isSignedIn, isLoading, state.xp, state.weekly, state.lastDaily, displayName, avatar]);
 }
