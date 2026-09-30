@@ -1,6 +1,12 @@
 import * as Notifications from 'expo-notifications';
 
-import { DAILY_REMINDER_ID, requestReminderPermission, syncDailyReminder } from './scheduler';
+import {
+  DAILY_REMINDER_ID,
+  requestReminderPermission,
+  scheduleTrialReminder,
+  syncDailyReminder,
+  TRIAL_REMINDER_ID,
+} from './scheduler';
 import { REMINDER_HOUR } from './reminderTime';
 
 const mocked = Notifications as jest.Mocked<typeof Notifications>;
@@ -63,5 +69,28 @@ describe('requestReminderPermission', () => {
       granted: false,
     } as never);
     await expect(requestReminderPermission()).resolves.toBe(false);
+  });
+});
+
+describe('scheduleTrialReminder', () => {
+  it('schedules one reminder on the promised day', async () => {
+    const now = new Date(2026, 8, 21, 9, 0);
+    await scheduleTrialReminder({ trialDays: 7, atDay: 5, now });
+    const call = mocked.scheduleNotificationAsync.mock.calls[0]![0];
+    expect(call.identifier).toBe(TRIAL_REMINDER_ID);
+    expect(call.trigger).toEqual({
+      type: 'date',
+      date: new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000),
+      channelId: 'daily-reminder',
+    });
+    expect(call.content.title).toBe('Your free trial ends in 2 days');
+  });
+
+  it('asks for permission, and schedules nothing if refused', async () => {
+    mocked.getPermissionsAsync.mockResolvedValue({ status: 'denied', granted: false } as never);
+    mocked.requestPermissionsAsync.mockResolvedValue({ status: 'denied', granted: false } as never);
+    await scheduleTrialReminder({ trialDays: 7, atDay: 5, now: new Date() });
+    expect(mocked.requestPermissionsAsync).toHaveBeenCalled();
+    expect(mocked.scheduleNotificationAsync).not.toHaveBeenCalled();
   });
 });

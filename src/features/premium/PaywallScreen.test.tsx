@@ -1,6 +1,8 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react-native';
 
-import { ctaLabel, footerCopy, PaywallScreen, trialLength } from './PaywallScreen';
+import { STORE_LABEL } from '@/config/store';
+
+import { ctaLabel, footerCopy, PaywallScreen, planBadge, planSubline, trialLength } from './PaywallScreen';
 
 const mockRouter = {
   push: jest.fn(),
@@ -15,6 +17,10 @@ jest.mock('expo-router', () => ({
 }));
 jest.mock('@/services/analytics', () => ({ track: jest.fn() }));
 const { track } = jest.requireMock<typeof import('@/services/analytics')>('@/services/analytics');
+jest.mock('@/features/reminders/scheduler', () => ({ scheduleTrialReminder: jest.fn(async () => {}) }));
+const { scheduleTrialReminder } = jest.requireMock<
+  typeof import('@/features/reminders/scheduler')
+>('@/features/reminders/scheduler');
 
 const mockPremium = {
   isPremium: false,
@@ -22,6 +28,9 @@ const mockPremium = {
   billingAvailable: true,
   priceLabels: { monthly: '£2.49 / month', yearly: '£14.99 / year', lifetime: '£39.99 once' },
   trialDays: {} as Partial<Record<'monthly' | 'yearly' | 'lifetime', number>>,
+  priceAmounts: {} as Partial<
+    Record<'monthly' | 'yearly' | 'lifetime', { amount: number; currencyCode: string }>
+  >,
   purchase: jest.fn(async (..._args: unknown[]) => 'cancelled' as 'cancelled' | 'purchased'),
   restore: jest.fn(async () => false),
   revokeForTesting: jest.fn(),
@@ -46,7 +55,7 @@ describe('paywall copy helpers', () => {
 
   it('leads with the free trial when the store offers one', () => {
     expect(ctaLabel('monthly', '£2.49 / month', 7)).toEqual({
-      label: 'Start my free 1-week trial',
+      label: 'Start my free week',
       sublabel: 'then £2.49 / month',
     });
     expect(footerCopy('monthly', '£2.49 / month', 7)).toContain('Free for 7 days, then £2.49 / month');
@@ -54,11 +63,26 @@ describe('paywall copy helpers', () => {
     expect(trialLength(30)).toBe('1-month');
     expect(trialLength(3)).toBe('3-day');
   });
+
+  it('badges and sub-lines each plan from store prices', () => {
+    expect(planBadge('yearly', { save: 44 })).toBe('Save 44%');
+    expect(planBadge('yearly', { save: null })).toBe('Best value');
+    expect(planBadge('monthly', { save: 44, trialDays: 7 })).toBe('1-week free trial');
+    expect(planBadge('monthly', { save: 44 })).toBeUndefined();
+    expect(planSubline('lifetime', undefined)).toBe('Pay once, keep forever');
+    expect(planSubline('yearly', undefined)).toBeUndefined();
+    expect(planSubline('yearly', { amount: 14.99, currencyCode: 'GBP' })).toMatch(
+      /1\.25\/month, billed yearly$/,
+    );
+  });
 });
 
 describe('PaywallScreen', () => {
   beforeEach(() => {
     mockPremium.trialDays = {};
+    mockPremium.priceAmounts = {};
+    mockPremium.purchase.mockImplementation(async () => 'cancelled');
+    jest.mocked(scheduleTrialReminder).mockClear();
     mockParams = {};
     jest.mocked(track).mockClear();
     mockRouter.back.mockClear();
@@ -116,17 +140,87 @@ describe('PaywallScreen', () => {
     expect(cta().getByText('£2.49 / month')).toBeOnTheScreen();
   });
 
-  it('shows the trial badge and CTA on the monthly plan when eligible', () => {
+  it('shows the trial badge, CTA and timeline on the monthly plan when eligible', () => {
     mockPremium.trialDays = { monthly: 7 };
     render(<PaywallScreen />);
     expect(screen.getByTestId('paywall-badge-monthly')).toHaveTextContent(/1-week free trial/i);
+    // Yearly (the default) has no trial: normal CTA, no timeline.
+    expect(screen.queryByTestId('paywall-trial-timeline')).toBeNull();
     fireEvent.press(screen.getByTestId('paywall-plan-monthly'));
-    expect(screen.getByText('Start my free 1-week trial')).toBeOnTheScreen();
+    expect(
+      within(screen.getByTestId('paywall-subscribe')).getByText('Start my free week'),
+    ).toBeOnTheScreen();
     expect(screen.getByText(/Free for 7 days/)).toBeOnTheScreen();
+    const timeline = within(screen.getByTestId('paywall-trial-timeline'));
+    expect(timeline.getByText('Today')).toBeOnTheScreen();
+    expect(timeline.getByText('Day 5')).toBeOnTheScreen();
+    expect(timeline.getByText('Day 7')).toBeOnTheScreen();
+    expect(timeline.getByText('£2.49 / month, cancel anytime')).toBeOnTheScreen();
   });
 
-  it('carries the new founder note', () => {
+  it('leads with the trial on the default yearly plan when it has one', async () => {
+    mockPremium.trialDays = { yearly: 7 };
+    mockPremium.purchase.mockImplementation(async () => 'purchased');
     render(<PaywallScreen />);
-    expect(screen.getByText(/pay a big company/)).toBeOnTheScreen();
+    expect(
+      within(screen.getByTestId('paywall-subscribe')).getByText('Start my free week'),
+    ).toBeOnTheScreen();
+    expect(screen.getByTestId('paywall-trial-timeline')).toBeOnTheScreen();
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('paywall-subscribe'));
+    });
+    expect(scheduleTrialReminder).toHaveBeenCalledWith(
+      expect.objectContaining({ trialDays: 7, atDay: 5 }),
+    );
+  });
+
+  it('shows the yearly per-month price and saving from store amounts', () => {
+    mockPremium.priceAmounts = {
+      monthly: { amount: 2.49, currencyCode: 'GBP' },
+      yearly: { amount: 14.99, currencyCode: 'GBP' },
+    };
+    render(<PaywallScreen />);
+    expect(screen.getByTestId('paywall-badge-yearly')).toHaveTextContent('Save 49%');
+    expect(screen.getByTestId('paywall-subline-yearly')).toHaveTextContent(
+      /1\.25\/month, billed yearly/,
+    );
+    expect(screen.getByTestId('paywall-subline-lifetime')).toHaveTextContent(
+      'Pay once, keep forever',
+    );
+  });
+
+  it('titles the screen "Start My Free Week" when any plan has a trial', () => {
+    mockPremium.trialDays = { monthly: 7 };
+    mockParams = { source: 'hearts' };
+    render(<PaywallScreen />);
+    expect(screen.getByTestId('paywall-headline')).toHaveTextContent('Start My Free Week');
+    // The source-aware copy still speaks through the founder's bubble.
+    expect(screen.getByTestId('founder-line')).toHaveTextContent(/Out of hearts/);
+  });
+
+  it('uses the source-aware title when no plan has a trial', () => {
+    mockParams = { source: 'hearts' };
+    render(<PaywallScreen />);
+    expect(screen.getByTestId('paywall-headline')).toHaveTextContent(
+      'Never wait for a heart again',
+    );
+    expect(screen.getByTestId('paywall-lead-hearts')).toBeOnTheScreen();
+  });
+
+  it('puts the founder photo and speech bubble at the top', () => {
+    render(<PaywallScreen />);
+    expect(screen.getByTestId('founder-photo')).toBeOnTheScreen();
+    expect(screen.getByTestId('founder-line')).toHaveTextContent(/Hi, I’m Harry/);
+    expect(screen.getAllByTestId('founder-note')).toHaveLength(1);
+  });
+
+  it('offers restore and the cancel-anytime promise under the button', async () => {
+    render(<PaywallScreen />);
+    expect(screen.getByTestId('paywall-trust')).toHaveTextContent(`Cancel anytime in ${STORE_LABEL}`);
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('paywall-restore'));
+    });
+    expect(mockPremium.restore).toHaveBeenCalled();
+    expect(screen.getByTestId('paywall-notice')).toHaveTextContent('No active subscription found.');
   });
 });

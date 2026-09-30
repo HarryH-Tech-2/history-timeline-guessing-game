@@ -9,6 +9,7 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
 const FOUNDER_PHOTO = require('../../../assets/founder.webp');
 
 const PHOTO_SIZE = 88;
+const COMPACT_PHOTO_SIZE = 56;
 
 /**
  * A personal note from the developer at the top of the paywall: photo on the
@@ -20,8 +21,16 @@ const PHOTO_SIZE = 88;
  * regular-weight paragraphs. The bubble sits in a narrow column beside the
  * photo, so one long bold block reads as a wall — keep each beat short.
  */
-export function FounderNote({ paragraphs }: { paragraphs: string[] }) {
+export function FounderNote({
+  paragraphs,
+  compact = false,
+}: {
+  paragraphs: string[];
+  /** Smaller photo and bubble, for the top of the paywall above the plans. */
+  compact?: boolean;
+}) {
   const [greeting, ...body] = paragraphs;
+  const size = compact ? COMPACT_PHOTO_SIZE : PHOTO_SIZE;
   return (
     <Animated.View
       entering={FadeInUp.springify().damping(18)}
@@ -33,16 +42,22 @@ export function FounderNote({ paragraphs }: { paragraphs: string[] }) {
         accessibilityIgnoresInvertColors
         accessible
         accessibilityLabel="Photo of Harry, the developer"
-        style={{
-          width: PHOTO_SIZE,
-          height: PHOTO_SIZE,
-          borderRadius: PHOTO_SIZE / 2,
-        }}
+        testID="founder-photo"
+        style={{ width: size, height: size, borderRadius: size / 2 }}
         className="border border-hair"
       />
       <View className="relative flex-1">
-        <View className="gap-1.5 rounded-2xl border border-hair bg-bg-raised px-4 py-3">
-          <Text className="text-base font-semibold leading-snug text-ink-primary">{greeting}</Text>
+        <View
+          className={`gap-1.5 rounded-2xl border border-hair bg-bg-raised ${
+            compact ? 'px-3 py-2' : 'px-4 py-3'
+          }`}
+        >
+          <Text
+            className={`${compact ? 'text-sm' : 'text-base'} font-semibold leading-snug text-ink-primary`}
+            testID="founder-line"
+          >
+            {greeting}
+          </Text>
           {body.map((paragraph) => (
             <Text key={paragraph} className="text-[15px] leading-relaxed text-ink-primary">
               {paragraph}

@@ -73,6 +73,10 @@ export interface BillingAdapter {
 export interface StorePrice {
   price: string;
   trialDays: number | null;
+  /** The numeric price in `currencyCode`, for derived figures (per-month, savings). */
+  amount?: number;
+  /** ISO 4217 code the store charges in, e.g. "GBP". */
+  currencyCode?: string;
 }
 
 export type StorePrices = Partial<Record<PremiumPlan, StorePrice>>;
@@ -262,7 +266,12 @@ export const revenueCatBilling: BillingAdapter = {
       for (const plan of PREMIUM_PLANS) {
         const product = packageFor(offerings.current, plan)?.product;
         if (product?.priceString) {
-          prices[plan] = { price: product.priceString, trialDays: trialDaysFor(product) };
+          prices[plan] = {
+            price: product.priceString,
+            trialDays: trialDaysFor(product),
+            amount: product.price,
+            currencyCode: product.currencyCode,
+          };
         }
       }
       return prices;

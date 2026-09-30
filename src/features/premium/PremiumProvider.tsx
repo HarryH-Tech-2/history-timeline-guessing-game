@@ -14,6 +14,7 @@ import { track, type PaywallSource } from '@/services/analytics';
 import { useAuth } from '@/services/firebase/auth';
 
 import { billing, devBilling, type PremiumPlan, type PurchaseResult } from './billing';
+import type { Money } from './paywallPricing';
 import { INITIAL_PREMIUM, PREMIUM_PLAN_LABELS, premiumStore, type PremiumState } from './entitlement';
 
 export interface PremiumApi {
@@ -26,6 +27,11 @@ export interface PremiumApi {
   priceLabels: Record<PremiumPlan, string>;
   /** Free-trial length per plan, in days, for plans the store offers one on. */
   trialDays: Partial<Record<PremiumPlan, number>>;
+  /**
+   * The store's numeric price and currency per plan, for derived figures such
+   * as the yearly plan's per-month cost. Absent until (and unless) the store says.
+   */
+  priceAmounts: Partial<Record<PremiumPlan, Money>>;
   /** Buy `plan`; `source` is where the paywall was opened from, for attribution. */
   purchase: (plan: PremiumPlan, source?: PaywallSource) => Promise<PurchaseResult>;
   restore: () => Promise<boolean>;
@@ -39,6 +45,7 @@ const OFFLINE_API: PremiumApi = {
   billingAvailable: false,
   priceLabels: PREMIUM_PLAN_LABELS,
   trialDays: {},
+  priceAmounts: {},
   purchase: async () => 'unavailable',
   restore: async () => false,
   revokeForTesting: () => undefined,
@@ -63,6 +70,7 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [priceLabels, setPriceLabels] = useState(PREMIUM_PLAN_LABELS);
   const [trialDays, setTrialDays] = useState<Partial<Record<PremiumPlan, number>>>({});
+  const [priceAmounts, setPriceAmounts] = useState<Partial<Record<PremiumPlan, Money>>>({});
   const { uid } = useAuth();
 
   // Show the store's own localized prices ("£2.49 / month", "₹499.00 once")
@@ -87,6 +95,14 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
         if (days) trials[plan] = days;
       }
       setTrialDays(trials);
+      const amounts: Partial<Record<PremiumPlan, Money>> = {};
+      for (const plan of Object.keys(PLAN_SUFFIX) as PremiumPlan[]) {
+        const { amount, currencyCode } = prices[plan] ?? {};
+        if (typeof amount === 'number' && amount > 0 && currencyCode) {
+          amounts[plan] = { amount, currencyCode };
+        }
+      }
+      setPriceAmounts(amounts);
     });
     return () => {
       cancelled = true;
@@ -203,11 +219,12 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
       billingAvailable: billing.available,
       priceLabels,
       trialDays,
+      priceAmounts,
       purchase,
       restore,
       revokeForTesting,
     }),
-    [state.active, isLoading, priceLabels, trialDays, purchase, restore, revokeForTesting],
+    [state.active, isLoading, priceLabels, trialDays, priceAmounts, purchase, restore, revokeForTesting],
   );
 
   return <PremiumContext.Provider value={value}>{children}</PremiumContext.Provider>;
