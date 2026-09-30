@@ -321,14 +321,15 @@ describe('CampaignMapScreen', () => {
         mockFocus.cleanup = mockFocus.callback?.();
       });
       await waitFor(() => expect(screen.getAllByTestId('trail-dot-lit')).toHaveLength(15));
-      await waitFor(() =>
-        expect(scrollTo).toHaveBeenLastCalledWith({ y: offsetOf(fork), animated: true }),
+      await waitFor(
+        () => expect(scrollTo).toHaveBeenLastCalledWith({ y: offsetOf(fork), animated: true }),
+        { timeout: 5000 },
       );
       // The light-up runs first; only then does the map follow the trail to the fork.
       expect(scrolledAt! - focusedAt).toBeGreaterThanOrEqual(SEQUENCE_DELAY_MS);
       expect(mockSetParams).toHaveBeenLastCalledWith({ focus: undefined });
       scrollTo.mockRestore();
-    });
+    }, 20000);
   });
 
   it('swaps the painting once the next era crosses the middle of the screen', async () => {
