@@ -1,8 +1,9 @@
+import { STEP_Y, TRAIL_DOT_SPACING } from './constants';
 import { curveDots, curvePoint } from './trailCurve';
 
 const from = { x: 100, y: 0 };
-const to = { x: 260, y: 124 };
-const opts = { radius: 40, spacing: 13 };
+const to = { x: 260, y: STEP_Y };
+const opts = { radius: 40, spacing: TRAIL_DOT_SPACING };
 
 describe('curvePoint', () => {
   it('runs from one centre to the other, leaving and entering vertically', () => {
@@ -32,8 +33,8 @@ describe('curveDots', () => {
     const dots = curveDots(from, to, { ...opts, steps: 64 });
     const gaps = dots.slice(1).map((d, i) => Math.hypot(d.x - dots[i]!.x, d.y - dots[i]!.y));
     for (const gap of gaps) {
-      expect(gap).toBeGreaterThan(13 * 0.75);
-      expect(gap).toBeLessThan(13 * 1.25);
+      expect(gap).toBeGreaterThan(TRAIL_DOT_SPACING * 0.75);
+      expect(gap).toBeLessThan(TRAIL_DOT_SPACING * 1.25);
     }
     expect(Math.max(...gaps) - Math.min(...gaps)).toBeLessThan(1.5);
   });
@@ -59,17 +60,17 @@ describe('curveDots', () => {
   });
 
   it('draws a straight drop as a straight line of dots', () => {
-    const dots = curveDots({ x: 50, y: 0 }, { x: 50, y: 124 }, opts);
+    const dots = curveDots({ x: 50, y: 0 }, { x: 50, y: STEP_Y }, opts);
     expect(dots.every((d) => d.x === 50)).toBe(true);
-    expect(dots.length).toBe(Math.round((124 - 80) / 13));
+    expect(dots.length).toBe(Math.round((STEP_Y - 80) / TRAIL_DOT_SPACING));
   });
 
   it('leaves out dots under an avoided area', () => {
     const all = curveDots(from, to, opts);
-    const box = { left: 0, top: 55, width: 400, height: 20 };
+    const box = { left: 0, top: 75, width: 400, height: 20 };
     const kept = curveDots(from, to, { ...opts, avoid: [box] });
     expect(kept.length).toBeLessThan(all.length);
-    expect(kept.some((d) => d.y >= 55 && d.y <= 75)).toBe(false);
+    expect(kept.some((d) => d.y >= 75 && d.y <= 95)).toBe(false);
   });
 
   it('draws nothing when the buttons overlap', () => {

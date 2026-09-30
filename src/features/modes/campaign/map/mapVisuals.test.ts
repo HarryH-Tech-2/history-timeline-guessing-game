@@ -1,4 +1,18 @@
-import { backdropProbe, bannerTucked, DARK_INK, eraInView, inkOn, nodeState, shade, tint } from './mapVisuals';
+import { FIXTURE_WORLDS } from '../__fixtures__/routedCampaign';
+import {
+  backdropProbe,
+  bannerTucked,
+  DARK_INK,
+  eraInView,
+  FINALE_SYMBOL,
+  inkOn,
+  nodeState,
+  ROUTE_SYMBOL,
+  shade,
+  STAGE_SYMBOLS,
+  stageSymbol,
+  tint,
+} from './mapVisuals';
 
 describe('eraInView', () => {
   const sections = [
@@ -104,5 +118,35 @@ describe('backdropProbe', () => {
   it('is the middle of the viewport in content space', () => {
     expect(backdropProbe(0, 800)).toBe(400);
     expect(backdropProbe(1150, 800)).toBe(1550);
+  });
+});
+
+describe('stageSymbol', () => {
+  const world = FIXTURE_WORLDS[0]!;
+
+  it('cycles main stages through the themed set, the same symbol every time', () => {
+    const body = world.stages.slice(0, -1);
+    const symbols = body.map((s) => stageSymbol(s, world));
+    expect(symbols).toEqual(body.map((s) => stageSymbol(s, world)));
+    symbols.forEach((symbol) => expect(STAGE_SYMBOLS).toContain(symbol));
+    for (let i = 1; i < symbols.length; i += 1) expect(symbols[i]).not.toBe(symbols[i - 1]);
+  });
+
+  it('marks the era finale on the last main stage', () => {
+    expect(stageSymbol(world.stages.at(-1)!, world)).toBe(FINALE_SYMBOL);
+  });
+
+  it('marks every route stage with the route pennant', () => {
+    const routeStages = world.routes.flatMap((r) => r.stages);
+    expect(routeStages.length).toBeGreaterThan(0);
+    for (const s of routeStages) expect(stageSymbol(s, world)).toBe(ROUTE_SYMBOL);
+  });
+
+  it('never uses digits or colour-emoji forms', () => {
+    for (const symbol of [...STAGE_SYMBOLS, FINALE_SYMBOL, ROUTE_SYMBOL]) {
+      expect(symbol).not.toMatch(/\d/);
+      expect(symbol).not.toMatch(/\uFE0F/);
+      expect([...symbol.replace('\uFE0E', '')]).toHaveLength(1);
+    }
   });
 });

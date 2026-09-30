@@ -7,6 +7,7 @@ import {
   stageCentreY,
   STEP_Y,
   TRAIL_TOP,
+  TRAIL_DOT_LIT,
   TRAIL_DOT_SPACING,
   trailX,
 } from './constants';
@@ -94,7 +95,7 @@ export function eraTrailLayout(world: CampaignWorld, startIndex: number, width: 
   const link = (from: CampaignStage, to: CampaignStage) => {
     const a = at.get(from.id)!;
     const b = at.get(to.id)!;
-    const dots = curveDots(a, b, { radius: NODE / 2 + 6, spacing: TRAIL_DOT_SPACING, avoid });
+    const dots = curveDots(a, b, { radius: NODE / 2 + TRAIL_DOT_LIT / 2 + 2, spacing: TRAIL_DOT_SPACING, avoid });
     segments.push({ fromId: from.id, toId: to.id, from: a, to: b, dots });
   };
   main.forEach((stage, i) => {

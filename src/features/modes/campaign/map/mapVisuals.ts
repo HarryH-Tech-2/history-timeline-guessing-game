@@ -4,6 +4,8 @@
  * and 3D lips on the era colours. No React here, so it's all unit-testable.
  */
 
+import type { CampaignStage, CampaignWorld } from '../campaignMap';
+
 /** Ink dark enough to read on the pale/bright era colours. */
 export const DARK_INK = '#1D1712';
 
@@ -108,4 +110,27 @@ export function tint(hex: string, amount: number): string {
  */
 export function backdropProbe(scrollY: number, viewportHeight: number): number {
   return scrollY + viewportHeight / 2;
+}
+
+/**
+ * Face symbols for playable main stages, cycled by position: quill, compass
+ * rose, sun, star, castle, ankh. All plain text glyphs (no colour-emoji
+ * forms), so they take the button's ink like the old stage numbers did.
+ */
+export const STAGE_SYMBOLS = ['\u270E', '\u2725', '\u263C', '\u2726', '\u265C', '\u2625'] as const;
+/** The era's final main stage: a fleur-de-lis, forced to its text form. */
+export const FINALE_SYMBOL = '\u269C\uFE0E';
+/** Every route stage: a pennant, so side paths read as side paths. */
+export const ROUTE_SYMBOL = '\u2691';
+
+/**
+ * The symbol on a playable stage's face. Stable per stage: route stages wear
+ * the route pennant, the era's last main stage its finale mark, and the rest
+ * cycle through `STAGE_SYMBOLS` (offset by era so eras don't all open alike).
+ */
+export function stageSymbol(stage: CampaignStage, world: CampaignWorld): string {
+  if (stage.routeId !== undefined) return ROUTE_SYMBOL;
+  if (stage.index === world.stages.length) return FINALE_SYMBOL;
+  const i = (stage.index - 1 + world.index - 1) % STAGE_SYMBOLS.length;
+  return STAGE_SYMBOLS[i]!;
 }

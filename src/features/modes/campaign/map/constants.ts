@@ -7,21 +7,24 @@ export const FRONTIER_NODE = 80;
 /** Height of the darker 3D lip showing under a button or banner. */
 export const LIP = 6;
 /** Vertical distance between one stage button and the next. */
-export const STEP_Y = 124;
+export const STEP_Y = 174;
 /**
  * Clear space between an era banner and its first stage, so the frontier's
  * START bubble, larger button and pulse ring never touch the banner.
  */
 export const TRAIL_TOP = 64;
 /** How far (fraction of the usable half-width) the trail swings side to side. */
-export const SWING = 0.62;
+export const SWING = 0.74;
 /**
  * Nominal dots per connector: the light-up sequence spreads each segment's
  * dots over this many staggers, whatever its length.
  */
 export const TRAIL_DOTS = 5;
 /** Distance between trail dots along the curved connector. */
-export const TRAIL_DOT_SPACING = 13;
+export const TRAIL_DOT_SPACING = 17;
+/** Diameter of an unlit trail dot, and of a lit one (drawn with a white ring). */
+export const TRAIL_DOT = 10;
+export const TRAIL_DOT_LIT = 16;
 /** Delay between trail dots lighting up in the unlock sequence. */
 export const DOT_STAGGER_MS = 90;
 /** When the light-up sequence starts after the map regains focus. */

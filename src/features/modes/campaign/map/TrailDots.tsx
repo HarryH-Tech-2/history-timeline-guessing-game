@@ -9,7 +9,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { DOT_STAGGER_MS, SEQUENCE_DELAY_MS, TRAIL_DOTS } from './constants';
+import { DOT_STAGGER_MS, SEQUENCE_DELAY_MS, TRAIL_DOT, TRAIL_DOT_LIT, TRAIL_DOTS } from './constants';
 import type { Point } from './trailCurve';
 
 /** One trail dot; `lightDelay` fades its lit colour in as part of the unlock sequence. */
@@ -41,16 +41,19 @@ function TrailDot({
   const litStyle = useAnimatedStyle(() => ({ opacity: glow.value }));
 
   return (
-    <View pointerEvents="none" style={{ position: 'absolute', left: left - 7, top: top - 7 }}>
+    <View
+      pointerEvents="none"
+      style={{ position: 'absolute', left: left - TRAIL_DOT_LIT / 2, top: top - TRAIL_DOT_LIT / 2 }}
+    >
       {/* The unlit dot sits underneath, so a lit one fades in over it. */}
       <View
         style={{
           position: 'absolute',
-          left: 3,
-          top: 3,
-          width: 8,
-          height: 8,
-          borderRadius: 4,
+          left: (TRAIL_DOT_LIT - TRAIL_DOT) / 2,
+          top: (TRAIL_DOT_LIT - TRAIL_DOT) / 2,
+          width: TRAIL_DOT,
+          height: TRAIL_DOT,
+          borderRadius: TRAIL_DOT / 2,
           backgroundColor: 'rgba(255,255,255,0.75)',
           borderWidth: 1,
           borderColor: 'rgba(29,23,18,0.25)',
@@ -60,9 +63,9 @@ function TrailDot({
         <Animated.View style={litStyle} testID="trail-dot-lit">
           <View
             style={{
-              width: 14,
-              height: 14,
-              borderRadius: 7,
+              width: TRAIL_DOT_LIT,
+              height: TRAIL_DOT_LIT,
+              borderRadius: TRAIL_DOT_LIT / 2,
               backgroundColor: colour,
               borderWidth: 2,
               borderColor: '#FFFFFF',

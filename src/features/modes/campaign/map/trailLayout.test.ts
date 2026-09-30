@@ -1,6 +1,15 @@
 import { FIXTURE_POOL, FIXTURE_ROUTE_SPECS, FIXTURE_WORLDS } from '../__fixtures__/routedCampaign';
 import { buildCampaign, worldStages } from '../campaignMap';
-import { NODE, ROUTE_BANNER_H, routeLane, stageCentreY, STEP_Y, TRAIL_TOP, trailX } from './constants';
+import {
+  FRONTIER_NODE,
+  NODE,
+  ROUTE_BANNER_H,
+  routeLane,
+  stageCentreY,
+  STEP_Y,
+  TRAIL_TOP,
+  trailX,
+} from './constants';
 import { eraTrailLayout } from './trailLayout';
 
 const ancient = FIXTURE_WORLDS[0]!;
@@ -79,6 +88,32 @@ describe('eraTrailLayout', () => {
     expect(left!.left + left!.width).toBeLessThan(right!.left);
     expect(right!.left + right!.width).toBeLessThanOrEqual(width - 16);
     expect(routeLane(1, width).centre - routeLane(0, width).centre).toBeGreaterThan(NODE + 20);
+  });
+
+  it.each([320, 360, 392, 430])('keeps every stage button at least 16 dp from the edges at %i dp', (width) => {
+    for (const start of [0, 1, 2, 3, 4, 5]) {
+      for (const n of eraTrailLayout(ancient, start, width).nodes) {
+        expect(n.x - FRONTIER_NODE / 2).toBeGreaterThanOrEqual(16);
+        expect(n.x + FRONTIER_NODE / 2).toBeLessThanOrEqual(width - 16);
+      }
+    }
+  });
+
+  it('spaces stages well apart and lays each connector as a close-dotted road', () => {
+    const layout = eraTrailLayout(ancient, 0, W);
+    const main = layout.nodes.filter((n) => n.route === undefined);
+    for (let i = 1; i < main.length; i += 1) {
+      expect(main[i]!.y - main[i - 1]!.y).toBeGreaterThanOrEqual(STEP_Y);
+    }
+    expect(STEP_Y).toBeGreaterThanOrEqual(170);
+    // Fork connectors run under the route banners, which leave a deliberate hole.
+    const underBanner = new Set(ancient.routes.map((r) => r.stages[0]!.id));
+    for (const segment of layout.segments.filter((s) => !underBanner.has(s.toId))) {
+      const gaps = segment.dots
+        .slice(1)
+        .map((d, i) => Math.hypot(d.x - segment.dots[i]!.x, d.y - segment.dots[i]!.y));
+      for (const gap of gaps) expect(gap).toBeLessThan(20);
+    }
   });
 
   it('dots each connector along its curve, clear of the buttons and the route banners', () => {

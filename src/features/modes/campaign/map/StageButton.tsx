@@ -39,9 +39,9 @@ const LOCKED_LIP = '#A29C91';
 function faceOf(
   state: NodeState,
   colour: string,
-  stage: CampaignStage,
+  symbol: string,
   premiumLocked: boolean,
-): { face: string; lip: string; glyph: string | number; ink: string; glyphSize: number } {
+): { face: string; lip: string; glyph: string; ink: string; glyphSize: number } {
   switch (state) {
     case 'locked':
       return { face: LOCKED_FACE, lip: LOCKED_LIP, glyph: '🔒', ink: '#6F695F', glyphSize: 22 };
@@ -55,17 +55,17 @@ function faceOf(
       return {
         face: colour,
         lip: shade(colour, 0.3),
-        glyph: premiumLocked ? '👑' : stage.index,
+        glyph: premiumLocked ? '👑' : symbol,
         ink: inkOn(colour),
-        glyphSize: 30,
+        glyphSize: premiumLocked ? 30 : 32,
       };
     case 'open':
       return {
         face: colour,
         lip: shade(colour, 0.3),
-        glyph: stage.index,
+        glyph: symbol,
         ink: inkOn(colour),
-        glyphSize: 26,
+        glyphSize: 28,
       };
   }
 }
@@ -119,6 +119,7 @@ function FrontierPulse({ colour, size }: { colour: string; size: number }) {
  */
 export function StageButton({
   stage,
+  symbol,
   routeName,
   colour,
   unlocked,
@@ -134,6 +135,8 @@ export function StageButton({
   onPress,
 }: {
   stage: CampaignStage;
+  /** Face symbol while the stage is playable (see `stageSymbol`); the label keeps the number. */
+  symbol: string;
   /** Route stages: the route's name, for the accessibility label. */
   routeName?: string;
   colour: string;
@@ -194,7 +197,7 @@ export function StageButton({
 
   const state = nodeState({ unlocked, frontier, premiumLocked, stars });
   const size = frontier ? FRONTIER_NODE : NODE;
-  const look = faceOf(state, colour, stage, premiumLocked);
+  const look = faceOf(state, colour, symbol, premiumLocked);
   const playable = unlocked || premiumLocked;
   const label = `${routeName !== undefined ? `${routeName}, ` : ''}Stage ${stage.index}${premiumLocked ? ', Premium' : unlocked ? '' : ', locked'}`;
   const done = stars > 0;
