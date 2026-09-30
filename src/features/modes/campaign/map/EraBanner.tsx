@@ -47,7 +47,7 @@ function Shimmer({ token }: { token: number }) {
 
 /**
  * The chunky banner opening an era: numeral and year span, the era's name,
- * its star tally, a bar of stages cleared, and a seal once the era is
+ * its star tally (routes included), a bar of main-path stages cleared, and a seal once the era is
  * complete or mastered (or a Premium badge when it's locked behind Premium).
  * Drawn in the era colour on a darker 3D lip, like the stage buttons.
  */

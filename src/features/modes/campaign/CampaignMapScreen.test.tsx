@@ -111,6 +111,16 @@ describe('CampaignMapScreen', () => {
     expect(within(first).getByTestId('stage-face-mastered')).toBeOnTheScreen();
   });
 
+  it('keeps a legacy player\'s seal and full bar when they never played a route', async () => {
+    const main = ancient.stages.map((s) => s.id);
+    await seed(cleared(main, 3));
+    render(<CampaignMapScreen />);
+    await waitFor(() => expect(screen.getByTestId('era-complete')).toBeOnTheScreen());
+    expect(screen.queryByTestId('era-mastered')).toBeNull();
+    expect(screen.getByTestId(`era-progress-${ancient.id}`)).toHaveStyle({ width: '100%' });
+    expect(screen.getByText(`${main.length}/${main.length}`)).toBeOnTheScreen();
+  });
+
   it('shows no seals and no journey stars on a fresh campaign', async () => {
     mockPremium = true;
     render(<CampaignMapScreen />);

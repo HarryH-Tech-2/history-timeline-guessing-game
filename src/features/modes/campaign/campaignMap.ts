@@ -383,29 +383,28 @@ export function nextStage(stageId: string, worlds: readonly CampaignWorld[] = CA
 }
 
 export interface EraStatus {
-  /** Stages with at least one star, route stages included. */
+  /** Main-path stages with at least one star. */
   cleared: number;
-  /** Every stage of the era, route stages included. */
+  /** Main-path stages in the era (routes are optional side paths). */
   total: number;
-  /** Every main stage and every stage of at least one route cleared. */
+  /**
+   * Every main-path stage has a star. The rejoin stage needs a finished
+   * route, so new players must have taken one; players from before forks
+   * existed keep their seal.
+   */
   complete: boolean;
   /** Every stage (main and both routes) at three stars. */
   mastered: boolean;
 }
 
 export function eraStatus(world: CampaignWorld, progress: CampaignProgress): EraStatus {
-  const all = worldStages(world);
-  const cleared = all.filter((s) => isCleared(progress, s.id)).length;
-  const total = all.length;
-  const mainDone = world.stages.every((s) => isCleared(progress, s.id));
-  const routeDone =
-    world.routes.length === 0 ||
-    world.routes.some((r) => r.stages.every((s) => isCleared(progress, s.id)));
+  const cleared = world.stages.filter((s) => isCleared(progress, s.id)).length;
+  const total = world.stages.length;
   return {
     cleared,
     total,
-    complete: total > 0 && mainDone && routeDone,
-    mastered: total > 0 && all.every((s) => starsOf(progress, s.id) >= 3),
+    complete: total > 0 && cleared === total,
+    mastered: total > 0 && worldStages(world).every((s) => starsOf(progress, s.id) >= 3),
   };
 }
 

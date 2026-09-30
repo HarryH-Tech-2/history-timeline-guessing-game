@@ -255,20 +255,29 @@ describe('nextStage', () => {
 describe('eraStatus', () => {
   const ancient = W[0]!;
 
-  it('counts route stages in the tally', () => {
-    expect(eraStatus(ancient, starred(['ancient-s1'], 2))).toEqual({
+  it('tallies main-path stages only', () => {
+    expect(eraStatus(ancient, starred(['ancient-s1', 'ancient-north-s1'], 2))).toEqual({
       cleared: 1,
-      total: 12,
+      total: 6,
       complete: false,
       mastered: false,
     });
   });
 
-  it('is complete with the main path and one whole route', () => {
-    expect(eraStatus(ancient, starred(ancientMain, 2)).complete).toBe(false);
-    expect(eraStatus(ancient, starred([...ancientMain, ...north.slice(0, 2)], 2)).complete).toBe(false);
+  it('is complete once every main-path stage has a star', () => {
+    expect(eraStatus(ancient, starred(ancientMain.slice(0, 5), 2)).complete).toBe(false);
     expect(eraStatus(ancient, starred([...ancientMain, ...south], 2))).toMatchObject({
-      cleared: 9,
+      cleared: 6,
+      total: 6,
+      complete: true,
+      mastered: false,
+    });
+  });
+
+  it('keeps the seal for a legacy player who never played a route', () => {
+    expect(eraStatus(ancient, starred(ancientMain, 3))).toEqual({
+      cleared: 6,
+      total: 6,
       complete: true,
       mastered: false,
     });
