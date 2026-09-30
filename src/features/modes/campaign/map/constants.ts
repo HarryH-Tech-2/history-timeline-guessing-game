@@ -22,9 +22,6 @@ export const SWING = 0.74;
 export const TRAIL_DOTS = 5;
 /** Distance between trail dots along the curved connector. */
 export const TRAIL_DOT_SPACING = 17;
-/** Diameter of an unlit trail dot, and of a lit one (drawn with a white ring). */
-export const TRAIL_DOT = 10;
-export const TRAIL_DOT_LIT = 16;
 /** Delay between trail dots lighting up in the unlock sequence. */
 export const DOT_STAGGER_MS = 90;
 /** When the light-up sequence starts after the map regains focus. */
@@ -34,10 +31,14 @@ export const STICKY_BAR_SPACE = 60;
 
 export const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
 
-/** Horizontal centre (px) of the k-th stage button on the winding trail. */
+/**
+ * Horizontal centre (px) of the k-th stage button on the winding trail. The
+ * swing starts from the middle, so the very first stage sits centred under
+ * the opening banner.
+ */
 export function trailX(globalIndex: number, width: number): number {
   const amplitude = (width / 2 - FRONTIER_NODE / 2 - 24) * SWING;
-  return width / 2 + amplitude * Math.sin(globalIndex * 1.05 + 0.6);
+  return width / 2 + amplitude * Math.sin(globalIndex * 1.05);
 }
 
 /** Vertical centre (px) of the i-th (0-based) stage button within its era trail. */
@@ -64,3 +65,18 @@ export function routeLane(lane: number, width: number): { left: number; width: n
   const left = ROUTE_GUTTER + lane * (laneWidth + ROUTE_GAP);
   return { left, width: laneWidth, centre: left + laneWidth / 2 };
 }
+
+/** Diameter of the trophy medallion closing each era, and of the campaign's final one. */
+export const REWARD_MEDAL = 96;
+export const FINALE_MEDAL = 128;
+/** Room under a medallion for its title plaque. */
+export const REWARD_PLAQUE_H = 64;
+/** Space between the last stage and the era's trophy (centre to centre). */
+export const REWARD_STEP_Y = 170;
+/** Space under the trophy's plaque before the road runs on into the next era. */
+export const REWARD_TAIL = 36;
+/**
+ * The next era's banner starts this far below the trail (its top padding):
+ * the road into it runs this far, plus a little, so it disappears under the banner.
+ */
+export const NEXT_BANNER_GAP = 32;

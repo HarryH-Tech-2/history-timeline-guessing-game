@@ -3,24 +3,28 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
 
 import { Button } from '@/components/ui';
 import { IconPlaque } from '@/features/modes/home/IconPlaque';
+import { t } from '@/i18n';
 
-const REASONS: readonly { glyph: string; title: string; text: string }[] = [
-  {
-    glyph: '🏛️',
-    title: 'Build your museum',
-    text: 'Guess close and the event becomes an artefact in your collection.',
-  },
-  {
-    glyph: '📅',
-    title: 'Play the Daily',
-    text: 'Eight questions, the same for everyone, once a day. Keep the streak alive.',
-  },
-  {
-    glyph: '🏆',
-    title: 'Climb the boards',
-    text: 'Today, this week, or all time. There is always a rank within reach.',
-  },
-];
+/** The three reasons, built per render so they follow the language. */
+function reasons(): readonly { glyph: string; title: string; text: string }[] {
+  return [
+    {
+      glyph: '🏛️',
+      title: t('onboarding.why.museumTitle'),
+      text: t('onboarding.why.museumText'),
+    },
+    {
+      glyph: '📅',
+      title: t('onboarding.why.dailyTitle'),
+      text: t('onboarding.why.dailyText'),
+    },
+    {
+      glyph: '🏆',
+      title: t('onboarding.why.boardsTitle'),
+      text: t('onboarding.why.boardsText'),
+    },
+  ];
+}
 
 export function WhyStep({ onNext }: { onNext: () => void }) {
   return (
@@ -28,14 +32,14 @@ export function WhyStep({ onNext }: { onNext: () => void }) {
       <View className="flex-1 justify-center gap-6">
         <Animated.View entering={FadeInUp.springify().damping(18)}>
           <Text className="text-center text-xs font-semibold uppercase tracking-widest text-ink-muted">
-            What you’re playing for
+            {t('onboarding.why.eyebrow')}
           </Text>
           <Text className="text-center text-3xl font-extrabold text-ink-primary">
-            Three ways to win
+            {t('onboarding.why.title')}
           </Text>
         </Animated.View>
         <View className="gap-3">
-          {REASONS.map((reason, i) => (
+          {reasons().map((reason, i) => (
             <Animated.View
               key={reason.title}
               entering={FadeInUp.delay(200 + i * 140).springify().damping(16)}
@@ -52,7 +56,7 @@ export function WhyStep({ onNext }: { onNext: () => void }) {
         </View>
       </View>
       <Button
-        label="Nearly there"
+        label={t('onboarding.why.next')}
         glyph="→"
         variant="hero"
         onPress={onNext}

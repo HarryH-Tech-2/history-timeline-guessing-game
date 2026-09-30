@@ -14,12 +14,30 @@ export const PAYWALL_SOURCES: readonly PaywallSource[] = [
   'locked_category',
   'locked_mode',
   'campaign',
+  'era_complete',
+  'winback',
   'unknown',
 ];
 
-/** The paywall route, tagged with where it was opened from. */
-export function paywallHref(source: PaywallSource): Href {
-  return { pathname: '/paywall', params: { source } };
+/** What the player was reaching for, so the paywall can speak to it. */
+export interface PaywallContext {
+  /** The locked category they tapped. */
+  category?: string;
+  /** The locked campaign era they tapped (or the one that comes next). */
+  era?: string;
+}
+
+/** The paywall route, tagged with where it was opened from (and what for). */
+export function paywallHref(source: PaywallSource, context: PaywallContext = {}): Href {
+  const params: Record<string, string> = { source };
+  if (context.category) params.category = context.category;
+  if (context.era) params.era = context.era;
+  return { pathname: '/paywall', params };
+}
+
+/** A single search-param value, or undefined. */
+export function paramValue(raw: string | string[] | undefined): string | undefined {
+  return Array.isArray(raw) ? raw[0] : raw;
 }
 
 /** The `source` search param, validated; anything unrecognised is 'unknown'. */

@@ -14,6 +14,7 @@ import Animated, {
 import { useProgression } from '@/features/progression';
 import { useSaves } from '@/features/save';
 import type { DailyRecord } from '../persistence';
+import { t } from '@/i18n';
 import { palette } from '@/theme/tokens';
 import { dateKey } from '@/utils/date';
 
@@ -59,7 +60,7 @@ function PlayPill() {
       ]}
       className="rounded-full bg-accent px-5 py-3"
     >
-      <Text className="text-base font-extrabold text-bg-base">Play</Text>
+      <Text className="text-base font-extrabold text-bg-base">{t('home.daily.play')}</Text>
     </Animated.View>
   );
 }
@@ -133,8 +134,8 @@ export function DailyHeroCard({ onPress }: { onPress: () => void }) {
   const streakLine =
     status.streak > 0
       ? status.done
-        ? `🔥 ${status.streak}-day streak`
-        : `🔥 ${status.streak}-day streak — play today to keep it`
+        ? t('home.daily.streak', { count: status.streak })
+        : t('home.daily.streakKeep', { count: status.streak })
       : null;
 
   if (status.done) {
@@ -143,7 +144,7 @@ export function DailyHeroCard({ onPress }: { onPress: () => void }) {
         <Pressable
           onPress={onPress}
           accessibilityRole="button"
-          accessibilityLabel="Daily done, see your result"
+          accessibilityLabel={t('home.daily.doneA11y')}
           testID="mode-daily"
           className="flex-row items-center gap-4 overflow-hidden border-2 bg-bg-raised p-4"
           style={{ borderColor: `${palette.accent.default}99` }}
@@ -151,15 +152,15 @@ export function DailyHeroCard({ onPress }: { onPress: () => void }) {
           <DoneSeal />
           <View className="flex-1">
             <Text className="text-xs font-semibold uppercase tracking-wide text-accent">
-              Come back tomorrow
+              {t('home.daily.comeBack')}
             </Text>
-            <Text className="text-xl font-extrabold text-ink-primary">Daily done</Text>
+            <Text className="text-xl font-extrabold text-ink-primary">{t('home.daily.done')}</Text>
             {todaysScore !== null && (
               <Text
                 className="text-sm font-semibold text-ink-secondary"
                 style={{ fontVariant: ['tabular-nums'] }}
               >
-                Today · {todaysScore.toLocaleString()} pts
+                {t('home.daily.todayScore', { score: todaysScore })}
               </Text>
             )}
             {streakLine !== null && (
@@ -168,12 +169,12 @@ export function DailyHeroCard({ onPress }: { onPress: () => void }) {
           </View>
           <View className="items-center rounded-full border border-hair bg-bg-overlay px-3 py-1.5">
             <Text className="text-[10px] font-semibold uppercase tracking-wide text-ink-muted">
-              Next Daily in
+              {t('home.daily.nextIn')}
             </Text>
             <Text
               className="text-sm font-extrabold text-ink-primary"
               style={{ fontVariant: ['tabular-nums'] }}
-              accessibilityLabel={`Next Daily in ${status.nextIn}`}
+              accessibilityLabel={t('home.daily.nextInA11y', { time: status.nextIn ?? '' })}
             >
               {status.nextIn}
             </Text>
@@ -188,13 +189,13 @@ export function DailyHeroCard({ onPress }: { onPress: () => void }) {
       <Pressable
         onPress={onPress}
         accessibilityRole="button"
-        accessibilityLabel="Play today's Daily"
+        accessibilityLabel={t('home.daily.playA11y')}
         testID="mode-daily"
         className="flex-row items-center gap-4 overflow-hidden border-2 border-accent bg-accent/10 p-4"
       >
         <IconPlaque glyph="📅" />
         <View className="flex-1">
-          <Text className="text-xl font-extrabold text-ink-primary">{"Today's Daily"}</Text>
+          <Text className="text-xl font-extrabold text-ink-primary">{t('home.daily.title')}</Text>
           {streakLine !== null && (
             <Text className="text-sm text-ink-secondary">{streakLine}</Text>
           )}

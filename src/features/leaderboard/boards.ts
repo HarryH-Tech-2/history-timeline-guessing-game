@@ -1,4 +1,5 @@
 import type { ProgressionState } from '@/domain';
+import { formatNumber, t } from '@/i18n';
 
 import type { LeaderboardEntry } from './types';
 
@@ -7,17 +8,29 @@ export type Board = 'today' | 'week' | 'all';
 
 export const BOARDS: readonly Board[] = ['today', 'week', 'all'];
 
-export const BOARD_LABEL: Record<Board, string> = {
-  today: 'Today',
-  week: 'Week',
-  all: 'All time',
-};
+/** The tab label for a board. A function so it follows the language. */
+export function boardLabel(board: Board): string {
+  switch (board) {
+    case 'today':
+      return t('social.leaderboard.boards.today');
+    case 'week':
+      return t('social.leaderboard.boards.week');
+    case 'all':
+      return t('social.leaderboard.boards.all');
+  }
+}
 
-export const BOARD_BLURB: Record<Board, string> = {
-  today: 'Today’s Daily — the same eight questions for everyone',
-  week: 'XP earned since Monday',
-  all: 'Top history buffs by XP',
-};
+/** The one-line explainer under the title for a board. */
+export function boardBlurb(board: Board): string {
+  switch (board) {
+    case 'today':
+      return t('social.leaderboard.blurbs.today');
+    case 'week':
+      return t('social.leaderboard.blurbs.week');
+    case 'all':
+      return t('social.leaderboard.blurbs.all');
+  }
+}
 
 /** The calendar keys a board is scoped to: today's `YYYY-MM-DD` and this ISO week. */
 export interface BoardContext {
@@ -66,11 +79,11 @@ export function myBoardValue(
 }
 
 export function boardUnit(board: Board): string {
-  return board === 'today' ? 'pts' : 'XP';
+  return board === 'today' ? t('social.leaderboard.points') : 'XP';
 }
 
 export function formatBoardValue(value: number, board: Board): string {
-  return `${value.toLocaleString()} ${boardUnit(board)}`;
+  return `${formatNumber(value)} ${boardUnit(board)}`;
 }
 
 /** uid → rank for a fetched ranking, 1-based from `offset`. */

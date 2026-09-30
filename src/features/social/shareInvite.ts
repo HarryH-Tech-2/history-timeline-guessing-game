@@ -1,5 +1,7 @@
 import Share from 'react-native-share';
 
+import { t } from '@/i18n';
+
 export const SOCIAL_HOST = 'https://history-date-timeline-guesser.web.app';
 const CODE = /^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{6}$/;
 
@@ -9,12 +11,12 @@ export const groupUrl = (code: string) => `${SOCIAL_HOST}/g/${code}`;
 /** Includes the bare code so friends on builds without link handling can type it. */
 export function challengeShareMessage(name: string, url: string): string {
   const code = url.split('/').pop() ?? '';
-  return `⚔️ ${name} challenged you to 8 history questions in Date Guesser! ${url} (code ${code})`;
+  return t('social.share.challenge', { name, url, code });
 }
 
 export function groupShareMessage(groupName: string, url: string): string {
   const code = url.split('/').pop() ?? '';
-  return `Join "${groupName}" on Date Guesser and compete each week: ${url} (code ${code})`;
+  return t('social.share.group', { name: groupName, url, code });
 }
 
 export type ChallengeVia = 'link' | 'code' | 'list';

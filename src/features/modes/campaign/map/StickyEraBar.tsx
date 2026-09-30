@@ -1,5 +1,5 @@
 import { useContext, useEffect } from 'react';
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import Animated, {
   cancelAnimation,
   FadeIn,
@@ -10,7 +10,9 @@ import Animated, {
 } from 'react-native-reanimated';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
-import type { CampaignWorld } from '../campaignMap';
+import { t } from '@/i18n';
+
+import { eraName, type CampaignWorld } from '../campaignMap';
 import { eraNumeral } from './constants';
 import { inkOn, shade } from './mapVisuals';
 
@@ -31,6 +33,7 @@ export function StickyEraBar({
   journeyEarned,
   journeyTotal,
   visible,
+  onPress,
 }: {
   world: CampaignWorld;
   earned: number;
@@ -39,6 +42,8 @@ export function StickyEraBar({
   journeyTotal: number;
   /** False while the in-view era's banner is still visible below the bar. */
   visible: boolean;
+  /** Makes the bar a button while it shows (a locked era opens the paywall). */
+  onPress?: () => void;
 }) {
   const ink = inkOn(world.colour);
   const reducedMotion = useReducedMotion();
@@ -58,13 +63,20 @@ export function StickyEraBar({
 
   return (
     <Animated.View
-      pointerEvents="none"
+      pointerEvents={visible && onPress ? 'box-none' : 'none'}
       style={[fadeStyle, { position: 'absolute', top: safeTop + 8, left: 16, right: 16 }]}
       accessibilityElementsHidden={!visible}
       importantForAccessibility={visible ? 'auto' : 'no-hide-descendants'}
       testID="sticky-era-bar"
     >
-      <View style={{ paddingBottom: BAR_LIP }}>
+      <Pressable
+        style={{ paddingBottom: BAR_LIP }}
+        onPress={onPress}
+        disabled={onPress === undefined}
+        accessibilityRole={onPress ? 'button' : undefined}
+        accessibilityLabel={onPress ? t('campaign.banner.unlockA11y', { era: eraName(world) }) : undefined}
+        testID="sticky-era-press"
+      >
         <View
           style={{
             position: 'absolute',
@@ -92,9 +104,11 @@ export function StickyEraBar({
             numberOfLines={1}
             testID="sticky-era-title"
           >
-            <Text className="text-xs tracking-widest">ERA {eraNumeral(world.index)}</Text>
+            <Text className="text-xs tracking-widest">
+              {t('campaign.banner.stickyEra', { numeral: eraNumeral(world.index) })}
+            </Text>
             {' · '}
-            {world.name}
+            {eraName(world)}
           </Text>
           <Text className="text-sm font-extrabold" style={{ color: ink }} testID="sticky-era-stars">
             ★ {earned}/{total}
@@ -108,7 +122,7 @@ export function StickyEraBar({
             </Text>
           </View>
         </Animated.View>
-      </View>
+      </Pressable>
     </Animated.View>
   );
 }

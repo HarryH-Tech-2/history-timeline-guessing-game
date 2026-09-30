@@ -58,7 +58,7 @@ describe('HomeHub', () => {
     fireEvent.press(screen.getByTestId(`category-${locked!.id}`));
     expect(mockPush).toHaveBeenCalledWith({
       pathname: '/paywall',
-      params: { source: 'locked_category' },
+      params: { source: 'locked_category', category: locked!.id },
     });
   });
 

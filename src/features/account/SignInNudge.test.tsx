@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 
-import { BACKUP_BUTTON_LABEL } from '@/config/store';
+import { backupButtonLabel } from '@/config/store';
 
 import { SignInNudge } from './SignInNudge';
 import { markSignInNudgeShown, signInNudgeStore } from './signInNudgeRules';
@@ -56,7 +56,7 @@ describe('SignInNudge', () => {
 
   it('the back-up button opens the sign-in screen and counts as shown', async () => {
     render(<SignInNudge milestone="campaign-first-stage" active />);
-    fireEvent.press(await screen.findByText(BACKUP_BUTTON_LABEL));
+    fireEvent.press(await screen.findByText(backupButtonLabel()));
     expect(mockPush).toHaveBeenCalledWith('/sign-in');
     await waitFor(async () => {
       expect((await signInNudgeStore.read()).shown['campaign-first-stage']).toEqual(

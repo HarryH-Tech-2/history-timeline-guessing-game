@@ -11,6 +11,13 @@ describe('formatYear', () => {
   ])('formats %i as %s', (year, expected) => {
     expect(formatYear(year)).toBe(expected);
   });
+
+  it('puts the era word where the language wants it', () => {
+    expect(formatYear(-450, 'a.C.')).toBe('450 a.C.');
+    expect(formatYear(-450, '紀元前%y')).toBe('紀元前450');
+    expect(formatYear(0, '紀元前%y')).toBe('紀元前1');
+    expect(formatYear(1969, '紀元前%y')).toBe('1969');
+  });
 });
 
 describe('roundToStep', () => {

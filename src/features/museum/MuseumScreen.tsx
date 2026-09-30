@@ -18,7 +18,7 @@ import { ImageLightbox, Screen } from '@/components/ui';
 import { getCategories, getQuestionsByCategory, imageForQuestion } from '@/data';
 import { MASTERY_BADGES, masteryTier, type Category, type Question } from '@/domain';
 import { AchievementsList, useProgression } from '@/features/progression';
-import { formatYear } from '@/features/timeline/math';
+import { displayYear, t } from '@/i18n';
 
 /** Artefact grid: fixed column count with a fixed gutter, sized from the
  * measured shelf width so every tile is an exact square (flex-1 + aspect
@@ -52,7 +52,7 @@ function Caption({ question }: { question: Question }) {
         className="text-center text-[11px] font-semibold text-ink-muted"
         testID={`artefact-year-${question.id}`}
       >
-        {formatYear(question.year)}
+        {displayYear(question.year)}
       </Text>
     </View>
   );
@@ -92,7 +92,7 @@ const ArtefactTile = memo(function ArtefactTile({
           </Text>
         </View>
         <View style={{ height: CAPTION_HEIGHT }} className="justify-center">
-          <Text className="text-center text-xs text-ink-muted">Undiscovered</Text>
+          <Text className="text-center text-xs text-ink-muted">{t('social.museum.undiscovered')}</Text>
         </View>
       </View>
     );
@@ -121,7 +121,7 @@ const ArtefactTile = memo(function ArtefactTile({
       testID={`artefact-${question.id}`}
       onPress={() => onZoom({ source: image, title: question.title })}
       accessibilityRole="imagebutton"
-      accessibilityLabel={`${question.title}, ${formatYear(question.year)}`}
+      accessibilityLabel={`${question.title}, ${displayYear(question.year)}`}
       style={{ width: size }}
     >
       <Image
@@ -196,10 +196,10 @@ function WingHeader({ section }: { section: WingSection }) {
 type MuseumTab = 'artefacts' | 'achievements';
 
 /** Artefacts · Achievements, underlined on the active one. */
-function MuseumTabs({ tab, onChange }: { tab: MuseumTab; onChange: (t: MuseumTab) => void }) {
+function MuseumTabs({ tab, onChange }: { tab: MuseumTab; onChange: (next: MuseumTab) => void }) {
   const tabs: readonly [MuseumTab, string][] = [
-    ['artefacts', 'Artefacts'],
-    ['achievements', 'Achievements'],
+    ['artefacts', t('social.museum.tabArtefacts')],
+    ['achievements', t('social.museum.tabAchievements')],
   ];
   return (
     <View className="mt-3 flex-row border-b border-hair" accessibilityRole="tablist">
@@ -301,19 +301,19 @@ export function MuseumScreen() {
 
   const title = (
     <View onLayout={onShelfLayout} style={{ paddingBottom: WING_GAP }}>
-      <Text className="text-3xl font-extrabold text-ink-primary">Museum</Text>
+      <Text className="text-3xl font-extrabold text-ink-primary">{t('social.museum.title')}</Text>
       {tab === 'artefacts' ? (
         <>
           <Text className="text-base text-ink-secondary">
-            Guess close to the real year to add an artefact to your collection.
+            {t('social.museum.intro')}
           </Text>
           <Text className="mt-1 text-sm font-semibold text-accent">
-            {acquired} of {total} artefacts collected
+            {t('social.museum.collected', { acquired, total })}
           </Text>
         </>
       ) : (
         <Text className="text-base text-ink-secondary">
-          Milestones you have reached, and how close the next ones are.
+          {t('social.museum.achievementsIntro')}
         </Text>
       )}
       <MuseumTabs tab={tab} onChange={setTab} />
@@ -322,8 +322,8 @@ export function MuseumScreen() {
 
   if (tab === 'achievements') {
     return (
-      <Screen>
-        <ScrollView contentContainerClassName="px-5 pt-6 pb-10" showsVerticalScrollIndicator={false}>
+      <Screen edges={['top']}>
+        <ScrollView contentContainerClassName="px-5 pt-6 pb-4" showsVerticalScrollIndicator={false}>
           {title}
           <AchievementsList />
         </ScrollView>
@@ -332,7 +332,7 @@ export function MuseumScreen() {
   }
 
   return (
-    <Screen>
+    <Screen edges={['top']}>
       <SectionList
         sections={tileSize > 0 ? sections : []}
         keyExtractor={(shelf) => shelf.key}
@@ -340,7 +340,7 @@ export function MuseumScreen() {
         renderSectionHeader={renderHeader}
         renderSectionFooter={() => <View style={{ height: WING_GAP - ROW_GAP }} />}
         ListHeaderComponent={title}
-        contentContainerClassName="px-5 pt-6 pb-10"
+        contentContainerClassName="px-5 pt-6 pb-4"
         showsVerticalScrollIndicator={false}
         stickySectionHeadersEnabled={false}
         // Mount a screen or so ahead and behind; anything further is clipped

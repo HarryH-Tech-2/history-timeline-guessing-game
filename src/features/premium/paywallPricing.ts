@@ -1,3 +1,5 @@
+import { t } from '@/i18n';
+
 /**
  * Pure price maths for the paywall. Every figure is derived from the store's
  * own numbers (RevenueCat package prices), never from hard-coded amounts.
@@ -26,7 +28,7 @@ export function formatMoney({ amount, currencyCode }: Money, locale?: string): s
 /** "£1.25/month, billed yearly" for a yearly price. */
 export function yearlyPerMonthLabel(yearly: Money, locale?: string): string {
   const perMonth = formatMoney({ amount: yearly.amount / 12, currencyCode: yearly.currencyCode }, locale);
-  return `${perMonth}/month, billed yearly`;
+  return t('paywall.perMonthBilledYearly', { price: perMonth });
 }
 
 /**
@@ -61,14 +63,26 @@ export interface TrialStep {
  * e.g. "£14.99 / year".
  */
 export function trialTimeline(trialDays: number, priceLabel: string): TrialStep[] {
-  const steps: TrialStep[] = [{ when: 'Today', what: 'Everything unlocked' }];
+  const steps: TrialStep[] = [
+    { when: t('paywall.trialTimeline.today'), what: t('paywall.trialTimeline.unlocked') },
+  ];
   const remind = trialReminderDay(trialDays);
-  if (remind < trialDays) steps.push({ when: `Day ${remind}`, what: 'We’ll remind you' });
-  steps.push({ when: `Day ${trialDays}`, what: `${priceLabel}, cancel anytime` });
+  if (remind < trialDays) {
+    steps.push({
+      when: t('paywall.trialTimeline.day', { day: remind }),
+      what: t('paywall.trialTimeline.remind'),
+    });
+  }
+  steps.push({
+    when: t('paywall.trialTimeline.day', { day: trialDays }),
+    what: t('paywall.trialTimeline.charge', { price: priceLabel }),
+  });
   return steps;
 }
 
 /** "Start my free week" / "Start my 3-day free trial". */
 export function trialCtaText(trialDays: number): string {
-  return trialDays === 7 ? 'Start my free week' : `Start my ${trialDays}-day free trial`;
+  return trialDays === 7
+    ? t('paywall.cta.trialWeek')
+    : t('paywall.cta.trialDays', { count: trialDays });
 }

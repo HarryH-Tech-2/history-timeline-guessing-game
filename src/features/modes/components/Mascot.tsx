@@ -13,6 +13,8 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { t } from '@/i18n';
+
 /** Minerva, the game's owl scholar — laurel wreath, toga, scroll. */
 const OWL = require('../../../../assets/mascot/owl.webp');
 
@@ -82,10 +84,11 @@ export function Mascot({ line, height = 120 }: MascotProps) {
       <Animated.View style={owlStyle}>
         <Image
           source={OWL}
+          resizeMethod="resize"
           resizeMode="contain"
           accessibilityIgnoresInvertColors
           accessible
-          accessibilityLabel="Minerva the owl"
+          accessibilityLabel={t('round.mascot.alt')}
           style={{ width, height }}
         />
       </Animated.View>

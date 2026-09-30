@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import Animated, {
   cancelAnimation,
   Easing,
@@ -10,7 +10,9 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import type { CampaignWorld, EraStatus } from '../campaignMap';
+import { t } from '@/i18n';
+
+import { eraName, eraPeriod, type CampaignWorld, type EraStatus } from '../campaignMap';
 import { eraNumeral, LIP, SEQUENCE_DELAY_MS } from './constants';
 import { inkOn, shade } from './mapVisuals';
 
@@ -58,6 +60,7 @@ export function EraBanner({
   total,
   premiumLocked,
   shimmerToken,
+  onPress,
 }: {
   world: CampaignWorld;
   status: EraStatus;
@@ -67,19 +70,28 @@ export function EraBanner({
   premiumLocked: boolean;
   /** Set when the era just opened; replays the shimmer. */
   shimmerToken?: number;
+  /** Makes the banner a button (a locked era opens the paywall). */
+  onPress?: () => void;
 }) {
   const ink = inkOn(world.colour);
   const fraction = status.total > 0 ? status.cleared / status.total : 0;
   const seal = premiumLocked
-    ? { text: '👑 Premium', testID: 'era-premium' }
+    ? { text: t('campaign.banner.premium'), testID: 'era-premium' }
     : status.mastered
-      ? { text: '🏆 Mastered', testID: 'era-mastered' }
+      ? { text: t('campaign.banner.mastered'), testID: 'era-mastered' }
       : status.complete
-        ? { text: '✓ Era complete', testID: 'era-complete' }
+        ? { text: t('campaign.banner.complete'), testID: 'era-complete' }
         : null;
 
   return (
-    <View className="px-5 pb-2 pt-8" testID={`world-${world.id}`}>
+    <Pressable
+      className="px-5 pb-2 pt-8 active:opacity-90"
+      testID={`world-${world.id}`}
+      onPress={onPress}
+      disabled={onPress === undefined}
+      accessibilityRole={onPress ? 'button' : undefined}
+      accessibilityLabel={onPress ? t('campaign.banner.unlockA11y', { era: eraName(world) }) : undefined}
+    >
       <View style={{ paddingBottom: LIP }}>
         {/* The 3D lip: a darker copy of the banner peeking out underneath. */}
         <View
@@ -103,7 +115,7 @@ export function EraBanner({
               className="text-[11px] font-extrabold uppercase tracking-widest"
               style={{ color: ink, opacity: 0.85 }}
             >
-              Era {eraNumeral(world.index)} · {world.period}
+              {t('campaign.banner.eraLabel', { numeral: eraNumeral(world.index), period: eraPeriod(world) })}
             </Text>
             {seal !== null && (
               <View
@@ -127,7 +139,7 @@ export function EraBanner({
               numberOfLines={1}
               adjustsFontSizeToFit
             >
-              {world.name}
+              {eraName(world)}
             </Text>
             <Text className="text-sm font-extrabold" style={{ color: ink }}>
               ★ {earned}/{total}
@@ -150,6 +162,6 @@ export function EraBanner({
           </View>
         </View>
       </View>
-    </View>
+    </Pressable>
   );
 }

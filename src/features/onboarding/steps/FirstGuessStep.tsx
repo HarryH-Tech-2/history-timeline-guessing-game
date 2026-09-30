@@ -6,24 +6,24 @@ import { getQuestionById, getQuestions } from '@/data';
 import type { RoundResult } from '@/domain';
 import { RoundView } from '@/features/round/RoundView';
 import { evaluateGuess } from '@/features/timeline/math';
+import { t } from '@/i18n';
 
 /** A date almost everyone can place, and one that sits inside the default
  * framing every game round opens on, so nothing needs scrolling to find. */
 const FIRST_QUESTION_ID = 'evt-moon-landing';
 
-const COACH_MARKS: readonly [glyph: string, text: string][] = [
-  ['↔', 'Drag to move'],
-  ['− +', 'One year at a time'],
-];
-
 function CoachMarks() {
+  const marks: readonly [glyph: string, text: string][] = [
+    ['↔', t('onboarding.firstGuess.coachDrag')],
+    ['− +', t('onboarding.firstGuess.coachStep')],
+  ];
   return (
     <Animated.View
       entering={FadeIn.delay(300).duration(400)}
       className="flex-row flex-wrap justify-center gap-2"
       testID="onboarding-coach-marks"
     >
-      {COACH_MARKS.map(([glyph, text]) => (
+      {marks.map(([glyph, text]) => (
         <View
           key={text}
           className="flex-row items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-3 py-1"
@@ -61,14 +61,14 @@ export function FirstGuessStep({ onNext }: { onNext: () => void }) {
       result={result}
       onSubmit={submit}
       onNext={onNext}
-      nextLabel="Got it"
+      nextLabel={t('onboarding.firstGuess.gotIt')}
       hud={
         <Animated.View entering={FadeInUp.springify().damping(18)}>
           <Text className="text-center text-xs font-semibold uppercase tracking-widest text-ink-muted">
-            Your first guess
+            {t('onboarding.firstGuess.eyebrow')}
           </Text>
           <Text className="text-center text-2xl font-extrabold text-ink-primary">
-            When did this happen?
+            {t('onboarding.firstGuess.title')}
           </Text>
         </Animated.View>
       }
@@ -76,7 +76,7 @@ export function FirstGuessStep({ onNext }: { onNext: () => void }) {
       notice={
         <Animated.View entering={FadeIn.delay(200)} className="px-5 pb-2">
           <Text className="text-center text-sm text-ink-secondary">
-            Within 20 years counts as a hit, and adds the event to your museum.
+            {t('onboarding.firstGuess.notice')}
           </Text>
         </Animated.View>
       }

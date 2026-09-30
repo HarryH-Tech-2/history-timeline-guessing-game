@@ -29,6 +29,9 @@ import {
 /** Shared easing for programmatic re-framing (century jumps, reveals, resets). */
 const FRAME_TIMING = { duration: 420, easing: Easing.out(Easing.cubic) };
 
+/** A tap on the overview bar glides there, quicker than a re-frame. */
+const JUMP_TIMING = { duration: 260, easing: Easing.out(Easing.cubic) };
+
 /** Minimum gap between haptic ticks, so fast zoomed-out pans don't flood the
  * JS thread (and the vibration motor) with a call per decade crossed. */
 const HAPTIC_MIN_INTERVAL_MS = 80;
@@ -79,6 +82,17 @@ export interface TimelineController {
   refocus: (year: number) => void;
   /** Nudge the crosshair year by a whole-year delta (the +/- fine controls). */
   stepYear: (delta: number) => void;
+  /**
+   * Put `year` under the crosshair at the current zoom (a worklet, for the
+   * overview bar's gesture): eased for a tap, immediate while a finger drags.
+   */
+  jumpTo: (year: number, animate: boolean) => void;
+  /**
+   * A finger went down on / lifted from another control that moves the view
+   * (the overview bar), so it holds `atRest` off just as the track's own pan does.
+   */
+  touchBegan: () => void;
+  touchFinalized: () => void;
   /**
    * Stop any re-frame in flight, then call `then` on the JS thread a frame
    * later, once the UI thread has pushed its last update. For anything that is
@@ -319,6 +333,21 @@ export function useTimelineTransform(options: Options = {}): TimelineController 
     [readGuessYear, scale, translateX],
   );
 
+  const jumpTo = useCallback(
+    (year: number, animate: boolean) => {
+      'worklet';
+      if (width.value <= 0) return;
+      const t = width.value / 2 - warp(clampYear(year)) * BASE_WIDTH * scale.value;
+      if (animate) {
+        translateX.value = withTiming(t, JUMP_TIMING);
+      } else {
+        cancelAnimation(translateX);
+        translateX.value = t;
+      }
+    },
+    [scale, translateX, width],
+  );
+
   const halt = useCallback(
     (then: () => void) => {
       runOnUI(() => {
@@ -346,6 +375,9 @@ export function useTimelineTransform(options: Options = {}): TimelineController 
     reveal,
     refocus,
     stepYear,
+    jumpTo,
+    touchBegan,
+    touchFinalized,
     halt,
     ready,
   };

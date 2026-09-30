@@ -1,5 +1,7 @@
 import { Platform } from 'react-native';
 
+import { t } from '@/i18n';
+
 /**
  * Which store this build is sold through, and the copy and links that go with
  * it. Apple rejects apps that mention other platforms, so nothing player-facing
@@ -7,16 +9,21 @@ import { Platform } from 'react-native';
  */
 export const IS_IOS = Platform.OS === 'ios';
 
-/** The store, as it reads mid-sentence: "through Google Play", "through the App Store". */
-export const STORE_NAME = IS_IOS ? 'the App Store' : 'Google Play';
+/**
+ * The store, as it reads mid-sentence: "through Google Play", "through the
+ * App Store". Functions rather than constants so they follow the language.
+ */
+export function storeName(): string {
+  return t(IS_IOS ? 'store.nameIos' : 'store.nameAndroid');
+}
 
 /** Short store label for tight spots such as the share card footer. */
 export const STORE_LABEL = IS_IOS ? 'App Store' : 'Google Play';
 
-/** Where the player cancels a subscription. */
-export const SUBSCRIPTION_SETTINGS = IS_IOS
-  ? 'your App Store subscriptions (Settings → Apple Account → Subscriptions)'
-  : 'your Play subscriptions';
+/** Where the player cancels a subscription, with its "in": "Cancel anytime {this}". */
+export function inSubscriptionSettings(): string {
+  return t(IS_IOS ? 'store.inSubscriptionSettingsIos' : 'store.inSubscriptionSettingsAndroid');
+}
 
 export const PLAY_LISTING_URL =
   'https://play.google.com/store/apps/details?id=com.harryhh.historydateguesser';
@@ -45,7 +52,11 @@ export const TERMS_OF_USE_URL = IS_IOS
   : '';
 
 /** Account providers offered for backing up progress, as they read in copy. */
-export const BACKUP_PROVIDERS = IS_IOS ? 'Apple or Google' : 'Google';
+export function backupProviders(): string {
+  return t(IS_IOS ? 'store.backupProvidersIos' : 'store.backupProvidersAndroid');
+}
 
 /** The back-up button's label. */
-export const BACKUP_BUTTON_LABEL = IS_IOS ? 'Back up my progress' : 'Back up to Google';
+export function backupButtonLabel(): string {
+  return t(IS_IOS ? 'store.backupButtonIos' : 'store.backupButtonAndroid');
+}

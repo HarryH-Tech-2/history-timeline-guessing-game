@@ -2,6 +2,7 @@ import { Platform, Pressable, Text, View } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
 import { levelForXp, type ProgressionState } from '@/domain';
+import { formatNumber, t } from '@/i18n';
 import { showPlayGamesAchievements } from '@/services/playGames';
 import { palette } from '@/theme/tokens';
 
@@ -18,13 +19,29 @@ import { useProgression } from '../ProgressionProvider';
 const COLUMNS = 2;
 
 /** The cabinets, in display order. */
-const GROUPS: readonly { id: AchievementGroup; title: string; icon: string }[] = [
-  { id: 'precision', title: 'Precision', icon: '🎯' },
-  { id: 'dedication', title: 'Dedication', icon: '🎖️' },
-  { id: 'daily', title: 'Daily habit', icon: '🔥' },
-  { id: 'museum', title: 'Museum', icon: '🏛️' },
-  { id: 'rank', title: 'Rank & riches', icon: '👑' },
+const GROUPS: readonly { id: AchievementGroup; icon: string }[] = [
+  { id: 'precision', icon: '🎯' },
+  { id: 'dedication', icon: '🎖️' },
+  { id: 'daily', icon: '🔥' },
+  { id: 'museum', icon: '🏛️' },
+  { id: 'rank', icon: '👑' },
 ];
+
+/** A cabinet's heading, in the current language. */
+function groupTitle(group: AchievementGroup): string {
+  switch (group) {
+    case 'precision':
+      return t('achievements.ui.groups.precision');
+    case 'dedication':
+      return t('achievements.ui.groups.dedication');
+    case 'daily':
+      return t('achievements.ui.groups.daily');
+    case 'museum':
+      return t('achievements.ui.groups.museum');
+    case 'rank':
+      return t('achievements.ui.groups.rank');
+  }
+}
 
 interface Entry {
   achievement: Achievement;
@@ -95,10 +112,10 @@ function Summary({
         <Medallion icon="🏆" earned size={64} />
         <View className="flex-1">
           <Text className="text-xs font-semibold uppercase tracking-wide text-ink-muted">
-            Level {level}
+            {t('common.level', { level })}
           </Text>
           <Text className="text-2xl font-extrabold text-ink-primary">
-            {earnedCount} of {ACHIEVEMENTS.length} earned
+            {t('achievements.ui.earnedCount', { earned: earnedCount, total: ACHIEVEMENTS.length })}
           </Text>
           <View className="mt-2">
             <Bar fraction={earnedCount / ACHIEVEMENTS.length} />
@@ -116,7 +133,7 @@ function Summary({
           </Text>
           <View className="flex-1">
             <Text className="text-[11px] font-bold uppercase tracking-wide text-accent">
-              Next up
+              {t('achievements.ui.nextUp')}
             </Text>
             <Text className="text-sm font-bold text-ink-primary">{next.achievement.title}</Text>
             <Text className="text-xs text-ink-secondary">{next.achievement.description}</Text>
@@ -125,7 +142,7 @@ function Summary({
             className="text-xs font-semibold text-ink-muted"
             style={{ fontVariant: ['tabular-nums'] }}
           >
-            {next.current.toLocaleString()} / {next.achievement.target.toLocaleString()}
+            {formatNumber(next.current)} / {formatNumber(next.achievement.target)}
           </Text>
         </View>
       )}
@@ -139,9 +156,19 @@ function Badge({ entry }: { entry: Entry }) {
   return (
     <View
       testID={`achievement-${achievement.id}`}
-      accessibilityLabel={`${achievement.title}, ${
-        earned ? 'earned' : `${current} of ${achievement.target}`
-      }. ${achievement.description}`}
+      accessibilityLabel={
+        earned
+          ? t('achievements.ui.badgeEarnedA11y', {
+              title: achievement.title,
+              description: achievement.description,
+            })
+          : t('achievements.ui.badgeProgressA11y', {
+              title: achievement.title,
+              current,
+              target: achievement.target,
+              description: achievement.description,
+            })
+      }
       className={`flex-1 items-center border p-3 ${
         earned ? 'border-accent/50 bg-accent/10' : 'border-hair bg-bg-raised'
       }`}
@@ -163,7 +190,7 @@ function Badge({ entry }: { entry: Entry }) {
       <View className="mt-auto w-full pt-3">
         {earned ? (
           <Text className="text-center text-xs font-bold" style={{ color: palette.success }}>
-            ✓ Earned
+            {t('achievements.ui.earned')}
           </Text>
         ) : (
           <>
@@ -172,7 +199,7 @@ function Badge({ entry }: { entry: Entry }) {
               className="mt-1 text-center text-[11px] font-semibold text-ink-muted"
               style={{ fontVariant: ['tabular-nums'] }}
             >
-              {current.toLocaleString()} / {achievement.target.toLocaleString()}
+              {formatNumber(current)} / {formatNumber(achievement.target)}
             </Text>
           </>
         )}
@@ -252,14 +279,14 @@ export function AchievementsList() {
             void showPlayGamesAchievements();
           }}
           accessibilityRole="button"
-          accessibilityLabel="Open your achievements in Google Play Games"
+          accessibilityLabel={t('achievements.ui.playGamesLabel')}
           testID="achievements-play-games"
           className="flex-row items-center justify-between border border-hair bg-bg-raised px-4 py-3"
         >
           <View className="flex-1 pr-3">
             <Text className="text-sm font-semibold text-ink-primary">Google Play Games</Text>
             <Text className="mt-0.5 text-xs text-ink-muted">
-              Everything you earn here unlocks on your Play Games profile too.
+              {t('achievements.ui.playGamesBody')}
             </Text>
           </View>
           <Text className="text-xl text-ink-muted">›</Text>
@@ -269,7 +296,7 @@ export function AchievementsList() {
       {GROUPS.map((group, index) => (
         <Cabinet
           key={group.id}
-          title={group.title}
+          title={groupTitle(group.id)}
           icon={group.icon}
           index={index}
           entries={entries

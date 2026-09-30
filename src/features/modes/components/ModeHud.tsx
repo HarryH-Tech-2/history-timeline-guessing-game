@@ -14,6 +14,7 @@ import Animated, {
 
 import { BackButton } from '@/components/ui';
 import type { RoundResult } from '@/domain';
+import { t } from '@/i18n';
 import { useThemeColors } from '@/theme';
 import { palette } from '@/theme/tokens';
 
@@ -44,7 +45,7 @@ function Hearts({ lives, total }: { lives: number; total: number }) {
   return (
     <View
       className="flex-row items-center gap-0.5"
-      accessibilityLabel={`${lives} of ${total} lives left`}
+      accessibilityLabel={t('round.hud.livesLeft', { lives, total })}
       testID="hud-lives"
     >
       {Array.from({ length: total }, (_, i) => (
@@ -125,7 +126,7 @@ function ProgressBar({
       className="w-full justify-center"
       style={{ height: HEAD_SIZE }}
       accessibilityRole="progressbar"
-      accessibilityLabel={`Question ${current} of ${total}`}
+      accessibilityLabel={t('round.hud.questionOf', { current, total })}
       accessibilityValue={{ min: 0, max: total, now: answered }}
       testID="hud-progress-bar"
     >
@@ -184,7 +185,7 @@ export function ModeHud({
       <View className="min-h-10 flex-row items-center justify-between">
         <View className="w-16">
           {onBack !== undefined && (
-            <BackButton onPress={onBack} label="Exit mode" testID="hud-back" />
+            <BackButton onPress={onBack} label={t('round.hud.exitMode')} testID="hud-back" />
           )}
         </View>
         {/* The running score is the one number that matters mid-run: big and centred. */}

@@ -1,12 +1,21 @@
 import { levelForXp, type ProgressionState } from '@/domain';
+// Straight from translate (not the '@/i18n' barrel): scripts/achievementsCsv.ts
+// loads this file under tsx, where the barrel's storage import can't run.
+import { t } from '@/i18n/translate';
+import type { achievements as achievementText } from '@/i18n/locales/en/achievements';
 
 /** The cabinet an achievement is displayed in on the Achievements tab. */
 export type AchievementGroup = 'precision' | 'dedication' | 'daily' | 'museum' | 'rank';
 
+/** Every achievement id; each has a title and description in the `achievements` translations. */
+export type AchievementId = Exclude<keyof typeof achievementText, 'ui'>;
+
 export interface Achievement {
   id: string;
-  title: string;
-  description: string;
+  /** In the current language. Read lazily (a getter), never at import. */
+  readonly title: string;
+  /** In the current language. Read lazily (a getter), never at import. */
+  readonly description: string;
   /** Emoji badge, kept simple so no asset pipeline is needed. */
   icon: string;
   group: AchievementGroup;
@@ -26,16 +35,27 @@ const coins = (s: ProgressionState) => s.coins;
 const level = (s: ProgressionState) => levelForXp(s.xp);
 const artefacts = (s: ProgressionState) => Object.keys(s.collection).length;
 
+/** An achievement as written below: its text comes from the translations. */
+type Definition = Omit<Achievement, 'id' | 'title' | 'description'> & { id: AchievementId };
+
+/** The achievement's name in the current language. */
+export function achievementTitle(id: AchievementId): string {
+  return t(`achievements.${id}.title`);
+}
+
+/** What the achievement asks for, in the current language. */
+export function achievementDescription(id: AchievementId): string {
+  return t(`achievements.${id}.description`);
+}
+
 /**
  * The catalogue of unlockable achievements. Each is a pure measure over
  * `ProgressionState` plus a target, so unlocking is just a scan — no event
  * bus, no ordering concerns — and the UI can show how close each one is.
  */
-export const ACHIEVEMENTS: readonly Achievement[] = [
+const DEFINITIONS: readonly Definition[] = [
   {
     id: 'first-round',
-    title: 'First Steps',
-    description: 'Answer your first question.',
     icon: '👣',
     group: 'dedication',
     measure: rounds,
@@ -43,8 +63,6 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
   },
   {
     id: 'bullseye',
-    title: 'Bullseye',
-    description: 'Nail a year exactly.',
     icon: '🎯',
     group: 'precision',
     measure: perfects,
@@ -52,8 +70,6 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
   },
   {
     id: 'sharpshooter',
-    title: 'Sharpshooter',
-    description: 'Land 25 perfect guesses.',
     icon: '🏹',
     group: 'precision',
     measure: perfects,
@@ -61,8 +77,6 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
   },
   {
     id: 'on-a-roll',
-    title: 'On a Roll',
-    description: 'Reach a 5-guess combo.',
     icon: '🔥',
     group: 'precision',
     measure: streak,
@@ -70,8 +84,6 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
   },
   {
     id: 'unstoppable',
-    title: 'Unstoppable',
-    description: 'Reach a 10-guess combo.',
     icon: '⚡',
     group: 'precision',
     measure: streak,
@@ -79,8 +91,6 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
   },
   {
     id: 'centurion',
-    title: 'Centurion',
-    description: 'Answer 100 questions.',
     icon: '💯',
     group: 'dedication',
     measure: rounds,
@@ -88,8 +98,6 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
   },
   {
     id: 'level-5',
-    title: 'Rising Historian',
-    description: 'Reach level 5.',
     icon: '📚',
     group: 'rank',
     measure: level,
@@ -97,8 +105,6 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
   },
   {
     id: 'level-10',
-    title: 'Master of Time',
-    description: 'Reach level 10.',
     icon: '⏳',
     group: 'rank',
     measure: level,
@@ -106,8 +112,6 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
   },
   {
     id: 'coin-hoarder',
-    title: 'Coin Hoarder',
-    description: 'Bank 500 coins at once.',
     icon: '🪙',
     group: 'rank',
     measure: coins,
@@ -115,8 +119,6 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
   },
   {
     id: 'dedicated',
-    title: 'Dedicated',
-    description: 'Finish 20 games.',
     icon: '🎖️',
     group: 'dedication',
     measure: games,
@@ -124,8 +126,6 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
   },
   {
     id: 'warming-up',
-    title: 'Warming Up',
-    description: 'Finish your first game.',
     icon: '🌅',
     group: 'dedication',
     measure: games,
@@ -133,8 +133,6 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
   },
   {
     id: 'deadeye',
-    title: 'Deadeye',
-    description: 'Land 5 perfect guesses.',
     icon: '🎪',
     group: 'precision',
     measure: perfects,
@@ -142,8 +140,6 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
   },
   {
     id: 'time-lord',
-    title: 'Time Lord',
-    description: 'Land 100 perfect guesses.',
     icon: '🌀',
     group: 'precision',
     measure: perfects,
@@ -151,8 +147,6 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
   },
   {
     id: 'flow-state',
-    title: 'Flow State',
-    description: 'Reach a 20-guess combo.',
     icon: '🌊',
     group: 'precision',
     measure: streak,
@@ -160,8 +154,6 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
   },
   {
     id: 'daily-streak-3',
-    title: 'Creature of Habit',
-    description: 'Keep a 3-day Daily streak.',
     icon: '🌱',
     group: 'daily',
     measure: dailyStreak,
@@ -169,8 +161,6 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
   },
   {
     id: 'daily-streak-7',
-    title: 'Week of Wisdom',
-    description: 'Keep a 7-day Daily streak.',
     icon: '📆',
     group: 'daily',
     measure: dailyStreak,
@@ -178,8 +168,6 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
   },
   {
     id: 'daily-streak-30',
-    title: 'Historian in Residence',
-    description: 'Keep a 30-day Daily streak.',
     icon: '🏵️',
     group: 'daily',
     measure: dailyStreak,
@@ -187,8 +175,6 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
   },
   {
     id: 'first-artefact',
-    title: 'First Exhibit',
-    description: 'Add your first artefact to the museum.',
     icon: '🏺',
     group: 'museum',
     measure: artefacts,
@@ -196,8 +182,6 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
   },
   {
     id: 'curator',
-    title: 'Curator',
-    description: 'Collect 25 museum artefacts.',
     icon: '🏛️',
     group: 'museum',
     measure: artefacts,
@@ -205,8 +189,6 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
   },
   {
     id: 'grand-curator',
-    title: 'Grand Curator',
-    description: 'Collect 100 museum artefacts.',
     icon: '🏰',
     group: 'museum',
     measure: artefacts,
@@ -214,8 +196,6 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
   },
   {
     id: 'scholar',
-    title: 'Scholar',
-    description: 'Answer 250 questions.',
     icon: '🎓',
     group: 'dedication',
     measure: rounds,
@@ -223,8 +203,6 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
   },
   {
     id: 'chronicler',
-    title: 'Chronicler',
-    description: 'Answer 500 questions.',
     icon: '📜',
     group: 'dedication',
     measure: rounds,
@@ -232,8 +210,6 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
   },
   {
     id: 'living-legend',
-    title: 'Living Legend',
-    description: 'Answer 1,000 questions.',
     icon: '👑',
     group: 'dedication',
     measure: rounds,
@@ -241,8 +217,6 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
   },
   {
     id: 'marathoner',
-    title: 'Marathoner',
-    description: 'Finish 50 games.',
     icon: '🏃',
     group: 'dedication',
     measure: games,
@@ -250,8 +224,6 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
   },
   {
     id: 'completionist',
-    title: 'Completionist',
-    description: 'Finish 100 games.',
     icon: '🏆',
     group: 'dedication',
     measure: games,
@@ -259,8 +231,6 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
   },
   {
     id: 'treasure-vault',
-    title: 'Treasure Vault',
-    description: 'Hold 2,000 coins at once.',
     icon: '💰',
     group: 'rank',
     measure: coins,
@@ -268,8 +238,6 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
   },
   {
     id: 'level-20',
-    title: 'Chronomancer',
-    description: 'Reach level 20.',
     icon: '🔮',
     group: 'rank',
     measure: level,
@@ -277,14 +245,27 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
   },
   {
     id: 'level-30',
-    title: 'Timeless',
-    description: 'Reach level 30.',
     icon: '♾️',
     group: 'rank',
     measure: level,
     target: 30,
   },
 ];
+
+/**
+ * The definitions with `title` and `description` as getters, so the text is
+ * looked up when read (in the language of the moment), not when this module
+ * loads. English here is also what scripts/achievementsCsv.ts exports.
+ */
+export const ACHIEVEMENTS: readonly Achievement[] = DEFINITIONS.map((d) => ({
+  ...d,
+  get title() {
+    return achievementTitle(d.id);
+  },
+  get description() {
+    return achievementDescription(d.id);
+  },
+}));
 
 export function achievementById(id: string): Achievement | undefined {
   return ACHIEVEMENTS.find((a) => a.id === id);

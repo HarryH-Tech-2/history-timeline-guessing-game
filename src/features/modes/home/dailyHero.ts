@@ -1,4 +1,5 @@
 import { activeStreakCount, type StreakState } from '@/domain';
+import { t } from '@/i18n';
 
 export interface DailyHeroStatus {
   /** Today's Daily has been finished. */
@@ -16,8 +17,10 @@ function formatUntil(ms: number): string {
   const totalMinutes = Math.max(1, Math.ceil(ms / MINUTE_MS));
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
-  if (hours === 0) return `${minutes}m`;
-  return minutes === 0 ? `${hours}h` : `${hours}h ${minutes}m`;
+  if (hours === 0) return t('home.daily.minutes', { minutes });
+  return minutes === 0
+    ? t('home.daily.hours', { hours })
+    : t('home.daily.hoursMinutes', { hours, minutes });
 }
 
 /**

@@ -39,8 +39,12 @@ export const ENTITLEMENT_ID = 'premium';
 export interface BillingAdapter {
   /** False when no store is wired up in this build. */
   readonly available: boolean;
-  /** Start the purchase flow for one of the premium plans. */
-  purchase(plan: PremiumPlan): Promise<PurchaseResult>;
+  /**
+   * Start the purchase flow for one of the premium plans. With `winback`, buy
+   * the plan's win-back offer instead (see {@link winbackOptionOf}); a plan
+   * without one reports 'unavailable'.
+   */
+  purchase(plan: PremiumPlan, options?: { winback?: boolean }): Promise<PurchaseResult>;
   /** Re-check the store for an existing entitlement; true if one is active. */
   restore(): Promise<boolean>;
   /**
@@ -77,6 +81,54 @@ export interface StorePrice {
   amount?: number;
   /** ISO 4217 code the store charges in, e.g. "GBP". */
   currencyCode?: string;
+  /** The plan's win-back offer, when the store has one for this player. */
+  winback?: WinbackPrice;
+}
+
+/** A win-back offer's discounted first period, as the store prices it. */
+export interface WinbackPrice {
+  /** Localized discounted price, e.g. "£11.99". */
+  price: string;
+  amount: number;
+  currencyCode: string;
+}
+
+/**
+ * Tag on the Play Console offer that marks it as the win-back discount. The
+ * offer must ALSO carry RevenueCat's `rc-ignore-offer` tag: RevenueCat
+ * otherwise treats the cheapest eligible offer as the product's default, and
+ * every normal purchase would get the discount.
+ */
+export const WINBACK_TAG = 'winback';
+
+/** The subset of a RevenueCat subscription option the win-back lookup reads. */
+export interface WinbackOptionSource {
+  tags: readonly string[];
+  introPhase?: {
+    price: { formatted: string; amountMicros: number; currencyCode: string };
+  } | null;
+}
+
+/**
+ * The product's win-back option: the subscription option tagged
+ * {@link WINBACK_TAG} with a discounted intro phase. Null when Play doesn't
+ * offer it to this player (not set up, or the player isn't eligible).
+ */
+export function winbackOptionOf<T extends WinbackOptionSource>(
+  product: { subscriptionOptions?: readonly T[] | null } | null | undefined,
+): T | null {
+  return (
+    product?.subscriptionOptions?.find(
+      (o) => o.tags.includes(WINBACK_TAG) && (o.introPhase?.price.amountMicros ?? 0) > 0,
+    ) ?? null
+  );
+}
+
+/** The discounted price of a win-back option. */
+export function winbackPriceOf(option: WinbackOptionSource): WinbackPrice | undefined {
+  const intro = option.introPhase?.price;
+  if (!intro) return undefined;
+  return { price: intro.formatted, amount: intro.amountMicros / 1_000_000, currencyCode: intro.currencyCode };
 }
 
 export type StorePrices = Partial<Record<PremiumPlan, StorePrice>>;
@@ -199,13 +251,19 @@ function packageFor(offering: PurchasesOffering | null, plan: PremiumPlan): Purc
 export const revenueCatBilling: BillingAdapter = {
   available: true,
 
-  async purchase(plan) {
+  async purchase(plan, options) {
     const P = purchases();
     if (!P) return 'unavailable';
     try {
       const offerings = await P.getOfferings();
       const pkg = packageFor(offerings.current, plan);
       if (!pkg) return 'unavailable';
+      if (options?.winback) {
+        const option = winbackOptionOf(pkg.product);
+        if (!option) return 'unavailable';
+        const { customerInfo } = await P.purchaseSubscriptionOption(option);
+        return isActive(customerInfo) ? 'purchased' : 'error';
+      }
       const { customerInfo } = await P.purchasePackage(pkg);
       return isActive(customerInfo) ? 'purchased' : 'error';
     } catch (error) {
@@ -266,11 +324,13 @@ export const revenueCatBilling: BillingAdapter = {
       for (const plan of PREMIUM_PLANS) {
         const product = packageFor(offerings.current, plan)?.product;
         if (product?.priceString) {
+          const winback = winbackOptionOf(product);
           prices[plan] = {
             price: product.priceString,
             trialDays: trialDaysFor(product),
             amount: product.price,
             currencyCode: product.currencyCode,
+            ...(winback ? { winback: winbackPriceOf(winback) } : {}),
           };
         }
       }

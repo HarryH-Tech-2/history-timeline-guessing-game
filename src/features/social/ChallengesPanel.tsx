@@ -5,6 +5,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { Button } from '@/components/ui';
 import { resolveDisplayName } from '@/features/leaderboard/playerName';
 import { useProgression } from '@/features/progression/ProgressionProvider';
+import { t } from '@/i18n';
 import { track } from '@/services/analytics';
 import { useAuth } from '@/services/firebase/auth';
 
@@ -99,13 +100,13 @@ export function ChallengesPanel() {
       ListHeaderComponent={
         <View className="gap-3 pb-2">
           <Button
-            label="⚔️ Challenge a friend"
+            label={t('social.challenges.create')}
             onPress={() => void create()}
             disabled={busy}
             testID="challenge-create"
           />
           <CodeEntry
-            label="Play"
+            label={t('social.challenges.play')}
             testID="challenge-code"
             onCode={(code) => router.push({ pathname: '/c/[code]', params: { code, via: 'code' } })}
           />
@@ -114,7 +115,7 @@ export function ChallengesPanel() {
             <View className="gap-2">
               <Text className="text-sm text-danger">{api.socialErrorMessage(null)}</Text>
               <Button
-                label="Try again"
+                label={t('social.tryAgain')}
                 variant="ghost"
                 onPress={() => setAttempt((n) => n + 1)}
                 testID="challenges-retry"
@@ -126,7 +127,7 @@ export function ChallengesPanel() {
       ListEmptyComponent={
         loadError ? null : (
           <Text className="py-10 text-center text-ink-secondary">
-            Challenge a friend to the same 8 questions and see who knows their history.
+            {t('social.challenges.empty')}
           </Text>
         )
       }
@@ -141,8 +142,8 @@ export function ChallengesPanel() {
           <View className="flex-1 pr-3">
             <Text className="text-base font-bold text-ink-primary">
               {item.challenge.creatorUid === uid
-                ? 'Your challenge'
-                : `${item.challenge.creatorName}’s challenge`}
+                ? t('social.challenges.yours')
+                : t('social.challenges.theirs', { name: item.challenge.creatorName })}
             </Text>
             <Text className="text-sm text-ink-secondary">
               {statusLine(compareEntries(item.challenge, item.entries, uid ?? ''), item.challenge.creatorName)}

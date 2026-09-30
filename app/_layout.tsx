@@ -17,6 +17,7 @@ import { ProgressionProvider } from '@/features/progression';
 import { HapticsProvider } from '@/features/haptics';
 import { RemindersProvider } from '@/features/reminders';
 import { SoundProvider } from '@/features/sound';
+import { LanguageProvider } from '@/i18n';
 import { syncRemoteContent } from '@/services/content';
 import { AuthProvider } from '@/services/firebase/auth';
 import { warmUpPlayGames } from '@/services/playGames';
@@ -77,7 +78,12 @@ export default function RootLayout() {
                     <SoundProvider>
                       <HapticsProvider>
                         <RemindersProvider>
-                          <ThemedNavigator />
+                          {/* Innermost: a language change remounts the screens
+                              in the new language without resetting the
+                              providers' state above them. */}
+                          <LanguageProvider>
+                            <ThemedNavigator />
+                          </LanguageProvider>
                         </RemindersProvider>
                       </HapticsProvider>
                     </SoundProvider>

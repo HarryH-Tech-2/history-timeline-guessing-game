@@ -8,6 +8,7 @@ import { HeartsChip, OutOfHeartsSheet, useHearts } from '@/features/hearts';
 import { usePremium } from '@/features/premium';
 import { paywallHref } from '@/features/premium/paywallSource';
 import { RoundView, useRoundRewards } from '@/features/round';
+import { t } from '@/i18n';
 import { palette } from '@/theme/tokens';
 import { dateKey } from '@/utils/date';
 
@@ -15,7 +16,7 @@ import { ModeHud } from '../components/ModeHud';
 import { AssistBar } from '../hints/AssistBar';
 import { roundDetail, RunSummary, type SummaryRow } from '../components/RunSummary';
 import { prettyDate, shareDataFromResults } from '../share';
-import { getStage, getWorld, isStagePremium, type CampaignStage } from './campaignMap';
+import { eraName, getStage, getWorld, isStagePremium, stageTitle, type CampaignStage } from './campaignMap';
 import { questCta, type QuestAction } from './questCta';
 import { useCampaignSession } from './useCampaignSession';
 
@@ -46,18 +47,20 @@ function StagePlay({
     }));
 
     const cta = questCta(stage, isPremium);
+    const title = stageTitle(stage);
+    const world = getWorld(stage.worldId);
 
     return (
       <RunSummary
-        title={`${stage.title} — cleared`}
+        title={t('campaign.play.cleared', { title })}
         totalScore={session.totalScore}
         accent={colour}
         stars={earnedStars}
         rounds={rounds}
         share={{
           data: shareDataFromResults(
-            `${stage.title} · ${'★'.repeat(earnedStars)}${'☆'.repeat(3 - earnedStars)}`,
-            `${getWorld(stage.worldId)?.name ?? 'Campaign'} · ${prettyDate(dateKey())}`,
+            `${title} · ${'★'.repeat(earnedStars)}${'☆'.repeat(3 - earnedStars)}`,
+            `${world ? eraName(world) : t('campaign.play.shareSubtitleFallback')} · ${prettyDate(dateKey())}`,
             session.results,
           ),
           mode: 'campaign',
@@ -68,11 +71,11 @@ function StagePlay({
         // primary; at a fork the primary lands on the fork, so the plain way
         // back stays on offer as for any mid-campaign stage.
         {...(cta.action.kind === 'map' && cta.action.focusStageId === undefined
-          ? { secondaryLabel: 'Replay', onSecondary: onRetry }
+          ? { secondaryLabel: t('campaign.play.replay'), onSecondary: onRetry }
           : {
-              secondaryLabel: 'Back to map',
+              secondaryLabel: t('campaign.play.backToMap'),
               onSecondary: onHome,
-              tertiaryLabel: 'Replay stage',
+              tertiaryLabel: t('campaign.play.replayStage'),
               onTertiary: onRetry,
             })}
         // A guest's first cleared stage is the moment their progress starts
@@ -92,7 +95,7 @@ function StagePlay({
         result={session.result}
         onSubmit={session.submit}
         onNext={session.advance}
-        nextLabel={onLastQuestion ? 'Finish' : 'Next'}
+        nextLabel={onLastQuestion ? t('modes.run.finish') : t('modes.run.next')}
         assist={(c) => (
           <AssistBar
             question={session.question}
@@ -131,8 +134,8 @@ export function CampaignStageScreen() {
   if (!stage) {
     return (
       <Screen className="items-center justify-center gap-4 px-5">
-        <Text className="text-center text-ink-secondary">This stage could not be found.</Text>
-        <Button label="Back to map" onPress={() => router.back()} />
+        <Text className="text-center text-ink-secondary">{t('campaign.play.notFound')}</Text>
+        <Button label={t('campaign.play.backToMap')} onPress={() => router.back()} />
       </Screen>
     );
   }
@@ -140,6 +143,7 @@ export function CampaignStageScreen() {
   // The map routes free players to the paywall, but a deep link or a stale
   // back-stack entry can still land here — never start a Premium stage free.
   if (isStagePremium(stage) && !isPremium) {
+    const premiumWorld = getWorld(stage.worldId);
     if (isLoading) return <Screen>{null}</Screen>;
     return (
       <Screen className="items-center justify-center gap-4 px-5">
@@ -147,10 +151,10 @@ export function CampaignStageScreen() {
           👑
         </Text>
         <Text className="text-center text-lg font-bold text-ink-primary">
-          {getWorld(stage.worldId)?.name ?? 'This era'} is part of Premium
+          {t('campaign.play.premiumEra', { era: premiumWorld ? eraName(premiumWorld) : t('campaign.play.thisEra') })}
         </Text>
-        <Button label="See Premium" onPress={() => router.push(paywallHref('campaign'))} />
-        <Button label="Back to map" variant="ghost" onPress={() => router.back()} />
+        <Button label={t('campaign.play.seePremium')} onPress={() => router.push(paywallHref('campaign', { era: stage.worldId }))} />
+        <Button label={t('campaign.play.backToMap')} variant="ghost" onPress={() => router.back()} />
       </Screen>
     );
   }
@@ -164,7 +168,7 @@ export function CampaignStageScreen() {
       if (action.focusStageId !== undefined) {
         router.dismissTo({ pathname: '/campaign', params: { focus: action.focusStageId } });
       } else router.back();
-    } else if (action.kind === 'paywall') router.push(paywallHref('campaign'));
+    } else if (action.kind === 'paywall') router.push(paywallHref('campaign', { era: action.eraId }));
     else
       router.replace({
         pathname: '/campaign/[world]/[stage]',

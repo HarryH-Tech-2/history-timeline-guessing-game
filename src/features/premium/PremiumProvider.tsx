@@ -9,13 +9,15 @@ import {
   useState,
 } from 'react';
 
+import { cancelWinbackReminder } from '@/features/reminders/scheduler';
 import { requestReviewAfterFirstPurchase } from '@/features/review';
-import { track, type PaywallSource } from '@/services/analytics';
+import { track, type PaywallSource, type PurchaseOffer } from '@/services/analytics';
 import { useAuth } from '@/services/firebase/auth';
 
-import { billing, devBilling, type PremiumPlan, type PurchaseResult } from './billing';
+import { billing, devBilling, type PremiumPlan, type PurchaseResult, type WinbackPrice } from './billing';
 import type { Money } from './paywallPricing';
-import { INITIAL_PREMIUM, PREMIUM_PLAN_LABELS, premiumStore, type PremiumState } from './entitlement';
+import { afterPurchase, winbackStore } from './winback';
+import { INITIAL_PREMIUM, premiumPlanLabels, premiumStore, type PremiumState } from './entitlement';
 
 export interface PremiumApi {
   isPremium: boolean;
@@ -23,7 +25,10 @@ export interface PremiumApi {
   isLoading: boolean;
   /** Whether this build can actually take payment. */
   billingAvailable: boolean;
-  /** Display price per plan; the store's localized price once it loads. */
+  /**
+   * Display price per plan; the store's localized price once it loads, with
+   * its cadence ("/ month") in the current language.
+   */
   priceLabels: Record<PremiumPlan, string>;
   /** Free-trial length per plan, in days, for plans the store offers one on. */
   trialDays: Partial<Record<PremiumPlan, number>>;
@@ -32,8 +37,20 @@ export interface PremiumApi {
    * as the yearly plan's per-month cost. Absent until (and unless) the store says.
    */
   priceAmounts: Partial<Record<PremiumPlan, Money>>;
-  /** Buy `plan`; `source` is where the paywall was opened from, for attribution. */
-  purchase: (plan: PremiumPlan, source?: PaywallSource) => Promise<PurchaseResult>;
+  /**
+   * The yearly plan's win-back discount, when Play offers one to this player.
+   * Whether it's on show right now is the win-back timing's call (winback.ts).
+   */
+  winback: WinbackPrice | null;
+  /**
+   * Buy `plan`; `source` is where the paywall was opened from, for
+   * attribution. With `winback`, buy the plan's win-back offer.
+   */
+  purchase: (
+    plan: PremiumPlan,
+    source?: PaywallSource,
+    options?: { winback?: boolean },
+  ) => Promise<PurchaseResult>;
   restore: () => Promise<boolean>;
   /** Dev builds only: drop the entitlement to test the free experience. */
   revokeForTesting: () => void;
@@ -43,20 +60,19 @@ const OFFLINE_API: PremiumApi = {
   isPremium: false,
   isLoading: false,
   billingAvailable: false,
-  priceLabels: PREMIUM_PLAN_LABELS,
+  // A getter: the cadence words must follow the language at read time.
+  get priceLabels() {
+    return premiumPlanLabels();
+  },
   trialDays: {},
   priceAmounts: {},
+  winback: null,
   purchase: async () => 'unavailable',
   restore: async () => false,
   revokeForTesting: () => undefined,
 };
 
-/** How a plan's bare store price ("£2.49") reads as a cadence label. */
-const PLAN_SUFFIX: Record<PremiumPlan, string> = {
-  monthly: ' / month',
-  yearly: ' / year',
-  lifetime: ' once',
-};
+const PLANS: readonly PremiumPlan[] = ['monthly', 'yearly', 'lifetime'];
 
 const PremiumContext = createContext<PremiumApi>(OFFLINE_API);
 
@@ -68,9 +84,11 @@ const PremiumContext = createContext<PremiumApi>(OFFLINE_API);
 export function PremiumProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<PremiumState>(INITIAL_PREMIUM);
   const [isLoading, setIsLoading] = useState(true);
-  const [priceLabels, setPriceLabels] = useState(PREMIUM_PLAN_LABELS);
+  /** The store's bare prices ("£2.49"); the cadence is added on read. */
+  const [storePrices, setStorePrices] = useState<Partial<Record<PremiumPlan, string>>>({});
   const [trialDays, setTrialDays] = useState<Partial<Record<PremiumPlan, number>>>({});
   const [priceAmounts, setPriceAmounts] = useState<Partial<Record<PremiumPlan, Money>>>({});
+  const [winback, setWinback] = useState<WinbackPrice | null>(null);
   const { uid } = useAuth();
 
   // Show the store's own localized prices ("£2.49 / month", "₹499.00 once")
@@ -81,28 +99,27 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
     void billing.localizedPrices().then((prices) => {
       if (cancelled) return;
-      setPriceLabels((fallback) => {
-        const next = { ...fallback };
-        for (const plan of Object.keys(PLAN_SUFFIX) as PremiumPlan[]) {
-          const price = prices[plan]?.price;
-          if (price) next[plan] = `${price}${PLAN_SUFFIX[plan]}`;
-        }
-        return next;
-      });
+      const bare: Partial<Record<PremiumPlan, string>> = {};
+      for (const plan of PLANS) {
+        const price = prices[plan]?.price;
+        if (price) bare[plan] = price;
+      }
+      setStorePrices(bare);
       const trials: Partial<Record<PremiumPlan, number>> = {};
-      for (const plan of Object.keys(PLAN_SUFFIX) as PremiumPlan[]) {
+      for (const plan of PLANS) {
         const days = prices[plan]?.trialDays;
         if (days) trials[plan] = days;
       }
       setTrialDays(trials);
       const amounts: Partial<Record<PremiumPlan, Money>> = {};
-      for (const plan of Object.keys(PLAN_SUFFIX) as PremiumPlan[]) {
+      for (const plan of PLANS) {
         const { amount, currencyCode } = prices[plan] ?? {};
         if (typeof amount === 'number' && amount > 0 && currencyCode) {
           amounts[plan] = { amount, currencyCode };
         }
       }
       setPriceAmounts(amounts);
+      setWinback(prices.yearly?.winback ?? null);
     });
     return () => {
       cancelled = true;
@@ -188,16 +205,28 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
   const purchase = useCallback(async (
     plan: PremiumPlan,
     source: PaywallSource = 'unknown',
+    options?: { winback?: boolean },
   ): Promise<PurchaseResult> => {
-    const result = await billing.purchase(plan);
+    const offer: PurchaseOffer = options?.winback
+      ? 'winback'
+      : trialDays[plan]
+        ? 'trial'
+        : 'standard';
+    track('purchase_started', { plan, source, offer });
+    const result = await billing.purchase(plan, options?.winback ? { winback: true } : undefined);
     if (result === 'purchased') {
       commit({ active: true, source: billing === devBilling ? 'dev' : 'store' });
-      track('purchase_completed', { plan, source });
+      track('purchase_completed', { plan, source, offer });
+      // Bought: the win-back offer (and its reminder) is finished either way.
+      void winbackStore.read().then((w) => winbackStore.write(afterPurchase(w)));
+      void cancelWinbackReminder();
       // Google's in-app review sheet, once, on the first successful purchase.
       void requestReviewAfterFirstPurchase();
+    } else {
+      track('purchase_failed', { plan, source, offer, reason: result });
     }
     return result;
-  }, [commit]);
+  }, [commit, trialDays]);
 
   const restore = useCallback(async (): Promise<boolean> => {
     const active = await billing.restore();
@@ -217,14 +246,29 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
       isPremium: state.active,
       isLoading,
       billingAvailable: billing.available,
-      priceLabels,
+      // A getter, so screens remounted by a language change get the new
+      // cadence words ("/ mês") without this provider re-rendering.
+      get priceLabels() {
+        return premiumPlanLabels(storePrices);
+      },
       trialDays,
       priceAmounts,
+      winback,
       purchase,
       restore,
       revokeForTesting,
     }),
-    [state.active, isLoading, priceLabels, trialDays, priceAmounts, purchase, restore, revokeForTesting],
+    [
+      state.active,
+      isLoading,
+      storePrices,
+      trialDays,
+      priceAmounts,
+      winback,
+      purchase,
+      restore,
+      revokeForTesting,
+    ],
   );
 
   return <PremiumContext.Provider value={value}>{children}</PremiumContext.Provider>;

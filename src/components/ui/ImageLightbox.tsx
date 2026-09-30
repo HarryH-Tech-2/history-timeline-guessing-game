@@ -17,6 +17,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { t } from '@/i18n';
+
 const MIN_SCALE = 1;
 const MAX_SCALE = 5;
 const DOUBLE_TAP_SCALE = 2.5;
@@ -135,7 +137,7 @@ export function ImageLightbox({ visible, source, title, onClose }: ImageLightbox
               <Pressable
                 onPress={onClose}
                 accessibilityRole="button"
-                accessibilityLabel="Close image"
+                accessibilityLabel={t('round.image.close')}
                 hitSlop={10}
                 testID="lightbox-close"
                 className="h-10 w-10 items-center justify-center border border-white/30"

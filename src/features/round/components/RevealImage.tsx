@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Image, Pressable, View, type ImageSourcePropType } from 'react-native';
 
 import { ImageLightbox } from '@/components/ui';
+import { t } from '@/i18n';
 
 interface RevealImageProps {
   source: ImageSourcePropType;
@@ -20,12 +21,13 @@ export function RevealImage({ source, title }: RevealImageProps) {
       <Pressable
         onPress={() => setZoomed(true)}
         accessibilityRole="imagebutton"
-        accessibilityLabel={`Enlarge illustration of ${title}`}
+        accessibilityLabel={t('round.image.enlarge', { title })}
         testID="reveal-image-button"
         className="w-full flex-1 items-center"
       >
         <Image
           source={source}
+          resizeMethod="resize"
           resizeMode="contain"
           accessibilityIgnoresInvertColors
           className="bg-bg-overlay"

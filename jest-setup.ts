@@ -67,3 +67,10 @@ jest.mock('expo-notifications', () => ({
   cancelScheduledNotificationAsync: jest.fn(() => Promise.resolve()),
   setNotificationHandler: jest.fn(),
 }));
+
+// Tests assert English copy, so pin the "phone language" to English whatever
+// the machine running them is set to.
+jest.mock('@/i18n/languages', () => ({
+  ...jest.requireActual('@/i18n/languages'),
+  deviceLanguage: () => 'en',
+}));

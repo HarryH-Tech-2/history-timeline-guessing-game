@@ -1,3 +1,5 @@
+import { t } from '@/i18n';
+
 import { handleForUid, MAX_DISPLAY_NAME } from './types';
 
 export const MIN_DISPLAY_NAME = 3;
@@ -48,16 +50,16 @@ export type NameValidation =
 export function validatePlayerName(raw: string): NameValidation {
   const name = raw.trim().replace(/\s+/g, ' ');
   if (name.length < MIN_DISPLAY_NAME) {
-    return { ok: false, reason: `Use at least ${MIN_DISPLAY_NAME} characters` };
+    return { ok: false, reason: t('profile.nameSheet.errors.tooShort', { count: MIN_DISPLAY_NAME }) };
   }
   if (name.length > MAX_DISPLAY_NAME) {
-    return { ok: false, reason: `Keep it to ${MAX_DISPLAY_NAME} characters` };
+    return { ok: false, reason: t('profile.nameSheet.errors.tooLong', { count: MAX_DISPLAY_NAME }) };
   }
   if (!ALLOWED.test(name)) {
-    return { ok: false, reason: 'Letters, numbers, spaces, - _ and ’ only' };
+    return { ok: false, reason: t('profile.nameSheet.errors.characters') };
   }
   if (containsBlockedWord(name)) {
-    return { ok: false, reason: 'That name isn’t allowed' };
+    return { ok: false, reason: t('profile.nameSheet.errors.blocked') };
   }
   return { ok: true, name };
 }

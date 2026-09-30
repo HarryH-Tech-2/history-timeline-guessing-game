@@ -3,6 +3,7 @@ import { Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { Button, Card } from '@/components/ui';
+import { t } from '@/i18n';
 import { track } from '@/services/analytics';
 import { dateKey } from '@/utils/date';
 
@@ -40,15 +41,15 @@ export function SummaryUpsell() {
     <Card className="mt-4 gap-3 p-4" testID="summary-upsell">
       <View className="gap-1">
         <Text className="text-[11px] font-bold uppercase tracking-wide text-accent">
-          👑 Premium
+          {t('paywall.summaryUpsell.eyebrow')}
         </Text>
-        <Text className="text-base font-bold text-ink-primary">Enjoying it?</Text>
+        <Text className="text-base font-bold text-ink-primary">{t('paywall.summaryUpsell.title')}</Text>
         <Text className="text-sm text-ink-secondary">
-          Premium: unlimited hearts, the full campaign and Endless
+          {t('paywall.summaryUpsell.body')}
         </Text>
       </View>
       <Button
-        label="See Premium"
+        label={t('paywall.summaryUpsell.cta')}
         variant="ghost"
         onPress={() => router.push(paywallHref('run_summary'))}
         testID="summary-upsell-cta"

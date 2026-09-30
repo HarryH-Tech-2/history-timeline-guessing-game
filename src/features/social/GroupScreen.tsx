@@ -5,6 +5,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { BackButton, Button, Screen } from '@/components/ui';
 import { HOUSE_PREFIX } from '@/features/leaderboard/houseRows';
 import { handleForUid } from '@/features/leaderboard/types';
+import { formatNumber, t } from '@/i18n';
 import { track } from '@/services/analytics';
 import { useAuth } from '@/services/firebase/auth';
 import { weekKey } from '@/utils/date';
@@ -62,9 +63,9 @@ export function GroupScreen({ groupId }: { groupId: string }) {
   };
 
   const confirmLeave = (group: Group) =>
-    Alert.alert(`Leave ${group.name}?`, 'You’ll need a new invite to rejoin.', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Leave', style: 'destructive', onPress: () => void leaveGroup(group) },
+    Alert.alert(t('social.group.leaveTitle', { name: group.name }), t('social.group.leaveBody'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('social.group.leaveConfirm'), style: 'destructive', onPress: () => void leaveGroup(group) },
     ]);
 
   const leaveGroup = async (group: Group) => {
@@ -91,16 +92,16 @@ export function GroupScreen({ groupId }: { groupId: string }) {
     return (
       <Screen className="items-center justify-center gap-4 px-5">
         <Text className="text-center text-lg text-ink-primary">{api.socialErrorMessage(null)}</Text>
-        <Button label="Try again" onPress={retry} testID="group-retry" />
-        <Button label="Back" variant="ghost" onPress={leave} />
+        <Button label={t('social.tryAgain')} onPress={retry} testID="group-retry" />
+        <Button label={t('common.back')} variant="ghost" onPress={leave} />
       </Screen>
     );
   }
   if (load.kind === 'gone') {
     return (
       <Screen className="items-center justify-center gap-4 px-5">
-        <Text className="text-center text-lg text-ink-primary">You’re not in this group any more.</Text>
-        <Button label="Back" onPress={leave} />
+        <Text className="text-center text-lg text-ink-primary">{t('social.group.gone')}</Text>
+        <Button label={t('common.back')} onPress={leave} />
       </Screen>
     );
   }
@@ -118,9 +119,9 @@ export function GroupScreen({ groupId }: { groupId: string }) {
               <BackButton onPress={leave} />
               <Text className="flex-1 text-2xl font-extrabold text-ink-primary">{group.name}</Text>
             </View>
-            <Text className="text-sm text-ink-secondary">This week’s XP · resets Monday</Text>
+            <Text className="text-sm text-ink-secondary">{t('social.group.subtitle')}</Text>
             <Button
-              label={`Invite · code ${group.inviteCode}`}
+              label={t('social.group.invite', { code: group.inviteCode })}
               onPress={() => void shareGroup(groupUrl(group.inviteCode), group.name)}
               testID="group-invite"
             />
@@ -133,14 +134,14 @@ export function GroupScreen({ groupId }: { groupId: string }) {
             <Text className="flex-1 pr-3 text-base font-bold text-ink-primary" numberOfLines={1}>
               {item.rank}. {item.name}
             </Text>
-            <Text className="text-base font-bold text-ink-primary">{item.weekXp.toLocaleString()} XP</Text>
+            <Text className="text-base font-bold text-ink-primary">{formatNumber(item.weekXp)} XP</Text>
           </View>
         )}
         ListFooterComponent={
           <View className="gap-2 pt-6">
             {error && <Text className="text-center text-sm text-danger">{error}</Text>}
             <Button
-              label="Leave group"
+              label={t('social.group.leave')}
               variant="ghost"
               testID="group-leave"
               disabled={leaving}

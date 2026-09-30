@@ -1,5 +1,6 @@
 import { Pressable, View } from 'react-native';
 
+import { t } from '@/i18n';
 import { cn } from '@/utils/cn';
 
 type BackButtonVariant = 'back' | 'close';
@@ -30,7 +31,7 @@ export function BackButton({
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={label ?? (variant === 'close' ? 'Close' : 'Back')}
+      accessibilityLabel={label ?? (variant === 'close' ? t('common.close') : t('common.back'))}
       hitSlop={10}
       testID={testID}
       style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}

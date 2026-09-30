@@ -1,0 +1,61 @@
+{
+  "categories": {
+    "events": { "name": "歴史的な出来事", "description": "世界を変えた転換点。" },
+    "battles": { "name": "戦い", "description": "帝国の運命を決めた激突。" },
+    "people": { "name": "偉人", "description": "歴史に名を残す人物の生まれた年。" },
+    "technology": { "name": "テクノロジー", "description": "暮らしを変えた発明の数々。" },
+    "exploration": { "name": "探検と発見", "description": "地図を塗り替えた航海と「世界初」。" },
+    "treaties": { "name": "条約", "description": "戦争を終わらせ、国境を定めた署名。" },
+    "sport": { "name": "スポーツ", "description": "初の決勝、記録ずくめの快進撃、名高い番狂わせ。" },
+    "trade": { "name": "お金と交易", "description": "硬貨、会社、運河、そして大暴落。" },
+    "arts": { "name": "芸術と文化", "description": "傑作、初演、文化のアイコン。" },
+    "philosophy": { "name": "哲学", "description": "あらゆることを問い直した思想家と思想。" },
+    "regional": { "name": "地域別", "description": "地域を選んで、その歴史の決定的瞬間に挑もう。" },
+    "space": { "name": "宇宙", "description": "打ち上げ、着陸、そして地球の外への競争。" }
+  },
+  "topics": {
+    "ancient": { "name": "古代世界", "blurb": "ファラオ、重装歩兵、そして最初の都市。" },
+    "rome": { "name": "古代ローマ", "blurb": "ロムルスから最後の軍団まで。" },
+    "greece": { "name": "古代ギリシア", "blurb": "哲学者、ファランクス、そしてペルシア戦争。" },
+    "medieval": { "name": "中世", "blurb": "城、十字軍、そしてロングボウ。" },
+    "inventions": { "name": "偉大な発明", "blurb": "すべてを変えたアイデア。" },
+    "usa": { "name": "アメリカの歴史", "blurb": "独立革命、領土拡大、そして現代。" },
+    "england": { "name": "イングランド", "blurb": "王たち、劇作家、そして大火。" },
+    "france": { "name": "フランス", "blurb": "革命、帝政、そしてベル・エポック。" },
+    "world-wars": { "name": "世界大戦", "blurb": "20世紀を形づくった戦い。" },
+    "19th-century": { "name": "19世紀", "blurb": "蒸気、帝国、そして革命。" },
+    "20th-century": { "name": "20世紀", "blurb": "激動と発明の世紀。" },
+    "science": { "name": "科学と発見", "blurb": "宇宙の謎を解き明かした人々。" },
+    "disasters": { "name": "災害", "blurb": "大火、洪水、そして噴火。" },
+    "naval": { "name": "海の戦い", "blurb": "国の運命を決めた艦隊。" },
+    "explorers": { "name": "探検家", "blurb": "地図を塗り替えた航海と「世界初」。" },
+    "politics": { "name": "政治と権力", "blurb": "条約、革命、そして改革者。" },
+    "literature": { "name": "文学", "blurb": "叙事詩、小説、そしてその書き手たち。" },
+    "music": { "name": "音楽", "blurb": "「第九」から「スリラー」まで。" },
+    "architecture": { "name": "建築", "blurb": "今も立ち続ける記念碑。" },
+    "space": { "name": "宇宙時代", "blurb": "スプートニクからジェイムズ・ウェッブ宇宙望遠鏡まで。" },
+    "olympics": { "name": "オリンピック", "blurb": "五輪の栄光の瞬間。" },
+    "money": { "name": "お金と市場", "blurb": "銀行、バブル、そして大暴落。" },
+    "independence": { "name": "独立の日", "blurb": "新しい国が生まれた日。" }
+  },
+  "regions": {
+    "europe": { "name": "ヨーロッパ", "blurb": "王国、連合、そして革命。" },
+    "asia": { "name": "アジア", "blurb": "王朝、将軍、そして現代の大国。" },
+    "africa": { "name": "アフリカ", "blurb": "黄金の帝国と自由への道。" },
+    "north-america": { "name": "北アメリカ", "blurb": "テノチティトランからカナダ連邦結成まで。" },
+    "south-america": { "name": "南アメリカ", "blurb": "インカ、解放者たち、そして新しい首都。" },
+    "oceania": { "name": "オセアニア", "blurb": "最初の船団、ゴールドラッシュ、先駆けの参政権。" }
+  },
+  "routes": {
+    "egypt-near-east": { "name": "エジプトと古代オリエント" },
+    "greece-rome": { "name": "ギリシアとローマ" },
+    "crusades-castles": { "name": "十字軍と城" },
+    "silk-road": { "name": "シルクロードと交易" },
+    "voyages": { "name": "大航海時代" },
+    "renaissance": { "name": "ルネサンスと宗教改革" },
+    "revolutions": { "name": "革命と国民国家" },
+    "steam-science": { "name": "蒸気と科学" },
+    "world-at-war": { "name": "戦争の世界" },
+    "space-tech": { "name": "宇宙とテクノロジー" }
+  }
+}

@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Pressable, Text, View } from 'react-native';
 import Animated, {
   cancelAnimation,
   Easing,
@@ -13,6 +13,8 @@ import Animated, {
 
 import { Button } from '@/components/ui';
 import { Mascot } from '@/features/modes/components/Mascot';
+import { LanguageSheet } from '@/features/progression/components/LanguageSheet';
+import { LANGUAGES, t, useLanguage } from '@/i18n';
 
 const CENTURIES = [1500, 1600, 1700, 1800, 1900, 2000];
 const CENTURY_GAP = 120;
@@ -50,25 +52,49 @@ function DriftingTimeline() {
   );
 }
 
+/** Language switch on the very first screen, so nobody is stuck in the phone's language. */
+function LanguagePill() {
+  const { language } = useLanguage();
+  const [open, setOpen] = useState(false);
+  const name = LANGUAGES.find((l) => l.code === language)?.name ?? language;
+  return (
+    <>
+      <Pressable
+        onPress={() => setOpen(true)}
+        accessibilityRole="button"
+        accessibilityLabel={t('profile.settings.languageLabel')}
+        testID="onboarding-language"
+        className="flex-row items-center gap-1.5 self-end rounded-full border border-hair bg-bg-raised px-3 py-1.5"
+      >
+        <Text className="text-sm">🌐</Text>
+        <Text className="text-sm font-semibold text-ink-secondary">{name}</Text>
+        <Text className="text-xs text-ink-muted">▾</Text>
+      </Pressable>
+      <LanguageSheet visible={open} onClose={() => setOpen(false)} />
+    </>
+  );
+}
+
 export function WelcomeStep({ onNext }: { onNext: () => void }) {
   return (
     <View className="flex-1 justify-between">
+      <LanguagePill />
       <View className="flex-1 justify-center gap-8">
         <Animated.View entering={FadeInUp.springify().damping(18)} className="items-center gap-2">
           <Text className="text-xs font-semibold uppercase tracking-widest text-ink-muted">
             Date Guesser
           </Text>
           <Text className="px-4 text-center text-4xl font-extrabold leading-tight text-ink-primary">
-            Every event has a year.
+            {t('onboarding.welcome.title')}
           </Text>
           <Text className="text-center text-xl font-semibold text-accent">
-            How close can you get?
+            {t('onboarding.welcome.subtitle')}
           </Text>
         </Animated.View>
-        <Mascot line="I’m Minerva. Let’s find out." height={140} />
+        <Mascot line={t('onboarding.welcome.mascot')} height={140} />
         <DriftingTimeline />
       </View>
-      <Button label="Show me" glyph="→" variant="hero" onPress={onNext} testID="onboarding-next" />
+      <Button label={t('onboarding.welcome.next')} glyph="→" variant="hero" onPress={onNext} testID="onboarding-next" />
     </View>
   );
 }

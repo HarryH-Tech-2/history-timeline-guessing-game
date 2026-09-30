@@ -1,4 +1,5 @@
 import { isFirebaseConfigured } from '@/config/env';
+import { t } from '@/i18n';
 
 import {
   ChallengeEntrySchema,
@@ -130,10 +131,11 @@ export const isAlreadyPlayed = (error: unknown): boolean => socialErrorCode(erro
 export function socialErrorMessage(error: unknown): string {
   const code = socialErrorCode(error);
   const message = (error as Error | null)?.message;
-  if (code === 'not-found') return 'That code doesn’t match anything. Check it and try again.';
-  if (code === 'already-exists') return 'You’ve already played this challenge.';
-  if (code === 'failed-precondition') return message || 'That’s no longer available.';
-  if (code === 'resource-exhausted') return 'That group is full.';
-  if (code === 'invalid-argument') return message || 'That didn’t look right.';
-  return 'Couldn’t reach the server. Check your connection and try again.';
+  if (code === 'not-found') return t('social.errors.notFound');
+  if (code === 'already-exists') return t('social.errors.alreadyPlayed');
+  // The server's own message (English) wins when there is one.
+  if (code === 'failed-precondition') return message || t('social.errors.unavailable');
+  if (code === 'resource-exhausted') return t('social.errors.groupFull');
+  if (code === 'invalid-argument') return message || t('social.errors.invalid');
+  return t('social.errors.network');
 }

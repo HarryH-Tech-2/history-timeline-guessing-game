@@ -140,7 +140,7 @@ describe('stageIcon', () => {
   it('gives each era its own set, offset by era', () => {
     const stage = { ...world.stages[0]!, routeId: undefined };
     const at = (id: string, index: number) => stageIcon(stage, { ...world, id, index }).icon;
-    expect(at('ancient', 1)).toBe('pyramid');
+    expect(at('ancient', 1)).toBe('bank');
     expect(at('medieval', 2)).toBe('sword-cross');
     expect(at('modern', 5)).toBe('laptop');
     expect(at('unknown-era', 1)).toBe(DEFAULT_ICONS[0]);

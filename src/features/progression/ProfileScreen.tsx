@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 
 import { Button, Screen } from '@/components/ui';
 import { isDeveloperBuild } from '@/config/env';
-import { BACKUP_BUTTON_LABEL, BACKUP_PROVIDERS, STORE_NAME } from '@/config/store';
+import { backupButtonLabel, backupProviders, storeName } from '@/config/store';
 import { getCategories, getQuestionsByCategory } from '@/data';
 import {
   activeStreakCount,
@@ -23,14 +23,21 @@ import { paywallHref } from '@/features/premium/paywallSource';
 import { openStoreListing } from '@/features/review';
 import { useHaptics } from '@/features/haptics';
 import { useReminders } from '@/features/reminders';
+import { categoryIcon } from '@/features/modes/home/HomeHub';
+import { IconPlaque } from '@/features/modes/home/IconPlaque';
 import { onboardingStore } from '@/features/onboarding/onboardingStore';
 import { useSound } from '@/features/sound';
+import { formatNumber, LANGUAGES, t, useLanguage } from '@/i18n';
 import { useAnalyticsSettings } from '@/services/analytics';
 import { useAuth } from '@/services/firebase/auth';
 import { useTheme } from '@/theme';
 import { palette } from '@/theme/tokens';
 import { dateKey } from '@/utils/date';
 
+import { avatarName, resolveAvatar } from './avatars';
+import { AvatarBadge } from './components/AvatarBadge';
+import { AvatarSheet } from './components/AvatarSheet';
+import { LanguageSheet } from './components/LanguageSheet';
 import { PlayerNameSheet } from './components/PlayerNameSheet';
 import { useProgression } from './ProgressionProvider';
 
@@ -42,6 +49,25 @@ function SectionTitle({ children }: { children: string }) {
     <Text className="mt-2 text-xs font-semibold uppercase tracking-widest text-ink-muted">
       {children}
     </Text>
+  );
+}
+
+/** A settings row's left side: its symbol, then the title with an optional line under it. */
+function SettingLabel({ icon, title, body }: { icon: string; title: string; body?: string }) {
+  return (
+    <View className="flex-1 flex-row items-start gap-3 pr-3">
+      <Text
+        className="w-7 text-center text-lg leading-6"
+        accessibilityElementsHidden
+        importantForAccessibility="no"
+      >
+        {icon}
+      </Text>
+      <View className="flex-1">
+        <Text className="text-base font-semibold text-ink-primary">{title}</Text>
+        {body !== undefined && <Text className="mt-0.5 text-xs text-ink-muted">{body}</Text>}
+      </View>
+    </View>
   );
 }
 
@@ -80,14 +106,14 @@ function StreakCard({
       <View className="flex-row items-center justify-between">
         <View>
           <Text className="text-2xl font-extrabold text-ink-primary">
-            🔥 {live} {live === 1 ? 'day' : 'days'}
+            🔥 {t('common.day', { count: live })}
           </Text>
           <Text className="mt-0.5 text-xs text-ink-muted">
             {live === 0
-              ? 'Finish today’s Daily to start a streak'
+              ? t('profile.streak.start')
               : multiplier > 1
-                ? `×${multiplier} XP boost active`
-                : `${3 - live} more ${3 - live === 1 ? 'day' : 'days'} to a ×1.1 XP boost`}
+                ? t('profile.streak.boostActive', { multiplier })
+                : t('profile.streak.toBoost', { count: 3 - live })}
           </Text>
         </View>
         <Text className="text-sm font-semibold text-ink-secondary">
@@ -95,7 +121,11 @@ function StreakCard({
         </Text>
       </View>
       <Button
-        label={unlimitedCoins ? 'Add streak freeze · free with Premium' : `Buy streak freeze · ${STREAK_FREEZE_COST} 🪙`}
+        label={
+          unlimitedCoins
+            ? t('profile.streak.addFree')
+            : t('profile.streak.buy', { cost: STREAK_FREEZE_COST })
+        }
         variant="ghost"
         disabled={!canBuy}
         onPress={() => {
@@ -105,8 +135,99 @@ function StreakCard({
         testID="buy-freeze"
       />
       <Text className="-mt-1 text-[11px] leading-4 text-ink-muted">
-        A freeze automatically covers one missed day so your streak survives.
+        {t('profile.streak.explainer')}
       </Text>
+    </View>
+  );
+}
+
+/**
+ * Premium in Profile. For a free player it's a pitch in the paywall's warm
+ * accent: crown, headline with the entry price, what's included, and the one
+ * hero button on the screen. For a subscriber it collapses to a status row.
+ */
+function PremiumCard({
+  isPremium,
+  price,
+  onPress,
+}: {
+  isPremium: boolean;
+  price: string;
+  onPress: () => void;
+}) {
+  if (isPremium) {
+    return (
+      <View
+        className="flex-row items-center gap-3 border border-accent/40 bg-accent/10 p-4"
+        testID="premium-card"
+      >
+        <IconPlaque glyph="👑" size="md" />
+        <View className="flex-1">
+          <Text className="text-base font-extrabold text-ink-primary">{t('profile.premium.active')}</Text>
+          <Text className="text-xs text-ink-secondary">{t('profile.premium.activeBody')}</Text>
+        </View>
+        <Button
+          label={t('profile.premium.manage')}
+          variant="ghost"
+          onPress={onPress}
+          className="h-10 px-4"
+          testID="premium-cta"
+        />
+      </View>
+    );
+  }
+
+  const benefits = [
+    { icon: '❤️', label: t('profile.premium.benefits.hearts') },
+    { icon: '🗺️', label: t('profile.premium.benefits.campaign') },
+    { icon: '🏛️', label: t('profile.premium.benefits.categories') },
+    // The premium categories by name, so the pitch shows what unlocks.
+    ...getCategories()
+      .filter((c) => c.active && c.premiumOnly)
+      .map((c) => ({ icon: categoryIcon(c.icon), label: c.name })),
+  ];
+  return (
+    <View className="gap-4 border-2 border-accent bg-accent/10 p-4" testID="premium-card">
+      <View className="flex-row items-center gap-3">
+        <IconPlaque glyph="👑" />
+        <View className="flex-1">
+          <Text className="text-xl font-extrabold text-ink-primary">{t('profile.premium.go')}</Text>
+          <Text className="text-sm font-semibold text-accent">
+            {t('profile.premium.fromPrice', { price })}
+          </Text>
+        </View>
+        <Pressable
+          onPress={onPress}
+          accessibilityRole="button"
+          accessibilityLabel={t('profile.premium.upgrade')}
+          testID="premium-cta"
+          className="flex-row items-center gap-1.5 rounded-full px-4 py-2.5 active:opacity-80"
+          style={{
+            backgroundColor: palette.accent.default,
+            shadowColor: '#000',
+            shadowOpacity: 0.2,
+            shadowRadius: 3,
+            shadowOffset: { width: 0, height: 2 },
+            elevation: 3,
+          }}
+        >
+          <Text className="text-sm">👑</Text>
+          <Text className="text-sm font-extrabold text-white">
+            {t('profile.premium.upgrade')}
+          </Text>
+        </Pressable>
+      </View>
+      <View className="flex-row flex-wrap gap-2">
+        {benefits.map((b) => (
+          <View
+            key={b.label}
+            className="flex-row items-center gap-1.5 rounded-full border border-hair bg-bg-raised px-3 py-1.5"
+          >
+            <Text className="text-xs">{b.icon}</Text>
+            <Text className="text-xs font-semibold text-ink-primary">{b.label}</Text>
+          </View>
+        ))}
+      </View>
     </View>
   );
 }
@@ -119,26 +240,27 @@ function RateUsCard() {
         void openStoreListing();
       }}
       accessibilityRole="button"
-      accessibilityLabel={`Rate Date Guesser on ${STORE_NAME}`}
+      accessibilityLabel={t('profile.rateUs.label', { store: storeName() })}
       testID="rate-us"
       className="mt-2 flex-row items-center gap-4 border border-accent bg-accent/10 p-4"
     >
       {/* The ask comes from a person, so the person's face fronts it. */}
       <Image
         source={FOUNDER_PHOTO}
+        resizeMethod="resize"
         accessibilityIgnoresInvertColors
         accessible
-        accessibilityLabel="Photo of Harry, the developer"
+        accessibilityLabel={t('profile.rateUs.photo')}
         style={{ width: 48, height: 48, borderRadius: 24 }}
         className="border border-hair"
         testID="rate-us-photo"
       />
       <View className="flex-1">
         <Text className="text-base font-bold text-ink-primary">
-          Enjoying the game? A quick review really helps me out 🙏
+          {t('profile.rateUs.title')}
         </Text>
         <Text className="mt-0.5 text-xs text-ink-secondary">
-          Tap to leave a rating on {STORE_NAME}.
+          {t('profile.rateUs.body', { store: storeName() })}
         </Text>
       </View>
       <Text className="text-xl text-ink-muted">›</Text>
@@ -171,7 +293,7 @@ function MasteryGrid({ collection }: { collection: Readonly<Record<string, numbe
               <Text className="text-base">{badge ? badge.icon : '—'}</Text>
             </View>
             <Text className="mt-0.5 text-xs text-ink-muted">
-              {acquired} / {questions.length} collected
+              {t('profile.mastery.collected', { acquired, total: questions.length })}
             </Text>
             <View className="mt-2 h-1.5 overflow-hidden rounded-full bg-bg-overlay">
               <View
@@ -199,6 +321,8 @@ export function ProfileScreen() {
   const { enabled: soundOn, toggle: toggleSound } = useSound();
   const { enabled: hapticsOn, toggle: toggleHaptics } = useHaptics();
   const { enabled: analyticsOn, toggle: toggleAnalytics } = useAnalyticsSettings();
+  const { language, preference } = useLanguage();
+  const [choosingLanguage, setChoosingLanguage] = useState(false);
   const reminders = useReminders();
   const toggleReminders = () => {
     if (reminders.enabled) reminders.disable();
@@ -206,8 +330,10 @@ export function ProfileScreen() {
   };
   const [signingOut, setSigningOut] = useState(false);
   const [editingName, setEditingName] = useState(false);
+  const [choosingAvatar, setChoosingAvatar] = useState(false);
 
   const level = levelForXp(state.xp);
+  const avatar = resolveAvatar(state.avatar, isPremium);
   const progress = levelProgress(state.xp);
   const pct = Math.round(progress.fraction * 100);
 
@@ -216,38 +342,39 @@ export function ProfileScreen() {
   const generatedName = resolveDisplayName(null, uid);
   const displayName = resolveDisplayName(state.displayName, uid);
   const statusLine = !isSignedIn
-    ? 'Offline · progress saved on device'
+    ? t('profile.status.offline')
     : hasAccount
-      ? 'Signed in · progress synced'
-      : 'Progress saved on this device';
+      ? t('profile.status.synced')
+      : t('profile.status.device');
+  const languageName = LANGUAGES.find((l) => l.code === language)?.name ?? language;
   const version = Constants.expoConfig?.version ?? '1.0.0';
 
   return (
-    <Screen>
+    <Screen edges={['top']}>
       <ScrollView
-        contentContainerClassName="px-5 pt-6 pb-10 gap-3"
+        contentContainerClassName="px-5 pt-6 pb-4 gap-3"
         showsVerticalScrollIndicator={false}
       >
-        <Text className="mb-1 text-3xl font-extrabold text-ink-primary">Profile</Text>
+        <Text className="mb-1 text-3xl font-extrabold text-ink-primary">{t('profile.title')}</Text>
 
         {/* Identity card: avatar, name, sign-in state, coins */}
         <View
           testID="profile-identity"
           className="flex-row items-center gap-4 border border-hair bg-bg-raised p-4"
         >
-          <View
-            className="h-14 w-14 items-center justify-center rounded-full"
-            style={{ backgroundColor: palette.accent.soft }}
+          <Pressable
+            onPress={() => setChoosingAvatar(true)}
+            accessibilityRole="button"
+            accessibilityLabel={`${t('profile.avatar.label', { name: avatarName(avatar), level })}. ${t('profile.avatar.change')}`}
+            testID="edit-avatar"
           >
-            <Text className="text-xl font-extrabold" style={{ color: palette.accent.default }}>
-              {level}
-            </Text>
-          </View>
+            <AvatarBadge avatar={avatar} level={level} />
+          </Pressable>
           <Pressable
             className="flex-1"
             onPress={() => setEditingName(true)}
             accessibilityRole="button"
-            accessibilityLabel="Edit your name"
+            accessibilityLabel={t('profile.editName')}
             testID="edit-name"
           >
             <View className="flex-row items-center gap-2">
@@ -257,18 +384,21 @@ export function ProfileScreen() {
               <Text className="text-sm text-ink-muted">✏️</Text>
             </View>
             <Text className="text-xs text-ink-muted">
-              {state.displayName === null ? 'Tap to choose your name · ' : ''}
+              {state.displayName === null ? t('profile.tapToChooseName') : ''}
               {statusLine}
             </Text>
           </Pressable>
           <Text
             className="text-sm font-bold"
             style={{ color: palette.warning }}
-            accessibilityLabel={isPremium ? 'Unlimited coins' : `${state.coins} coins`}
+            accessibilityLabel={
+              isPremium ? t('common.unlimitedCoins') : t('common.coins', { count: state.coins })
+            }
           >
-            {isPremium ? '∞' : state.coins.toLocaleString()} 🪙
+            {isPremium ? '∞' : formatNumber(state.coins)} 🪙
           </Text>
         </View>
+        <AvatarSheet visible={choosingAvatar} onClose={() => setChoosingAvatar(false)} />
         <PlayerNameSheet
           visible={editingName}
           currentName={state.displayName}
@@ -280,9 +410,9 @@ export function ProfileScreen() {
         {/* Level progress */}
         <View className="border border-hair bg-bg-raised p-4">
           <View className="flex-row items-center justify-between">
-            <Text className="text-sm font-bold text-ink-primary">Level {level}</Text>
+            <Text className="text-sm font-bold text-ink-primary">{t('common.level', { level })}</Text>
             <Text className="text-xs text-ink-muted">
-              {progress.xpIntoLevel} / {progress.xpForNextLevel} XP to next
+              {t('profile.xpToNext', { into: progress.xpIntoLevel, needed: progress.xpForNextLevel })}
             </Text>
           </View>
           <View className="mt-2 h-2 overflow-hidden rounded-full bg-bg-overlay">
@@ -295,31 +425,14 @@ export function ProfileScreen() {
 
         <RateUsCard />
 
-        <SectionTitle>Premium</SectionTitle>
-        <View
-          className="flex-row items-center justify-between gap-3 border border-hair bg-bg-raised p-4"
-          testID="premium-card"
-        >
-          <View className="flex-1">
-            <Text className="text-sm font-bold text-ink-primary">
-              {isPremium ? 'Premium active' : 'Go Premium'}
-            </Text>
-            <Text className="text-xs text-ink-muted">
-              {isPremium
-                ? 'Unlimited hearts · all categories unlocked'
-                : `Unlimited hearts & coins, every category · from ${priceLabels.monthly}`}
-            </Text>
-          </View>
-          <Button
-            label={isPremium ? 'Manage' : 'Subscribe'}
-            variant={isPremium ? 'ghost' : 'primary'}
-            onPress={() => router.push(paywallHref('profile'))}
-            className="h-10 px-4"
-            testID="premium-cta"
-          />
-        </View>
+        <SectionTitle>{t('profile.sections.premium')}</SectionTitle>
+        <PremiumCard
+          isPremium={isPremium}
+          price={priceLabels.monthly}
+          onPress={() => router.push(paywallHref('profile'))}
+        />
 
-        <SectionTitle>Account</SectionTitle>
+        <SectionTitle>{t('profile.sections.account')}</SectionTitle>
         {hasAccount ? (
           <View className="gap-3 border border-hair bg-bg-raised p-4">
             <View>
@@ -328,12 +441,14 @@ export function ProfileScreen() {
               </Text>
               <Text className="text-xs text-ink-muted">
                 {user?.providerIds.length === 0
-                  ? 'Linked to your Play Games profile'
-                  : `Signed in${user?.displayName ? ` as ${user.displayName}` : ''}`}
+                  ? t('profile.account.playGames')
+                  : user?.displayName
+                    ? t('profile.account.signedInAs', { name: user.displayName })
+                    : t('profile.account.signedIn')}
               </Text>
             </View>
             <Button
-              label={signingOut ? 'Signing out…' : 'Sign out'}
+              label={signingOut ? t('profile.account.signingOut') : t('profile.account.signOut')}
               variant="ghost"
               disabled={signingOut}
               testID="sign-out"
@@ -350,7 +465,7 @@ export function ProfileScreen() {
               className="self-center py-1"
             >
               <Text className="text-sm font-semibold" style={{ color: palette.danger }}>
-                Delete account
+                {t('profile.account.delete')}
               </Text>
             </Pressable>
           </View>
@@ -358,12 +473,12 @@ export function ProfileScreen() {
           <View className="gap-3 border border-hair bg-bg-raised p-4">
             <Text className="text-sm text-ink-secondary">
               {isSignedIn
-                ? `Your progress is saved on this device. Back it up with ${BACKUP_PROVIDERS} and it follows you to a new phone.`
-                : 'Accounts are not available in this offline build.'}
+                ? t('profile.account.backupPitch', { providers: backupProviders() })
+                : t('profile.account.offlineBuild')}
             </Text>
             {isSignedIn && (
               <Button
-                label={BACKUP_BUTTON_LABEL}
+                label={backupButtonLabel()}
                 testID="open-sign-in"
                 onPress={() => router.push('/sign-in')}
               />
@@ -371,7 +486,7 @@ export function ProfileScreen() {
           </View>
         )}
 
-        <SectionTitle>Daily streak</SectionTitle>
+        <SectionTitle>{t('profile.sections.streak')}</SectionTitle>
         <StreakCard
           streak={state.streak}
           coins={state.coins}
@@ -379,105 +494,116 @@ export function ProfileScreen() {
           onBuyFreeze={buyFreeze}
         />
 
-        <SectionTitle>Mastery</SectionTitle>
+        <SectionTitle>{t('profile.sections.mastery')}</SectionTitle>
         <MasteryGrid collection={state.collection} />
 
-        <SectionTitle>Stats</SectionTitle>
+        <SectionTitle>{t('profile.sections.stats')}</SectionTitle>
         <View className="flex-row flex-wrap gap-3">
-          <StatTile label="Questions answered" value={state.stats.rounds.toLocaleString()} />
-          <StatTile label="Perfect guesses" value={state.stats.perfectRounds.toLocaleString()} />
-          <StatTile label="Games played" value={state.stats.gamesPlayed.toLocaleString()} />
-          <StatTile label="Best combo" value={state.stats.bestStreak.toLocaleString()} />
+          <StatTile label={t('profile.stats.rounds')} value={formatNumber(state.stats.rounds)} />
+          <StatTile label={t('profile.stats.perfect')} value={formatNumber(state.stats.perfectRounds)} />
+          <StatTile label={t('profile.stats.games')} value={formatNumber(state.stats.gamesPlayed)} />
+          <StatTile label={t('profile.stats.combo')} value={formatNumber(state.stats.bestStreak)} />
           <StatTile
-            label="Best daily streak"
-            value={state.stats.bestDailyStreak.toLocaleString()}
+            label={t('profile.stats.dailyStreak')}
+            value={formatNumber(state.stats.bestDailyStreak)}
           />
           <StatTile
-            label="Artefacts collected"
-            value={Object.keys(state.collection).length.toLocaleString()}
+            label={t('profile.stats.artefacts')}
+            value={formatNumber(Object.keys(state.collection).length)}
           />
         </View>
 
-        <SectionTitle>Settings</SectionTitle>
+        <SectionTitle>{t('profile.sections.settings')}</SectionTitle>
+        <Pressable
+          onPress={() => setChoosingLanguage(true)}
+          accessibilityRole="button"
+          accessibilityLabel={t('profile.settings.languageLabel')}
+          testID="profile-language"
+          className="flex-row items-center justify-between border border-hair bg-bg-raised p-4"
+        >
+          <SettingLabel icon="🌐" title={t('profile.settings.language')} />
+          <Text className="shrink text-right text-base text-ink-secondary">
+            {preference === 'system'
+              ? t('profile.settings.languageDevice', { language: languageName })
+              : languageName}
+          </Text>
+        </Pressable>
+        <LanguageSheet visible={choosingLanguage} onClose={() => setChoosingLanguage(false)} />
         <Pressable
           onPress={toggle}
           accessibilityRole="button"
-          accessibilityLabel={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          accessibilityLabel={mode === 'dark' ? t('profile.settings.toLight') : t('profile.settings.toDark')}
           testID="profile-theme-toggle"
           className="flex-row items-center justify-between border border-hair bg-bg-raised p-4"
         >
-          <Text className="text-base font-semibold text-ink-primary">Appearance</Text>
+          <SettingLabel icon={mode === 'dark' ? '🌙' : '☀️'} title={t('profile.settings.appearance')} />
           <Text className="text-base text-ink-secondary">
-            {mode === 'dark' ? 'Dark 🌙' : 'Light ☀️'}
+            {mode === 'dark' ? t('profile.settings.dark') : t('profile.settings.light')}
           </Text>
         </Pressable>
         <Pressable
           onPress={toggleSound}
           accessibilityRole="switch"
           accessibilityState={{ checked: soundOn }}
-          accessibilityLabel={soundOn ? 'Turn sound effects off' : 'Turn sound effects on'}
+          accessibilityLabel={soundOn ? t('profile.settings.soundOff') : t('profile.settings.soundOn')}
           testID="profile-sound-toggle"
           className="flex-row items-center justify-between border border-hair bg-bg-raised p-4"
         >
-          <View className="flex-1 pr-3">
-            <Text className="text-base font-semibold text-ink-primary">Sound effects</Text>
-            <Text className="mt-0.5 text-xs text-ink-muted">
-              A short sting when an answer lands right or wrong.
-            </Text>
-          </View>
-          <Text className="text-base text-ink-secondary">{soundOn ? 'On 🔊' : 'Off 🔇'}</Text>
+          <SettingLabel
+            icon={soundOn ? '🔊' : '🔇'}
+            title={t('profile.settings.sound')}
+            body={t('profile.settings.soundBody')}
+          />
+          <Text className="text-base text-ink-secondary">{soundOn ? t('common.on') : t('common.off')}</Text>
         </Pressable>
         <Pressable
           onPress={toggleHaptics}
           accessibilityRole="switch"
           accessibilityState={{ checked: hapticsOn }}
-          accessibilityLabel={hapticsOn ? 'Turn vibration off' : 'Turn vibration on'}
+          accessibilityLabel={hapticsOn ? t('profile.settings.vibrationOff') : t('profile.settings.vibrationOn')}
           testID="profile-haptics-toggle"
           className="flex-row items-center justify-between border border-hair bg-bg-raised p-4"
         >
-          <View className="flex-1 pr-3">
-            <Text className="text-base font-semibold text-ink-primary">Vibration</Text>
-            <Text className="mt-0.5 text-xs text-ink-muted">
-              Ticks as you scrub the timeline and a buzz when an answer lands.
-            </Text>
-          </View>
-          <Text className="text-base text-ink-secondary">{hapticsOn ? 'On 📳' : 'Off'}</Text>
+          <SettingLabel
+            icon="📳"
+            title={t('profile.settings.vibration')}
+            body={t('profile.settings.vibrationBody')}
+          />
+          <Text className="text-base text-ink-secondary">{hapticsOn ? t('common.on') : t('common.off')}</Text>
         </Pressable>
         <Pressable
           onPress={toggleReminders}
           accessibilityRole="switch"
           accessibilityState={{ checked: reminders.enabled }}
           accessibilityLabel={
-            reminders.enabled ? 'Turn the Daily reminder off' : 'Turn the Daily reminder on'
+            reminders.enabled ? t('profile.settings.reminderOff') : t('profile.settings.reminderOn')
           }
           testID="profile-reminders-toggle"
           className="flex-row items-center justify-between border border-hair bg-bg-raised p-4"
         >
-          <View className="flex-1 pr-3">
-            <Text className="text-base font-semibold text-ink-primary">Daily reminder</Text>
-            <Text className="mt-0.5 text-xs text-ink-muted">
-              One notification at 8am when a fresh Daily is waiting.
-            </Text>
-          </View>
+          <SettingLabel
+            icon="🔔"
+            title={t('profile.settings.reminder')}
+            body={t('profile.settings.reminderBody')}
+          />
           <Text className="text-base text-ink-secondary">
-            {reminders.enabled ? 'On 🔔' : 'Off'}
+            {reminders.enabled ? t('common.on') : t('common.off')}
           </Text>
         </Pressable>
         <Pressable
           onPress={toggleAnalytics}
           accessibilityRole="switch"
           accessibilityState={{ checked: analyticsOn }}
-          accessibilityLabel={analyticsOn ? 'Turn usage analytics off' : 'Turn usage analytics on'}
+          accessibilityLabel={analyticsOn ? t('profile.settings.analyticsOff') : t('profile.settings.analyticsOn')}
           testID="profile-analytics-toggle"
           className="flex-row items-center justify-between border border-hair bg-bg-raised p-4"
         >
-          <View className="flex-1 pr-3">
-            <Text className="text-base font-semibold text-ink-primary">Usage analytics</Text>
-            <Text className="mt-0.5 text-xs text-ink-muted">
-              Anonymous play events that help us improve the game. Never your name or email.
-            </Text>
-          </View>
-          <Text className="text-base text-ink-secondary">{analyticsOn ? 'On 📊' : 'Off'}</Text>
+          <SettingLabel
+            icon="📊"
+            title={t('profile.settings.analytics')}
+            body={t('profile.settings.analyticsBody')}
+          />
+          <Text className="text-base text-ink-secondary">{analyticsOn ? t('common.on') : t('common.off')}</Text>
         </Pressable>
         {isDeveloperBuild && (
           <Pressable
@@ -485,16 +611,15 @@ export function ProfileScreen() {
               void onboardingStore.clear().then(() => router.push('/onboarding'));
             }}
             accessibilityRole="button"
-            accessibilityLabel="Replay the first-run onboarding"
+            accessibilityLabel={t('profile.settings.replayOnboardingLabel')}
             testID="settings-replay-onboarding"
             className="flex-row items-center justify-between border border-dashed border-hair bg-bg-raised p-4"
           >
-            <View className="flex-1 pr-3">
-              <Text className="text-base font-semibold text-ink-primary">Replay onboarding</Text>
-              <Text className="mt-0.5 text-xs text-ink-muted">
-                Developer builds only. Shows the first-run flow again.
-              </Text>
-            </View>
+            <SettingLabel
+              icon="🎬"
+              title={t('profile.settings.replayOnboarding')}
+              body={t('profile.settings.replayOnboardingBody')}
+            />
             <Text className="text-xl text-ink-muted">›</Text>
           </Pressable>
         )}
@@ -503,40 +628,34 @@ export function ProfileScreen() {
             className="flex-row items-center justify-between border border-hair bg-bg-raised p-4"
             testID="settings-backup"
           >
-            <View className="flex-1 pr-3">
-              <Text className="text-base font-semibold text-ink-primary">Progress backup</Text>
-              <Text className="mt-0.5 text-xs text-ink-muted">
-                Your progress is saved to your account and follows you to any device.
-              </Text>
-            </View>
+            <SettingLabel
+              icon="☁️"
+              title={t('profile.settings.backup')}
+              body={t('profile.settings.backupOnBody')}
+            />
             <Text className="text-sm font-bold" style={{ color: palette.success }}>
-              On ✓
+              {t('profile.settings.backupOn')}
             </Text>
           </View>
         ) : (
           <Pressable
             onPress={() => router.push('/sign-in')}
             accessibilityRole="button"
-            accessibilityLabel={`Back up your progress with ${BACKUP_PROVIDERS}`}
+            accessibilityLabel={t('profile.settings.backupLabel', { providers: backupProviders() })}
             disabled={!isSignedIn}
             testID="settings-backup"
             className="flex-row items-center justify-between border border-hair bg-bg-raised p-4"
           >
-            <View className="flex-1 pr-3">
-              <Text className="text-base font-semibold text-ink-primary">
-                Back up your progress
-              </Text>
-              <Text className="mt-0.5 text-xs text-ink-muted">
-                {isSignedIn
-                  ? 'Optional. Your XP, coins, museum and campaign follow you to a new phone.'
-                  : 'Accounts need a connection and aren’t available in this build.'}
-              </Text>
-            </View>
+            <SettingLabel
+              icon="☁️"
+              title={t('profile.settings.backupTitle')}
+              body={isSignedIn ? t('profile.settings.backupBody') : t('profile.settings.backupUnavailable')}
+            />
             <Text className="text-xl text-ink-muted">›</Text>
           </Pressable>
         )}
         <View className="flex-row items-center justify-between border border-hair bg-bg-raised p-4">
-          <Text className="text-base font-semibold text-ink-primary">Version</Text>
+          <SettingLabel icon="ℹ️" title={t('profile.settings.version')} />
           <Text className="text-base text-ink-secondary">{version}</Text>
         </View>
       </ScrollView>

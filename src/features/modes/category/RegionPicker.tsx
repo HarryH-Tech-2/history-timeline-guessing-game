@@ -2,7 +2,8 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
 import { BackButton, Screen } from '@/components/ui';
-import { getRegionalQuestions, REGION_RUN_LENGTH, REGIONS, type Region } from '@/data';
+import { getRegionalQuestions, localizeRegion, REGION_RUN_LENGTH, REGIONS, type Region } from '@/data';
+import { t } from '@/i18n';
 
 import { IconPlaque } from '../home/IconPlaque';
 
@@ -25,10 +26,10 @@ export function RegionPicker({ onPick, onBack }: RegionPickerProps) {
       >
         <View className="flex-row items-center gap-3">
           <BackButton onPress={onBack} />
-          <Text className="text-3xl font-extrabold text-ink-primary">Regional</Text>
+          <Text className="text-3xl font-extrabold text-ink-primary">{t('modes.region.title')}</Text>
         </View>
         <Text className="mb-2 text-base text-ink-secondary">
-          Pick a region and place its defining moments on the timeline.
+          {t('modes.region.intro')}
         </Text>
         {REGIONS.map((region, index) => (
           <RegionRow
@@ -63,7 +64,7 @@ function RegionRow({
         disabled={disabled}
         accessibilityRole="button"
         accessibilityState={{ disabled }}
-        accessibilityLabel={`Play ${region.name}, ${count} questions`}
+        accessibilityLabel={t('modes.region.a11y', { name: localizeRegion(region).name, count })}
         testID={`region-${region.id}`}
         className={`flex-row items-center gap-4 overflow-hidden border border-hair bg-bg-raised p-4 ${
           disabled ? 'opacity-50' : ''
@@ -71,14 +72,14 @@ function RegionRow({
       >
         <IconPlaque glyph={region.icon} />
         <View className="flex-1">
-          <Text className="text-lg font-bold text-ink-primary">{region.name}</Text>
+          <Text className="text-lg font-bold text-ink-primary">{localizeRegion(region).name}</Text>
           <Text numberOfLines={1} className="text-sm text-ink-secondary">
-            {region.blurb}
+            {localizeRegion(region).blurb}
           </Text>
           <Text className="mt-0.5 text-xs font-semibold uppercase tracking-wide text-ink-muted">
             {count > REGION_RUN_LENGTH
-              ? `${count} questions · ${REGION_RUN_LENGTH} per run`
-              : `${count} questions`}
+              ? t('modes.region.countPerRun', { count, perRun: REGION_RUN_LENGTH })
+              : t('modes.region.count', { count })}
           </Text>
         </View>
         <Text className="text-xl text-ink-muted">›</Text>

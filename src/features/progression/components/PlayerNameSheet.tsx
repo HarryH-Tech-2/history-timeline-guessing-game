@@ -5,6 +5,7 @@ import { Button } from '@/components/ui';
 // Direct module import (not the barrel) so this sheet doesn't drag the whole
 // leaderboard screen — and its navigation dependencies — into every consumer.
 import { MAX_DISPLAY_NAME, validatePlayerName } from '@/features/leaderboard/playerName';
+import { t, tRich } from '@/i18n';
 import { useThemeColors } from '@/theme';
 import { palette } from '@/theme/tokens';
 
@@ -44,10 +45,11 @@ function NameForm({ currentName, fallbackName, onSave, onClose }: FormProps) {
   return (
     <Pressable className="gap-4 border-t border-hair bg-bg-overlay p-6 pb-10" onPress={() => {}}>
       <View>
-        <Text className="text-xl font-extrabold text-ink-primary">Your name</Text>
+        <Text className="text-xl font-extrabold text-ink-primary">{t('profile.nameSheet.title')}</Text>
         <Text className="mt-1 text-sm text-ink-secondary">
-          Shown on the leaderboard and your profile. Leave it blank to go by{' '}
-          <Text className="font-semibold text-ink-primary">{fallbackName}</Text>.
+          {tRich('profile.nameSheet.body', {
+            name: <Text className="font-semibold text-ink-primary">{fallbackName}</Text>,
+          })}
         </Text>
       </View>
 
@@ -62,7 +64,7 @@ function NameForm({ currentName, fallbackName, onSave, onClose }: FormProps) {
         autoFocus
         returnKeyType="done"
         onSubmitEditing={save}
-        accessibilityLabel="Player name"
+        accessibilityLabel={t('profile.nameSheet.input')}
         testID="player-name-input"
         className="border border-hair bg-bg-raised px-4 py-3 text-base text-ink-primary"
         style={{ color: colors.ink.primary }}
@@ -74,7 +76,7 @@ function NameForm({ currentName, fallbackName, onSave, onClose }: FormProps) {
           style={{ color: error ? palette.danger : colors.ink.muted }}
           testID="player-name-hint"
         >
-          {error ?? '3–24 characters · letters, numbers, spaces, - _ ’'}
+          {error ?? t('profile.nameSheet.hint')}
         </Text>
         <Text className="text-xs text-ink-muted">
           {draft.length}/{MAX_DISPLAY_NAME}
@@ -82,12 +84,16 @@ function NameForm({ currentName, fallbackName, onSave, onClose }: FormProps) {
       </View>
 
       <Button
-        label={trimmed.length === 0 && currentName !== null ? 'Use generated name' : 'Save'}
+        label={
+          trimmed.length === 0 && currentName !== null
+            ? t('profile.nameSheet.useGenerated')
+            : t('common.save')
+        }
         onPress={save}
         disabled={error !== null || unchanged}
         testID="player-name-save"
       />
-      <Button label="Cancel" variant="ghost" onPress={onClose} className="h-11" />
+      <Button label={t('common.cancel')} variant="ghost" onPress={onClose} className="h-11" />
     </Pressable>
   );
 }
@@ -107,7 +113,7 @@ export function PlayerNameSheet({ visible, ...form }: PlayerNameSheetProps) {
         <Pressable
           className="flex-1 justify-end bg-black/50"
           onPress={form.onClose}
-          accessibilityLabel="Close"
+          accessibilityLabel={t('common.close')}
           testID="player-name-backdrop"
         >
           {visible && <NameForm {...form} />}

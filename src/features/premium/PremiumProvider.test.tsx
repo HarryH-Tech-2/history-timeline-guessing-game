@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-
 import { Text } from 'react-native';
 
 import { PremiumProvider, usePremium } from './PremiumProvider';
+import { winbackStore } from './winback';
 import { premiumStore } from './entitlement';
 
 const mockAuth = { uid: null as string | null };
@@ -125,6 +126,7 @@ describe('PremiumProvider review ask', () => {
     return (
       <>
         <Text onPress={() => void purchase('monthly', 'hearts')}>buy</Text>
+        <Text onPress={() => void purchase('yearly', 'winback', { winback: true })}>claim</Text>
         <Text onPress={() => void restore()}>restore</Text>
       </>
     );
@@ -160,7 +162,8 @@ describe('PremiumProvider review ask', () => {
       fireEvent.press(screen.getByText('buy'));
     });
     await screen.findByText('premium');
-    expect(mockTrack).toHaveBeenCalledWith('purchase_completed', { plan: 'monthly', source: 'hearts' });
+    expect(mockTrack).toHaveBeenCalledWith('purchase_started', { plan: 'monthly', source: 'hearts', offer: 'standard' });
+    expect(mockTrack).toHaveBeenCalledWith('purchase_completed', { plan: 'monthly', source: 'hearts', offer: 'standard' });
   });
 
   it('does not ask after a cancelled purchase or a restore', async () => {
@@ -182,5 +185,51 @@ describe('PremiumProvider review ask', () => {
 
     await screen.findByText('premium');
     expect(mockRequestReview).not.toHaveBeenCalled();
+  });
+
+  it('reports a purchase that did not go through, and why', async () => {
+    mockTrack.mockClear();
+    mockBilling.purchase.mockResolvedValue('cancelled');
+    render(
+      <PremiumProvider>
+        <Probe />
+        <Actions />
+      </PremiumProvider>,
+    );
+    await screen.findByText('free');
+    await act(async () => {
+      fireEvent.press(screen.getByText('buy'));
+    });
+    expect(mockTrack).toHaveBeenCalledWith('purchase_failed', {
+      plan: 'monthly',
+      source: 'hearts',
+      offer: 'standard',
+      reason: 'cancelled',
+    });
+    expect(mockTrack).not.toHaveBeenCalledWith('purchase_completed', expect.anything());
+  });
+
+  it('buys the win-back offer, attributes it, and closes the offer for good', async () => {
+    mockTrack.mockClear();
+    await winbackStore.write({ dismissedAt: 1, openedAt: 2 });
+    render(
+      <PremiumProvider>
+        <Probe />
+        <Actions />
+      </PremiumProvider>,
+    );
+    await screen.findByText('free');
+    await act(async () => {
+      fireEvent.press(screen.getByText('claim'));
+    });
+    await screen.findByText('premium');
+    expect(mockBilling.purchase).toHaveBeenCalledWith('yearly', { winback: true });
+    expect(mockTrack).toHaveBeenCalledWith('purchase_completed', {
+      plan: 'yearly',
+      source: 'winback',
+      offer: 'winback',
+    });
+    await waitFor(async () => expect((await winbackStore.read()).done).toBe(true));
+    await winbackStore.clear();
   });
 });

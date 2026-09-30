@@ -16,14 +16,15 @@ import { isFirebaseConfigured } from '@/config/env';
 import { levelForXp, titleForLevel } from '@/domain';
 import { PlayerNameSheet } from '@/features/progression/components/PlayerNameSheet';
 import { useProgression } from '@/features/progression';
+import { formatNumber, t } from '@/i18n';
 import { useAuth } from '@/services/firebase/auth';
 import { useThemeColors } from '@/theme';
 import { palette } from '@/theme/tokens';
 import { dateKey, weekKey } from '@/utils/date';
 
 import {
-  BOARD_BLURB,
-  BOARD_LABEL,
+  boardBlurb,
+  boardLabel,
   BOARDS,
   boardValue,
   formatBoardValue,
@@ -62,11 +63,23 @@ type Place = 1 | 2 | 3;
  * gold in the dark — each is used at low alpha over theme surfaces so it
  * reads on parchment and ink alike.
  */
-const METALS: Record<Place, { tint: string; label: string }> = {
-  1: { tint: '#D9A93D', label: 'Champion' }, // gold
-  2: { tint: '#98A4B5', label: 'Runner-up' }, // silver
-  3: { tint: '#C07E4E', label: 'Third' }, // bronze
+const METALS: Record<Place, { tint: string }> = {
+  1: { tint: '#D9A93D' }, // gold
+  2: { tint: '#98A4B5' }, // silver
+  3: { tint: '#C07E4E' }, // bronze
 };
+
+/** The plinth caption for a podium place. */
+function placeLabel(place: Place): string {
+  switch (place) {
+    case 1:
+      return t('social.leaderboard.podium.first');
+    case 2:
+      return t('social.leaderboard.podium.second');
+    case 3:
+      return t('social.leaderboard.podium.third');
+  }
+}
 
 const PODIUM_HEIGHTS: Record<Place, number> = { 1: 112, 2: 84, 3: 64 };
 
@@ -80,7 +93,7 @@ function initialOf(name: string): string {
 /** "Historian · L13": the era title for a level, with the number kept small. */
 function rankLine(xp: number): string {
   const level = levelForXp(xp);
-  return `${titleForLevel(level)} · L${level}`;
+  return t('social.leaderboard.rankLine', { title: titleForLevel(level), level });
 }
 
 /** Solid accent tag marking the player's own entry, so it can't be missed. */
@@ -91,7 +104,7 @@ function YouChip() {
         className="text-[10px] font-extrabold uppercase tracking-wide"
         style={{ color: INK_ON_ACCENT, includeFontPadding: false }}
       >
-        You
+        {t('social.leaderboard.you')}
       </Text>
     </View>
   );
@@ -105,7 +118,11 @@ function Movement({ places }: { places: number | null }) {
     <Text
       className="text-xs font-bold"
       style={{ color: up ? palette.success : palette.danger, includeFontPadding: false }}
-      accessibilityLabel={up ? `Up ${places} places` : `Down ${-places} places`}
+      accessibilityLabel={
+        up
+          ? t('social.leaderboard.movedUp', { count: places })
+          : t('social.leaderboard.movedDown', { count: -places })
+      }
       testID={up ? 'leaderboard-moved-up' : 'leaderboard-moved-down'}
     >
       {up ? '▲' : '▼'}
@@ -175,7 +192,7 @@ function PodiumColumn({
           {place}
         </Text>
         <Text className="text-[10px] font-medium uppercase tracking-widest text-ink-muted">
-          {metal.label}
+          {placeLabel(place)}
         </Text>
       </View>
     </Animated.View>
@@ -302,7 +319,7 @@ function BoardTabs({ board, onChange }: { board: Board; onChange: (b: Board) => 
             <Text
               className={`text-sm font-bold ${active ? 'text-accent' : 'text-ink-muted'}`}
             >
-              {BOARD_LABEL[b]}
+              {boardLabel(b)}
             </Text>
           </Pressable>
         );
@@ -333,7 +350,7 @@ function PinnedRank({
     >
       <View className="w-9 items-center">
         <Text className="text-sm font-bold text-accent" style={{ fontVariant: ['tabular-nums'] }}>
-          #{rank.toLocaleString()}
+          #{formatNumber(rank)}
         </Text>
         <Movement places={movement} />
       </View>
@@ -350,11 +367,17 @@ function PinnedRank({
   );
 }
 
-const EMPTY_COPY: Record<Board, string> = {
-  today: 'No Daily scores yet today — play today’s Daily to set the pace!',
-  week: 'Nobody has banked XP this week yet. Play a round to open the board.',
-  all: 'No scores yet — play a round to claim the top spot!',
-};
+/** What an empty board says. A function so it follows the language. */
+function emptyCopy(board: Board): string {
+  switch (board) {
+    case 'today':
+      return t('social.leaderboard.empty.today');
+    case 'week':
+      return t('social.leaderboard.empty.week');
+    case 'all':
+      return t('social.leaderboard.empty.all');
+  }
+}
 
 /** The screen chrome, or nothing when hosted inside another screen (the Social tab). Module-level so it never remounts. */
 function Frame({ embedded, children }: { embedded: boolean; children: ReactNode }) {
@@ -448,11 +471,11 @@ export function LeaderboardScreen({ embedded = false }: { embedded?: boolean } =
   const header = (
     <View className="mb-5 items-center">
       <Text className="text-center text-xs font-semibold uppercase tracking-widest text-ink-muted">
-        Global · Top 50
+        {t('social.leaderboard.eyebrow')}
       </Text>
-      <Text className="text-center text-3xl font-extrabold text-ink-primary">Leaderboard</Text>
+      <Text className="text-center text-3xl font-extrabold text-ink-primary">{t('social.leaderboard.title')}</Text>
       <Text className="mb-4 text-center text-base text-ink-secondary">
-        {BOARD_BLURB[activeBoard]}
+        {boardBlurb(activeBoard)}
       </Text>
       <View className="w-full">
         <BoardTabs board={activeBoard} onChange={setBoard} />
@@ -461,14 +484,14 @@ export function LeaderboardScreen({ embedded = false }: { embedded?: boolean } =
         <Pressable
           onPress={() => setEditingName(true)}
           accessibilityRole="button"
-          accessibilityLabel="Choose your leaderboard name"
+          accessibilityLabel={t('social.leaderboard.nameNudgeLabel')}
           testID="leaderboard-name-nudge"
           className="mb-5 w-full flex-row items-center justify-between gap-3 border border-hair bg-bg-raised p-4"
         >
           <View className="flex-1">
-            <Text className="text-sm font-bold text-ink-primary">Choose your name</Text>
+            <Text className="text-sm font-bold text-ink-primary">{t('social.leaderboard.nameNudgeTitle')}</Text>
             <Text className="mt-0.5 text-xs text-ink-muted">
-              You appear as {resolveDisplayName(null, uid)}. Tap to pick a name.
+              {t('social.leaderboard.nameNudgeBody', { name: resolveDisplayName(null, uid) })}
             </Text>
           </View>
           <Text className="text-xl text-ink-muted">›</Text>
@@ -492,11 +515,10 @@ export function LeaderboardScreen({ embedded = false }: { embedded?: boolean } =
         <Backdrop>
           <View className="flex-1 items-center justify-center px-5">
             <Text className="mb-2 text-center text-3xl font-extrabold text-ink-primary">
-              Leaderboard
+              {t('social.leaderboard.title')}
             </Text>
             <Text className="text-center text-base text-ink-secondary">
-              Leaderboards need a connection and aren’t available in this build. Your progress
-              is saved on this device.
+              {t('social.leaderboard.offline')}
             </Text>
           </View>
         </Backdrop>
@@ -542,7 +564,7 @@ export function LeaderboardScreen({ embedded = false }: { embedded?: boolean } =
               </View>
             ) : hasPodium ? null : (
               <Text className="py-16 text-center text-base text-ink-secondary">
-                {EMPTY_COPY[activeBoard]}
+                {emptyCopy(activeBoard)}
               </Text>
             )
           }

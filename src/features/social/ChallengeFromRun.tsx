@@ -4,6 +4,7 @@ import { Text, View } from 'react-native';
 import { Button } from '@/components/ui';
 import { resolveDisplayName } from '@/features/leaderboard/playerName';
 import { useProgression } from '@/features/progression/ProgressionProvider';
+import { t } from '@/i18n';
 import { track } from '@/services/analytics';
 import { useAuth } from '@/services/firebase/auth';
 
@@ -65,7 +66,7 @@ export function ChallengeFromRun({
   return (
     <View className="gap-2">
       <Button
-        label="⚔️ Challenge a friend with these questions"
+        label={t('social.challenges.fromRun')}
         variant="ghost"
         disabled={busy}
         testID="challenge-from-run"

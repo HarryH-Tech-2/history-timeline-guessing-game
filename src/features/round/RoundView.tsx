@@ -7,8 +7,16 @@ import { getCategoryById, imageForQuestion } from '@/data';
 import type { Question, RoundResult } from '@/domain';
 import { haptic, NotificationFeedbackType } from '@/features/haptics';
 import { useSound } from '@/features/sound';
-import { TimelineTrack, trackHeightFor, useTimelineTransform } from '@/features/timeline';
+import {
+  EraOverviewBar,
+  OVERVIEW_BAR_GAP,
+  OVERVIEW_BAR_HEIGHT,
+  TimelineTrack,
+  trackHeightFor,
+  useTimelineTransform,
+} from '@/features/timeline';
 import { isRightAnswer } from '@/features/timeline/math';
+import { t } from '@/i18n';
 import { palette } from '@/theme/tokens';
 
 import { Confetti } from './components/Confetti';
@@ -164,22 +172,25 @@ export function RoundView({
   // Hidden the same way (never unmounted) behind the reveal picture, and
   // while the footer's multiple choice is the way to answer.
   const trackHidden = showImage || choicesMode;
-  // While guessing, the stage never gets less than the track needs (track +
-  // its py-2 padding and border); the prompt card above shrinks its
+  // While guessing, the stage never gets less than the overview bar and the
+  // track need (plus the py-2 padding and border); the prompt card above shrinks its
   // illustration instead. On the reveal the track is hidden, so the stage
   // gives the reveal picture whatever room the sheet leaves.
   const stage = (
     <View
       className="flex-1"
-      style={revealed || choicesMode ? undefined : { minHeight: trackHeightFor(height) + 18 }}
+      style={revealed || choicesMode ? undefined : { minHeight: OVERVIEW_BAR_HEIGHT + OVERVIEW_BAR_GAP + trackHeightFor(height) + 18 }}
     >
       <View
         className={trackHidden ? 'absolute left-0 right-0 top-0 py-2' : 'flex-1 justify-center py-2'}
-        style={trackHidden ? { opacity: 0 } : undefined}
+        style={[{ gap: OVERVIEW_BAR_GAP }, trackHidden ? { opacity: 0 } : undefined]}
         pointerEvents={trackHidden ? 'none' : 'auto'}
         accessibilityElementsHidden={trackHidden}
         importantForAccessibility={trackHidden ? 'no-hide-descendants' : 'auto'}
       >
+        {/* All of history, one slot per era: tap or drag to jump; the track
+            below fine-tunes. Hidden with the track, never unmounted. */}
+        <EraOverviewBar controller={controller} disabled={revealed} />
         <TimelineTrack
           controller={controller}
           revealYear={showMarkers ? question.year : undefined}
@@ -220,7 +231,7 @@ export function RoundView({
           {assist({ submit: handleSubmit, choose: handleChoose, hideTimeline })}
         </Fragment>
       ) : (
-        <Button label="Submit guess" onPress={handleSubmit} testID="submit-button" />
+        <Button label={t('round.submitGuess')} onPress={handleSubmit} testID="submit-button" />
       )}
     </View>
   );

@@ -184,6 +184,8 @@ export const ProgressionStateSchema = z.object({
    * show the generated handle. Never a Google/email name — those stay private.
    */
   displayName: z.string().nullable().default(null),
+  /** The avatar the player picked (see features/progression/avatars), or null for the default owl. */
+  avatar: z.string().nullable().default(null),
   /** XP this ISO week; defaulted so older profiles join the weekly board on their next round. */
   weekly: WeeklyXpSchema.default(INITIAL_WEEKLY),
   /** Last finished Daily; defaulted so older profiles simply have none yet. */
@@ -204,6 +206,7 @@ export const INITIAL_PROGRESSION: ProgressionState = {
   collection: {},
   hearts: INITIAL_HEARTS,
   displayName: null,
+  avatar: null,
   weekly: INITIAL_WEEKLY,
   lastDaily: null,
   // Born with the starting coins already in `coins`, so the grant is marked done.

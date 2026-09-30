@@ -1,3 +1,5 @@
+import { t, type TranslationKey } from '@/i18n';
+
 /** Coins a single century hint costs. */
 export const HINT_COST = 10;
 
@@ -14,10 +16,15 @@ export const HINT_COST = 10;
 export function centuryHint(year: number): string {
   if (year < 0) {
     const band = Math.floor(Math.abs(year) / 100) * 100;
-    return band === 0 ? 'the 1st century BCE' : `the ${band}s BCE`;
+    // The band goes in as a string so it never picks up a thousands separator.
+    return band === 0
+      ? t('round.hints.band.century1Bce')
+      : t('round.hints.band.hundredsBce', { band: String(band) });
   }
   const band = Math.floor(year / 100) * 100;
-  return band === 0 ? 'the 1st century' : `the ${band}s`;
+  return band === 0
+    ? t('round.hints.band.century1')
+    : t('round.hints.band.hundreds', { band: String(band) });
 }
 
 /**
@@ -26,15 +33,15 @@ export function centuryHint(year: number): string {
  * "this happened in X"; the pick is deterministic per question (see
  * {@link hintTemplate}) so re-renders never reshuffle the wording mid-round.
  */
-const HINT_TEMPLATES: readonly string[] = [
-  'Minerva hoots softly: look to {band}.',
-  'The archives file this one under {band}.',
-  'Dust off the scrolls from {band}.',
-  'Somewhere in {band} — you can narrow it down from there.',
-  'A curator would shelve this in {band}.',
-  'Word around the museum is it belongs to {band}.',
-  'The carbon dating comes back to {band}.',
-  'Historians agree on this much: {band}.',
+const HINT_TEMPLATES: readonly TranslationKey[] = [
+  'round.hints.templates.minerva',
+  'round.hints.templates.archives',
+  'round.hints.templates.scrolls',
+  'round.hints.templates.narrow',
+  'round.hints.templates.curator',
+  'round.hints.templates.museum',
+  'round.hints.templates.carbon',
+  'round.hints.templates.historians',
 ];
 
 /** Small deterministic string hash (djb2), for a stable template pick. */
@@ -48,5 +55,5 @@ function hashString(value: string): number {
 
 /** The hint sentence for a question, with `{band}` still unexpanded. */
 export function hintTemplate(questionId: string): string {
-  return HINT_TEMPLATES[hashString(questionId) % HINT_TEMPLATES.length]!;
+  return t(HINT_TEMPLATES[hashString(questionId) % HINT_TEMPLATES.length]!);
 }

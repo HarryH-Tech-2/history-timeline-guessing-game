@@ -9,6 +9,11 @@ export interface Point {
   y: number;
 }
 
+/** A dot on the road: where it sits, and which way the road runs there (degrees, 0 = rightwards). */
+export interface RoadDot extends Point {
+  angle: number;
+}
+
 export interface Rect {
   left: number;
   top: number;
@@ -19,6 +24,9 @@ export interface Rect {
 export interface CurveDotOptions {
   /** Dots closer than this to either end (the stage buttons) are left out. */
   radius: number;
+  /** Overrides `radius` at the start / end (e.g. 0 where the road meets a banner edge). */
+  startRadius?: number;
+  endRadius?: number;
   /** Target distance between neighbouring dots, along the curve. */
   spacing: number;
   /** Areas the trail runs under (route banners): no dots drawn there. */
@@ -56,7 +64,7 @@ function inside(p: Point, r: Rect): boolean {
  * over the stretch outside both buttons (`radius`), centred in it, and none
  * under an `avoid` rect. Mirroring a segment mirrors its dots.
  */
-export function curveDots(from: Point, to: Point, opts: CurveDotOptions): Point[] {
+export function curveDots(from: Point, to: Point, opts: CurveDotOptions): RoadDot[] {
   const steps = opts.steps ?? 32;
   const samples: Point[] = [];
   const lengths: number[] = [];
@@ -81,8 +89,9 @@ export function curveDots(from: Point, to: Point, opts: CurveDotOptions): Point[
 
   // Arc positions where the curve leaves the start button and enters the end one.
   const total = lengths[steps]!;
-  const clear = (p: Point, c: Point) => Math.hypot(p.x - c.x, p.y - c.y) >= opts.radius;
   const crossing = (centre: Point, fromStart: boolean): number => {
+    const radius = (fromStart ? opts.startRadius : opts.endRadius) ?? opts.radius;
+    const clear = (p: Point, c: Point) => Math.hypot(p.x - c.x, p.y - c.y) >= radius;
     const range = fromStart ? [...lengths.keys()] : [...lengths.keys()].reverse();
     for (const i of range) {
       if (!clear(samples[i]!, centre)) continue;
@@ -107,10 +116,15 @@ export function curveDots(from: Point, to: Point, opts: CurveDotOptions): Point[
 
   const count = Math.max(1, Math.round(usable / opts.spacing));
   const step = usable / count;
-  const dots: Point[] = [];
+  const dots: RoadDot[] = [];
   for (let i = 0; i < count; i += 1) {
-    const p = at(start + (i + 0.5) * step);
-    if (!(opts.avoid ?? []).some((r) => inside(p, r))) dots.push(p);
+    const s = start + (i + 0.5) * step;
+    const p = at(s);
+    if ((opts.avoid ?? []).some((r) => inside(p, r))) continue;
+    // The road's heading here, from a short chord either side.
+    const a = at(Math.max(0, s - 2));
+    const b = at(Math.min(total, s + 2));
+    dots.push({ ...p, angle: (Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI });
   }
   return dots;
 }

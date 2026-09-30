@@ -14,6 +14,8 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { t } from '@/i18n';
+
 import type { CampaignStage } from '../campaignMap';
 import {
   DOT_STAGGER_MS,
@@ -23,7 +25,7 @@ import {
   SEQUENCE_DELAY_MS,
   TRAIL_DOTS,
 } from './constants';
-import { inkOn, nodeState, shade, type NodeState } from './mapVisuals';
+import { nodeState, shade, type NodeState } from './mapVisuals';
 import { StartBubble } from './StartBubble';
 
 /** Minerva, the game's owl scholar, keeps watch beside the frontier. */
@@ -35,10 +37,18 @@ const OWL_WIDTH = Math.round(OWL_HEIGHT * (601 / 640));
 const GOLD = '#F5C542';
 const LOCKED_FACE = '#D6D2CA';
 const LOCKED_LIP = '#A29C91';
+/** Deep gold for the era icon on a mastered (gold) face. */
+const MASTERED_INK = '#8A5A00';
+/** Era icons on a coloured face are always white (user choice), shadowed so they read on light eras. */
+const ICON_INK = '#FFFFFF';
 /** Muted grey for an era icon on a premium-locked face. */
 const PREMIUM_INK = '#8F897F';
 const CROWN_BADGE = 22;
 const DARK_BADGE = '#2A221B';
+const CHECK_BADGE = 24;
+const CHECK_GREEN = '#3DBE6B';
+/** The mastered crown perched on top of the button. */
+const CROWN_TOP = 30;
 
 type IconName = ComponentProps<typeof MaterialCommunityIcons>['name'];
 
@@ -60,6 +70,8 @@ function faceOf(
   ink: string;
   glyphSize: number;
   crownBadge: boolean;
+  /** Cleared: a tick in the corner. Mastered: a crown worn on top. */
+  mark: 'check' | 'crown' | null;
 } {
   switch (state) {
     case 'locked':
@@ -70,6 +82,7 @@ function faceOf(
         ink: '#6F695F',
         glyphSize: 22,
         crownBadge: false,
+        mark: null,
       };
     case 'premium':
       // The era's own icon, greyed out, so later eras still look distinct; a
@@ -81,24 +94,29 @@ function faceOf(
         ink: PREMIUM_INK,
         glyphSize: 0.42,
         crownBadge: true,
+        mark: null,
       };
     case 'mastered':
+      // Gold all over, the era icon in deep gold, wearing a crown.
       return {
         face: GOLD,
         lip: shade(GOLD, 0.3),
-        glyph: { kind: 'text', text: '👑' },
-        ink: '#FFFFFF',
-        glyphSize: 26,
+        glyph: { kind: 'icon', name: icon },
+        ink: MASTERED_INK,
+        glyphSize: 0.42,
         crownBadge: false,
+        mark: 'crown',
       };
     case 'completed':
+      // Keeps its era icon, with a tick in the corner.
       return {
         face: colour,
         lip: shade(colour, 0.3),
-        glyph: { kind: 'text', text: '★' },
-        ink: '#FFFFFF',
-        glyphSize: 32,
+        glyph: { kind: 'icon', name: icon },
+        ink: ICON_INK,
+        glyphSize: 0.42,
         crownBadge: false,
+        mark: 'check',
       };
     case 'frontier':
     case 'open':
@@ -106,9 +124,10 @@ function faceOf(
         face: colour,
         lip: shade(colour, 0.3),
         glyph: { kind: 'icon', name: icon },
-        ink: inkOn(colour),
+        ink: ICON_INK,
         glyphSize: 0.42,
         crownBadge: premiumLocked,
+        mark: null,
       };
   }
 }
@@ -242,7 +261,15 @@ export function StageButton({
   const size = frontier ? FRONTIER_NODE : NODE;
   const look = faceOf(state, colour, icon as IconName, premiumLocked);
   const playable = unlocked || premiumLocked;
-  const label = `${routeName !== undefined ? `${routeName}, ` : ''}Stage ${stage.index}${premiumLocked ? ', Premium' : unlocked ? '' : ', locked'}`;
+  const base =
+    routeName !== undefined
+      ? t('campaign.stage.a11yRoute', { route: routeName, index: stage.index })
+      : t('campaign.stage.a11y', { index: stage.index });
+  const label = premiumLocked
+    ? t('campaign.stage.a11yPremium', { label: base })
+    : unlocked
+      ? base
+      : t('campaign.stage.a11yLocked', { label: base });
   const done = stars > 0;
 
   return (
@@ -261,17 +288,18 @@ export function StageButton({
           pointerEvents="none"
           style={{ position: 'absolute', top: -50, left: -60, right: -60, alignItems: 'center' }}
         >
-          <StartBubble colour={colour} label={premiumLocked ? '👑 UNLOCK' : 'START'} />
+          <StartBubble colour={colour} label={premiumLocked ? t('campaign.stage.unlock') : t('campaign.stage.start')} />
         </View>
       )}
 
       {frontier && !hideOwl && (
         <Image
           source={OWL}
+          resizeMethod="resize"
           resizeMode="contain"
           accessibilityIgnoresInvertColors
           accessible
-          accessibilityLabel="Minerva the owl"
+          accessibilityLabel={t('campaign.stage.owl')}
           style={[
             {
               position: 'absolute',
@@ -320,11 +348,27 @@ export function StageButton({
                   borderRadius: size / 2,
                   backgroundColor: look.face,
                   borderWidth: 3,
-                  borderColor: 'rgba(255,255,255,0.28)',
+                  borderColor: state === 'mastered' ? '#FFF3C4' : 'rgba(255,255,255,0.28)',
                   alignItems: 'center',
                   justifyContent: 'center',
+                  overflow: 'hidden',
                 }}
               >
+                {state === 'mastered' && (
+                  // A polished-gold glint across the face.
+                  <View
+                    pointerEvents="none"
+                    style={{
+                      position: 'absolute',
+                      top: -size * 0.2,
+                      left: size * 0.12,
+                      width: size * 0.16,
+                      height: size * 1.4,
+                      backgroundColor: 'rgba(255,255,255,0.4)',
+                      transform: [{ rotate: '35deg' }],
+                    }}
+                  />
+                )}
                 {look.glyph.kind === 'icon' ? (
                   // Wrapped so the name is findable before the icon font loads.
                   <View testID={`stage-icon-${look.glyph.name}`}>
@@ -376,6 +420,54 @@ export function StageButton({
                   }}
                 >
                   <MaterialCommunityIcons name="crown" size={14} color={GOLD} />
+                </View>
+              )}
+              {look.mark === 'check' && (
+                <View
+                  pointerEvents="none"
+                  testID="stage-check-badge"
+                  style={{
+                    position: 'absolute',
+                    top: (pressed ? LIP : 0) + size - CHECK_BADGE + 2,
+                    right: -4,
+                    width: CHECK_BADGE,
+                    height: CHECK_BADGE,
+                    borderRadius: CHECK_BADGE / 2,
+                    backgroundColor: CHECK_GREEN,
+                    borderWidth: 2.5,
+                    borderColor: '#FFFFFF',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <MaterialCommunityIcons name="check-bold" size={13} color="#FFFFFF" />
+                </View>
+              )}
+              {look.mark === 'crown' && (
+                <View
+                  pointerEvents="none"
+                  testID="stage-mastered-crown"
+                  style={{
+                    position: 'absolute',
+                    top: (pressed ? LIP : 0) - CROWN_TOP * 0.62,
+                    left: (size - CROWN_TOP) / 2,
+                    width: CROWN_TOP,
+                    height: CROWN_TOP,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transform: [{ rotate: '-12deg' }],
+                  }}
+                >
+                  <MaterialCommunityIcons
+                    name="crown"
+                    size={CROWN_TOP}
+                    color={GOLD}
+                    style={{
+                      textShadowColor: 'rgba(80,50,0,0.85)',
+                      textShadowOffset: { width: 0, height: 1.5 },
+                      textShadowRadius: 1.5,
+                    }}
+                  />
                 </View>
               )}
             </>

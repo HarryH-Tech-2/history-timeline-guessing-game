@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 
 import { Button, Screen } from '@/components/ui';
 import { SignInNudge } from '@/features/account/SignInNudge';
+import { t } from '@/i18n';
 import { track } from '@/services/analytics';
 
 import * as api from './api';
@@ -38,17 +39,17 @@ export function JoinGroupScreen({ code, via }: { code: string; via: 'link' | 'co
   return (
     <Screen className="justify-center gap-4 px-5">
       <SignInNudge milestone="social-groups" active />
-      <Text className="text-center text-2xl font-extrabold text-ink-primary">Join this group?</Text>
+      <Text className="text-center text-2xl font-extrabold text-ink-primary">{t('social.join.title')}</Text>
       <Text className="text-center text-lg tracking-widest text-ink-secondary">{invite ?? code}</Text>
       {!invite && (
-        <Text className="text-center text-danger">That doesn’t look like a group code.</Text>
+        <Text className="text-center text-danger">{t('social.join.badCode')}</Text>
       )}
       {error && <Text className="text-center text-danger">{error}</Text>}
       <View className="gap-2">
         {invite && (
-          <Button label="Join group" onPress={() => void join()} disabled={busy} testID="group-join" />
+          <Button label={t('social.join.join')} onPress={() => void join()} disabled={busy} testID="group-join" />
         )}
-        <Button label="Not now" variant="ghost" onPress={leave} />
+        <Button label={t('social.join.notNow')} variant="ghost" onPress={leave} />
       </View>
     </Screen>
   );

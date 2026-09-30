@@ -1,18 +1,38 @@
 import { z } from 'zod';
 
+import { t } from '@/i18n';
 import { createStore } from '@/storage';
 
 import type { PremiumPlan } from './billing';
 
 /**
- * Store-facing fallback price copy, shown until the store's own localized
- * prices load. Keep in step with the Play Console products.
+ * Store-facing fallback prices, shown until the store's own localized prices
+ * load. Keep in step with the Play Console products.
  */
-export const PREMIUM_PLAN_LABELS: Record<PremiumPlan, string> = {
-  monthly: '$2.99 / month',
-  yearly: '$19.99 / year',
-  lifetime: '$34.99 once',
+export const PREMIUM_FALLBACK_PRICES: Record<PremiumPlan, string> = {
+  monthly: '$2.99',
+  yearly: '$19.99',
+  lifetime: '$34.99',
 };
+
+/** A plan's bare store price ("£2.49") as a cadence label ("£2.49 / month"). */
+export function planPriceLabel(plan: PremiumPlan, price: string): string {
+  return `${price} ${t(`paywall.period.${plan}`)}`;
+}
+
+/**
+ * Every plan's cadence label in the current language, from the store's bare
+ * prices where known and the fallbacks otherwise. A function so the cadence
+ * words follow the language.
+ */
+export function premiumPlanLabels(
+  prices: Partial<Record<PremiumPlan, string>> = {},
+): Record<PremiumPlan, string> {
+  const plans = Object.keys(PREMIUM_FALLBACK_PRICES) as PremiumPlan[];
+  return Object.fromEntries(
+    plans.map((plan) => [plan, planPriceLabel(plan, prices[plan] ?? PREMIUM_FALLBACK_PRICES[plan])]),
+  ) as Record<PremiumPlan, string>;
+}
 
 export const PREMIUM_PRODUCT_IDS: Record<PremiumPlan, string> = {
   monthly: 'premium_monthly',

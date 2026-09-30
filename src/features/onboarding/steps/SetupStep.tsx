@@ -6,6 +6,7 @@ import { Button } from '@/components/ui';
 import { resolveDisplayName, validatePlayerName } from '@/features/leaderboard/playerName';
 import { useProgression } from '@/features/progression';
 import { useReminders } from '@/features/reminders';
+import { t } from '@/i18n';
 import { useAuth } from '@/services/firebase/auth';
 import { useThemeColors } from '@/theme';
 import { palette } from '@/theme/tokens';
@@ -74,9 +75,9 @@ export function SetupStep({ onFinish }: { onFinish: (outcome: SetupOutcome) => v
       <View className="flex-1 justify-center gap-6">
         <Animated.View entering={FadeInUp.springify().damping(18)}>
           <Text className="text-center text-xs font-semibold uppercase tracking-widest text-ink-muted">
-            Last thing
+            {t('onboarding.setup.eyebrow')}
           </Text>
-          <Text className="text-center text-3xl font-extrabold text-ink-primary">Make it yours</Text>
+          <Text className="text-center text-3xl font-extrabold text-ink-primary">{t('onboarding.setup.title')}</Text>
         </Animated.View>
 
         <Animated.View
@@ -84,12 +85,12 @@ export function SetupStep({ onFinish }: { onFinish: (outcome: SetupOutcome) => v
           className="gap-2 border border-hair bg-bg-raised p-4"
         >
           <Text className="text-xs font-semibold uppercase tracking-wide text-ink-muted">
-            Your name on the leaderboard
+            {t('onboarding.setup.nameLabel')}
           </Text>
           <TextInput
             value={name}
-            onChangeText={(t) => {
-              setName(t);
+            onChangeText={(text) => {
+              setName(text);
               setNameError(null);
             }}
             maxLength={24}
@@ -98,7 +99,7 @@ export function SetupStep({ onFinish }: { onFinish: (outcome: SetupOutcome) => v
             placeholder={handle}
             placeholderTextColor={colors.ink.muted}
             className="border border-hair bg-bg-base px-3 py-2.5 text-lg font-bold text-ink-primary"
-            accessibilityLabel="Your player name"
+            accessibilityLabel={t('onboarding.setup.nameA11y')}
             testID="onboarding-name"
           />
           {nameError ? (
@@ -107,7 +108,7 @@ export function SetupStep({ onFinish }: { onFinish: (outcome: SetupOutcome) => v
             </Text>
           ) : (
             <Text className="text-xs text-ink-muted">
-              Keep {handle}, or pick something of your own. You can change it any time.
+              {t('onboarding.setup.nameHint', { handle })}
             </Text>
           )}
         </Animated.View>
@@ -117,9 +118,9 @@ export function SetupStep({ onFinish }: { onFinish: (outcome: SetupOutcome) => v
           className="flex-row items-center justify-between gap-3 border border-hair bg-bg-raised p-4"
         >
           <View className="flex-1">
-            <Text className="text-base font-bold text-ink-primary">Daily reminder</Text>
+            <Text className="text-base font-bold text-ink-primary">{t('onboarding.setup.reminderTitle')}</Text>
             <Text className="text-xs text-ink-muted">
-              One nudge a day so your streak survives. Off by default.
+              {t('onboarding.setup.reminderBody')}
             </Text>
           </View>
           <Switch
@@ -128,7 +129,7 @@ export function SetupStep({ onFinish }: { onFinish: (outcome: SetupOutcome) => v
             onValueChange={(v) => void toggleReminders(v)}
             trackColor={{ true: palette.accent.soft, false: colors.hair }}
             thumbColor={remindersOn ? palette.accent.default : colors.bg.raised}
-            accessibilityLabel="Daily reminder"
+            accessibilityLabel={t('onboarding.setup.reminderTitle')}
             testID="onboarding-reminders"
           />
         </Animated.View>
@@ -136,7 +137,7 @@ export function SetupStep({ onFinish }: { onFinish: (outcome: SetupOutcome) => v
 
       <View className="gap-2">
         <Button
-          label="Play today’s Daily"
+          label={t('onboarding.setup.playDaily')}
           glyph="→"
           variant="hero"
           disabled={profileLoading}
@@ -150,7 +151,7 @@ export function SetupStep({ onFinish }: { onFinish: (outcome: SetupOutcome) => v
           className="items-center py-3"
           testID="onboarding-explore"
         >
-          <Text className="text-sm font-semibold text-ink-muted">Explore first</Text>
+          <Text className="text-sm font-semibold text-ink-muted">{t('onboarding.setup.explore')}</Text>
         </Pressable>
       </View>
     </View>

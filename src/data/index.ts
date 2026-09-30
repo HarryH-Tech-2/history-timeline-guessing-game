@@ -1,9 +1,17 @@
 import { z } from 'zod';
 
 import { CategorySchema, QuestionSchema, type Category, type Question } from '@/domain';
+import { getLanguage } from '@/i18n/translate';
 import { pickDeterministic, seedFromString } from '@/utils/rng';
 
 import { CATEGORIES } from './categories';
+import {
+  contentOverlay,
+  localizeCategory,
+  localizeNamed,
+  localizeQuestion,
+  localizeRouteName,
+} from './i18n';
 import { CAMPAIGN_ROUTES } from './packs/campaignRoutes';
 import { QUESTIONS } from './questions';
 import { REGION_RUN_LENGTH, REGIONAL_CATEGORY_ID, regionById, REGIONS, type Region } from './regions';
@@ -103,24 +111,70 @@ export function resetContentToSeed(): void {
   publishContent();
 }
 
+/* ------------------------------------------------------------------------ */
+/* Language                                                                  */
+/* ------------------------------------------------------------------------ */
+
+/**
+ * The active content in the player's language: the same rows in the same
+ * order (so seeded picks are unchanged), with translated titles, descriptions
+ * and names from src/data/i18n swapped in. English, and anything without a
+ * translation, is the row itself. Rebuilt only when the language or the
+ * content changes; scripts run in English, so they seed the source text.
+ */
+let localized: {
+  key: string;
+  categories: readonly Category[];
+  questions: readonly Question[];
+} | null = null;
+
+function view(): { categories: readonly Category[]; questions: readonly Question[] } {
+  const language = getLanguage();
+  const key = `${language}:${contentVersion}`;
+  if (localized?.key !== key) {
+    const overlay = contentOverlay(language);
+    localized = {
+      key,
+      categories: overlay ? activeCategories.map((c) => localizeCategory(c, overlay)) : activeCategories,
+      questions: overlay ? activeQuestions.map((q) => localizeQuestion(q, overlay)) : activeQuestions,
+    };
+  }
+  return localized;
+}
+
+/** A region's name and blurb in the player's language. */
+export function localizeRegion(region: Region): Region {
+  return localizeNamed(region, 'regions', contentOverlay(getLanguage()));
+}
+
+/** A topic's name and blurb in the player's language. */
+export function localizeTopic(topic: Topic): Topic {
+  return localizeNamed(topic, 'topics', contentOverlay(getLanguage()));
+}
+
+/** A campaign route's name in the player's language. */
+export function routeName(route: { id: string; name: string }): string {
+  return localizeRouteName(route.id, route.name, contentOverlay(getLanguage()));
+}
+
 export function getCategories(): readonly Category[] {
-  return activeCategories;
+  return view().categories;
 }
 
 export function getQuestions(): readonly Question[] {
-  return activeQuestions;
+  return view().questions;
 }
 
 export function getQuestionsByCategory(categoryId: string): readonly Question[] {
-  return activeQuestions.filter((q) => q.categoryId === categoryId);
+  return view().questions.filter((q) => q.categoryId === categoryId);
 }
 
 export function getCategoryById(categoryId: string): Category | undefined {
-  return activeCategories.find((c) => c.id === categoryId);
+  return view().categories.find((c) => c.id === categoryId);
 }
 
 export function getQuestionById(questionId: string): Question | undefined {
-  return activeQuestions.find((q) => q.id === questionId);
+  return view().questions.find((q) => q.id === questionId);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -145,7 +199,7 @@ export function isPremiumCategory(categoryId: string): boolean {
  */
 export function getDailyQuestions(dateKey: string, count = 8): readonly Question[] {
   return pickDeterministic(
-    activeQuestions.filter(isInRotation),
+    view().questions.filter(isInRotation),
     count,
     seedFromString(`daily-${dateKey}`),
   );
@@ -172,8 +226,9 @@ export function isCampaignRouteQuestion(question: Question): boolean {
 
 /** Pick a random question, optionally excluding ids already seen this session. */
 export function getRandomQuestion(excludeIds: ReadonlySet<string> = new Set()): Question {
-  const pool = activeQuestions.filter((q) => !excludeIds.has(q.id));
-  const source = pool.length > 0 ? pool : activeQuestions;
+  const all = view().questions;
+  const pool = all.filter((q) => !excludeIds.has(q.id));
+  const source = pool.length > 0 ? pool : all;
   const index = Math.floor(Math.random() * source.length);
   const picked = source[index];
   if (!picked) throw new Error('No questions available in the seed dataset');
@@ -195,7 +250,7 @@ export type { Region };
 export function getRegionalQuestions(regionId: string): readonly Question[] {
   const region = regionById(regionId);
   if (!region) return [];
-  return activeQuestions.filter(
+  return view().questions.filter(
     (q) => q.categoryId === REGIONAL_CATEGORY_ID && q.tags.includes(region.tag),
   );
 }
@@ -214,7 +269,7 @@ function inTopic(topic: Topic, pool: readonly Question[]): readonly Question[] {
 
 /** Every question in the topic, across all categories. */
 export function getTopicQuestions(topic: Topic): readonly Question[] {
-  return inTopic(topic, activeQuestions);
+  return inTopic(topic, view().questions);
 }
 
 /** Questions per topic run. */
@@ -229,9 +284,9 @@ export function getTopicOfTheDay(dateKey: string): Topic {
   const start = seedFromString(`topic-${dateKey}`) % TOPICS.length;
   for (let i = 0; i < TOPICS.length; i += 1) {
     const topic = TOPICS[(start + i) % TOPICS.length]!;
-    if (inTopic(topic, activeQuestions).length >= TOPIC_RUN_SIZE) return topic;
+    if (inTopic(topic, activeQuestions).length >= TOPIC_RUN_SIZE) return localizeTopic(topic);
   }
-  return TOPICS[start]!;
+  return localizeTopic(TOPICS[start]!);
 }
 
 /** The day's fixed question set for a topic — same order for everyone. */

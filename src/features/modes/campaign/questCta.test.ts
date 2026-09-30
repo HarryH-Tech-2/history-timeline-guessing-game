@@ -15,7 +15,7 @@ describe('questCta', () => {
   it('sends a free player to the paywall when the next stage is premium', () => {
     expect(questCta(lastAncient, false)).toEqual({
       label: 'Continue your quest →',
-      action: { kind: 'paywall' },
+      action: { kind: 'paywall', eraId: 'medieval' },
     });
   });
 

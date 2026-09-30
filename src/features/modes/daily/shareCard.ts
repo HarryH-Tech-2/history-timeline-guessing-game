@@ -1,3 +1,5 @@
+import { t } from '@/i18n';
+
 import { prettyDate, type ShareCardData } from '../share';
 import type { DailyRecord } from '../persistence';
 
@@ -18,7 +20,7 @@ export function dailyNumber(dateKey: string): number {
 /** The share card for a banked Daily: numbered like a Wordle puzzle. */
 export function dailyShareData(record: DailyRecord): ShareCardData {
   return {
-    heading: `Daily #${dailyNumber(record.date)}`,
+    heading: t('round.share.dailyHeading', { number: String(dailyNumber(record.date)) }),
     subheading: prettyDate(record.date),
     totalScore: record.totalScore,
     rounds: record.rounds,

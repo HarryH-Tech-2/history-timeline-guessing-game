@@ -16,6 +16,7 @@ import Animated, {
 import { Button } from '@/components/ui';
 import { activeStreakCount, type StreakState } from '@/domain';
 import { haptic, NotificationFeedbackType } from '@/features/haptics';
+import { t } from '@/i18n';
 import { palette } from '@/theme/tokens';
 import { dateKey } from '@/utils/date';
 
@@ -108,19 +109,19 @@ export function StreakSheet({ visible, streak, onPlay, onClose }: StreakSheetPro
     if (visible && count > 0) haptic.notification(NotificationFeedbackType.Success);
   }, [visible, count]);
 
-  const headline = count > 0 ? `${count}-day streak!` : 'Start a streak today';
+  const headline = count > 0 ? t('home.streakSheet.headline', { count }) : t('home.streakSheet.start');
   const message = doneToday
-    ? "You've played today's Daily — your streak is safe."
+    ? t('home.streakSheet.safe')
     : count > 0
-      ? `Play today's Daily to make it ${count + 1}.`
-      : 'Play the Daily every day to build a streak and earn bonus points.';
+      ? t('home.streakSheet.extend', { next: count + 1 })
+      : t('home.streakSheet.pitch');
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable
         className="flex-1 justify-end bg-black/60"
         onPress={onClose}
-        accessibilityLabel="Close"
+        accessibilityLabel={t('common.close')}
         testID="streak-backdrop"
       >
         {visible && (
@@ -164,15 +165,15 @@ export function StreakSheet({ visible, streak, onPlay, onClose }: StreakSheetPro
 
             {streak.freezes > 0 && (
               <Text className="text-center text-sm text-ink-muted">
-                🧊 {streak.freezes} streak {streak.freezes === 1 ? 'freeze' : 'freezes'} ready
+                {t('home.streakSheet.freezes', { count: streak.freezes })}
               </Text>
             )}
 
             {!doneToday && (
-              <Button label="Play today's Daily" onPress={onPlay} testID="streak-play" />
+              <Button label={t('home.streakSheet.play')} onPress={onPlay} testID="streak-play" />
             )}
             <Button
-              label={doneToday ? 'Nice!' : 'Later'}
+              label={doneToday ? t('home.streakSheet.nice') : t('home.streakSheet.later')}
               variant={doneToday ? 'primary' : 'ghost'}
               onPress={onClose}
               testID="streak-close"

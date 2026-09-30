@@ -1,0 +1,362 @@
+{
+  "ppl-nightingale": {
+    "title": "Nasce Florence Nightingale",
+    "longDescription": "Batizada com o nome da cidade onde nasceu, Florence Nightingale transformou o atendimento aos feridos na Guerra da Crimeia e fundou a enfermagem moderna, sendo pioneira no uso da estatística na saúde pública."
+  },
+  "ppl-van-gogh": {
+    "title": "Nasce Vincent van Gogh",
+    "longDescription": "Vincent van Gogh pintou cerca de 900 obras em uma única década — girassóis, campos de trigo, céus estrelados —, mas quase não vendeu nenhuma antes de morrer, aos 37 anos. Hoje está entre os pintores mais amados de todos os tempos."
+  },
+  "ppl-churchill": {
+    "title": "Nasce Winston Churchill",
+    "longDescription": "Soldado, escritor e político, Winston Churchill tornou-se primeiro-ministro em 1940 e conduziu a Grã-Bretanha durante a Segunda Guerra Mundial, com discursos que fortaleceram o país contra a invasão."
+  },
+  "ppl-mlk": {
+    "title": "Nasce Martin Luther King Jr.",
+    "longDescription": "Martin Luther King Jr. liderou o movimento pelos direitos civis nos Estados Unidos com protestos não violentos, do boicote aos ônibus de Montgomery à Marcha sobre Washington, e ganhou o Nobel da Paz aos 35 anos."
+  },
+  "ppl-anne-frank": {
+    "title": "Nasce Anne Frank",
+    "longDescription": "Anne Frank registrou dois anos escondida dos nazistas em um sótão de Amsterdã. Publicado por seu pai após a morte dela em um campo, aos 15 anos, seu diário é lido no mundo inteiro."
+  },
+  "tec-spinning-jenny": {
+    "title": "A spinning jenny",
+    "longDescription": "A spinning jenny de James Hargreaves permitia que um único fiandeiro operasse oito fusos ao mesmo tempo. Ela deu início à mecanização da indústria têxtil que impulsionou a Revolução Industrial."
+  },
+  "tec-hot-air-balloon": {
+    "title": "O primeiro voo tripulado de balão",
+    "longDescription": "Pilâtre de Rozier e o marquês d’Arlandes fizeram o primeiro voo livre em um balão de ar quente dos Montgolfier, flutuando sobre Paris por 25 minutos — a primeira experiência de voo da humanidade."
+  },
+  "tec-telegraph": {
+    "title": "A primeira mensagem telegráfica",
+    "longDescription": "Samuel Morse transmitiu “What hath God wrought” (“Que obra fez Deus”) de Washington a Baltimore, inaugurando a primeira linha telegráfica americana e encolhendo o mundo à velocidade da eletricidade."
+  },
+  "tec-light-bulb": {
+    "title": "A lâmpada elétrica prática",
+    "longDescription": "A lâmpada de filamento de carbono de Thomas Edison durava o suficiente para ser prática, e suas demonstrações em Menlo Park logo iluminaram ruas inteiras — o começo do mundo eletrificado."
+  },
+  "tec-automobile": {
+    "title": "O primeiro automóvel",
+    "longDescription": "Karl Benz patenteou seu Patent-Motorwagen de três rodas, geralmente considerado o primeiro automóvel de verdade. A famosa viagem de longa distância de sua esposa, Bertha, provou seu valor ao mundo."
+  },
+  "tec-transatlantic-radio": {
+    "title": "O primeiro sinal de rádio transatlântico",
+    "longDescription": "Guglielmo Marconi recebeu a letra “S” em código Morse, enviada da Cornualha, em uma antena erguida por uma pipa na Terra Nova — prova de que as ondas de rádio podiam atravessar o Atlântico e dar a volta ao mundo."
+  },
+  "tec-eniac": {
+    "title": "O ENIAC é apresentado",
+    "longDescription": "A Universidade da Pensilvânia apresentou o ENIAC, uma máquina de 30 toneladas com 18.000 válvulas que calculava mil vezes mais rápido que qualquer antecessora — o alvorecer da computação eletrônica."
+  },
+  "tec-dna-double-helix": {
+    "title": "A dupla hélice do DNA",
+    "longDescription": "Com base nas imagens de raios X de Rosalind Franklin, James Watson e Francis Crick publicaram a estrutura de dupla hélice do DNA, revelando como os seres vivos armazenam e copiam a informação genética."
+  },
+  "tec-sputnik": {
+    "title": "O Sputnik inaugura a era espacial",
+    "longDescription": "A União Soviética lançou o Sputnik 1, uma esfera de metal polido cujos bipes de rádio podiam ser ouvidos no mundo todo. Ele surpreendeu o Ocidente e deu início à corrida espacial."
+  },
+  "tec-heart-transplant": {
+    "title": "O primeiro transplante de coração humano",
+    "longDescription": "No Hospital Groote Schuur, na Cidade do Cabo, o cirurgião Christiaan Barnard realizou o primeiro transplante de coração entre seres humanos, abrindo uma nova era na medicina de transplantes."
+  },
+  "art-parthenon": {
+    "title": "O Partenon é concluído",
+    "longDescription": "Construído no auge do poder ateniense sob Péricles, o Partenon coroou a Acrópole como templo de Atena. Suas proporções e esculturas tornaram-se o padrão da arquitetura clássica."
+  },
+  "art-david": {
+    "title": "O Davi de Michelangelo é revelado",
+    "longDescription": "A estátua de cinco metros do Davi bíblico, esculpida por Michelangelo em um único bloco de mármore, foi revelada na praça principal de Florença e logo se tornou um símbolo da cidade e do Renascimento."
+  },
+  "art-sistine-chapel": {
+    "title": "O teto da Capela Sistina",
+    "longDescription": "Depois de quatro anos sobre andaimes, Michelangelo concluiu os afrescos do teto da Capela Sistina, entre eles A Criação de Adão — uma das imagens mais influentes já pintadas."
+  },
+  "art-globe-theatre": {
+    "title": "É inaugurado o Teatro Globe",
+    "longDescription": "Construído na margem sul do Tâmisa pela companhia teatral de Shakespeare, o Globe encenou muitas de suas maiores obras. Seu formato redondo de madeira, o “wooden O”, definiu o teatro elisabetano."
+  },
+  "art-don-quixote": {
+    "title": "Dom Quixote é publicado",
+    "longDescription": "Miguel de Cervantes publicou a primeira parte de Dom Quixote, a história de um fidalgo envelhecido que lê romances de cavalaria demais. É amplamente considerado o primeiro romance moderno."
+  },
+  "art-first-opera-house": {
+    "title": "A primeira casa de ópera pública",
+    "longDescription": "O Teatro San Cassiano, em Veneza, tornou-se a primeira casa de ópera aberta ao público pagante, transformando a ópera de um espetáculo privado da corte em entretenimento popular."
+  },
+  "art-taj-mahal": {
+    "title": "O Taj Mahal é concluído",
+    "longDescription": "O imperador Shah Jahan construiu o Taj Mahal como túmulo para sua amada esposa, Mumtaz Mahal. Cerca de 20.000 artesãos trabalharam durante duas décadas no complexo de mármore branco, uma joia da arquitetura mogol."
+  },
+  "art-beethoven-ninth": {
+    "title": "Estreia a Nona Sinfonia de Beethoven",
+    "longDescription": "Ludwig van Beethoven, então profundamente surdo, estreou sua Nona Sinfonia em Viena. Seu final coral, a Ode à Alegria, não tinha precedentes e hoje é o hino da Europa."
+  },
+  "art-swan-lake": {
+    "title": "Estreia O Lago dos Cisnes",
+    "longDescription": "O Lago dos Cisnes, de Tchaikovsky, estreou no Teatro Bolshoi de Moscou. Recebido com frieza no início, ganhou montagens posteriores que o tornaram o balé mais conhecido do mundo e um rito de passagem para bailarinos."
+  },
+  "art-eiffel-tower": {
+    "title": "A Torre Eiffel é concluída",
+    "longDescription": "Construída como entrada da Exposição Universal de 1889, a torre de ferro forjado de Gustave Eiffel foi a estrutura mais alta da Terra por 41 anos. Ridicularizada por artistas no início, tornou-se o símbolo de Paris."
+  },
+  "art-starry-night": {
+    "title": "A Noite Estrelada é pintada",
+    "longDescription": "Vincent van Gogh pintou A Noite Estrelada enquanto estava internado em um asilo em Saint-Rémy, transformando o céu noturno em ondas ondulantes de cor. Quase ignorada em vida, hoje não tem preço."
+  },
+  "art-the-scream": {
+    "title": "O Grito é pintado",
+    "longDescription": "Edvard Munch pintou O Grito depois de sentir, como escreveu, “um grito infinito atravessando a natureza”. Sua figura atormentada tornou-se uma das imagens mais reconhecíveis e reproduzidas da arte."
+  },
+  "art-lumiere-cinema": {
+    "title": "A primeira sessão pública de cinema",
+    "longDescription": "No subsolo do Grand Café, em Paris, Auguste e Louis Lumière projetaram curtas-metragens para uma plateia pagante pela primeira vez — o momento geralmente considerado o nascimento do cinema."
+  },
+  "art-academy-awards": {
+    "title": "A primeira cerimônia do Oscar",
+    "longDescription": "Os primeiros prêmios da Academia foram entregues em um jantar privado em Hollywood, com os vencedores anunciados meses antes. A cerimônia de 15 minutos cresceu até se tornar a maior noite do cinema."
+  },
+  "art-snow-white": {
+    "title": "O primeiro longa-metragem de animação",
+    "longDescription": "Walt Disney estreou Branca de Neve e os Sete Anões, o primeiro longa-metragem de animação em cel. Ridicularizado durante a produção como “a loucura de Disney”, tornou-se um marco do cinema."
+  },
+  "art-wizard-of-oz": {
+    "title": "Estreia O Mágico de Oz",
+    "longDescription": "A MGM estreou O Mágico de Oz, cuja passagem do Kansas em sépia para a Oz em Technicolor deslumbrou o público. “Over the Rainbow”, cantada por Judy Garland, tornou-se uma das canções que definiram o século."
+  },
+  "art-elvis-first-single": {
+    "title": "Elvis grava seu primeiro single",
+    "longDescription": "Um caminhoneiro de 19 anos chamado Elvis Presley gravou “That’s All Right” no Sun Studio, em Memphis. Sua fusão de country e rhythm & blues ajudou a acender o rock and roll."
+  },
+  "art-beatles-ed-sullivan": {
+    "title": "Os Beatles no The Ed Sullivan Show",
+    "longDescription": "Os Beatles estrearam ao vivo na TV americana no The Ed Sullivan Show, diante de um recorde de 73 milhões de espectadores, lançando a Invasão Britânica e mudando a música popular."
+  },
+  "art-woodstock": {
+    "title": "O Festival de Woodstock",
+    "longDescription": "Cerca de 400.000 pessoas se reuniram em uma fazenda leiteira no interior do estado de Nova York para Woodstock, o festival que definiu a contracultura dos anos 1960, com apresentações de Hendrix, Joplin e The Who."
+  },
+  "art-sydney-opera-house": {
+    "title": "É inaugurada a Ópera de Sydney",
+    "longDescription": "Após 14 anos de construção e amarga polêmica, a Ópera de Sydney, de Jørn Utzon, foi inaugurada pela rainha Elizabeth II. Seus telhados em forma de concha a tornaram um ícone instantâneo da arquitetura moderna."
+  },
+  "art-thriller": {
+    "title": "Thriller é lançado",
+    "longDescription": "Michael Jackson lançou Thriller, que viria a vender cerca de 70 milhões de cópias — ainda o álbum mais vendido de todos os tempos — e redefiniu o videoclipe como forma de arte."
+  },
+  "art-harry-potter": {
+    "title": "Harry Potter é publicado",
+    "longDescription": "A Bloomsbury publicou Harry Potter e a Pedra Filosofal com uma primeira tiragem de apenas 500 exemplares. A série chegou a vender mais de 600 milhões de livros e transformou o mercado editorial infantil."
+  },
+  "phi-socrates-trial": {
+    "title": "O julgamento de Sócrates",
+    "longDescription": "Acusado de impiedade e de corromper a juventude, o filósofo de setenta anos defendeu-se diante de um júri de concidadãos, foi condenado e bebeu a cicuta. Seu discípulo Platão transformou o julgamento no drama fundador da filosofia ocidental."
+  },
+  "phi-utopia": {
+    "title": "A Utopia de Thomas More",
+    "longDescription": "Escrito em latim e publicado em Lovaina, o pequeno livro de More descrevia uma república insular sem propriedade privada. Em parte sátira, em parte proposta séria, cunhou a palavra — do grego para “lugar nenhum” — sobre a qual sonhadores políticos discutem desde então."
+  },
+  "phi-discourse-method": {
+    "title": "O Discurso do Método de Descartes",
+    "longDescription": "Publicado anonimamente em Leiden, o Discurso expôs o método da dúvida sistemática de Descartes e sua famosa primeira certeza, “je pense, donc je suis” (“penso, logo existo”). Refundou a filosofia sobre o sujeito pensante e ajudou a lançar o método científico."
+  },
+  "phi-leviathan": {
+    "title": "Hobbes publica o Leviatã",
+    "longDescription": "Escrevendo à sombra da Guerra Civil Inglesa, Hobbes descreveu a vida sem governo como “solitária, pobre, sórdida, brutal e curta” e defendeu que as pessoas só escapam dela entregando o poder a um soberano. O Leviatã tornou-se a pedra angular da filosofia política moderna."
+  },
+  "phi-spinoza-ethics": {
+    "title": "A Ética de Spinoza é publicada",
+    "longDescription": "Perigosa demais para ser impressa em vida, a Ética de Spinoza foi publicada por seus amigos no ano de sua morte. Organizada em axiomas e demonstrações como Euclides, identificava Deus com a própria natureza — uma heresia na época e, depois, uma inspiração discreta para o Iluminismo."
+  },
+  "phi-locke-essay": {
+    "title": "O Ensaio sobre o Entendimento Humano de Locke",
+    "longDescription": "O Ensaio de Locke propôs que a mente começa como um papel em branco, escrito apenas pela experiência — varrendo as ideias inatas e fundando o empirismo britânico. Publicado em Londres em dezembro de 1689, moldou a psicologia, a educação e a política por séculos."
+  },
+  "phi-social-contract": {
+    "title": "O Contrato Social de Rousseau",
+    "longDescription": "Publicado em Amsterdã e logo proibido em Paris e Genebra, o tratado de Rousseau defendia que a autoridade legítima vem apenas do próprio povo. Três décadas depois, suas ideias ecoaram na Revolução Francesa."
+  },
+  "phi-wealth-of-nations": {
+    "title": "A Riqueza das Nações é publicada",
+    "longDescription": "Publicada em Londres em 9 de março de 1776, a Investigação sobre a Natureza e as Causas da Riqueza das Nações, de Smith, descreveu como o interesse próprio, a concorrência e a divisão do trabalho geram prosperidade — a “mão invisível” sobre a qual os mercados são debatidos desde então."
+  },
+  "phi-critique-pure-reason": {
+    "title": "A Crítica da Razão Pura de Kant",
+    "longDescription": "Kant passou uma década em Königsberg desvendando como a própria mente molda tudo o que pode experimentar. A “revolução copernicana” da Crítica — os objetos se ajustam ao nosso conhecimento, e não o contrário — divide toda a filosofia em antes e depois."
+  },
+  "phi-vindication": {
+    "title": "Reivindicação dos Direitos da Mulher",
+    "longDescription": "Respondendo a estadistas que negariam escola às meninas, Wollstonecraft argumentou que as mulheres só parecem inferiores porque lhes negam educação, e que a razão não tem sexo. Escrita em seis semanas, a Reivindicação tornou-se um texto fundador da filosofia feminista."
+  },
+  "phi-communist-manifesto": {
+    "title": "O Manifesto Comunista é publicado",
+    "longDescription": "Impresso em Londres dias antes de revoluções varrerem a Europa, o panfleto de vinte e três páginas de Marx e Engels interpretava toda a história como luta de classes e convocava os trabalhadores a derrubá-la. Poucos textos de qualquer tipo moveram tanto o mundo desde então."
+  },
+  "phi-on-liberty": {
+    "title": "Sobre a Liberdade, de Mill",
+    "longDescription": "O ensaio de Mill traçou uma linha clara: o único propósito para o qual o poder pode ser legitimamente exercido sobre alguém é impedir danos a outros. Publicado no mesmo ano que A Origem das Espécies, de Darwin, continua sendo a defesa liberal mais citada da liberdade de pensamento e de expressão."
+  },
+  "phi-zarathustra": {
+    "title": "Assim Falou Zaratustra",
+    "longDescription": "Com a primeira parte escrita em dez dias e publicada em 1883, o “livro para todos e para ninguém” de Nietzsche anunciou a morte de Deus e a chegada do Übermensch em cadências de escritura sagrada. Filosofia, poesia e provocação ao mesmo tempo, só o tornou famoso após seu colapso."
+  },
+  "phi-being-and-time": {
+    "title": "Ser e Tempo, de Heidegger",
+    "longDescription": "Publicado em 1927 para garantir uma cátedra, Ser e Tempo perguntou o que significa, afinal, ser — e respondeu por meio do ser humano cotidiano que existe para a morte. Inacabado e notoriamente difícil, remodelou o existencialismo, a teologia e a teoria literária."
+  },
+  "phi-second-sex": {
+    "title": "O Segundo Sexo, de Simone de Beauvoir",
+    "longDescription": "Publicado em Paris em dois volumes em 1949, o estudo exaustivo de Beauvoir defendia que a “mulher” é feita pela sociedade, e não nasce assim. Escandaloso a ponto de entrar no Índice dos Livros Proibidos do Vaticano, tornou-se a base filosófica dos movimentos feministas que se seguiram."
+  },
+  "phi-theory-of-justice": {
+    "title": "Uma Teoria da Justiça, de Rawls",
+    "longDescription": "Rawls reavivou a filosofia política com um único experimento mental: escolher as regras da sociedade sem saber se você será rico ou pobre, forte ou fraco. Os princípios escolhidos por trás desse “véu da ignorância”, argumentou, definem a justiça como equidade."
+  },
+  "art-empire-state": {
+    "title": "É inaugurado o Empire State Building",
+    "longDescription": "O presidente Hoover apertou um botão em Washington para iluminar a torre em 1º de maio de 1931. Construído em apenas treze meses durante a Grande Depressão, foi o edifício mais alto do mundo por quatro décadas e tornou-se o arranha-céu por excelência."
+  },
+  "evt-fall-western-rome": {
+    "title": "A queda do Império Romano do Ocidente",
+    "longDescription": "O comandante germânico Odoacro depôs o imperador Rômulo Augústulo, de dezesseis anos, e enviou as insígnias imperiais a Constantinopla. A data é o marco tradicional do fim do Império Romano do Ocidente e da própria Antiguidade."
+  },
+  "evt-charlemagne-crowned": {
+    "title": "A coroação de Carlos Magno",
+    "longDescription": "Na antiga Basílica de São Pedro, o papa Leão III colocou uma coroa na cabeça do rei franco, e os fiéis o aclamaram Imperador dos Romanos — o primeiro no Ocidente em mais de três séculos. O ato uniu coroa e papado pelo resto da Idade Média."
+  },
+  "evt-great-schism": {
+    "title": "O Grande Cisma",
+    "longDescription": "Legados papais entraram em Santa Sofia e depositaram uma bula de excomunhão sobre o altar; o patriarca de Constantinopla respondeu na mesma moeda. A ruptura entre o Ocidente latino e o Oriente grego se consolidou na divisão entre católicos e ortodoxos que perdura até hoje."
+  },
+  "evt-domesday-book": {
+    "title": "O Domesday Book",
+    "longDescription": "Vinte anos depois de Hastings, Guilherme I ordenou um levantamento de seu reino conquistado tão minucioso que os contemporâneos o compararam ao Juízo Final — daí “Domesday”. Seus dois volumes continuam sendo o registro mais completo de qualquer sociedade medieval."
+  },
+  "evt-council-clermont": {
+    "title": "O Concílio de Clermont",
+    "longDescription": "Pregando em campo aberto em Clermont, o papa Urbano II convocou os cavaleiros da Europa a socorrer Bizâncio e reconquistar Jerusalém, prometendo a remissão dos pecados. O grito da multidão, “Deus vult!” — Deus o quer —, lançou dois séculos de cruzadas."
+  },
+  "evt-hijra": {
+    "title": "A Hégira",
+    "longDescription": "Perseguidos em Meca, Maomé e seus seguidores migraram para o oásis de Yathrib, desde então chamado Medina. A jornada marca a fundação da primeira comunidade muçulmana e o ano um do calendário islâmico."
+  },
+  "evt-hannibal-alps": {
+    "title": "Aníbal atravessa os Alpes",
+    "longDescription": "Abrindo a Segunda Guerra Púnica, Aníbal levou dezenas de milhares de soldados — e seus famosos elefantes — da Espanha pelos passos nevados dos Alpes até a Itália, surpreendendo Roma. A travessia continua sendo um dos feitos mais audaciosos da história militar."
+  },
+  "evt-baghdad-founded": {
+    "title": "A fundação de Bagdá",
+    "longDescription": "O califa al-Mansur traçou uma cidade perfeitamente circular na margem oeste do Tigre como nova capital abássida. Em menos de um século, a Casa da Sabedoria fez de Bagdá a maior e mais erudita cidade do mundo."
+  },
+  "evt-genghis-proclaimed": {
+    "title": "Gengis Khan unifica os mongóis",
+    "longDescription": "Em um grande kurultai às margens do rio Onon, as tribos da estepe proclamaram Temujin como Gengis Khan, soberano universal dos mongóis. O império que ele iniciou tornou-se, em duas gerações, o maior império terrestre contínuo da história."
+  },
+  "evt-sack-constantinople-1204": {
+    "title": "O saque de Constantinopla",
+    "longDescription": "Desviada da Terra Santa por dívidas com Veneza, a Quarta Cruzada tomou de assalto as muralhas de Constantinopla e passou dias saqueando a cidade mais rica da cristandade. Bizâncio nunca se recuperou totalmente do golpe."
+  },
+  "bat-salamis": {
+    "title": "A Batalha de Salamina",
+    "longDescription": "Semanas depois das Termópilas, Temístocles atraiu a enorme frota persa para o estreito apertado entre Salamina e o continente, onde as trirremes gregas a destruíram. A vitória virou o jogo da invasão da Grécia por Xerxes."
+  },
+  "bat-red-cliffs": {
+    "title": "A Batalha dos Penhascos Vermelhos",
+    "longDescription": "As forças aliadas de Sun Quan e Liu Bei lançaram brulotes em chamas contra a frota acorrentada de Cao Cao no Yangtzé, detendo sua conquista do sul da China. A batalha preparou o terreno para a era dos Três Reinos."
+  },
+  "bat-manzikert": {
+    "title": "A Batalha de Manzikert",
+    "longDescription": "O sultão Alp Arslan desbaratou o exército bizantino e aprisionou o imperador Romano IV Diógenes — a única vez em que um imperador bizantino reinante foi capturado em batalha. A derrota abriu a Anatólia à colonização turca e ajudou a provocar as Cruzadas."
+  },
+  "bat-hattin": {
+    "title": "A Batalha de Hattin",
+    "longDescription": "Saladino encurralou o exército cruzado, sedento, nos montes gêmeos de Hattin e o destruiu, capturando o rei de Jerusalém e a relíquia da Vera Cruz. A própria Jerusalém caiu em suas mãos em três meses, desencadeando a Terceira Cruzada."
+  },
+  "bat-ain-jalut": {
+    "title": "A Batalha de Ain Jalut",
+    "longDescription": "O sultanato mameluco do Egito enfrentou os mongóis na “Fonte de Golias” e os derrotou em batalha campal — o primeiro revés decisivo das conquistas mongóis. A vitória salvou o Egito e marcou o limite ocidental máximo do império."
+  },
+  "bat-grunwald": {
+    "title": "A Batalha de Grunwald",
+    "longDescription": "Os exércitos unidos da Polônia e da Lituânia destruíram o exército da Ordem Teutônica, matando seu grão-mestre no campo de batalha. A Ordem nunca recuperou seu poder, e a batalha tornou-se uma lenda fundadora para as duas nações vitoriosas."
+  },
+  "ppl-cicero": {
+    "title": "O nascimento de Cícero",
+    "longDescription": "Nascido em uma família rica nos arredores de Roma, Cícero ascendeu pelos tribunais até o consulado e lutou para salvar a República moribunda com palavras, e não com exércitos. Seus discursos e cartas moldaram a prosa e o pensamento político europeus por dois milênios."
+  },
+  "ppl-marcus-aurelius": {
+    "title": "O nascimento de Marco Aurélio",
+    "longDescription": "Marco Aurélio governou Roma em meio a pestes e guerras de fronteira enquanto escrevia as reflexões estoicas pessoais hoje conhecidas como Meditações. É lembrado como o mais próximo que a história chegou do rei-filósofo de Platão."
+  },
+  "ppl-augustine": {
+    "title": "O nascimento de Agostinho de Hipona",
+    "longDescription": "Nascido no norte da África romana, Agostinho deixou para trás uma juventude inquieta para se tornar bispo de Hipona e o teólogo mais influente da Igreja latina. Suas Confissões e A Cidade de Deus moldaram o pensamento ocidental por mil anos."
+  },
+  "ppl-hadrian": {
+    "title": "O nascimento de Adriano",
+    "longDescription": "Adriano passou mais tempo de seu reinado percorrendo as províncias do que em Roma, consolidando as fronteiras do império em vez de ampliá-las. A grande muralha que atravessa o norte da Grã-Bretanha e leva seu nome ainda marca o limite que ele escolheu."
+  },
+  "ppl-petrarch": {
+    "title": "O nascimento de Petrarca",
+    "longDescription": "Petrarca caçou manuscritos romanos esquecidos, aperfeiçoou o soneto e cunhou a ideia da “Idade das Trevas” da qual acreditava estar escapando. Sua devoção aos clássicos acendeu o pavio do Renascimento."
+  },
+  "tec-printing-press": {
+    "title": "A Bíblia de Gutenberg",
+    "longDescription": "A oficina de Johannes Gutenberg em Mainz concluiu sua Bíblia de 42 linhas, o primeiro grande livro europeu impresso com tipos móveis de metal. Em poucas décadas, a imprensa se espalhou pelo continente e transformou a circulação do conhecimento."
+  },
+  "tec-gunpowder-formula": {
+    "title": "A primeira fórmula da pólvora",
+    "longDescription": "O compêndio militar da dinastia Song Wujing Zongyao, compilado em 1044, contém as mais antigas fórmulas escritas conhecidas da pólvora. A mistura de salitre, enxofre e carvão acabaria por transformar a guerra em toda parte."
+  },
+  "tec-su-song-clock": {
+    "title": "O relógio astronômico de Su Song",
+    "longDescription": "O polímata Su Song concluiu uma torre-relógio movida a água, de dez metros, coroada por um globo celeste mecanizado. Seu mecanismo de escape antecipou em dois séculos os relógios mecânicos europeus."
+  },
+  "art-hagia-sophia": {
+    "title": "A consagração de Santa Sofia",
+    "longDescription": "O imperador Justiniano consagrou Santa Sofia após apenas cinco anos de construção, gabando-se, segundo relatos: “Salomão, eu te superei”. Sua vasta cúpula flutuante fez dela a maior catedral do mundo por quase um milênio."
+  },
+  "art-notre-dame": {
+    "title": "Começa a construção de Notre-Dame de Paris",
+    "longDescription": "O bispo Maurice de Sully iniciou a catedral de Notre-Dame na Île de la Cité, com a presença do papa Alexandre III na fundação. Quase dois séculos de obras produziram a obra-prima da arquitetura gótica primitiva."
+  },
+  "phi-city-of-god": {
+    "title": "Agostinho conclui A Cidade de Deus",
+    "longDescription": "Iniciada depois que Roma caiu diante dos visigodos em 410, A Cidade de Deus de Agostinho respondia aos pagãos que culpavam o cristianismo pelo desastre. Sua visão de uma cidade terrena e outra celeste moldou o pensamento político ocidental por séculos."
+  },
+  "con-tenochtitlan": {
+    "title": "A queda de Tenochtitlán",
+    "longDescription": "Após um cerco de meses, Hernán Cortés e seus aliados indígenas tomaram a capital insular do Império Asteca. A Cidade do México espanhola ergueu-se sobre suas ruínas, e a conquista transformou dois continentes."
+  },
+  "con-panama-canal": {
+    "title": "É inaugurado o Canal do Panamá",
+    "longDescription": "O navio a vapor SS Ancon atravessou o canal concluído, encurtando em milhares de milhas a viagem marítima entre as costas da América. Uma das maiores façanhas de engenharia da história, custou a vida de dezenas de milhares de trabalhadores ao longo de duas tentativas de construção."
+  },
+  "con-brazil-independence": {
+    "title": "A Independência do Brasil",
+    "longDescription": "Às margens do riacho do Ipiranga, o príncipe Pedro bradou “Independência ou morte!”, separando o Brasil de Portugal. Ele foi coroado imperador da única monarquia duradoura das Américas."
+  },
+  "con-machu-picchu": {
+    "title": "Machu Picchu é revelada ao mundo",
+    "longDescription": "Guiado por agricultores locais, o professor de Yale Hiram Bingham subiu até uma cidadela inca esquecida no alto do vale do Urubamba. Seus relatos tornaram Machu Picchu mundialmente famosa, e hoje ela é o ícone da civilização inca."
+  },
+  "con-suez-canal": {
+    "title": "É inaugurado o Canal de Suez",
+    "longDescription": "Após uma década de escavações, o canal que atravessa o istmo de Suez foi inaugurado com uma flotilha internacional e celebrações suntuosas. Encurtou em semanas a rota da Europa à Índia e fez do Egito uma encruzilhada estratégica."
+  },
+  "con-mansa-musa": {
+    "title": "A peregrinação de Mansa Musa",
+    "longDescription": "Mansa Musa partiu rumo a Meca com uma caravana de milhares de pessoas, distribuindo tanto ouro no Cairo que seu preço teria despencado por anos. Sua jornada colocou a riqueza do Império do Mali nos mapas de todo o mundo medieval."
+  },
+  "con-ghana-independence": {
+    "title": "A independência de Gana",
+    "longDescription": "A Costa do Ouro tornou-se Gana, a primeira colônia da África subsaariana a conquistar a independência do domínio europeu. A declaração de Kwame Nkrumah à meia-noite — “Gana, seu amado país, está livre para sempre” — inspirou movimentos de libertação em todo o continente."
+  },
+  "con-meiji-restoration": {
+    "title": "A Restauração Meiji",
+    "longDescription": "Samurais reformistas proclamaram a restauração do governo imperial sob o jovem imperador Meiji, pondo fim a sete séculos de governo xogunal. Em uma geração, o Japão transformou-se em uma grande potência industrial."
+  },
+  "con-india-independence": {
+    "title": "A independência da Índia",
+    "longDescription": "Enquanto Nehru falava do “encontro da Índia com o destino”, o domínio britânico sobre o subcontinente chegou ao fim e duas novas nações, Índia e Paquistão, nasceram. A Partição trouxe a liberdade junto com uma das maiores e mais traumáticas migrações da história."
+  }
+}

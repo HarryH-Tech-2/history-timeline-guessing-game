@@ -8,7 +8,9 @@ import { getCategories } from '@/data';
 import { activeStreakCount, type Category } from '@/domain';
 import { usePremium } from '@/features/premium';
 import { paywallHref } from '@/features/premium/paywallSource';
+import { WinbackCard } from '@/features/premium/WinbackCard';
 import { ProfileHeader, useProgression } from '@/features/progression';
+import { t, type TranslationKey } from '@/i18n';
 import { track } from '@/services/analytics';
 import { useTheme } from '@/theme';
 import { dateKey } from '@/utils/date';
@@ -20,8 +22,9 @@ import { useContentVersion } from './useContentVersion';
 
 interface ModeCardData {
   key: string;
-  title: string;
-  description: string;
+  /** Translation keys, resolved at render so they follow the language. */
+  title: TranslationKey;
+  description: TranslationKey;
   icon: string;
   route: Href;
   /** Behind the paywall: free players see a lock and land on the paywall. */
@@ -34,15 +37,15 @@ interface ModeCardData {
 const MODES: readonly ModeCardData[] = [
   {
     key: 'survival',
-    title: 'Survival',
-    description: 'Three lives. How far can you get?',
+    title: 'home.modes.survival.title',
+    description: 'home.modes.survival.description',
     icon: '❤️',
     route: '/survival',
   },
   {
     key: 'campaign',
-    title: 'Campaign',
-    description: 'Work through worlds and earn stars.',
+    title: 'home.modes.campaign.title',
+    description: 'home.modes.campaign.description',
     icon: '🗺️',
     route: '/campaign',
     tab: true,
@@ -50,8 +53,8 @@ const MODES: readonly ModeCardData[] = [
   // Premium mode last, mirroring the premium categories at the end of their list.
   {
     key: 'endless',
-    title: 'Endless',
-    description: 'Unlimited lives. Chase a high score.',
+    title: 'home.modes.endless.title',
+    description: 'home.modes.endless.description',
     icon: '♾️',
     route: '/endless',
     premiumOnly: true,
@@ -90,26 +93,27 @@ function ModeCard({
   locked: boolean;
   onPress: () => void;
 }) {
+  const title = t(mode.title);
   return (
     <Animated.View entering={FadeInUp.delay(index * 60).springify().damping(18)}>
       <Pressable
         onPress={onPress}
         accessibilityRole="button"
-        accessibilityLabel={locked ? `${mode.title}, Premium mode` : mode.title}
+        accessibilityLabel={locked ? t('home.modes.lockedA11y', { title }) : title}
         testID={`mode-${mode.key}`}
         className="flex-row items-center gap-4 overflow-hidden border border-hair bg-bg-raised p-4"
       >
         <IconPlaque glyph={locked ? '🔒' : mode.icon} />
         <View className="flex-1">
           <View className="flex-row items-center gap-2">
-            <Text className="text-lg font-bold text-ink-primary">{mode.title}</Text>
+            <Text className="text-lg font-bold text-ink-primary">{title}</Text>
             {locked && (
               <Text className="text-[11px] font-bold uppercase tracking-wide text-accent">
                 Premium
               </Text>
             )}
           </View>
-          <Text className="text-sm text-ink-secondary">{mode.description}</Text>
+          <Text className="text-sm text-ink-secondary">{t(mode.description)}</Text>
         </View>
         <Text className="text-xl text-ink-muted">›</Text>
       </Pressable>
@@ -139,7 +143,9 @@ function CategoryCard({
         onPress={onPress}
         accessibilityRole="button"
         accessibilityLabel={
-          locked ? `${category.name}, Premium category` : `Play ${category.name} questions`
+          locked
+            ? t('home.categories.lockedA11y', { name: category.name })
+            : t('home.categories.playA11y', { name: category.name })
         }
         testID={`category-${category.id}`}
         className="gap-2 overflow-hidden border border-hair bg-bg-raised p-4"
@@ -172,7 +178,7 @@ function ComingSoonBanner() {
         🔭
       </Text>
       <View className="flex-1">
-        <Text className="text-sm font-bold text-ink-primary">More coming soon</Text>
+        <Text className="text-sm font-bold text-ink-primary">{t('home.categories.comingSoon')}</Text>
       </View>
     </View>
   );
@@ -199,9 +205,9 @@ export function HomeHub() {
   useContentVersion();
 
   return (
-    <Screen>
+    <Screen edges={['top']}>
       <ScrollView
-        contentContainerClassName="px-5 pt-6 pb-10 gap-4"
+        contentContainerClassName="px-5 pt-6 pb-4 gap-4"
         showsVerticalScrollIndicator={false}
       >
         <View className="mb-2 flex-row items-start justify-between">
@@ -220,7 +226,7 @@ export function HomeHub() {
             <Pressable
               onPress={() => router.push(paywallHref('home_chip'))}
               accessibilityRole="button"
-              accessibilityLabel="See Premium"
+              accessibilityLabel={t('home.seePremium')}
               hitSlop={6}
               testID="home-premium"
               className="mr-2 h-10 flex-row items-center gap-1 border border-accent/60 bg-bg-raised px-2"
@@ -239,7 +245,7 @@ export function HomeHub() {
           <Pressable
             onPress={() => setStreakOpen(true)}
             accessibilityRole="button"
-            accessibilityLabel={`${streak}-day streak`}
+            accessibilityLabel={t('home.streakChip', { count: streak })}
             hitSlop={6}
             testID="home-streak"
             className="mr-2 h-10 flex-row items-center gap-1 border border-hair bg-bg-raised px-3"
@@ -257,7 +263,7 @@ export function HomeHub() {
           <Pressable
             onPress={toggle}
             accessibilityRole="button"
-            accessibilityLabel={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            accessibilityLabel={mode === 'dark' ? t('home.theme.toLight') : t('home.theme.toDark')}
             hitSlop={10}
             testID="theme-toggle"
             className="h-10 w-10 items-center justify-center border border-hair bg-bg-raised"
@@ -268,6 +274,7 @@ export function HomeHub() {
 
         <ProfileHeader />
 
+        <WinbackCard />
         <DailyHeroCard onPress={() => router.push('/daily')} />
         <StreakSheet
           visible={streakOpen}
@@ -280,7 +287,7 @@ export function HomeHub() {
         />
 
         <Text className="mt-4 text-xs font-semibold uppercase tracking-wide text-ink-muted">
-          Game modes
+          {t('home.sections.modes')}
         </Text>
         {MODES.map((mode, index) => {
           const locked = mode.premiumOnly === true && !isPremium;
@@ -300,7 +307,7 @@ export function HomeHub() {
         })}
 
         <Text className="mt-4 text-xs font-semibold uppercase tracking-wide text-ink-muted">
-          Categories
+          {t('home.sections.categories')}
         </Text>
         <View className="flex-row flex-wrap gap-3">
           {getCategories()
@@ -315,7 +322,7 @@ export function HomeHub() {
                   index={index}
                   locked={locked}
                   onPress={() =>
-                    router.push(locked ? paywallHref('locked_category') : `/category/${category.id}`)
+                    router.push(locked ? paywallHref('locked_category', { category: category.id }) : `/category/${category.id}`)
                   }
                 />
               );

@@ -3,9 +3,12 @@ import { useRouter } from 'expo-router';
 
 import { heartsAvailable, levelForXp, levelProgress } from '@/domain';
 import { usePremium } from '@/features/premium';
+import { formatNumber, t } from '@/i18n';
 import { palette } from '@/theme/tokens';
 
+import { resolveAvatar } from '../avatars';
 import { useProgression } from '../ProgressionProvider';
+import { AvatarBadge } from './AvatarBadge';
 
 /**
  * The home-screen player card: current level, a progress bar toward the next
@@ -29,27 +32,24 @@ export function ProfileHeader() {
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel="View achievements"
+      accessibilityLabel={t('achievements.ui.header.viewLabel')}
       testID="profile-header"
       onPress={() => router.push({ pathname: '/(tabs)/museum', params: { tab: 'achievements' } })}
       className="flex-row items-center gap-4 border border-hair bg-bg-raised p-4"
     >
-      <View
-        className="h-12 w-12 items-center justify-center rounded-full"
-        style={{ backgroundColor: palette.accent.soft }}
-      >
-        <Text className="text-lg font-extrabold" style={{ color: palette.accent.default }}>
-          {level}
-        </Text>
-      </View>
+      <AvatarBadge avatar={resolveAvatar(state.avatar, isPremium)} level={level} size="md" />
 
       <View className="flex-1">
         <View className="flex-row items-center justify-between">
-          <Text className="text-sm font-bold text-ink-primary">Level {level}</Text>
+          <Text className="text-sm font-bold text-ink-primary">{t('common.level', { level })}</Text>
           <View className="flex-row items-center gap-3">
             <Text
               className="text-sm font-bold text-ink-primary"
-              accessibilityLabel={hearts.unlimited ? 'Unlimited hearts' : `${hearts.count} hearts`}
+              accessibilityLabel={
+                hearts.unlimited
+                  ? t('achievements.ui.header.unlimitedHearts')
+                  : t('achievements.ui.header.hearts', { count: hearts.count })
+              }
               testID="header-hearts"
             >
               ❤️ {hearts.unlimited ? '∞' : hearts.count}
@@ -57,10 +57,12 @@ export function ProfileHeader() {
             <Text
               className="text-sm font-bold"
               style={{ color: palette.warning }}
-              accessibilityLabel={isPremium ? 'Unlimited coins' : `${state.coins} coins`}
+              accessibilityLabel={
+                isPremium ? t('common.unlimitedCoins') : t('common.coins', { count: state.coins })
+              }
               testID="header-coins"
             >
-              {isPremium ? '∞' : state.coins.toLocaleString()} 🪙
+              {isPremium ? '∞' : formatNumber(state.coins)} 🪙
             </Text>
           </View>
         </View>
@@ -72,7 +74,7 @@ export function ProfileHeader() {
           />
         </View>
         <Text className="mt-1 text-xs text-ink-muted">
-          {progress.xpIntoLevel} / {progress.xpForNextLevel} XP to next
+          {t('profile.xpToNext', { into: progress.xpIntoLevel, needed: progress.xpForNextLevel })}
         </Text>
       </View>
 

@@ -1,12 +1,11 @@
 import { useRef, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { Button } from '@/components/ui';
 import type { Question } from '@/domain';
 import { usePremium } from '@/features/premium/PremiumProvider';
 import { useProgression } from '@/features/progression';
-import { formatYear } from '@/features/timeline/math/format';
+import { displayYear, t } from '@/i18n';
 import { track } from '@/services/analytics';
 import { cn } from '@/utils/cn';
 
@@ -53,7 +52,7 @@ function AssistButton({
       onPress={onPress}
       disabled={inactive}
       accessibilityRole="button"
-      accessibilityLabel={used ? `${label} used` : `${label}, ${price}`}
+      accessibilityLabel={used ? t('round.hints.used', { label }) : t('round.hints.buttonLabel', { label, price })}
       accessibilityState={{ disabled: inactive }}
       testID={testID}
       className={cn(
@@ -72,7 +71,7 @@ function AssistButton({
         {label}
       </Text>
       <Text className="text-xs font-semibold text-ink-muted" numberOfLines={1}>
-        {used ? '· ✓ Used' : `· ${price}`}
+        {used ? t('round.hints.usedTag') : `· ${price}`}
       </Text>
     </Pressable>
   );
@@ -91,7 +90,7 @@ export function AssistBar({ question, onSubmit, onChoose, onChoicesShown }: Assi
   const [choices, setChoices] = useState<number[] | null>(null);
   const picked = useRef(false);
 
-  const price = (cost: number) => (isPremium ? 'Free' : `${cost} 🪙`);
+  const price = (cost: number) => (isPremium ? t('round.hints.free') : t('round.hints.cost', { cost }));
   const canAfford = (cost: number) => isPremium || state.coins >= cost;
 
   const buyHint = () => {
@@ -115,6 +114,10 @@ export function AssistBar({ question, onSubmit, onChoose, onChoicesShown }: Assi
     onChoose(year);
   };
 
+  // No entering animations on the hint or the choices: a layout animation on a
+  // view that mounts as Submit unmounts left it measured short on Android, and
+  // the chips below drew over it.
+
   // The template is one sentence with a {band} slot; split it so the band
   // (the actual information) renders bold inside the flavour copy.
   const [before = '', after = ''] = hintTemplate(question.id).split('{band}');
@@ -122,50 +125,50 @@ export function AssistBar({ question, onSubmit, onChoose, onChoicesShown }: Assi
   return (
     <View className="gap-3">
       {hintShown && (
-        <Animated.View
-          entering={FadeInDown.duration(220)}
-          className="rounded-xl border border-hair bg-bg-raised px-4 py-3"
-          testID="hint-line"
-        >
+        <View className="rounded-xl border border-hair bg-bg-raised px-3 py-2" testID="hint-line">
           <Text className="text-center text-sm text-ink-secondary">
             {before}
             <Text className="font-bold text-ink-primary">{centuryHint(question.year)}</Text>
             {after}
           </Text>
-        </Animated.View>
+        </View>
       )}
 
       {choices !== null && (
-        <Animated.View entering={FadeInDown.duration(220)} className="gap-2" testID="choices">
+        <View className="gap-2" testID="choices">
           <Text className="text-center text-[11px] font-semibold uppercase tracking-wide text-ink-muted">
-            Pick one · half points
+            {t('round.hints.tapToAnswer')}
           </Text>
-          <View className="flex-row flex-wrap justify-between gap-y-2">
-            {choices.map((year) => (
-              <Pressable
-                key={year}
-                onPress={() => choose(year)}
-                accessibilityRole="button"
-                accessibilityLabel={`Answer ${formatYear(year)}`}
-                testID={`choice-${year}`}
-                className="h-12 w-[48.5%] items-center justify-center rounded-xl border-2 border-accent/60 bg-accent/10 active:opacity-70"
-              >
-                <Text
-                  className="text-lg font-extrabold text-ink-primary"
-                  style={{ fontVariant: ['tabular-nums'] }}
+          {/* Two explicit rows: a wrapping row with a row gap is measured as one
+              row on Android, so whatever sits below drew over the second. */}
+          {[choices.slice(0, 2), choices.slice(2)].map((row, r) => (
+            <View key={r} className="flex-row gap-2">
+              {row.map((year) => (
+                <Pressable
+                  key={year}
+                  onPress={() => choose(year)}
+                  accessibilityRole="button"
+                  accessibilityLabel={t('round.hints.answer', { year: displayYear(year) })}
+                  testID={`choice-${year}`}
+                  className="h-12 flex-1 items-center justify-center rounded-xl border-2 border-accent/60 bg-accent/10 active:opacity-70"
                 >
-                  {formatYear(year)}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-        </Animated.View>
+                  <Text
+                    className="text-lg font-extrabold text-ink-primary"
+                    style={{ fontVariant: ['tabular-nums'] }}
+                  >
+                    {displayYear(year)}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          ))}
+        </View>
       )}
 
       <View className="flex-row justify-center gap-3" testID="assist-row">
         <AssistButton
           glyph="💡"
-          label="Hint"
+          label={t('round.hints.hint')}
           price={price(HINT_COST)}
           used={hintShown}
           disabled={!canAfford(HINT_COST)}
@@ -174,7 +177,7 @@ export function AssistBar({ question, onSubmit, onChoose, onChoicesShown }: Assi
         />
         <AssistButton
           glyph="🔢"
-          label="4 choices"
+          label={t('round.hints.fourChoices')}
           price={price(MULTIPLE_CHOICE_COST)}
           used={choices !== null}
           disabled={!canAfford(MULTIPLE_CHOICE_COST)}
@@ -184,7 +187,7 @@ export function AssistBar({ question, onSubmit, onChoose, onChoicesShown }: Assi
       </View>
 
       {choices === null && (
-        <Button variant="hero" label="Submit guess" onPress={onSubmit} testID="submit-button" />
+        <Button variant="hero" label={t('round.submitGuess')} onPress={onSubmit} testID="submit-button" />
       )}
     </View>
   );

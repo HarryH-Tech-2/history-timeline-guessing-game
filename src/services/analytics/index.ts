@@ -1,7 +1,9 @@
 export type {
+  AppTab,
   AnalyticsEventName,
   AnalyticsEvents,
   GameMode,
+  PurchaseOffer,
   PaywallSource,
   UpsellPlacement,
 } from './events';
@@ -14,5 +16,6 @@ export {
   setAnalyticsEnabled,
   track,
 } from './client';
+export { resetTabTrackingForTests, trackTabSelected } from './tabTracking';
 export { AnalyticsProvider, useAnalyticsSettings } from './AnalyticsProvider';
 export type { AnalyticsSettingsValue } from './AnalyticsProvider';

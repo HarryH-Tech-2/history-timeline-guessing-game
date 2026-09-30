@@ -53,6 +53,8 @@ export interface ProgressionApi {
   refillHearts: () => boolean;
   /** Set the player's chosen public name, or null to revert to the generated handle. */
   setDisplayName: (name: string | null) => void;
+  /** Picks the profile avatar (null = the default). */
+  setAvatar: (avatarId: string | null) => void;
 }
 
 /**
@@ -71,6 +73,7 @@ const OFFLINE_API: ProgressionApi = {
   loseHeart: () => MAX_HEARTS,
   refillHearts: () => false,
   setDisplayName: () => {},
+  setAvatar: () => {},
 };
 
 const ProgressionContext = createContext<ProgressionApi>(OFFLINE_API);
@@ -208,6 +211,14 @@ export function ProgressionProvider({ children }: { children: ReactNode }) {
     [commit],
   );
 
+  const setAvatar = useCallback(
+    (avatarId: string | null) => {
+      if (avatarId === ref.current.avatar) return;
+      commit({ ...ref.current, avatar: avatarId });
+    },
+    [commit],
+  );
+
   const value = useMemo<ProgressionApi>(
     () => ({
       state,
@@ -220,6 +231,7 @@ export function ProgressionProvider({ children }: { children: ReactNode }) {
       loseHeart,
       refillHearts,
       setDisplayName,
+      setAvatar,
     }),
     [
       state,
@@ -232,6 +244,7 @@ export function ProgressionProvider({ children }: { children: ReactNode }) {
       loseHeart,
       refillHearts,
       setDisplayName,
+      setAvatar,
     ],
   );
 

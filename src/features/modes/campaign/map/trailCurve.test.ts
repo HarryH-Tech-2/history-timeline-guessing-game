@@ -73,6 +73,22 @@ describe('curveDots', () => {
     expect(kept.some((d) => d.y >= 75 && d.y <= 95)).toBe(false);
   });
 
+  it('can run right to an edge at one end (radius 0 there)', () => {
+    const dots = curveDots({ x: 50, y: 0 }, { x: 50, y: STEP_Y }, { ...opts, startRadius: 0 });
+    expect(dots[0]!.y).toBeCloseTo(TRAIL_DOT_SPACING / 2, 0);
+    expect(STEP_Y - dots.at(-1)!.y).toBeGreaterThanOrEqual(40);
+  });
+
+  it("turns each dot to the road's heading", () => {
+    const straight = curveDots({ x: 50, y: 0 }, { x: 50, y: STEP_Y }, opts);
+    for (const d of straight) expect(d.angle).toBeCloseTo(90, 5);
+    // Swinging right, the middle of the S leans right-and-down (between 0° and 90°).
+    const dots = curveDots(from, to, opts);
+    const mid = dots[Math.floor(dots.length / 2)]!;
+    expect(mid.angle).toBeGreaterThan(0);
+    expect(mid.angle).toBeLessThan(90);
+  });
+
   it('draws nothing when the buttons overlap', () => {
     expect(curveDots({ x: 0, y: 0 }, { x: 0, y: 60 }, opts)).toEqual([]);
   });

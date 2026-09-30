@@ -1,17 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 
 import { BackButton, Button, Screen } from '@/components/ui';
 import {
   IS_IOS,
   PRIVACY_POLICY_URL,
   STORE_LABEL,
-  STORE_NAME,
-  SUBSCRIPTION_SETTINGS,
+  inSubscriptionSettings,
+  storeName,
   TERMS_OF_USE_URL,
 } from '@/config/store';
 import { scheduleTrialReminder } from '@/features/reminders/scheduler';
+import { t } from '@/i18n';
 import { track } from '@/services/analytics';
 
 import type { PremiumPlan } from './billing';
@@ -32,32 +33,30 @@ import {
   trialTimeline,
   yearlyPerMonthLabel,
 } from './paywallPricing';
-import { parsePaywallSource } from './paywallSource';
+import { paramValue, parsePaywallSource } from './paywallSource';
+import { PersonalPitch } from './PersonalPitch';
 import { usePremium } from './PremiumProvider';
+import { recordPaywallDismissal, useWinbackOffer, type LiveWinbackOffer } from './useWinbackOffer';
+import { daysLeft, percentOff } from './winback';
 
 /** Paywall copy per plan; prices come from the store via `priceLabels`. */
-const PLAN_COPY: Record<PremiumPlan, { title: string; footer: string }> = {
-  monthly: {
-    title: 'Monthly',
-    footer: `Billed monthly through ${STORE_NAME}. Cancel anytime in ${SUBSCRIPTION_SETTINGS}.`,
-  },
-  yearly: {
-    title: 'Yearly',
-    footer: `Billed yearly through ${STORE_NAME}. Cancel anytime in ${SUBSCRIPTION_SETTINGS}.`,
-  },
-  lifetime: {
-    title: 'Lifetime',
-    footer: `A one-time purchase through ${STORE_NAME}. Yours forever — nothing renews.`,
-  },
-};
+function planCopy(plan: PremiumPlan): { title: string; footer: string } {
+  return {
+    title: t(`paywall.plans.${plan}`),
+    footer: t(`paywall.planFooter.${plan}`, {
+      store: storeName(),
+      settings: inSubscriptionSettings(),
+    }),
+  };
+}
 
 const PLAN_ORDER: readonly PremiumPlan[] = ['monthly', 'yearly', 'lifetime'];
 
 /** "7-day" / "1-month" style length for trial copy. */
 export function trialLength(days: number): string {
-  if (days % 30 === 0) return days === 30 ? '1-month' : `${days / 30}-month`;
-  if (days % 7 === 0) return days === 7 ? '1-week' : `${days / 7}-week`;
-  return `${days}-day`;
+  if (days % 30 === 0) return t('paywall.trialLength.month', { count: days / 30 });
+  if (days % 7 === 0) return t('paywall.trialLength.week', { count: days / 7 });
+  return t('paywall.trialLength.day', { count: days });
 }
 
 /**
@@ -71,38 +70,51 @@ export function ctaLabel(
   trialDays?: number,
 ): { label: string; sublabel: string } {
   if (trialDays) {
-    return { label: trialCtaText(trialDays), sublabel: `then ${price}` };
+    return { label: trialCtaText(trialDays), sublabel: t('paywall.cta.thenPrice', { price }) };
   }
-  switch (plan) {
-    case 'monthly':
-      return { label: 'Get my monthly subscription', sublabel: price };
-    case 'yearly':
-      return { label: 'Get my yearly subscription', sublabel: price };
-    case 'lifetime':
-      return { label: 'Get lifetime access', sublabel: price };
-  }
+  return { label: t(`paywall.cta.${plan}`), sublabel: price };
 }
 
 /**
  * Apple's required disclosure for auto-renewing subscriptions (App Review
  * guideline 3.1.2): who charges, that it renews, and how to stop it.
  */
-const APPLE_RENEWAL_TERMS =
-  'Payment is charged to your Apple Account when you confirm. Subscriptions renew automatically unless cancelled at least 24 hours before the end of the current period.';
+function appleRenewalTerms(): string {
+  return t('paywall.appleRenewalTerms');
+}
 
 /** Small print under the button for the chosen plan. */
 export function footerCopy(plan: PremiumPlan, price: string, trialDays?: number): string {
   const base = trialDays
-    ? `Free for ${trialDays} days, then ${price} through ${STORE_NAME}. Cancel before the trial ends and you won’t be charged.`
-    : PLAN_COPY[plan].footer;
-  return IS_IOS && plan !== 'lifetime' ? `${base} ${APPLE_RENEWAL_TERMS}` : base;
+    ? t('paywall.trialFooter', { count: trialDays, price, store: storeName() })
+    : planCopy(plan).footer;
+  return IS_IOS && plan !== 'lifetime' ? `${base} ${appleRenewalTerms()}` : base;
+}
+
+/** The buy button while the win-back discount is selected. */
+export function winbackCta(offer: LiveWinbackOffer): { label: string; sublabel: string } {
+  return {
+    label: t('paywall.winback.cta', { percent: offer.percentOff }),
+    sublabel: t('paywall.winback.ctaSub', { price: offer.price }),
+  };
+}
+
+/** Small print under the button for the win-back discount. */
+export function winbackFooter(offer: LiveWinbackOffer): string {
+  const base = t('paywall.winback.footer', {
+    price: offer.price,
+    fullPrice: offer.fullPrice,
+    store: storeName(),
+    settings: inSubscriptionSettings(),
+  });
+  return IS_IOS ? `${base} ${appleRenewalTerms()}` : base;
 }
 
 /** Terms of Use and Privacy Policy links, required under a subscription offer. */
 function LegalLinks() {
   const links = [
-    { label: 'Terms of Use', url: TERMS_OF_USE_URL },
-    { label: 'Privacy Policy', url: PRIVACY_POLICY_URL },
+    { label: t('paywall.legal.terms'), url: TERMS_OF_USE_URL },
+    { label: t('paywall.legal.privacy'), url: PRIVACY_POLICY_URL },
   ].filter((l) => l.url !== '');
   return (
     <View className="flex-row justify-center gap-4">
@@ -125,25 +137,54 @@ export function planBadge(
   plan: PremiumPlan,
   { trialDays, save }: { trialDays?: number; save: number | null },
 ): string | undefined {
-  if (plan === 'yearly') return save ? `Save ${save}%` : 'Best value';
-  if (plan === 'monthly' && trialDays) return `${trialLength(trialDays)} free trial`;
+  if (plan === 'yearly') {
+    return save ? t('paywall.badge.save', { percent: save }) : t('paywall.badge.bestValue');
+  }
+  if (plan === 'monthly' && trialDays) {
+    return t('paywall.badge.trial', { length: trialLength(trialDays) });
+  }
   return undefined;
 }
 
-/** The muted line under a plan's name: the yearly per-month cost, or lifetime's promise. */
+/** The muted line at the foot of a plan card: the yearly plan's per-month cost. */
 export function planSubline(plan: PremiumPlan, yearly: Money | undefined): string | undefined {
   if (plan === 'yearly') return yearly ? yearlyPerMonthLabel(yearly) : undefined;
-  if (plan === 'lifetime') return 'Pay once, keep forever';
   return undefined;
 }
 
-/** One selectable plan row: name, badge and sub-line on the left, price on the right. */
+/**
+ * A store price label split for a plan card: the amount large, the period
+ * small beneath it ("£2.49 / month" → "£2.49" + "/ month"). Labels without a
+ * known period stay whole.
+ */
+export function splitPrice(label: string): { amount: string; period: string } {
+  // The cadence words are the current language's (see planPriceLabel).
+  const periods = [
+    t('paywall.period.monthly'),
+    t('paywall.period.yearly'),
+    t('paywall.period.lifetime'),
+  ];
+  for (const period of periods) {
+    if (label.endsWith(period) && label.length > period.length) {
+      return { amount: label.slice(0, -period.length).trimEnd(), period };
+    }
+  }
+  return { amount: label, period: '' };
+}
+
+/**
+ * One selectable plan, as a column card: a ribbon (saving or free trial)
+ * across the top edge, the plan name, the price large with its period small
+ * beneath, and a muted line at the foot. A plan with a free trial leads with
+ * "Free" and moves its price into "then …".
+ */
 function PlanOption({
   plan,
   price,
   badge,
   subline,
   trialDays,
+  offerPrice,
   selected,
   onSelect,
 }: {
@@ -152,11 +193,18 @@ function PlanOption({
   badge?: string;
   subline?: string;
   trialDays?: number;
+  /** A win-back discount on this plan's first period: shown large, the usual price struck through. */
+  offerPrice?: string;
   selected: boolean;
   onSelect: () => void;
 }) {
-  const copy = PLAN_COPY[plan];
-  const trialNote = trialDays ? `free ${trialLength(trialDays)} trial then ` : '';
+  const copy = planCopy(plan);
+  const trialNote = trialDays
+    ? t('paywall.card.a11yTrial', { length: trialLength(trialDays) })
+    : offerPrice
+      ? t('paywall.card.a11yOffer', { price: offerPrice })
+      : '';
+  const { amount, period } = splitPrice(price);
   return (
     <Pressable
       onPress={onSelect}
@@ -166,46 +214,83 @@ function PlanOption({
       testID={`paywall-plan-${plan}`}
       className={
         selected
-          ? 'flex-row items-center gap-3 border-2 border-accent bg-accent/10 px-4 py-2.5'
-          : 'flex-row items-center gap-3 border border-hair bg-bg-overlay px-4 py-2.5'
+          ? 'flex-1 items-center border-2 border-accent bg-accent/10 px-1.5 pb-2.5 pt-4'
+          : 'flex-1 items-center border border-hair bg-bg-overlay px-1.5 pb-2.5 pt-4'
       }
     >
+      {badge !== undefined && (
+        <View
+          className={`absolute -top-2.5 px-1.5 py-0.5 ${selected ? 'bg-accent' : 'bg-bg-raised'}`}
+          style={{ maxWidth: '94%' }}
+          testID={`paywall-badge-${plan}`}
+        >
+          <Text
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.75}
+            className={`text-[10px] font-extrabold uppercase tracking-wide ${
+              selected ? '' : 'text-ink-muted'
+            }`}
+            style={{ includeFontPadding: false, ...(selected ? { color: '#1D1712' } : {}) }}
+          >
+            {badge}
+          </Text>
+        </View>
+      )}
       <View
-        className={`h-4 w-4 items-center justify-center rounded-full border-2 ${
+        className={`absolute left-1.5 top-1.5 h-3.5 w-3.5 items-center justify-center rounded-full border-2 ${
           selected ? 'border-accent' : 'border-hair'
         }`}
       >
-        {selected && <View className="h-2 w-2 rounded-full bg-accent" />}
+        {selected && <View className="h-1.5 w-1.5 rounded-full bg-accent" />}
       </View>
-      <View className="flex-1">
-        <View className="flex-row items-center gap-2">
-          <Text className="text-base font-bold text-ink-primary">{copy.title}</Text>
-          {badge !== undefined && (
-            <View
-              className={selected ? 'bg-accent px-1.5 py-0.5' : 'bg-bg-raised px-1.5 py-0.5'}
-              testID={`paywall-badge-${plan}`}
-            >
-              <Text
-                className={`text-[10px] font-extrabold uppercase tracking-wide ${
-                  selected ? '' : 'text-ink-muted'
-                }`}
-                style={{ includeFontPadding: false, ...(selected ? { color: '#1D1712' } : {}) }}
-              >
-                {badge}
-              </Text>
-            </View>
-          )}
-        </View>
-        {subline !== undefined && (
-          <Text className="text-xs text-ink-secondary" testID={`paywall-subline-${plan}`}>
-            {subline}
+
+      <Text className="text-sm font-bold text-ink-primary">{copy.title}</Text>
+      {offerPrice ? (
+        <>
+          <Text
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.7}
+            className="mt-1 text-xl font-extrabold text-accent"
+            testID={`paywall-offer-${plan}`}
+          >
+            {offerPrice}
           </Text>
-        )}
-      </View>
-      <View className="items-end">
-        {trialDays ? <Text className="text-[10px] text-ink-muted">then</Text> : null}
-        <Text className="text-sm font-bold text-ink-primary">{price}</Text>
-      </View>
+          <Text className="text-[11px] font-semibold text-ink-primary">{t('paywall.card.firstYear')}</Text>
+          <Text className="mt-1 text-center text-[11px] text-ink-muted line-through">{price}</Text>
+        </>
+      ) : trialDays ? (
+        <>
+          <Text className="mt-1 text-xl font-extrabold text-accent" testID={`paywall-free-${plan}`}>
+            {t('paywall.card.free')}
+          </Text>
+          <Text className="text-center text-[11px] font-semibold text-ink-primary">
+            {t('paywall.card.forDays', { count: trialDays })}
+          </Text>
+          <Text className="mt-1 text-center text-[11px] text-ink-muted">{t('paywall.cta.thenPrice', { price })}</Text>
+        </>
+      ) : (
+        <>
+          <Text
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.7}
+            className="mt-1 text-xl font-extrabold text-ink-primary"
+          >
+            {amount}
+          </Text>
+          {period !== '' && <Text className="text-[11px] text-ink-muted">{period}</Text>}
+        </>
+      )}
+      {subline !== undefined && (
+        <Text
+          className="mt-1.5 text-center text-[11px] leading-tight text-ink-secondary"
+          testID={`paywall-subline-${plan}`}
+        >
+          {subline}
+        </Text>
+      )}
     </Pressable>
   );
 }
@@ -267,7 +352,8 @@ function TrialTimeline({ trialDays, priceLabel }: { trialDays: number; priceLabe
  */
 export function PaywallScreen() {
   const router = useRouter();
-  const source = parsePaywallSource(useLocalSearchParams<{ source?: string }>().source);
+  const params = useLocalSearchParams<{ source?: string; category?: string; era?: string }>();
+  const source = parsePaywallSource(params.source);
   const {
     isPremium,
     billingAvailable,
@@ -281,16 +367,53 @@ export function PaywallScreen() {
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [plan, setPlan] = useState<PremiumPlan>('yearly');
+  const { winback } = usePremium();
+  const { offer: liveOffer, now, markShown } = useWinbackOffer();
+  // The win-back discount applies only when the paywall was opened for it.
+  const offer: LiveWinbackOffer | null = source === 'winback' ? liveOffer : null;
+  const offerPlan = offer && plan === 'yearly';
 
   useEffect(() => {
     track('paywall_viewed', { source });
   }, [source]);
+  useEffect(() => {
+    if (offer) markShown();
+  }, [offer, markShown]);
+
+  const selectPlan = (p: PremiumPlan) => {
+    if (p !== plan) track('paywall_plan_selected', { plan: p, source });
+    setPlan(p);
+  };
+
+  // Leaving without buying — the close button, Android back or a swipe — is a
+  // dismissal: reported for the funnel, and the first one starts the win-back
+  // clock. `beforeRemove` sees every way out; a purchase or restore marks
+  // itself first so it doesn't count.
+  const navigation = useNavigation();
+  const left = useRef(false);
+  const discount = winback && priceAmounts.yearly ? percentOff(priceAmounts.yearly.amount, winback.amount) : 0;
+  useEffect(
+    () =>
+      navigation.addListener('beforeRemove', () => {
+        if (left.current || isPremium) return;
+        left.current = true;
+        track('paywall_dismissed', {
+          source,
+          seconds: Math.round((Date.now() - now) / 1000),
+          plan,
+        });
+        void recordPaywallDismissal(discount);
+      }),
+    [navigation, source, isPremium, now, plan, discount],
+  );
 
   const selectedTrial = trialDays[plan];
   const offeredTrial = anyTrialDays(trialDays);
-  const headline = offeredTrial
-    ? trialHeadline(offeredTrial)
-    : paywallHeadline(source, selectedTrial);
+  const headline = offer
+    ? t('paywall.winback.headline', { percent: offer.percentOff })
+    : offeredTrial
+      ? trialHeadline(offeredTrial)
+      : paywallHeadline(source, selectedTrial);
   const save = savePercent(priceAmounts.monthly, priceAmounts.yearly);
   const { lead, rest } = benefitOrder(source);
 
@@ -303,9 +426,12 @@ export function PaywallScreen() {
   const onSubscribe = async () => {
     setBusy(true);
     setNotice(null);
-    const result = await purchase(plan, source);
+    const result = offerPlan
+      ? await purchase(plan, source, { winback: true })
+      : await purchase(plan, source);
     setBusy(false);
     if (result === 'purchased') {
+      left.current = true;
       // The timeline promised a reminder before the first charge: keep it.
       if (selectedTrial && trialReminderDay(selectedTrial) < selectedTrial) {
         void scheduleTrialReminder({
@@ -316,9 +442,9 @@ export function PaywallScreen() {
       }
       close();
     } else if (result === 'unavailable') {
-      setNotice('Purchases aren’t available in this build yet.');
+      setNotice(t('paywall.notice.unavailable'));
     } else if (result === 'error') {
-      setNotice('Something went wrong. Please try again.');
+      setNotice(t('paywall.notice.error'));
     }
   };
 
@@ -327,8 +453,15 @@ export function PaywallScreen() {
     setNotice(null);
     const ok = await restore();
     setBusy(false);
-    if (ok) close();
-    else setNotice(billingAvailable ? 'No active subscription found.' : 'Purchases aren’t available in this build yet.');
+    if (ok) {
+      left.current = true;
+      close();
+    }
+    else {
+      setNotice(
+        billingAvailable ? t('paywall.notice.noSubscription') : t('paywall.notice.unavailable'),
+      );
+    }
   };
 
   return (
@@ -348,8 +481,21 @@ export function PaywallScreen() {
           className="text-2xl font-extrabold leading-tight text-ink-primary"
           testID="paywall-headline"
         >
-          {isPremium ? 'You’re Premium' : headline}
+          {isPremium ? t('paywall.youArePremium') : headline}
         </Text>
+        {offer && !isPremium && (
+          <Text className="-mt-2 text-sm font-bold text-accent" testID="paywall-offer-ends">
+            {t('paywall.winback.endsIn', { count: daysLeft(offer.endsAt, now) })}
+          </Text>
+        )}
+
+        {!isPremium && !offer && (
+          <PersonalPitch
+            source={source}
+            categoryId={paramValue(params.category)}
+            eraId={paramValue(params.era)}
+          />
+        )}
 
         <View className="gap-1.5">
           {lead.map((b) => (
@@ -361,10 +507,10 @@ export function PaywallScreen() {
           <View className="gap-3">
             <View className="border border-hair bg-bg-overlay px-4 py-3">
               <Text className="text-center text-sm font-semibold text-ink-primary">
-                Your subscription is active
+                {t('paywall.subscriptionActive')}
               </Text>
             </View>
-            <Button label="Done" onPress={close} testID="paywall-done" />
+            <Button label={t('paywall.done')} onPress={close} testID="paywall-done" />
             {__DEV__ && (
               <Button
                 label="Revoke (dev only)"
@@ -376,17 +522,23 @@ export function PaywallScreen() {
           </View>
         ) : (
           <View className="gap-3">
-            <View className="gap-2" accessibilityRole="radiogroup">
+            {/* Three plans side by side; the top padding leaves room for the ribbons. */}
+            <View className="flex-row gap-2 pt-2.5" accessibilityRole="radiogroup">
               {PLAN_ORDER.map((p) => (
                 <PlanOption
                   key={p}
                   plan={p}
                   price={priceLabels[p]}
-                  badge={planBadge(p, { trialDays: trialDays[p], save })}
+                  badge={
+                    offer && p === 'yearly'
+                      ? t('paywall.badge.percentOff', { percent: offer.percentOff })
+                      : planBadge(p, { trialDays: trialDays[p], save })
+                  }
+                  offerPrice={offer && p === 'yearly' ? offer.price : undefined}
                   subline={planSubline(p, priceAmounts.yearly)}
                   trialDays={trialDays[p]}
                   selected={p === plan}
-                  onSelect={() => setPlan(p)}
+                  onSelect={() => selectPlan(p)}
                 />
               ))}
             </View>
@@ -394,14 +546,16 @@ export function PaywallScreen() {
               <TrialTimeline trialDays={selectedTrial} priceLabel={priceLabels[plan]} />
             ) : null}
             <Text className="text-center text-xs text-ink-muted">
-              {footerCopy(plan, priceLabels[plan], selectedTrial)}
+              {offer && offerPlan
+                ? winbackFooter(offer)
+                : footerCopy(plan, priceLabels[plan], selectedTrial)}
             </Text>
           </View>
         )}
 
         <View className="mt-3 gap-4 border-t border-hair pt-5">
           <Text className="text-xs font-semibold uppercase tracking-wide text-ink-muted">
-            Also in Premium
+            {t('paywall.alsoInPremium')}
           </Text>
           {rest.map((b) => (
             <BenefitRow key={b.id} benefit={b} />
@@ -420,8 +574,10 @@ export function PaywallScreen() {
         >
           <Button
             {...(busy
-              ? { label: 'Please wait…' }
-              : ctaLabel(plan, priceLabels[plan], selectedTrial))}
+              ? { label: t('paywall.cta.pleaseWait') }
+              : offer && offerPlan
+                ? winbackCta(offer)
+                : ctaLabel(plan, priceLabels[plan], selectedTrial))}
             onPress={() => void onSubscribe()}
             disabled={busy}
             testID="paywall-subscribe"
@@ -434,8 +590,8 @@ export function PaywallScreen() {
           <View className="flex-row items-center justify-center gap-2">
             <Text className="text-xs text-ink-muted" testID="paywall-trust">
               {plan === 'lifetime'
-                ? 'One-time purchase, nothing renews'
-                : `Cancel anytime in ${STORE_LABEL}`}
+                ? t('paywall.trust.lifetime')
+                : t('paywall.trust.cancelAnytime', { store: STORE_LABEL })}
             </Text>
             <Text className="text-xs text-ink-muted">·</Text>
             <Pressable
@@ -446,7 +602,7 @@ export function PaywallScreen() {
               testID="paywall-restore"
             >
               <Text className="text-xs font-semibold text-ink-secondary underline">
-                Restore purchases
+                {t('paywall.restore')}
               </Text>
             </Pressable>
           </View>

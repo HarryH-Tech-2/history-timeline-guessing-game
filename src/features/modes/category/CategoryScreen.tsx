@@ -3,11 +3,12 @@ import { Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { BackButton, Button, Screen } from '@/components/ui';
-import { getCategoryById, REGIONAL_CATEGORY_ID, regionById } from '@/data';
+import { getCategoryById, localizeRegion, REGIONAL_CATEGORY_ID, regionById } from '@/data';
 import { HeartsChip, OutOfHeartsSheet, useHearts } from '@/features/hearts';
 import { usePremium } from '@/features/premium';
 import { paywallHref } from '@/features/premium/paywallSource';
 import { RoundView, useRoundRewards } from '@/features/round';
+import { t } from '@/i18n';
 import { dateKey } from '@/utils/date';
 
 import { ModeHud } from '../components/ModeHud';
@@ -39,9 +40,9 @@ export function CategoryScreen({ categoryId, regionId }: CategoryScreenProps) {
       <Screen>
         <View className="flex-1 items-center justify-center gap-4 px-8">
           <Text className="text-center text-lg font-bold text-ink-primary">
-            Category not found
+            {t('modes.category.notFound')}
           </Text>
-          <Button label="Back to home" onPress={() => router.back()} />
+          <Button label={t('modes.category.backHome')} onPress={() => router.back()} />
         </View>
       </Screen>
     );
@@ -56,12 +57,12 @@ export function CategoryScreen({ categoryId, regionId }: CategoryScreenProps) {
         <View className="flex-1 items-center justify-center gap-4 px-8" testID="category-locked">
           <Text className="text-4xl">🔒</Text>
           <Text className="text-center text-xl font-bold text-ink-primary">
-            {category.name} is a Premium category
+            {t('modes.category.lockedTitle', { name: category.name })}
           </Text>
           <Text className="text-center text-base text-ink-secondary">
-            Subscribe to unlock it — plus unlimited hearts.
+            {t('modes.category.lockedBody')}
           </Text>
-          <Button label="See Premium" onPress={() => router.push(paywallHref('locked_category'))} />
+          <Button label={t('modes.run.seePremium')} onPress={() => router.push(paywallHref('locked_category', { category: categoryId }))} />
         </View>
       </Screen>
     );
@@ -87,7 +88,7 @@ export function CategoryScreen({ categoryId, regionId }: CategoryScreenProps) {
       key={runId}
       categoryId={categoryId}
       regionId={region?.id}
-      name={region ? region.name : category.name}
+      name={region ? localizeRegion(region).name : category.name}
       onHome={() => router.back()}
       onRetry={() => setRunId((n) => n + 1)}
     />
@@ -122,22 +123,22 @@ function CategoryRun({
     const exact = session.results.filter((r) => r.errorYears === 0).length;
     return (
       <RunSummary
-        title={`${name} — complete`}
-        subtitle={`Every ${name} question, answered.`}
+        title={t('modes.category.completeTitle', { name })}
+        subtitle={t('modes.category.completeSubtitle', { name })}
         totalScore={session.totalScore}
-        stats={[{ label: 'Exact answers', value: `${exact} / ${session.results.length}` }]}
+        stats={[{ label: t('modes.category.exactAnswers'), value: `${exact} / ${session.results.length}` }]}
         rounds={rounds}
         share={{
           data: shareDataFromResults(
-            `${name} · complete`,
+            t('modes.category.shareTitle', { name }),
             prettyDate(dateKey()),
             session.results,
           ),
           mode: 'category',
         }}
-        primaryLabel="Play again"
+        primaryLabel={t('modes.run.playAgain')}
         onPrimary={onRetry}
-        secondaryLabel="Home"
+        secondaryLabel={t('modes.run.home')}
         onSecondary={onHome}
       />
     );
@@ -153,7 +154,7 @@ function CategoryRun({
         result={session.result}
         onSubmit={session.submit}
         onNext={session.advance}
-        nextLabel={onLastQuestion ? 'Finish' : 'Next'}
+        nextLabel={onLastQuestion ? t('modes.run.finish') : t('modes.run.next')}
         assist={(c) => (
           <AssistBar
             question={session.question}

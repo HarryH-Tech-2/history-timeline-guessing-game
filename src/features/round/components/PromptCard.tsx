@@ -3,6 +3,7 @@ import { Image, Pressable, Text, useWindowDimensions, View } from 'react-native'
 
 import { Card, ImageLightbox } from '@/components/ui';
 import { imageForQuestion } from '@/data';
+import { t } from '@/i18n';
 
 /** Largest illustration edge (also capped at the card's inner width, so it
  * stays square), and the smallest it may shrink to when the screen is short. */
@@ -55,12 +56,13 @@ export function PromptCard({
           <Pressable
             onPress={() => setZoomed(true)}
             accessibilityRole="imagebutton"
-            accessibilityLabel={`Enlarge illustration of ${title}`}
+            accessibilityLabel={t('round.image.enlarge', { title })}
             hitSlop={6}
             testID="prompt-image-button"
           >
             <Image
               source={image}
+              resizeMethod="resize"
               resizeMode="contain"
               accessibilityIgnoresInvertColors
               className="h-16 w-16 bg-bg-overlay"
@@ -93,13 +95,14 @@ export function PromptCard({
         <Pressable
           onPress={() => setZoomed(true)}
           accessibilityRole="imagebutton"
-          accessibilityLabel={`Enlarge illustration of ${title}`}
+          accessibilityLabel={t('round.image.enlarge', { title })}
           testID="prompt-image-button"
           className="shrink self-center"
           style={{ height: imageEdge, minHeight: IMAGE_MIN, aspectRatio: 1 }}
         >
           <Image
             source={image}
+            resizeMethod="resize"
             resizeMode="contain"
             accessibilityIgnoresInvertColors
             className="h-full w-full bg-bg-overlay"

@@ -17,6 +17,11 @@ const ERA_ART: Record<string, ImageSourcePropType> = {
   modern: require('../../../../../assets/campaign/era-modern.webp'),
 };
 
+/** An era's painting (e.g. for the paywall's era card), if it has one. */
+export function eraArt(eraId: string): ImageSourcePropType | undefined {
+  return ERA_ART[eraId];
+}
+
 /** How long one era's painting takes to dissolve into the next. */
 export const CROSSFADE_MS = 200;
 
@@ -26,6 +31,7 @@ function Painting({ eraId }: { eraId: string }) {
   return (
     <Image
       source={art}
+      resizeMethod="resize"
       resizeMode="cover"
       accessibilityIgnoresInvertColors
       style={{ width: '100%', height: '100%' }}

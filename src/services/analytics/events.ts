@@ -11,10 +11,18 @@ export type PaywallSource =
   | 'locked_category'
   | 'locked_mode'
   | 'campaign'
+  | 'era_complete'
+  | 'winback'
   | 'unknown';
 
+/** Which price a purchase was attempted at: the plan's own, its free trial, or the win-back discount. */
+export type PurchaseOffer = 'standard' | 'trial' | 'winback';
+
+/** The bottom-navigation tabs. */
+export type AppTab = 'play' | 'campaign' | 'museum' | 'social' | 'profile';
+
 /** A proactive Premium pitch placed outside the paywall itself. */
-export type UpsellPlacement = 'run_summary' | 'home_chip';
+export type UpsellPlacement = 'run_summary' | 'home_chip' | 'era_complete' | 'winback_card';
 
 /**
  * Every usage event the app records, with the properties each carries. One
@@ -54,8 +62,23 @@ export interface AnalyticsEvents {
   paywall_viewed: { source: PaywallSource };
   /** A Premium upsell was rendered (click-through = paywall_viewed by source / this). */
   upsell_shown: { placement: UpsellPlacement };
+  /** A plan was tapped on the paywall (the funnel step between viewing and buying). */
+  paywall_plan_selected: { plan: string; source: PaywallSource };
+  /** The buy button was pressed: the store's purchase sheet is opening. */
+  purchase_started: { plan: string; source: PaywallSource; offer: PurchaseOffer };
+  /** A started purchase didn't go through: backed out of, no store, or a store error. */
+  purchase_failed: {
+    plan: string;
+    source: PaywallSource;
+    offer: PurchaseOffer;
+    reason: 'cancelled' | 'unavailable' | 'error';
+  };
+  /** The paywall was closed without buying, after `seconds` on it, with `plan` selected. */
+  paywall_dismissed: { source: PaywallSource; seconds: number; plan: string };
   /** A subscription purchase went through, from a paywall opened at `source`. */
-  purchase_completed: { plan: string; source: PaywallSource };
+  purchase_completed: { plan: string; source: PaywallSource; offer: PurchaseOffer };
+  /** A win-back offer window opened for a player who closed the paywall earlier. */
+  winback_offered: { percent_off: number };
   /** A previous purchase was restored. */
   purchase_restored: undefined;
   /** The hearts meter ran out mid-run and blocked play. */
@@ -84,6 +107,13 @@ export interface AnalyticsEvents {
   group_joined: { via: 'link' | 'code' };
   /** A friends group was left. */
   group_left: undefined;
+  /**
+   * A bottom-bar tab was tapped. `first_this_open` marks the first tab tap
+   * since the app was opened (launched or brought back to the foreground), and
+   * `seconds_since_open` how long after that it came — so "how many opens go
+   * on to the Campaign tab" is a count of these against Application Opened.
+   */
+  tab_selected: { tab: AppTab; first_this_open: boolean; seconds_since_open: number };
 }
 
 export type AnalyticsEventName = keyof AnalyticsEvents;

@@ -8,6 +8,7 @@ import type { Question, RoundResult } from '@/domain';
 import { resolveDisplayName } from '@/features/leaderboard/playerName';
 import { useProgression } from '@/features/progression/ProgressionProvider';
 import { RoundView, useGameSession } from '@/features/round';
+import { t } from '@/i18n';
 import { track } from '@/services/analytics';
 import { useAuth } from '@/services/firebase/auth';
 
@@ -83,7 +84,7 @@ function ChallengeRun({
   return (
     <View className="flex-1">
       <Text className="pt-1 text-center text-xs font-semibold text-ink-muted" testID="challenge-progress">
-        Question {offset + session.roundNumber}/{questions.length}
+        {t('social.challenge.progress', { n: offset + session.roundNumber, total: questions.length })}
       </Text>
       <RoundView
         question={session.question}
@@ -91,7 +92,11 @@ function ChallengeRun({
         result={session.result}
         onSubmit={session.submit}
         onNext={session.advance}
-        nextLabel={offset + session.results.length >= questions.length ? 'Finish' : 'Next'}
+        nextLabel={
+          offset + session.results.length >= questions.length
+            ? t('social.challenge.finish')
+            : t('social.challenge.next')
+        }
       />
     </View>
   );
@@ -245,24 +250,24 @@ export function ChallengeScreen({ code, via }: { code: string; via: ChallengeVia
     return (
       <Screen className="items-center justify-center gap-4 px-5">
         <Text className="text-center text-lg text-ink-primary">{api.socialErrorMessage(null)}</Text>
-        <Button label="Try again" onPress={reload} testID="challenge-retry" />
-        <Button label="Back" variant="ghost" onPress={leave} />
+        <Button label={t('social.tryAgain')} onPress={reload} testID="challenge-retry" />
+        <Button label={t('common.back')} variant="ghost" onPress={leave} />
       </Screen>
     );
   }
   const message =
     load.kind === 'missing'
-      ? 'That code doesn’t match any challenge.'
+      ? t('social.challenge.missing')
       : load.kind === 'expired'
-        ? 'This challenge has expired.'
+        ? t('social.challenge.expired')
         : load.kind === 'update'
-          ? 'Update the app to play this challenge — it uses newer questions.'
+          ? t('social.challenge.update')
           : null;
   if (message) {
     return (
       <Screen className="items-center justify-center gap-4 px-5">
         <Text className="text-center text-lg text-ink-primary">{message}</Text>
-        <Button label="Back" onPress={leave} />
+        <Button label={t('common.back')} onPress={leave} />
       </Screen>
     );
   }
@@ -277,9 +282,13 @@ export function ChallengeScreen({ code, via }: { code: string; via: ChallengeVia
           <>
             <Text className="text-center text-base text-ink-primary">{error.message}</Text>
             {error.retry && pending && (
-              <Button label="Try again" onPress={() => void submit(pending)} testID="challenge-submit-retry" />
+              <Button
+                label={t('social.tryAgain')}
+                onPress={() => void submit(pending)}
+                testID="challenge-submit-retry"
+              />
             )}
-            <Button label="Back" variant="ghost" onPress={leave} testID="challenge-submit-back" />
+            <Button label={t('common.back')} variant="ghost" onPress={leave} testID="challenge-submit-back" />
           </>
         ) : (
           <ActivityIndicator />
@@ -293,7 +302,9 @@ export function ChallengeScreen({ code, via }: { code: string; via: ChallengeVia
       <Screen>
         <View className="px-5 pt-3">
           <Text className="text-center text-xs font-semibold uppercase tracking-wide text-accent">
-            {uid === challenge.creatorUid ? 'Your challenge' : `${challenge.creatorName}’s challenge`}
+            {uid === challenge.creatorUid
+              ? t('social.challenges.yours')
+              : t('social.challenges.theirs', { name: challenge.creatorName })}
           </Text>
         </View>
         <ChallengeRun

@@ -3,12 +3,23 @@ import { Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useSocialBadge } from '@/features/social/useSocialBadge';
+import { t } from '@/i18n';
+import { trackTabSelected, type AppTab } from '@/services/analytics';
 import { useTheme } from '@/theme';
 
 /** Emoji tab glyph; dims when the tab is inactive. */
 function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
   return <Text style={{ fontSize: 20, opacity: focused ? 1 : 0.55 }}>{emoji}</Text>;
 }
+
+/** Route name → the tab name reported to analytics. */
+const TAB_NAMES: Record<string, AppTab> = {
+  index: 'play',
+  campaign: 'campaign',
+  museum: 'museum',
+  social: 'social',
+  profile: 'profile',
+};
 
 /** Bottom navigation: Play, Campaign, Museum, Social, Profile. */
 export default function TabsLayout() {
@@ -18,6 +29,12 @@ export default function TabsLayout() {
 
   return (
     <Tabs
+      screenListeners={({ route }) => ({
+        tabPress: () => {
+          const tab = TAB_NAMES[route.name];
+          if (tab !== undefined) trackTabSelected(tab);
+        },
+      })}
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.accent.default,
@@ -36,28 +53,28 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Play',
+          title: t('tabs.play'),
           tabBarIcon: ({ focused }) => <TabIcon emoji="🎯" focused={focused} />,
         }}
       />
       <Tabs.Screen
         name="campaign"
         options={{
-          title: 'Campaign',
+          title: t('tabs.campaign'),
           tabBarIcon: ({ focused }) => <TabIcon emoji="🗺️" focused={focused} />,
         }}
       />
       <Tabs.Screen
         name="museum"
         options={{
-          title: 'Museum',
+          title: t('tabs.museum'),
           tabBarIcon: ({ focused }) => <TabIcon emoji="🏛️" focused={focused} />,
         }}
       />
       <Tabs.Screen
         name="social"
         options={{
-          title: 'Social',
+          title: t('tabs.social'),
           tabBarIcon: ({ focused }) => <TabIcon emoji="👥" focused={focused} />,
           // Empty string renders a plain dot: a challenge has results not yet opened.
           tabBarBadge: socialBadge ? '' : undefined,
@@ -72,7 +89,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
+          title: t('tabs.profile'),
           tabBarIcon: ({ focused }) => <TabIcon emoji="👤" focused={focused} />,
         }}
       />

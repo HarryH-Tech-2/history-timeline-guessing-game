@@ -9,6 +9,8 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { t } from '@/i18n';
+
 import { useHearts } from './useHearts';
 
 interface HeartsChipViewProps {
@@ -49,7 +51,9 @@ export function HeartsChipView({ count, max, unlimited, atStake }: HeartsChipVie
     <Animated.View
       style={style}
       className="h-8 flex-row items-center gap-1 rounded-full border border-hair bg-bg-raised px-2.5"
-      accessibilityLabel={unlimited ? 'Unlimited hearts' : `${count} of ${max} hearts left`}
+      accessibilityLabel={
+        unlimited ? t('home.hearts.unlimitedA11y') : t('home.hearts.leftA11y', { count, max })
+      }
       testID="hud-hearts"
     >
       <Text className="text-sm" style={{ includeFontPadding: false }}>

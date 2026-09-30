@@ -1,0 +1,61 @@
+{
+  "categories": {
+    "events": { "name": "Eventos históricos", "description": "Momentos decisivos que mudaram o mundo." },
+    "battles": { "name": "Batalhas", "description": "Confrontos que decidiram o destino de impérios." },
+    "people": { "name": "Personalidades", "description": "Quando os ícones da história nasceram." },
+    "technology": { "name": "Tecnologia", "description": "Invenções que mudaram nosso jeito de viver." },
+    "exploration": { "name": "Exploração e descobertas", "description": "Viagens e conquistas inéditas que redesenharam o mapa." },
+    "treaties": { "name": "Tratados", "description": "As assinaturas que encerraram guerras e traçaram fronteiras." },
+    "sport": { "name": "Esporte", "description": "Primeiras finais, recordes e zebras famosas." },
+    "trade": { "name": "Dinheiro e comércio", "description": "Moedas, empresas, canais e quebras." },
+    "arts": { "name": "Artes e cultura", "description": "Obras-primas, estreias e ícones culturais." },
+    "philosophy": { "name": "Filosofia", "description": "Os pensadores e as ideias que questionaram tudo." },
+    "regional": { "name": "Regional", "description": "Escolha uma região e jogue seus momentos marcantes." },
+    "space": { "name": "Espaço", "description": "Lançamentos, pousos e a corrida além da Terra." }
+  },
+  "topics": {
+    "ancient": { "name": "O mundo antigo", "blurb": "Faraós, hoplitas e as primeiras cidades." },
+    "rome": { "name": "Roma Antiga", "blurb": "De Rômulo às últimas legiões." },
+    "greece": { "name": "Grécia Antiga", "blurb": "Filósofos, falanges e as Guerras Médicas." },
+    "medieval": { "name": "A Idade Média", "blurb": "Castelos, cruzadas e o arco longo." },
+    "inventions": { "name": "Grandes invenções", "blurb": "As ideias que mudaram tudo." },
+    "usa": { "name": "História dos EUA", "blurb": "Revolução, expansão e a era moderna." },
+    "england": { "name": "Inglaterra", "blurb": "Reis, dramaturgos e um grande incêndio." },
+    "france": { "name": "França", "blurb": "Revolução, império e a Belle Époque." },
+    "world-wars": { "name": "As guerras mundiais", "blurb": "As batalhas que moldaram o século XX." },
+    "19th-century": { "name": "O século XIX", "blurb": "Vapor, impérios e revoluções." },
+    "20th-century": { "name": "O século XX", "blurb": "Um século de reviravoltas e invenções." },
+    "science": { "name": "Ciência e descobertas", "blurb": "As pessoas que explicaram o universo." },
+    "disasters": { "name": "Desastres", "blurb": "Incêndios, enchentes e erupções." },
+    "naval": { "name": "Guerra no mar", "blurb": "Frotas que decidiram o destino de nações." },
+    "explorers": { "name": "Exploradores", "blurb": "Viagens e conquistas inéditas que redesenharam o mapa." },
+    "politics": { "name": "Política e poder", "blurb": "Tratados, revoluções e reformistas." },
+    "literature": { "name": "Literatura", "blurb": "Epopeias, romances e os escritores por trás deles." },
+    "music": { "name": "Música", "blurb": "Da Nona Sinfonia a Thriller." },
+    "architecture": { "name": "Arquitetura", "blurb": "Monumentos que continuam de pé." },
+    "space": { "name": "A Era Espacial", "blurb": "Do Sputnik ao telescópio James Webb." },
+    "olympics": { "name": "Os Jogos Olímpicos", "blurb": "Momentos de ouro dos Jogos." },
+    "money": { "name": "Dinheiro e mercados", "blurb": "Bancos, bolhas e quebras." },
+    "independence": { "name": "Dias da independência", "blurb": "Os dias em que novas nações nasceram." }
+  },
+  "regions": {
+    "europe": { "name": "Europa", "blurb": "Reinos, uniões e revoluções." },
+    "asia": { "name": "Ásia", "blurb": "Dinastias, xoguns e gigantes modernos." },
+    "africa": { "name": "África", "blurb": "Impérios do ouro e o caminho para a liberdade." },
+    "north-america": { "name": "América do Norte", "blurb": "De Tenochtitlán à Confederação." },
+    "south-america": { "name": "América do Sul", "blurb": "Os incas, os libertadores e novas capitais." },
+    "oceania": { "name": "Oceania", "blurb": "Primeiras frotas, corridas do ouro e o voto pioneiro." }
+  },
+  "routes": {
+    "egypt-near-east": { "name": "Egito e Oriente Próximo" },
+    "greece-rome": { "name": "Grécia e Roma" },
+    "crusades-castles": { "name": "Cruzadas e castelos" },
+    "silk-road": { "name": "Rota da Seda e comércio" },
+    "voyages": { "name": "Grandes Navegações" },
+    "renaissance": { "name": "Renascimento e Reforma" },
+    "revolutions": { "name": "Revoluções e nações" },
+    "steam-science": { "name": "Vapor e ciência" },
+    "world-at-war": { "name": "Mundo em guerra" },
+    "space-tech": { "name": "Espaço e tecnologia" }
+  }
+}

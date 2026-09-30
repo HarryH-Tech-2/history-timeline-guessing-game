@@ -21,6 +21,7 @@ import {
 // Decade lines start fading in at scale 0.7 (see tickVisibility); they are
 // mounted from DECADE_MIN_SCALE, a little earlier, so they never pop in late.
 import { DECADE_MIN_SCALE } from '@/features/timeline/tickVisibility';
+import { t } from '@/i18n';
 import { palette } from '@/theme/tokens';
 
 import { Crosshair } from './Crosshair';
@@ -69,7 +70,7 @@ function YearStepButton({
           onStep(delta);
         }}
         accessibilityRole="button"
-        accessibilityLabel={delta > 0 ? 'One year later' : 'One year earlier'}
+        accessibilityLabel={delta > 0 ? t('round.timeline.oneYearLater') : t('round.timeline.oneYearEarlier')}
         hitSlop={8}
         testID={delta > 0 ? 'year-step-plus' : 'year-step-minus'}
         className="h-9 w-9 items-center justify-center border border-hair bg-bg-overlay"
@@ -199,12 +200,14 @@ function ErrorBand({
 
 /**
  * Track height by screen height: as tall as the screen allows, so short
- * phones (and landscape) keep room for the prompt and the footer.
+ * phones (and landscape) keep room for the prompt and the footer. Taller
+ * phones give most of the era overview bar's height back from the band above
+ * the ticks, so a hint or the footer doesn't squeeze the question picture.
  */
 export function trackHeightFor(windowHeight: number): number {
-  if (windowHeight >= 820) return 224;
-  if (windowHeight >= 720) return 192;
-  return 160;
+  if (windowHeight >= 820) return 172;
+  if (windowHeight >= 720) return 160;
+  return 148;
 }
 
 /**
@@ -261,7 +264,7 @@ export function TimelineTrack({
                   year={guessYear}
                   scale={scale}
                   colour={palette.accent.default}
-                  label="You"
+                  label={t('round.timeline.you')}
                   stagger={GUESS_PILL_STAGGER}
                   testID="reveal-marker-guess"
                 />

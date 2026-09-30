@@ -25,9 +25,7 @@ describe('paywall copy', () => {
     expect(paywallHeadline('locked_mode')).toBe('Play Endless with unlimited lives');
     expect(paywallHeadline('onboarding', 7)).toBe('Welcome! Try everything free for a week');
     expect(paywallHeadline('onboarding')).toBe(paywallHeadline('unknown'));
-    expect(paywallHeadline('profile')).toBe(
-      'Everything in the museum, and never wait for a heart again',
-    );
+    expect(paywallHeadline('profile')).toBe('Unlock the full campaign and get unlimited hearts.');
   });
 
   it('leads the title with the trial whenever any plan offers one', () => {
@@ -37,10 +35,10 @@ describe('paywall copy', () => {
     expect(trialHeadline(3)).toBe('Start My 3-Day Free Trial');
   });
 
-  it('keeps the founder line short enough for two lines', () => {
+  it('keeps the founder line short enough for three lines', () => {
     for (const source of PAYWALL_SOURCES) {
       for (const trial of [undefined, 7]) {
-        expect(founderLine(source, false, trial).length).toBeLessThanOrEqual(76);
+        expect(founderLine(source, false, trial).length).toBeLessThanOrEqual(115);
       }
     }
     expect(founderLine('hearts', true)).toMatch(/thank you/i);

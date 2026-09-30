@@ -6,6 +6,7 @@ import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanim
 import { Screen } from '@/components/ui';
 import { usePremium } from '@/features/premium/PremiumProvider';
 import { paywallHref } from '@/features/premium/paywallSource';
+import { t } from '@/i18n';
 import { track } from '@/services/analytics';
 
 import { completeOnboarding, onboardingStore } from './onboardingStore';
@@ -20,7 +21,7 @@ function Dots({ step }: { step: number }) {
   return (
     <View
       className="flex-row items-center gap-1.5"
-      accessibilityLabel={`Step ${step + 1} of ${STEP_COUNT}`}
+      accessibilityLabel={t('onboarding.stepOf', { step: step + 1, total: STEP_COUNT })}
     >
       {Array.from({ length: STEP_COUNT }, (_, i) => (
         <Animated.View
@@ -96,7 +97,7 @@ export function OnboardingScreen() {
               className="px-2 py-1"
               testID="onboarding-skip"
             >
-              <Text className="text-sm font-semibold text-ink-muted">Skip</Text>
+              <Text className="text-sm font-semibold text-ink-muted">{t('onboarding.skip')}</Text>
             </Pressable>
           ) : (
             <View />

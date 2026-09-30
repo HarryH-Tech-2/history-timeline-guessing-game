@@ -88,6 +88,7 @@
           }
         }
       ],
+      "./plugins/withR8Optimize",
       "expo-asset"
     ],
     "experiments": {

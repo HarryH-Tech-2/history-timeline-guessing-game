@@ -3,8 +3,9 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
 
 import { Button } from '@/components/ui';
 import type { RoundResult } from '@/domain';
-import { formatYear, isRightAnswer } from '@/features/timeline/math';
+import { isRightAnswer } from '@/features/timeline/math';
 import { useCountUp } from '@/hooks/useCountUp';
+import { displayYear, t } from '@/i18n';
 import { palette } from '@/theme/tokens';
 
 interface RevealSheetProps {
@@ -15,19 +16,23 @@ interface RevealSheetProps {
 }
 
 function headline(result: RoundResult): string {
-  if (result.isPerfect) return 'Perfect!';
+  if (result.isPerfect) return t('round.reveal.perfect');
   const { errorYears } = result;
-  if (errorYears <= 2) return 'So close!';
-  if (errorYears <= 10) return 'Nicely done';
-  if (errorYears <= 50) return 'Not bad';
-  return 'Way off';
+  if (errorYears <= 2) return t('round.reveal.soClose');
+  if (errorYears <= 10) return t('round.reveal.nicelyDone');
+  if (errorYears <= 50) return t('round.reveal.notBad');
+  return t('round.reveal.wayOff');
 }
 
 function distanceLabel(result: RoundResult): string {
-  if (result.isPerfect) return 'You nailed the exact year';
+  if (result.isPerfect) return t('round.reveal.nailedIt');
   const years = result.errorYears;
   // Name the guess so the distance can be sanity-checked against the marker.
-  return `You guessed ${formatYear(result.guessYear)} — ${years} ${years === 1 ? 'year' : 'years'} away`;
+  return t('round.reveal.guessedAway', {
+    count: years,
+    guess: displayYear(result.guessYear),
+    years: String(years),
+  });
 }
 
 type Verdict = 'perfect' | 'hit' | 'miss';
@@ -38,11 +43,18 @@ function verdictOf(result: RoundResult): Verdict {
 }
 
 /** Ribbon colours by outcome: gold for an exact year, green for a hit, quiet for a miss. */
-const RIBBON: Record<Verdict, { bg: string; fg: string; note: string | null }> = {
-  perfect: { bg: palette.warning, fg: '#1D1712', note: 'Exact year' },
-  hit: { bg: palette.success, fg: '#FFFFFF', note: 'Within 20 years' },
-  miss: { bg: 'transparent', fg: '', note: null },
+const RIBBON: Record<Verdict, { bg: string; fg: string }> = {
+  perfect: { bg: palette.warning, fg: '#1D1712' },
+  hit: { bg: palette.success, fg: '#FFFFFF' },
+  miss: { bg: 'transparent', fg: '' },
 };
+
+/** The ribbon's side note. A function: t() must not run at import. */
+function ribbonNote(verdict: Verdict): string | null {
+  if (verdict === 'perfect') return t('round.reveal.exactYear');
+  if (verdict === 'hit') return t('round.reveal.within20');
+  return null;
+}
 
 /**
  * Post-submission card: a verdict ribbon, the correct year as the hero, the
@@ -53,12 +65,13 @@ export function RevealSheet({
   result,
   categoryColour,
   onNext,
-  nextLabel = 'Next',
+  nextLabel = t('round.reveal.next'),
 }: RevealSheetProps) {
   const animatedScore = useCountUp(result.score.total);
   const { question } = result;
   const verdict = verdictOf(result);
   const ribbon = RIBBON[verdict];
+  const note = ribbonNote(verdict);
 
   return (
     <Animated.View
@@ -92,9 +105,9 @@ export function RevealSheet({
           >
             {headline(result)}
           </Text>
-          {ribbon.note !== null && (
+          {note !== null && (
             <Text className="text-xs font-semibold" style={{ color: ribbon.fg, opacity: 0.9 }}>
-              {ribbon.note}
+              {note}
             </Text>
           )}
         </View>
@@ -103,13 +116,13 @@ export function RevealSheet({
           <View className="flex-row items-end justify-between gap-4">
             <View className="flex-1">
               <Text className="text-[11px] font-semibold uppercase tracking-wide text-ink-muted">
-                The year
+                {t('round.reveal.theYear')}
               </Text>
               <Text
                 className="text-5xl font-extrabold text-ink-primary"
                 style={{ fontVariant: ['tabular-nums'], includeFontPadding: false }}
               >
-                {formatYear(question.year)}
+                {displayYear(question.year)}
               </Text>
               <Text className="mt-1 text-sm text-ink-secondary">{distanceLabel(result)}</Text>
               {result.assisted === true && (
@@ -117,7 +130,7 @@ export function RevealSheet({
                   className="mt-1 self-start border border-hair px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-ink-muted"
                   testID="reveal-assisted-tag"
                 >
-                  Multiple choice · ½ points
+                  {t('round.reveal.assisted')}
                 </Text>
               )}
             </View>
@@ -130,12 +143,12 @@ export function RevealSheet({
                 className="text-[10px] font-bold uppercase tracking-wide"
                 style={{ color: categoryColour }}
               >
-                Score
+                {t('round.reveal.score')}
               </Text>
               <Text
                 className="text-3xl font-extrabold"
                 style={{ color: categoryColour, fontVariant: ['tabular-nums'] }}
-                accessibilityLabel={`Score ${result.score.total}`}
+                accessibilityLabel={t('round.reveal.scoreLabel', { score: String(result.score.total) })}
               >
                 +{animatedScore}
               </Text>

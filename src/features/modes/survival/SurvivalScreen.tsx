@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 
 import { Screen } from '@/components/ui';
 import { RoundView, useRoundRewards } from '@/features/round';
+import { t } from '@/i18n';
 import { palette } from '@/theme/tokens';
 import { dateKey } from '@/utils/date';
 
@@ -19,11 +20,11 @@ function SurvivalPlay({ onHome, onRetry }: { onHome: () => void; onRetry: () => 
   useRoundRewards(session, { usesHearts: false });
 
   if (session.status === 'finished') {
-    const stats = [{ label: 'Rounds survived', value: String(session.results.length) }];
+    const stats = [{ label: t('modes.survival.roundsSurvived'), value: String(session.results.length) }];
     if (best) {
       stats.push({
-        label: 'Best',
-        value: `${best.rounds} rounds · ${best.score.toLocaleString()}`,
+        label: t('modes.survival.best'),
+        value: t('modes.survival.bestValue', { count: best.rounds, score: best.score }),
       });
     }
     const rounds: SummaryRow[] = session.results.map((r, i) => ({
@@ -35,28 +36,28 @@ function SurvivalPlay({ onHome, onRetry }: { onHome: () => void; onRetry: () => 
 
     return (
       <RunSummary
-        title="Out of lives"
+        title={t('modes.survival.outOfLives')}
         totalScore={session.totalScore}
         accent={palette.danger}
         stats={stats}
         rounds={rounds}
         share={{
           data: shareDataFromResults(
-            `Survival · ${session.results.length} ${session.results.length === 1 ? 'round' : 'rounds'}`,
+            t('modes.survival.shareTitle', { count: session.results.length }),
             prettyDate(dateKey()),
             session.results,
           ),
           mode: 'survival',
         }}
-        primaryLabel="Play again"
+        primaryLabel={t('modes.run.playAgain')}
         onPrimary={onRetry}
-        secondaryLabel="Home"
+        secondaryLabel={t('modes.run.home')}
         onSecondary={onHome}
       />
     );
   }
 
-  const nextLabel = isOutOfLives(session.results) ? 'See results' : 'Next';
+  const nextLabel = isOutOfLives(session.results) ? t('modes.run.seeResults') : t('modes.run.next');
 
   return (
     <Screen>
@@ -77,7 +78,6 @@ function SurvivalPlay({ onHome, onRetry }: { onHome: () => void; onRetry: () => 
         )}
         hud={
           <ModeHud
-            progressLabel={`Round ${session.roundNumber}`}
             score={session.totalScore}
             lives={lives}
             startingLives={startingLives}

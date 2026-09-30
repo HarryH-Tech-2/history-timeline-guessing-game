@@ -1,0 +1,41 @@
+/** The first-run flow: welcome, first guess, why play, name and reminders. */
+export const onboarding = {
+  skip: 'Skip',
+  stepOf: 'Step {step} of {total}',
+  welcome: {
+    title: 'Every event has a year.',
+    subtitle: 'How close can you get?',
+    mascot: 'I’m Minerva. Let’s find out.',
+    next: 'Show me',
+  },
+  firstGuess: {
+    coachDrag: 'Drag to move',
+    coachStep: 'One year at a time',
+    gotIt: 'Got it',
+    eyebrow: 'Your first guess',
+    title: 'When did this happen?',
+    notice: 'Within 20 years counts as a hit, and adds the event to your museum.',
+  },
+  why: {
+    eyebrow: 'What you’re playing for',
+    title: 'Three ways to win',
+    museumTitle: 'Build your museum',
+    museumText: 'Guess close and the event becomes an artefact in your collection.',
+    dailyTitle: 'Play the Daily',
+    dailyText: 'Eight questions, the same for everyone, once a day. Keep the streak alive.',
+    boardsTitle: 'Climb the boards',
+    boardsText: 'Today, this week, or all time. There is always a rank within reach.',
+    next: 'Nearly there',
+  },
+  setup: {
+    eyebrow: 'Last thing',
+    title: 'Make it yours',
+    nameLabel: 'Your name on the leaderboard',
+    nameA11y: 'Your player name',
+    nameHint: 'Keep {handle}, or pick something of your own. You can change it any time.',
+    reminderTitle: 'Daily reminder',
+    reminderBody: 'One nudge a day so your streak survives. Off by default.',
+    playDaily: 'Play today’s Daily',
+    explore: 'Explore first',
+  },
+};

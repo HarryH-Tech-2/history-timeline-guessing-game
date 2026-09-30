@@ -1,5 +1,7 @@
 import { Text, View } from 'react-native';
 
+import { routeName } from '@/data';
+
 import type { CampaignRoute } from '../campaignMap';
 import { ROUTE_BANNER_H } from './constants';
 import { inkOn, shade, tint } from './mapVisuals';
@@ -117,7 +119,7 @@ export function RouteBanner({
             adjustsFontSizeToFit
             minimumFontScale={0.75}
           >
-            {route.name}
+            {routeName(route)}
           </Text>
           <View
             className="rounded-full px-1.5"

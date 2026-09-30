@@ -1,3 +1,5 @@
+import { formatNumber, t } from '@/i18n';
+
 import type { Challenge, ChallengeEntry } from './types';
 
 type Round = {
@@ -50,14 +52,16 @@ export function compareEntries(
 }
 
 export function statusLine(c: Comparison, creatorName: string): string {
-  if (c.kind === 'waiting') return `Waiting for ${creatorName}`;
+  if (c.kind === 'waiting') return t('social.headToHead.waitingFor', { name: creatorName });
   if (c.kind === 'creator') {
     const n = c.challengers.length;
-    return n === 0 ? 'Waiting for friends' : `${n} ${n === 1 ? 'friend' : 'friends'} played`;
+    return n === 0 ? t('social.headToHead.waitingFriends') : t('social.headToHead.friendsPlayed', { count: n });
   }
-  const score = `${c.me.total.toLocaleString()}–${c.them.total.toLocaleString()}`;
-  if (c.outcome === 'tie') return 'It’s a tie';
-  return c.outcome === 'won' ? `You won ${score}` : `${c.them.name} won ${score}`;
+  const score = `${formatNumber(c.me.total)}–${formatNumber(c.them.total)}`;
+  if (c.outcome === 'tie') return t('social.headToHead.tie');
+  return c.outcome === 'won'
+    ? t('social.headToHead.youWon', { score })
+    : t('social.headToHead.theyWon', { name: c.them.name, score });
 }
 
 export function missingQuestions(challenge: Challenge, has: (id: string) => boolean): string[] {

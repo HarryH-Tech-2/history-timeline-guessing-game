@@ -4,7 +4,7 @@ import { ScrollView, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui';
 import { getQuestionById } from '@/data';
-import { formatYear } from '@/features/timeline/math/format';
+import { displayYear, formatNumber, t } from '@/i18n';
 
 import { statusLine, type Comparison } from './headToHead';
 
@@ -26,7 +26,7 @@ export function HeadToHead({
       </Text>
       {comparison.kind !== 'versus' && comparison.me && (
         <Text className="text-center text-lg font-bold text-ink-secondary">
-          Your score: {comparison.me.total.toLocaleString()}
+          {t('social.headToHead.yourScore', { score: comparison.me.total })}
         </Text>
       )}
       {comparison.kind === 'versus' &&
@@ -37,10 +37,11 @@ export function HeadToHead({
             </Text>
             <View className="mt-1 flex-row justify-between">
               <Text className="text-sm text-ink-secondary">
-                You {formatYear(r.mine)} · {r.myScore} {r.closer === 'me' ? '✓' : ''}
+                {t('social.headToHead.youGuessed', { year: displayYear(r.mine), score: r.myScore })}{' '}
+                {r.closer === 'me' ? '✓' : ''}
               </Text>
               <Text className="text-sm text-ink-secondary">
-                {comparison.them.name} {formatYear(r.theirs)} · {r.theirScore}{' '}
+                {comparison.them.name} {displayYear(r.theirs)} · {r.theirScore}{' '}
                 {r.closer === 'them' ? '✓' : ''}
               </Text>
             </View>
@@ -52,11 +53,11 @@ export function HeadToHead({
             <Text className="text-base font-bold text-ink-primary">
               {i + 1}. {c.name}
             </Text>
-            <Text className="text-base font-bold text-ink-primary">{c.total.toLocaleString()}</Text>
+            <Text className="text-base font-bold text-ink-primary">{formatNumber(c.total)}</Text>
           </View>
         ))}
-      {onShare && <Button label="⚔️ Challenge more friends" onPress={onShare} />}
-      <Button label="Done" variant="ghost" onPress={onDone} testID="head-to-head-done" />
+      {onShare && <Button label={t('social.headToHead.challengeMore')} onPress={onShare} />}
+      <Button label={t('social.headToHead.done')} variant="ghost" onPress={onDone} testID="head-to-head-done" />
     </ScrollView>
   );
 }

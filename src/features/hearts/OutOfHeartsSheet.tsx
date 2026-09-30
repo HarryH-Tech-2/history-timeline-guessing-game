@@ -5,6 +5,7 @@ import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 
 import { Button, Card } from '@/components/ui';
 import { paywallHref } from '@/features/premium/paywallSource';
+import { t } from '@/i18n';
 import { track } from '@/services/analytics';
 
 import { useHearts } from './useHearts';
@@ -35,11 +36,11 @@ export function OutOfHeartsSheet({ onLeave }: OutOfHeartsSheetProps) {
       <Animated.View entering={FadeInDown.springify().damping(18)}>
         <Card className="gap-4">
           <View className="gap-1">
-            <Text className="text-2xl font-extrabold text-ink-primary">Out of hearts</Text>
+            <Text className="text-2xl font-extrabold text-ink-primary">{t('home.hearts.outTitle')}</Text>
             <Text className="text-base text-ink-secondary">
               {hearts.nextIn
-                ? `Your next heart arrives in ${hearts.nextIn}. Hearts refill one every 15 minutes.`
-                : 'Hearts refill one every 15 minutes.'}
+                ? t('home.hearts.nextIn', { time: hearts.nextIn })
+                : t('home.hearts.refillRate')}
             </Text>
           </View>
 
@@ -52,12 +53,12 @@ export function OutOfHeartsSheet({ onLeave }: OutOfHeartsSheetProps) {
           </View>
 
           <Button
-            label="Go Premium · unlimited hearts"
+            label={t('home.hearts.goPremium')}
             onPress={() => router.push(paywallHref('hearts'))}
             testID="hearts-premium"
           />
           <Button
-            label={`Refill hearts · ${hearts.refillCost} 🪙`}
+            label={t('home.hearts.refill', { cost: hearts.refillCost })}
             variant="ghost"
             disabled={!hearts.canRefill}
             onPress={() => {
@@ -65,7 +66,7 @@ export function OutOfHeartsSheet({ onLeave }: OutOfHeartsSheetProps) {
             }}
             testID="hearts-refill"
           />
-          <Button label="Back" variant="ghost" onPress={onLeave} testID="hearts-leave" />
+          <Button label={t('common.back')} variant="ghost" onPress={onLeave} testID="hearts-leave" />
         </Card>
       </Animated.View>
     </Animated.View>

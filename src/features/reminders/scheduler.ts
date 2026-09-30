@@ -1,6 +1,7 @@
 import * as Notifications from 'expo-notifications';
 
 import { STORE_LABEL } from '@/config/store';
+import { t } from '@/i18n';
 
 import { nextReminderAt } from './reminderTime';
 
@@ -11,11 +12,14 @@ export const DAILY_REMINDER_ID = 'daily-reminder';
  * system permission prompt. */
 export const REMINDER_CHANNEL_ID = 'daily-reminder';
 
-const CONTENT: Notifications.NotificationContentInput = {
-  title: 'Your daily is ready 🏛️',
-  body: 'Eight new dates. Keep your streak.',
-  data: { route: '/daily' },
-};
+/** A function so the text follows the language at scheduling time. */
+function dailyContent(): Notifications.NotificationContentInput {
+  return {
+    title: t('reminders.daily.title'),
+    body: t('reminders.daily.body'),
+    data: { route: '/daily' },
+  };
+}
 
 /**
  * Create the Android channel, then ask for permission. Resolves true when
@@ -24,7 +28,7 @@ const CONTENT: Notifications.NotificationContentInput = {
 export async function requestReminderPermission(): Promise<boolean> {
   try {
     await Notifications.setNotificationChannelAsync(REMINDER_CHANNEL_ID, {
-      name: 'Daily reminder',
+      name: t('reminders.channel'),
       importance: Notifications.AndroidImportance.DEFAULT,
     });
     const result = await Notifications.requestPermissionsAsync();
@@ -56,7 +60,7 @@ export async function syncDailyReminder({
     if (!permission.granted) return;
     await Notifications.scheduleNotificationAsync({
       identifier: DAILY_REMINDER_ID,
-      content: CONTENT,
+      content: dailyContent(),
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.DATE,
         date: nextReminderAt({ now, playedToday }),
@@ -95,8 +99,8 @@ export async function scheduleTrialReminder({
     await Notifications.scheduleNotificationAsync({
       identifier: TRIAL_REMINDER_ID,
       content: {
-        title: `Your free trial ends in ${left} day${left === 1 ? '' : 's'}`,
-        body: `Do nothing to keep Premium, or cancel anytime in ${STORE_LABEL}.`,
+        title: t('reminders.trial.title', { count: left }),
+        body: t('reminders.trial.body', { store: STORE_LABEL }),
       },
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.DATE,
@@ -106,5 +110,49 @@ export async function scheduleTrialReminder({
     });
   } catch {
     // Best effort: a failed reminder must never break the purchase flow.
+  }
+}
+
+/** The pending "your win-back discount is here" reminder. */
+export const WINBACK_REMINDER_ID = 'winback-offer';
+
+/**
+ * Remind the player when their win-back offer opens (`at`), saying how much
+ * is off. Only when notifications are already allowed: a paywall the player
+ * has just closed is no moment to ask for permission. Never rejects.
+ */
+export async function scheduleWinbackReminder({
+  at,
+  percentOff,
+}: {
+  at: Date;
+  percentOff: number;
+}): Promise<void> {
+  try {
+    const current = await Notifications.getPermissionsAsync();
+    if (!current.granted) return;
+    await Notifications.scheduleNotificationAsync({
+      identifier: WINBACK_REMINDER_ID,
+      content: {
+        title: t('reminders.winback.title', { percent: percentOff }),
+        body: t('reminders.winback.body'),
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DATE,
+        date: at,
+        channelId: REMINDER_CHANNEL_ID,
+      },
+    });
+  } catch {
+    // Best effort.
+  }
+}
+
+/** Drop the win-back reminder (Premium was bought). Never rejects. */
+export async function cancelWinbackReminder(): Promise<void> {
+  try {
+    await Notifications.cancelScheduledNotificationAsync(WINBACK_REMINDER_ID);
+  } catch {
+    // Nothing scheduled, or no notifications module: fine.
   }
 }

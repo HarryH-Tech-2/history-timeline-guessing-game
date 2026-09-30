@@ -6,6 +6,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import type { Tick } from '@/features/timeline/ticks';
+import { displayYear } from '@/i18n';
 import { LABEL_RAMPS, LINE_RAMPS, rampOpacity, tierOf } from '@/features/timeline/tickVisibility';
 
 interface TimelineTickProps {
@@ -81,7 +82,9 @@ function MajorTickComponent({ tick, scale }: TimelineTickProps) {
         className="h-10 items-center justify-center"
       >
         <Text numberOfLines={1} className="w-24 text-center text-sm font-medium text-ink-muted">
-          {tick.label}
+          {/* From the year, not tick.label: TICKS is built once at import,
+              before the language is known. */}
+          {tick.label === undefined ? undefined : displayYear(tick.year)}
         </Text>
       </Animated.View>
     </Animated.View>

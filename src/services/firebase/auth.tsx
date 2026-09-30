@@ -12,6 +12,7 @@ import {
 import type { AuthCredential } from 'firebase/auth';
 
 import { isFirebaseConfigured } from '@/config/env';
+import { t } from '@/i18n';
 import { track } from '@/services/analytics';
 import { requestAppleCredential } from '@/services/appleSignin';
 import { loadGoogleSignin } from '@/services/googleSignin';
@@ -66,9 +67,8 @@ export interface AuthApi extends AuthState {
   deleteAccount: () => Promise<void>;
 }
 
-const OFFLINE_ERROR = new Error(
-  'Accounts need a connection and are not available in this build.',
-);
+/** A function, not a constant, so the message follows the language. */
+const offlineError = () => new Error(t('account.errors.offline'));
 
 const OFFLINE_STATE: AuthState = {
   uid: null,
@@ -80,11 +80,11 @@ const OFFLINE_STATE: AuthState = {
 
 const OFFLINE_API: AuthApi = {
   ...OFFLINE_STATE,
-  signInWithGoogle: () => Promise.reject(OFFLINE_ERROR),
-  signInWithApple: () => Promise.reject(OFFLINE_ERROR),
+  signInWithGoogle: () => Promise.reject(offlineError()),
+  signInWithApple: () => Promise.reject(offlineError()),
   signOutToGuest: () => Promise.resolve(),
-  reauthenticate: () => Promise.reject(OFFLINE_ERROR),
-  deleteAccount: () => Promise.reject(OFFLINE_ERROR),
+  reauthenticate: () => Promise.reject(offlineError()),
+  deleteAccount: () => Promise.reject(offlineError()),
 };
 
 const AuthContext = createContext<AuthApi>(OFFLINE_API);
@@ -109,20 +109,20 @@ function friendlyAuthError(error: unknown): Error {
       : '';
   switch (code) {
     case 'auth/credential-already-in-use':
-      return new Error('That account is already linked to another player.');
+      return new Error(t('account.errors.alreadyLinked'));
     // Legacy password accounts can still re-authenticate to delete themselves.
     case 'auth/user-not-found':
     case 'auth/wrong-password':
     case 'auth/invalid-credential':
-      return new Error('Email or password is incorrect.');
+      return new Error(t('account.errors.wrongPassword'));
     case 'auth/requires-recent-login':
-      return new Error('Please sign in again before deleting your account.');
+      return new Error(t('account.errors.recentLogin'));
     case 'auth/too-many-requests':
-      return new Error('Too many attempts — wait a moment and try again.');
+      return new Error(t('account.errors.tooMany'));
     case 'auth/network-request-failed':
-      return new Error('No connection — check your network and try again.');
+      return new Error(t('account.errors.network'));
     default:
-      return error instanceof Error ? error : new Error('Sign-in failed. Please try again.');
+      return error instanceof Error ? error : new Error(t('account.errors.failed'));
   }
 }
 
@@ -328,7 +328,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [state.user, applyGoogleIdToken, linkPlayGames]);
 
   const signInWithGoogle = useCallback(async () => {
-    if (!isFirebaseConfigured) throw OFFLINE_ERROR;
+    if (!isFirebaseConfigured) throw offlineError();
 
     // The native module only exists in dev/production builds, never Expo Go.
     const GoogleSignin = await loadGoogleSignin();
@@ -346,7 +346,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const response = await GoogleSignin.signIn();
     if (response.type !== 'success') return; // user cancelled the picker
     const idToken = response.data.idToken;
-    if (!idToken) throw new Error('Google sign-in did not return a token.');
+    if (!idToken) throw new Error(t('account.errors.noToken'));
 
     try {
       await applyGoogleIdToken(idToken);
@@ -357,7 +357,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [applyGoogleIdToken]);
 
   const signInWithApple = useCallback(async () => {
-    if (!isFirebaseConfigured) throw OFFLINE_ERROR;
+    if (!isFirebaseConfigured) throw offlineError();
     try {
       const credential = await appleFirebaseCredential();
       if (credential === null) return; // player closed the sheet
@@ -369,16 +369,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [appleFirebaseCredential, applyCredential]);
 
   const reauthenticate = useCallback(async (password?: string) => {
-    if (!isFirebaseConfigured) throw OFFLINE_ERROR;
+    if (!isFirebaseConfigured) throw offlineError();
     const { auth, authModule } = await loadAuth();
     const user = auth.currentUser;
-    if (user === null || user.isAnonymous) throw new Error('No account is signed in.');
+    if (user === null || user.isAnonymous) throw new Error(t('account.errors.noAccount'));
 
     const providers = user.providerData.map((p) => p.providerId);
     try {
       if (providers.includes('password')) {
         if (!password || user.email === null) {
-          throw new Error('Enter your password to continue.');
+          throw new Error(t('account.errors.enterPassword'));
         }
         const credential = authModule.EmailAuthProvider.credential(user.email, password);
         await authModule.reauthenticateWithCredential(user, credential);
@@ -386,7 +386,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       if (providers.includes('apple.com')) {
         const credential = await appleFirebaseCredential();
-        if (credential === null) throw new Error('Sign in with Apple was cancelled.');
+        if (credential === null) throw new Error(t('account.errors.appleCancelled'));
         await authModule.reauthenticateWithCredential(user, credential);
         return;
       }
@@ -406,10 +406,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         if (!idToken) {
           const response = await GoogleSignin.signIn();
-          if (response.type !== 'success') throw new Error('Google sign-in was cancelled.');
+          if (response.type !== 'success') throw new Error(t('account.errors.googleCancelled'));
           idToken = response.data.idToken;
         }
-        if (!idToken) throw new Error('Google sign-in did not return a token.');
+        if (!idToken) throw new Error(t('account.errors.noToken'));
         const credential = authModule.GoogleAuthProvider.credential(idToken);
         await authModule.reauthenticateWithCredential(user, credential);
         return;
@@ -420,21 +420,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const uidBefore = user.uid;
         const ok = await linkPlayGames(true);
         if (!ok || auth.currentUser?.uid !== uidBefore) {
-          throw new Error('Could not verify your Play Games sign-in. Try again.');
+          throw new Error(t('account.errors.playGames'));
         }
         return;
       }
-      throw new Error('This account cannot be verified from the app.');
+      throw new Error(t('account.errors.cannotVerify'));
     } catch (error) {
       throw friendlyAuthError(error);
     }
   }, [linkPlayGames, appleFirebaseCredential]);
 
   const deleteAccount = useCallback(async () => {
-    if (!isFirebaseConfigured) throw OFFLINE_ERROR;
+    if (!isFirebaseConfigured) throw offlineError();
     const { auth, authModule } = await loadAuth();
     const user = auth.currentUser;
-    if (user === null || user.isAnonymous) throw new Error('No account is signed in.');
+    if (user === null || user.isAnonymous) throw new Error(t('account.errors.noAccount'));
 
     // Apple accounts: revoke the app's Apple tokens, as Apple requires on
     // deletion. Best-effort — it needs the Apple provider's key set up in

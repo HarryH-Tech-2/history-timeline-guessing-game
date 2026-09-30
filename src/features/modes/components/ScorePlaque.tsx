@@ -11,6 +11,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { formatNumber, t } from '@/i18n';
 import { palette } from '@/theme/tokens';
 
 /**
@@ -77,15 +78,15 @@ export function ScorePlaque({ score }: { score: number }) {
           },
         ]}
         className="min-w-[120px] items-center rounded-xl border-2 bg-bg-raised px-4 pb-1 pt-0.5"
-        accessibilityLabel={`Score ${score}`}
+        accessibilityLabel={t('round.reveal.scoreLabel', { score: String(score) })}
       >
-        <Text className="text-[10px] font-bold uppercase tracking-[3px] text-accent">Score</Text>
+        <Text className="text-[10px] font-bold uppercase tracking-[3px] text-accent">{t('round.reveal.score')}</Text>
         <Text
           className="text-2xl font-extrabold text-ink-primary"
           style={{ fontVariant: ['tabular-nums'], includeFontPadding: false }}
           testID="hud-score"
         >
-          {score.toLocaleString()}
+          {formatNumber(score)}
         </Text>
       </Animated.View>
       {gain !== null && !reducedMotion && (
@@ -98,7 +99,7 @@ export function ScorePlaque({ score }: { score: number }) {
             className="text-base font-extrabold"
             style={{ color: palette.accent.soft, includeFontPadding: false }}
           >
-            +{gain.toLocaleString()}
+            +{formatNumber(gain)}
           </Text>
         </Animated.View>
       )}

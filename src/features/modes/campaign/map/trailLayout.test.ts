@@ -1,13 +1,18 @@
 import { FIXTURE_POOL, FIXTURE_ROUTE_SPECS, FIXTURE_WORLDS } from '../__fixtures__/routedCampaign';
 import { buildCampaign, worldStages } from '../campaignMap';
 import {
+  FINALE_MEDAL,
   FRONTIER_NODE,
+  NEXT_BANNER_GAP,
   NODE,
+  REWARD_MEDAL,
+  REWARD_PLAQUE_H,
+  REWARD_STEP_Y,
+  REWARD_TAIL,
   ROUTE_BANNER_H,
   routeLane,
   stageCentreY,
   STEP_Y,
-  TRAIL_TOP,
   trailX,
 } from './constants';
 import { eraTrailLayout } from './trailLayout';
@@ -26,8 +31,8 @@ describe('eraTrailLayout', () => {
     expect(layout.nodes.map((n) => [n.stage.id, n.x, n.y])).toEqual(
       plain!.stages.map((s, i) => [s.id, trailX(3 + i, W), stageCentreY(i)]),
     );
-    expect(layout.height).toBe(TRAIL_TOP + plain!.stages.length * STEP_Y + 14);
-    expect(layout.segments).toHaveLength(plain!.stages.length - 1);
+    // One road between each pair of stages, plus in from the banner, on to the trophy and out.
+    expect(layout.segments).toHaveLength(plain!.stages.length + 2);
     expect(layout.banners).toEqual([]);
   });
 
@@ -54,22 +59,60 @@ describe('eraTrailLayout', () => {
     expect(nodes.get('ancient-s4')!.y).toBe(rejoin.y + STEP_Y);
   });
 
-  it('forks the dotted trail out of the fork stage and merges it into the rejoin', () => {
-    const pairs = eraTrailLayout(ancient, 0, W).segments.map((s) => `${s.fromId}>${s.toId}`);
-    expect(pairs).toEqual([
-      'ancient-s1>ancient-s2',
-      'ancient-s2>ancient-north-s1',
-      'ancient-north-s1>ancient-north-s2',
-      'ancient-north-s2>ancient-north-s3',
-      'ancient-north-s3>ancient-s3',
-      'ancient-s2>ancient-south-s1',
-      'ancient-south-s1>ancient-south-s2',
-      'ancient-south-s2>ancient-south-s3',
-      'ancient-south-s3>ancient-s3',
-      'ancient-s3>ancient-s4',
-      'ancient-s4>ancient-s5',
-      'ancient-s5>ancient-s6',
+  it('centres the very first stage of the campaign under its banner', () => {
+    expect(eraTrailLayout(ancient, 0, W).nodes[0]!.x).toBe(W / 2);
+  });
+
+  it("runs the road from the banner, through the fork's signposts, to the trophy and on", () => {
+    const roads = eraTrailLayout(ancient, 0, W).segments.map((s) => `${s.kind} ${s.fromId}>${s.toId}`);
+    expect(roads).toEqual([
+      'lead start:ancient>ancient-s1',
+      'stage ancient-s1>ancient-s2',
+      'stage ancient-s2>route:north',
+      'stage ancient-s2>ancient-north-s1',
+      'stage ancient-north-s1>ancient-north-s2',
+      'stage ancient-north-s2>ancient-north-s3',
+      'stage ancient-north-s3>ancient-s3',
+      'stage ancient-s2>route:south',
+      'stage ancient-s2>ancient-south-s1',
+      'stage ancient-south-s1>ancient-south-s2',
+      'stage ancient-south-s2>ancient-south-s3',
+      'stage ancient-south-s3>ancient-s3',
+      'stage ancient-s3>ancient-s4',
+      'stage ancient-s4>ancient-s5',
+      'stage ancient-s5>ancient-s6',
+      'stage ancient-s6>reward:ancient',
+      'tail ancient-s6>next:ancient',
     ]);
+  });
+
+  it('plugs the fork roads into the top and foot of each route signpost', () => {
+    const layout = eraTrailLayout(ancient, 0, W);
+    for (const banner of layout.banners) {
+      const centre = banner.left + banner.width / 2;
+      const into = layout.segments.find((s) => s.toId === `route:${banner.route.id}`)!;
+      expect(into.to).toEqual({ x: centre, y: banner.top });
+      const outOf = layout.segments.find((s) => s.toId === `ancient-${banner.route.id}-s1`)!;
+      expect(outOf.from).toEqual({ x: centre, y: banner.top + ROUTE_BANNER_H });
+    }
+  });
+
+  it('ends the era at a centred trophy below its last stage, the road running on into the next era', () => {
+    const layout = eraTrailLayout(ancient, 0, W);
+    const last = layout.nodes.find((n) => n.stage.id === 'ancient-s6')!;
+    expect(layout.reward).toEqual({ x: W / 2, y: last.y + REWARD_STEP_Y, size: REWARD_MEDAL, finale: false });
+    expect(layout.height).toBe(layout.reward.y + REWARD_MEDAL / 2 + REWARD_PLAQUE_H + REWARD_TAIL);
+    const tail = layout.segments.at(-1)!;
+    expect(tail.kind).toBe('tail');
+    // Past the trail's bottom, under the next era's banner.
+    expect(tail.to.y).toBeGreaterThan(layout.height + NEXT_BANNER_GAP);
+  });
+
+  it('gives the last era the grand trophy and no road beyond it', () => {
+    const layout = eraTrailLayout(ancient, 0, W, true);
+    expect(layout.reward.size).toBe(FINALE_MEDAL);
+    expect(layout.reward.finale).toBe(true);
+    expect(layout.segments.some((s) => s.kind === 'tail')).toBe(false);
   });
 
   it('heads each lane with a banner between the fork and the first route stage', () => {
@@ -106,9 +149,7 @@ describe('eraTrailLayout', () => {
       expect(main[i]!.y - main[i - 1]!.y).toBeGreaterThanOrEqual(STEP_Y);
     }
     expect(STEP_Y).toBeGreaterThanOrEqual(170);
-    // Fork connectors run under the route banners, which leave a deliberate hole.
-    const underBanner = new Set(ancient.routes.map((r) => r.stages[0]!.id));
-    for (const segment of layout.segments.filter((s) => !underBanner.has(s.toId))) {
+    for (const segment of layout.segments) {
       const gaps = segment.dots
         .slice(1)
         .map((d, i) => Math.hypot(d.x - segment.dots[i]!.x, d.y - segment.dots[i]!.y));
@@ -116,13 +157,21 @@ describe('eraTrailLayout', () => {
     }
   });
 
-  it('dots each connector along its curve, clear of the buttons and the route banners', () => {
+  it('runs each road right up to the buttons it joins, never under a route banner', () => {
     const layout = eraTrailLayout(ancient, 0, W);
+    const stageIds = new Set(layout.nodes.map((n) => n.stage.id));
     for (const segment of layout.segments) {
       expect(segment.dots.length).toBeGreaterThan(0);
+      const first = segment.dots[0]!;
+      const last = segment.dots.at(-1)!;
+      if (stageIds.has(segment.fromId) && segment.kind === 'stage' && !segment.key.startsWith('route:')) {
+        // The first dash sits on the button's rim: touching it, not floating clear.
+        expect(Math.abs(Math.hypot(first.x - segment.from.x, first.y - segment.from.y) - NODE / 2)).toBeLessThan(2);
+      }
+      if (stageIds.has(segment.toId)) {
+        expect(Math.abs(Math.hypot(last.x - segment.to.x, last.y - segment.to.y) - NODE / 2)).toBeLessThan(2);
+      }
       for (const d of segment.dots) {
-        expect(Math.hypot(d.x - segment.from.x, d.y - segment.from.y)).toBeGreaterThanOrEqual(NODE / 2);
-        expect(Math.hypot(d.x - segment.to.x, d.y - segment.to.y)).toBeGreaterThanOrEqual(NODE / 2);
         for (const b of layout.banners) {
           const under =
             d.x >= b.left && d.x <= b.left + b.width && d.y >= b.top && d.y <= b.top + ROUTE_BANNER_H;
@@ -139,6 +188,6 @@ describe('eraTrailLayout', () => {
   it('grows the trail by the fork section', () => {
     const layout = eraTrailLayout(ancient, 0, W);
     const lowest = Math.max(...layout.nodes.map((n) => n.y));
-    expect(layout.height).toBe(lowest + STEP_Y / 2 + 14);
+    expect(layout.reward.y).toBe(lowest + REWARD_STEP_Y);
   });
 });

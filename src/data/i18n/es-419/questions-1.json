@@ -1,0 +1,362 @@
+{
+  "evt-moon-landing": {
+    "title": "La llegada del hombre a la Luna",
+    "longDescription": "El Apolo 11 llevó a los primeros seres humanos a la superficie lunar, cumpliendo una meta de una década fijada por el presidente Kennedy. Se calcula que 600 millones de personas vieron la transmisión, la mayor audiencia televisiva de su época."
+  },
+  "evt-berlin-wall": {
+    "title": "La caída del Muro de Berlín",
+    "longDescription": "Tras semanas de protestas, Alemania Oriental abrió sus fronteras y multitudes derribaron el muro que dividía la ciudad desde 1961. Se convirtió en el símbolo por excelencia del fin de la Guerra Fría."
+  },
+  "evt-french-revolution": {
+    "title": "La toma de la Bastilla",
+    "longDescription": "La caída de la prisión de la Bastilla fue la chispa de la Revolución Francesa, que derribó la monarquía absoluta e inspiró movimientos republicanos en toda Europa. La fecha todavía se celebra como la fiesta nacional de Francia."
+  },
+  "evt-magna-carta": {
+    "title": "El sellado de la Carta Magna",
+    "longDescription": "Barones rebeldes obligaron al rey Juan sin Tierra a sellar la Carta Magna, que estableció que el monarca no estaba por encima de la ley. Sus principios resuenan en constituciones y declaraciones de derechos siglos después."
+  },
+  "evt-us-independence": {
+    "title": "La Declaración de Independencia de EE. UU.",
+    "longDescription": "El Congreso Continental adoptó la Declaración de Independencia, que anunciaba la separación de las colonias de Gran Bretaña y expresaba la idea de que los gobiernos obtienen su poder del consentimiento de los gobernados."
+  },
+  "evt-constantinople": {
+    "title": "La caída de Constantinopla",
+    "longDescription": "Las fuerzas del sultán Mehmed II abrieron brecha en las antiguas murallas de Constantinopla, poniendo fin al milenario Imperio bizantino y marcando un punto de inflexión que a menudo se usa para fechar el final de la Edad Media."
+  },
+  "evt-columbus": {
+    "title": "Colón llega a América",
+    "longDescription": "Cristóbal Colón, navegando al servicio de España, llegó al Caribe mientras buscaba una ruta hacia Asia por el oeste. El viaje abrió siglos de intercambio transatlántico, colonización y convulsiones."
+  },
+  "evt-russian-revolution": {
+    "title": "La Revolución de Octubre",
+    "longDescription": "Encabezados por Lenin, los bolcheviques derrocaron al gobierno provisional y fundaron el primer Estado comunista del mundo, sentando las bases de la Unión Soviética y de buena parte de la geopolítica del siglo XX."
+  },
+  "evt-titanic": {
+    "title": "El hundimiento del Titanic",
+    "longDescription": "En su viaje inaugural de Southampton a Nueva York, el RMS Titanic chocó contra un iceberg y se hundió, causando la muerte de más de 1.500 personas. La tragedia cambió para siempre las leyes de seguridad marítima."
+  },
+  "evt-great-fire-london": {
+    "title": "El Gran Incendio de Londres",
+    "longDescription": "Iniciado en una panadería de Pudding Lane, el fuego ardió durante cuatro días y destruyó la mayor parte de la ciudad medieval, incluida la antigua Catedral de San Pablo. La reconstrucción transformó la arquitectura de Londres."
+  },
+  "bat-hastings": {
+    "title": "La batalla de Hastings",
+    "longDescription": "Guillermo, duque de Normandía, derrotó al rey anglosajón Haroldo II, que murió en el combate. La victoria condujo a la conquista normanda y transformó la lengua, las leyes y la aristocracia de Inglaterra."
+  },
+  "bat-waterloo": {
+    "title": "La batalla de Waterloo",
+    "longDescription": "Una coalición encabezada por el duque de Wellington y el mariscal de campo prusiano Blücher derrotó a Napoleón Bonaparte, poniendo fin a su regreso al poder y a las guerras napoleónicas que habían sacudido Europa durante más de una década."
+  },
+  "bat-gettysburg": {
+    "title": "La batalla de Gettysburg",
+    "longDescription": "Durante tres días, las fuerzas de la Unión repelieron la invasión del Norte del general Lee en la batalla más sangrienta de la guerra civil estadounidense. Se considera en general el punto de inflexión de la guerra."
+  },
+  "bat-thermopylae": {
+    "title": "La batalla de las Termópilas",
+    "longDescription": "Una pequeña fuerza griega dirigida por el rey Leónidas de Esparta defendió el estrecho paso de las Termópilas contra el inmenso ejército de Jerjes durante tres días antes de ser arrollada, ganando tiempo para las ciudades-Estado griegas."
+  },
+  "bat-agincourt": {
+    "title": "La batalla de Azincourt",
+    "longDescription": "Durante la guerra de los Cien Años, el ejército inglés del rey Enrique V, en inferioridad numérica y apoyado en el arco largo, aplastó a una fuerza francesa mucho mayor en campos embarrados cerca de Azincourt."
+  },
+  "bat-stalingrad": {
+    "title": "La batalla de Stalingrado",
+    "longDescription": "Una de las batallas más mortíferas de la historia, la lucha por Stalingrado terminó con el cerco y la rendición del Sexto Ejército alemán, lo que marcó un giro decisivo en el Frente Oriental de la Segunda Guerra Mundial."
+  },
+  "bat-trafalgar": {
+    "title": "La batalla de Trafalgar",
+    "longDescription": "La flota del almirante Horatio Nelson destruyó una fuerza combinada francesa y española frente a la costa de España, consolidando el dominio británico de los mares durante un siglo. Nelson fue herido de muerte en la batalla."
+  },
+  "bat-actium": {
+    "title": "La batalla de Accio",
+    "longDescription": "La flota de Octavio derrotó a las fuerzas de Marco Antonio y Cleopatra, dejándolo sin rivales. Pocos años después se convirtió en Augusto, el primer emperador romano, y puso fin a la República romana."
+  },
+  "bat-tours": {
+    "title": "La batalla de Tours",
+    "longDescription": "El líder franco Carlos Martel derrotó a un ejército omeya que avanzaba sobre la Galia. Muchos historiadores ven la batalla como un freno a la expansión musulmana en Europa occidental durante la Alta Edad Media."
+  },
+  "bat-bannockburn": {
+    "title": "La batalla de Bannockburn",
+    "longDescription": "El ejército escocés del rey Roberto Bruce derrotó a una fuerza inglesa mucho mayor al mando de Eduardo II, una victoria histórica en las guerras de independencia de Escocia que ayudó a asegurar la soberanía escocesa."
+  },
+  "ppl-einstein": {
+    "title": "Nace Albert Einstein",
+    "longDescription": "Albert Einstein revolucionó la física con sus teorías de la relatividad especial y general y ganó el Premio Nobel por su trabajo sobre el efecto fotoeléctrico. Su nombre se volvió sinónimo de genialidad."
+  },
+  "ppl-curie": {
+    "title": "Nace Marie Curie",
+    "longDescription": "Marie Curie descubrió los elementos polonio y radio y fue pionera en la investigación de la radiactividad. Fue la primera mujer en ganar un Premio Nobel y la única persona en ganarlo en dos ciencias distintas."
+  },
+  "ppl-davinci": {
+    "title": "Nace Leonardo da Vinci",
+    "longDescription": "Leonardo da Vinci pintó la Mona Lisa y La última cena mientras llenaba cuadernos con estudios anatómicos, máquinas voladoras y diseños de ingeniería adelantados siglos a su tiempo."
+  },
+  "ppl-newton": {
+    "title": "Nace Isaac Newton",
+    "longDescription": "Nacido el 4 de enero de 1643 según el calendario moderno (25 de diciembre de 1642 según el calendario antiguo que entonces se usaba en Inglaterra), Isaac Newton describió la gravitación universal y las tres leyes del movimiento, inventó el cálculo a la par de Leibniz y sentó las bases de la física clásica en sus Principia Mathematica."
+  },
+  "ppl-shakespeare": {
+    "title": "Nace William Shakespeare",
+    "longDescription": "William Shakespeare escribió unas 39 obras de teatro y 154 sonetos que moldearon la lengua inglesa y se siguen representando en todo el mundo. Su bautismo quedó registrado en abril de 1564."
+  },
+  "ppl-napoleon": {
+    "title": "Nace Napoleón Bonaparte",
+    "longDescription": "Napoleón ascendió al calor de la Revolución Francesa hasta coronarse emperador, redibujó el mapa de Europa con las guerras napoleónicas y dejó un legado jurídico duradero en el Código Napoleónico."
+  },
+  "ppl-gandhi": {
+    "title": "Nace Mahatma Gandhi",
+    "longDescription": "Mohandas “Mahatma” Gandhi fue pionero de la desobediencia civil no violenta de masas, condujo a la India a la independencia del dominio británico en 1947 e inspiró movimientos por los derechos civiles en todo el mundo."
+  },
+  "ppl-mandela": {
+    "title": "Nace Nelson Mandela",
+    "longDescription": "Nelson Mandela pasó 27 años en prisión por oponerse al apartheid; luego condujo la transición pacífica de Sudáfrica a la democracia y se convirtió en su primer presidente negro en 1994."
+  },
+  "ppl-darwin": {
+    "title": "Nace Charles Darwin",
+    "longDescription": "El viaje de Charles Darwin a bordo del HMS Beagle dio origen a El origen de las especies, obra que presentó la evolución por selección natural y se convirtió en uno de los pilares de la biología moderna."
+  },
+  "tec-telephone": {
+    "title": "El teléfono",
+    "longDescription": "Alexander Graham Bell obtuvo la patente del teléfono, que permitía transmitir la voz eléctricamente a distancia y transformó para siempre la comunicación y los negocios."
+  },
+  "tec-powered-flight": {
+    "title": "El primer vuelo propulsado",
+    "longDescription": "Orville y Wilbur Wright lograron el primer vuelo propulsado, controlado y sostenido de una aeronave más pesada que el aire en Kitty Hawk, inaugurando la era de la aviación."
+  },
+  "tec-television": {
+    "title": "Se presenta la televisión",
+    "longDescription": "El inventor escocés John Logie Baird hizo la primera demostración pública de un sistema de televisión funcional, transmitiendo imágenes en movimiento reconocibles y abriendo el camino a la televisión abierta."
+  },
+  "tec-transistor": {
+    "title": "El transistor",
+    "longDescription": "Investigadores de Bell Labs demostraron el primer transistor funcional, un diminuto interruptor semiconductor que reemplazó a los voluminosos tubos de vacío e hizo posibles las computadoras y la electrónica modernas."
+  },
+  "tec-world-wide-web": {
+    "title": "La World Wide Web",
+    "longDescription": "Tim Berners-Lee, que trabajaba en el CERN, publicó el primer sitio web, lanzando la World Wide Web y convirtiendo internet en un medio global de información y comercio."
+  },
+  "tec-iphone": {
+    "title": "El iPhone",
+    "longDescription": "Steve Jobs presentó el iPhone, que combinaba teléfono, iPod y dispositivo de internet en un solo producto con pantalla táctil y transformó la industria móvil y la vida cotidiana."
+  },
+  "tec-chatgpt": {
+    "title": "El lanzamiento de ChatGPT",
+    "longDescription": "OpenAI lanzó ChatGPT, una IA conversacional que alcanzó cien millones de usuarios en dos meses y llevó los grandes modelos de lenguaje al uso cotidiano."
+  },
+  "tec-steam-engine": {
+    "title": "La máquina de vapor mejorada",
+    "longDescription": "James Watt patentó una máquina de vapor mucho más eficiente, cuyo condensador separado hizo práctica la energía de vapor para fábricas, minas y transporte, impulsando la Revolución Industrial."
+  },
+  "tec-nuclear-reactor": {
+    "title": "La primera reacción nuclear en cadena",
+    "longDescription": "Un equipo dirigido por Enrico Fermi produjo la primera reacción nuclear en cadena autosostenida bajo las gradas de un campo deportivo de la Universidad de Chicago, inaugurando la era atómica."
+  },
+  "evt-caesar-assassination": {
+    "title": "El asesinato de Julio César",
+    "longDescription": "Temiendo su creciente poder, un grupo de senadores romanos encabezado por Bruto y Casio asesinó a Julio César durante una reunión del Senado. El crimen sumió a Roma en guerras civiles que acabaron con la República."
+  },
+  "evt-vesuvius": {
+    "title": "La erupción del monte Vesubio",
+    "longDescription": "El monte Vesubio hizo una erupción catastrófica que sepultó las ciudades romanas de Pompeya y Herculano bajo la ceniza y las preservó para los arqueólogos. Murieron miles de personas, entre ellas el naturalista Plinio el Viejo."
+  },
+  "evt-lindisfarne": {
+    "title": "El ataque vikingo a Lindisfarne",
+    "longDescription": "Asaltantes vikingos saquearon el rico monasterio de la isla de Lindisfarne, frente a la costa de Northumbria. El ataque conmocionó a la Europa cristiana y tradicionalmente se toma como el inicio de la Era vikinga."
+  },
+  "evt-black-death": {
+    "title": "La peste negra llega a Europa",
+    "longDescription": "Barcos genoveses con marineros enfermos de peste atracaron en Mesina, en Sicilia, y llevaron la peste negra a Europa. En cinco años, la plaga mató quizá a un tercio o más de la población europea."
+  },
+  "evt-gold-rush": {
+    "title": "Comienza la fiebre del oro de California",
+    "longDescription": "James W. Marshall vio pepitas de oro en Sutter’s Mill, junto al río American. La noticia atrajo a unos 300.000 buscadores de fortuna a California y transformó el Oeste estadounidense casi de la noche a la mañana."
+  },
+  "bat-marathon": {
+    "title": "La batalla de Maratón",
+    "longDescription": "Los atenienses, en gran inferioridad numérica, derrotaron a una fuerza invasora persa en la llanura de Maratón. Según la leyenda, el corredor Filípides llevó la noticia de la victoria a Atenas, lo que inspiró la maratón moderna."
+  },
+  "bat-cannae": {
+    "title": "La batalla de Cannas",
+    "longDescription": "El ejército cartaginés de Aníbal envolvió y destruyó a una fuerza romana mucho mayor en Cannas, matando a decenas de miles en un solo día. El doble envolvimiento todavía se estudia en las academias militares."
+  },
+  "bat-lepanto": {
+    "title": "La batalla de Lepanto",
+    "longDescription": "La flota de la Liga Santa derrotó a la armada otomana frente a la costa occidental de Grecia en la mayor batalla de galeras de la historia, frenando el poder naval otomano en el Mediterráneo."
+  },
+  "bat-spanish-armada": {
+    "title": "La derrota de la Armada Invencible",
+    "longDescription": "La flota inglesa atacó a la Armada española con brulotes y artillería frente a Gravelinas; después, las tormentas del Atlántico destrozaron gran parte de la flota en su retirada. La invasión fallida se convirtió en un momento decisivo para la Inglaterra isabelina."
+  },
+  "bat-vienna": {
+    "title": "La batalla de Viena",
+    "longDescription": "Un ejército de socorro dirigido por el rey Juan III Sobieski de Polonia, encabezado por la mayor carga de caballería de la historia, derrotó a las fuerzas otomanas que sitiaban Viena y cambió el rumbo de la expansión otomana en Europa."
+  },
+  "ppl-alexander": {
+    "title": "Nace Alejandro Magno",
+    "longDescription": "Educado por Aristóteles, Alejandro de Macedonia conquistó el Imperio persa y marchó hasta la India sin perder una batalla, difundiendo la cultura griega por el mundo antiguo antes de morir a los 32 años."
+  },
+  "ppl-caesar": {
+    "title": "Nace Julio César",
+    "longDescription": "Cayo Julio César conquistó la Galia, ganó una guerra civil y se proclamó dictador de Roma —reformando el calendario de paso— antes de que su asesinato desencadenara la caída de la República."
+  },
+  "ppl-mozart": {
+    "title": "Nace Wolfgang Amadeus Mozart",
+    "longDescription": "A los seis años, Mozart ya recorría las cortes de Europa como intérprete, y llegó a componer más de 600 obras —sinfonías, conciertos y óperas— que siguen en el corazón de la música clásica."
+  },
+  "ppl-victoria": {
+    "title": "Nace la reina Victoria",
+    "longDescription": "Victoria se convirtió en reina a los 18 años y reinó durante más de 63, un período de expansión industrial, científica e imperial tan característico que se le llama simplemente la época victoriana."
+  },
+  "tec-paper": {
+    "title": "Cai Lun perfecciona la fabricación del papel",
+    "longDescription": "En China existía un papel rudimentario desde hacía dos siglos, pero en el año 105 d. C. el funcionario de la corte Cai Lun presentó al emperador Han un proceso mejorado: corteza, cáñamo y trapos convertidos en pulpa. El papel, barato y ligero, se difundió por las rutas comerciales y acabó reemplazando al bambú, la seda y el pergamino."
+  },
+  "tec-telescope": {
+    "title": "El telescopio",
+    "longDescription": "El fabricante de anteojos Hans Lippershey presentó la primera solicitud de patente conocida de un telescopio. En menos de un año, Galileo construyó el suyo y lo apuntó al cielo nocturno, transformando la astronomía para siempre."
+  },
+  "tec-vaccination": {
+    "title": "La primera vacunación",
+    "longDescription": "Edward Jenner inoculó a un niño con viruela bovina y demostró que lo protegía contra la viruela, creando la primera vacuna. La vacunación llegaría a salvar cientos de millones de vidas y a erradicar la viruela por completo."
+  },
+  "tec-locomotive": {
+    "title": "El primer viaje de una locomotora ferroviaria",
+    "longDescription": "La locomotora de vapor de alta presión de Richard Trevithick arrastró diez toneladas de hierro y setenta hombres por la vía de Penydarren: el primer viaje ferroviario del mundo realizado por una locomotora de vapor."
+  },
+  "tec-photography": {
+    "title": "La fotografía se hace pública",
+    "longDescription": "El gobierno francés anunció el proceso fotográfico de Louis Daguerre como un regalo “libre para el mundo”. El daguerrotipo volvió asequible el retrato e inició la era de la fotografía."
+  },
+  "tec-penicillin": {
+    "title": "El descubrimiento de la penicilina",
+    "longDescription": "Al volver de vacaciones, Alexander Fleming descubrió que un moho Penicillium había matado las bacterias de una placa de cultivo desechada. El hallazgo condujo a los antibióticos, que desde entonces han salvado incontables vidas."
+  },
+  "evt-justinian-plague": {
+    "title": "La plaga de Justiniano",
+    "longDescription": "La peste bubónica llegó a Constantinopla durante el reinado del emperador Justiniano, mató a decenas de millones en todo el mundo mediterráneo y debilitó al Imperio bizantino durante generaciones."
+  },
+  "evt-boston-tea-party": {
+    "title": "El Motín del Té de Boston",
+    "longDescription": "En protesta contra los impuestos sin representación, colonos estadounidenses abordaron barcos de la Compañía de las Indias Orientales y arrojaron 342 cajas de té al puerto de Boston, empujando a Gran Bretaña y sus colonias hacia la guerra."
+  },
+  "evt-rosetta-stone": {
+    "title": "Se descubre la piedra de Rosetta",
+    "longDescription": "Soldados franceses que reconstruían un fuerte en el delta del Nilo desenterraron una piedra con el mismo decreto en jeroglíficos, demótico y griego. Por fin permitió a los estudiosos descifrar la escritura del antiguo Egipto."
+  },
+  "evt-great-exhibition": {
+    "title": "Se inaugura la Gran Exposición",
+    "longDescription": "La Gran Exposición se inauguró en el Palacio de Cristal, una enorme nave de hierro y vidrio en Hyde Park, y mostró la industria y los inventos de todo el mundo a seis millones de visitantes."
+  },
+  "evt-krakatoa": {
+    "title": "La erupción del Krakatoa",
+    "longDescription": "La isla volcánica de Krakatoa estalló con una explosión que se oyó a miles de kilómetros, generando tsunamis que mataron a más de 36.000 personas y oscureciendo los cielos de todo el mundo."
+  },
+  "evt-sf-earthquake": {
+    "title": "El terremoto de San Francisco",
+    "longDescription": "Un terremoto de magnitud 7,9 sacudió San Francisco antes del amanecer, y los incendios que siguieron destruyeron la mayor parte de la ciudad. Murieron unas 3.000 personas y un cuarto de millón se quedó sin hogar."
+  },
+  "evt-versailles-treaty": {
+    "title": "El Tratado de Versalles",
+    "longDescription": "Cinco años exactos después del asesinato que desató la guerra, los Aliados y Alemania firmaron el Tratado de Versalles. Sus duras condiciones proyectaron una larga sombra sobre la paz."
+  },
+  "evt-tutankhamun": {
+    "title": "Se descubre la tumba de Tutankamón",
+    "longDescription": "El equipo de Howard Carter halló los escalones de la tumba de Tutankamón, el único enterramiento real egipcio descubierto prácticamente intacto. Sus tesoros de oro despertaron una fascinación mundial por el antiguo Egipto."
+  },
+  "evt-wall-street-crash": {
+    "title": "El crac de Wall Street",
+    "longDescription": "Las ventas de pánico en la Bolsa de Nueva York acabaron con fortunas en el Martes Negro, el peor día del crac de 1929. Dio paso a la Gran Depresión, una década de penurias en todo el mundo."
+  },
+  "evt-hindenburg": {
+    "title": "El desastre del Hindenburg",
+    "longDescription": "El dirigible alemán Hindenburg se incendió al aterrizar en Nueva Jersey y murieron 36 personas. Captado en película y por la radio, el desastre puso fin a la era de los dirigibles de pasajeros casi de la noche a la mañana."
+  },
+  "evt-chernobyl": {
+    "title": "El desastre de Chernóbil",
+    "longDescription": "Una prueba de seguridad nocturna en la central nuclear de Chernóbil salió catastróficamente mal: el reactor 4 explotó y la lluvia radiactiva se extendió por Europa. La cercana ciudad de Prípiat fue abandonada."
+  },
+  "bat-gaugamela": {
+    "title": "La batalla de Gaugamela",
+    "longDescription": "En gran inferioridad numérica, Alejandro Magno superó con sus maniobras al rey Darío III en la llanura de Gaugamela. La victoria quebró el poder persa y dejó a Alejandro dueño de un imperio."
+  },
+  "bat-zama": {
+    "title": "La batalla de Zama",
+    "longDescription": "En su propio terreno, en el norte de África, Aníbal fue por fin vencido por el general romano Escipión el Africano. Cartago pidió la paz y Roma quedó como la potencia dominante del Mediterráneo occidental."
+  },
+  "bat-alesia": {
+    "title": "El sitio de Alesia",
+    "longDescription": "Julio César rodeó la fortaleza de Alesia, en lo alto de una colina, con dos anillos de fortificaciones, sitiando a Vercingétorix mientras contenía a un ejército galo de socorro. La rendición selló la Galia romana."
+  },
+  "bat-teutoburg": {
+    "title": "La batalla del bosque de Teutoburgo",
+    "longDescription": "Tribus germanas dirigidas por Arminio emboscaron y aniquilaron a tres legiones romanas en el bosque de Teutoburgo. El desastre detuvo para siempre la expansión romana en el Rin."
+  },
+  "bat-adrianople": {
+    "title": "La batalla de Adrianópolis",
+    "longDescription": "La caballería goda destruyó al ejército romano de Oriente cerca de Adrianópolis y mató al emperador Valente. La derrota suele considerarse el principio del fin del Imperio romano de Occidente."
+  },
+  "bat-jerusalem-1099": {
+    "title": "El sitio de Jerusalén",
+    "longDescription": "Tras un asedio de cinco semanas, los ejércitos de la Primera Cruzada irrumpieron en Jerusalén con torres de asedio de madera. La conquista, seguida de una matanza tristemente célebre, dio origen a los Estados cruzados."
+  },
+  "bat-crecy": {
+    "title": "La batalla de Crécy",
+    "longDescription": "El ejército inglés de Eduardo III, afianzado en masas de arqueros de arco largo, abatió oleada tras oleada de caballeros franceses en Crécy: una derrota impactante que anunció el dominio del arco largo."
+  },
+  "bat-orleans": {
+    "title": "Se levanta el sitio de Orleans",
+    "longDescription": "Días después de la llegada de Juana de Arco, las fuerzas francesas asaltaron las obras de asedio inglesas alrededor de Orleans y levantaron el sitio: el punto de inflexión que llevó a la coronación de Carlos VII."
+  },
+  "bat-bosworth": {
+    "title": "La batalla de Bosworth",
+    "longDescription": "Enrique Tudor derrotó y mató al rey Ricardo III en Bosworth Field, poniendo fin en la práctica a la guerra de las Dos Rosas y fundando la dinastía Tudor, que gobernaría Inglaterra durante más de un siglo."
+  },
+  "bat-culloden": {
+    "title": "La batalla de Culloden",
+    "longDescription": "Las fuerzas del gobierno aplastaron al ejército jacobita de Bonnie Prince Charlie en el páramo de Culloden en menos de una hora. La derrota puso fin a los levantamientos jacobitas y trajo duras represalias a las Tierras Altas."
+  },
+  "bat-yorktown": {
+    "title": "El sitio de Yorktown",
+    "longDescription": "Atrapado entre el ejército de Washington y la flota francesa, el general británico Cornwallis se rindió en Yorktown. Fue la última gran batalla de la guerra de Independencia de Estados Unidos."
+  },
+  "bat-austerlitz": {
+    "title": "La batalla de Austerlitz",
+    "longDescription": "Napoleón atrajo a los ejércitos ruso y austríaco a atacar su flanco deliberadamente debilitado y luego partió su centro en los altos de Pratzen: considerada ampliamente su mayor victoria."
+  },
+  "bat-somme": {
+    "title": "Comienza la batalla del Somme",
+    "longDescription": "La ofensiva anglofrancesa en el Somme comenzó con el peor día de la historia militar británica. Para su final, en noviembre, más de un millón de hombres de todos los bandos habían sido bajas."
+  },
+  "bat-midway": {
+    "title": "La batalla de Midway",
+    "longDescription": "Bombarderos en picada estadounidenses hundieron cuatro portaaviones japoneses cerca del atolón de Midway, seis meses después de Pearl Harbor. La victoria inclinó para siempre la balanza de la guerra del Pacífico."
+  },
+  "bat-dday": {
+    "title": "Día D: el desembarco de Normandía",
+    "longDescription": "Casi 160.000 soldados aliados desembarcaron en cinco playas de Normandía el Día D, la mayor invasión anfibia jamás realizada. Abrió el Frente Occidental que llevó a la derrota de Alemania."
+  },
+  "ppl-aristotle": {
+    "title": "Nace Aristóteles",
+    "longDescription": "Aristóteles estudió con Platón, fue tutor de Alejandro Magno y escribió sobre lógica, biología, ética y política. Sus obras dominaron el pensamiento occidental e islámico durante casi dos milenios."
+  },
+  "ppl-augustus": {
+    "title": "Nace Augusto",
+    "longDescription": "Nacido como Cayo Octavio, el sobrino nieto de Julio César salió de la guerra civil como Augusto, el primer emperador de Roma. Su reinado de 40 años inauguró dos siglos de paz romana."
+  },
+  "ppl-elizabeth-i": {
+    "title": "Nace Isabel I",
+    "longDescription": "Hija de Enrique VIII y Ana Bolena, Isabel I gobernó Inglaterra durante 45 años, rechazó a la Armada Invencible y presidió la época de Shakespeare y de las exploraciones inglesas."
+  },
+  "ppl-galileo": {
+    "title": "Nace Galileo Galilei",
+    "longDescription": "Galileo descubrió las lunas de Júpiter y las fases de Venus, defendió el modelo heliocéntrico del cosmos y fue juzgado por la Inquisición por ello: una figura fundadora de la ciencia moderna."
+  },
+  "ppl-washington": {
+    "title": "Nace George Washington",
+    "longDescription": "George Washington condujo al Ejército Continental a la victoria en la guerra de Independencia, presidió la Convención Constitucional y sentó los precedentes de la presidencia estadounidense."
+  },
+  "ppl-lincoln": {
+    "title": "Nace Abraham Lincoln",
+    "longDescription": "Nacido en una cabaña de troncos de una sola habitación en Kentucky, Abraham Lincoln guio a Estados Unidos durante la guerra civil, promulgó la Proclamación de Emancipación y fue asesinado días después de la victoria."
+  }
+}

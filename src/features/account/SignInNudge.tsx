@@ -3,7 +3,8 @@ import { Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { Button } from '@/components/ui';
-import { BACKUP_BUTTON_LABEL } from '@/config/store';
+import { backupButtonLabel } from '@/config/store';
+import { t } from '@/i18n';
 import { useAuth } from '@/services/firebase/auth';
 
 import {
@@ -74,15 +75,14 @@ export function SignInNudgeCard({
   return (
     <View className="gap-3 border border-hair bg-bg-overlay p-4" testID="sign-in-nudge">
       <View>
-        <Text className="text-base font-semibold text-ink-primary">Keep your progress</Text>
+        <Text className="text-base font-semibold text-ink-primary">{t('home.signInNudge.title')}</Text>
         <Text className="mt-0.5 text-xs text-ink-muted">
-          Your progress is saved on this device. Back it up to Google and your campaign,
-          museum, XP and coins follow you to a new phone.
+          {t('home.signInNudge.body')}
         </Text>
       </View>
       <View className="flex-row items-center gap-3">
         <View className="flex-1">
-          <Button label={BACKUP_BUTTON_LABEL} onPress={onSignIn} testID="sign-in-nudge-accept" />
+          <Button label={backupButtonLabel()} onPress={onSignIn} testID="sign-in-nudge-accept" />
         </View>
         <Pressable
           onPress={onDismiss}
@@ -91,7 +91,7 @@ export function SignInNudgeCard({
           testID="sign-in-nudge-dismiss"
           className="px-3 py-2"
         >
-          <Text className="text-sm font-semibold text-ink-muted">Not now</Text>
+          <Text className="text-sm font-semibold text-ink-muted">{t('home.signInNudge.notNow')}</Text>
         </Pressable>
       </View>
     </View>

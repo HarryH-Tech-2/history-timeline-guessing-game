@@ -1,5 +1,6 @@
 import type { RoundResult } from '@/domain';
 import { STORE_LISTING_URL } from '@/config/store';
+import { formatNumber, t } from '@/i18n';
 import { palette } from '@/theme/tokens';
 
 /**
@@ -29,12 +30,12 @@ export interface ShareCardData {
   rounds: readonly ShareRound[];
 }
 
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
 /** `2026-09-03` → `3 Sep 2026`. */
 export function prettyDate(dateKey: string): string {
   const [y, m, d] = dateKey.split('-').map(Number) as [number, number, number];
-  return `${d} ${MONTHS[m - 1]} ${y}`;
+  const month = t('round.share.months').split(' ')[m - 1] ?? '';
+  // Strings, not numbers: a year must never pick up a thousands separator.
+  return t('round.share.date', { day: String(d), month, year: String(y) });
 }
 
 /** Card data for a run played through the live session (every mode but Daily). */
@@ -97,10 +98,6 @@ export function tileForError(errorYears: number): string {
   return TIER_TILES[tierForError(errorYears)];
 }
 
-function pluralYears(n: number): string {
-  return `${n} ${n === 1 ? 'yr' : 'yrs'}`;
-}
-
 /** Score, exact count and average miss for a card — shared by both formats. */
 export function summariseRounds(data: ShareCardData): {
   totalScore: number;
@@ -125,9 +122,9 @@ export function summariseRounds(data: ShareCardData): {
 export function summaryLine(data: ShareCardData): string {
   const { totalScore, exact, rounds, avgError } = summariseRounds(data);
   return [
-    `${totalScore.toLocaleString()} pts`,
-    `${exact}/${rounds} exact`,
-    `avg ${pluralYears(avgError)} off`,
+    t('round.share.points', { score: formatNumber(totalScore) }),
+    t('round.share.exact', { exact, rounds }),
+    t('round.share.avgOff', { count: avgError, years: String(avgError) }),
   ].join(' · ');
 }
 

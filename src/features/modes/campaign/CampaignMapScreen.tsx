@@ -1,4 +1,4 @@
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   ScrollView,
   useWindowDimensions,
@@ -30,6 +30,8 @@ import {
   type CampaignStage,
   worldStages,
 } from './campaignMap';
+import { CampaignFinale } from './map/CampaignFinale';
+import { EraConqueredSheet, eraConqueredStore } from './map/EraConqueredSheet';
 import { SEQUENCE_DELAY_MS, STICKY_BAR_SPACE } from './map/constants';
 import { EraBackdrop } from './map/EraBackdrop';
 import { EraBanner } from './map/EraBanner';
@@ -37,8 +39,10 @@ import {
   EraTrail,
   NO_CELEBRATION,
   type Celebration,
+  type EraRewardStanding,
   type StageStanding,
 } from './map/EraTrail';
+import type { RewardState } from './map/EraReward';
 import { backdropProbe, bannerTucked, eraInView } from './map/mapVisuals';
 import { StickyEraBar } from './map/StickyEraBar';
 import { eraTrailLayout, type TrailLayout } from './map/trailLayout';
@@ -52,7 +56,30 @@ import { eraTrailLayout, type TrailLayout } from './map/trailLayout';
  * light-up sequence.
  */
 
-/** Space under the last era so its final stage sits well clear of the tab bar. */
+/** The last free era: finishing it is the moment to show what Premium opens next. */
+const LAST_FREE_ERA = CAMPAIGN.find(
+  (w, i) => !isWorldPremium(w.id) && (CAMPAIGN[i + 1] === undefined || isWorldPremium(CAMPAIGN[i + 1]!.id)),
+);
+
+/** When the era-conquered prompt follows the trophy's fanfare. */
+const ERA_PROMPT_DELAY_MS = SEQUENCE_DELAY_MS + 2200;
+
+/** The last era's trophy is the whole campaign's. */
+const FINAL_ERA_ID = CAMPAIGN.at(-1)?.id;
+
+/** How long after the map regains focus the campaign finale takes over the screen. */
+const FINALE_DELAY_MS = SEQUENCE_DELAY_MS + 1600;
+
+function rewardState(complete: boolean, mastered: boolean): RewardState {
+  return mastered ? 'mastered' : complete ? 'won' : 'locked';
+}
+
+/** Whether every era's main path is cleared in `progress` (the campaign is won). */
+function campaignWon(progress: CampaignProgress): boolean {
+  return CAMPAIGN.every((w) => eraStatus(w, progress).complete);
+}
+
+/** Space under the last era so its grand trophy sits well clear of the tab bar. */
 const BOTTOM_PAD = 64;
 
 /**
@@ -72,12 +99,21 @@ export function CampaignMapScreen() {
   const { width, height } = useWindowDimensions();
   const { isReady, campaign } = useSaves();
   const { isPremium } = usePremium();
+  // Read inside the focus effect without re-running it when Premium loads.
+  const premiumRef = useRef(isPremium);
+  useEffect(() => {
+    premiumRef.current = isPremium;
+  }, [isPremium]);
   const [progress, setProgress] = useState<CampaignProgress>({});
   const [celebration, setCelebration] = useState<Celebration>(NO_CELEBRATION);
   /** The era under the sticky bar, which names it (the painting follows `backdropEraId`). */
   const [viewEraId, setViewEraId] = useState(CAMPAIGN[0]?.id);
   /** Whether that era's own banner has scrolled up under the sticky bar. */
   const [barVisible, setBarVisible] = useState(false);
+  /** The campaign was just won: the finale is showing over the map. */
+  const [finaleOpen, setFinaleOpen] = useState(false);
+  /** A free player just conquered the last free era: the one-time Premium prompt. */
+  const [eraPromptOpen, setEraPromptOpen] = useState(false);
 
   const scrollRef = useRef<ScrollView>(null);
   /** Progress as of the last visit, per save store — what "new" is measured against. */
@@ -129,6 +165,32 @@ export function CampaignMapScreen() {
       ),
     [progress],
   );
+  /** Each era's closing trophy; the last era's stands for the whole campaign. */
+  const rewards = useMemo(() => {
+    const allComplete = CAMPAIGN.every((w) => eraStats.get(w.id)!.status.complete);
+    const allMastered = CAMPAIGN.every((w) => eraStats.get(w.id)!.status.mastered);
+    return new Map<string, EraRewardStanding>(
+      CAMPAIGN.map((w) => {
+        const { status } = eraStats.get(w.id)!;
+        const lastId = w.stages.at(-1)?.id ?? '';
+        const state =
+          w.id === FINAL_ERA_ID
+            ? rewardState(allComplete, allMastered)
+            : rewardState(status.complete, status.mastered);
+        const progress =
+          w.id === FINAL_ERA_ID
+            ? {
+                done: CAMPAIGN.filter((e) => eraStats.get(e.id)!.status.complete).length,
+                total: CAMPAIGN.length,
+              }
+            : { done: status.cleared, total: status.total };
+        return [
+          w.id,
+          { state, progress, justWon: state !== 'locked' && celebration.cleared.has(lastId) },
+        ] as const;
+      }),
+    );
+  }, [eraStats, celebration]);
   const journey = useMemo(() => {
     const stages = allStagesIncludingRoutes();
     return { earned: starsEarned(stages, progress), total: stages.length * 3 };
@@ -138,7 +200,11 @@ export function CampaignMapScreen() {
     const orderOf = new Map(allStages().map((s, i) => [s.id, i]));
     return new Map(
       CAMPAIGN.map(
-        (w) => [w.id, eraTrailLayout(w, orderOf.get(w.stages[0]?.id ?? '') ?? 0, width)] as const,
+        (w) =>
+          [
+            w.id,
+            eraTrailLayout(w, orderOf.get(w.stages[0]?.id ?? '') ?? 0, width, w.id === FINAL_ERA_ID),
+          ] as const,
       ),
     );
   }, [width]);
@@ -224,6 +290,7 @@ export function CampaignMapScreen() {
       if (!isReady) return;
       let active = true;
       let timer: ReturnType<typeof setTimeout> | undefined;
+      let promptTimer: ReturnType<typeof setTimeout> | undefined;
       void campaign.read().then((p) => {
         if (!active) return;
         const previous = seen.current?.store === campaign ? seen.current.progress : null;
@@ -253,6 +320,31 @@ export function CampaignMapScreen() {
           cleared: new Set(delta.cleared),
           unlocked: new Set(delta.unlocked),
         }));
+        if (
+          !premiumRef.current &&
+          LAST_FREE_ERA !== undefined &&
+          !eraStatus(LAST_FREE_ERA, previous).complete &&
+          eraStatus(LAST_FREE_ERA, p).complete
+        ) {
+          // Once ever, after the trophy has had its moment.
+          promptTimer = setTimeout(() => {
+            void eraConqueredStore.read().then(({ shown }) => {
+              if (shown || !active) return;
+              void eraConqueredStore.write({ shown: true });
+              setEraPromptOpen(true);
+            });
+          }, ERA_PROMPT_DELAY_MS);
+        }
+        if (!campaignWon(previous) && campaignWon(p)) {
+          // The last stage of all: head down to the grand trophy, then the finale.
+          const finalStageId = CAMPAIGN.at(-1)?.stages.at(-1)?.id;
+          timer = setTimeout(() => {
+            if (finalStageId !== undefined) pendingScroll.current = { stageId: finalStageId, animated: true };
+            tryScroll();
+            timer = setTimeout(() => setFinaleOpen(true), FINALE_DELAY_MS - SEQUENCE_DELAY_MS - 300);
+          }, SEQUENCE_DELAY_MS + 300);
+          return;
+        }
         // Follow the trail to the new frontier as the lights run along it.
         timer = setTimeout(() => {
           if (targetId !== undefined) pendingScroll.current = { stageId: targetId, animated: true };
@@ -262,6 +354,7 @@ export function CampaignMapScreen() {
       return () => {
         active = false;
         if (timer !== undefined) clearTimeout(timer);
+        if (promptTimer !== undefined) clearTimeout(promptTimer);
       };
     }, [isReady, campaign, tryScroll, router]),
   );
@@ -269,7 +362,7 @@ export function CampaignMapScreen() {
   const openStage = useCallback(
     (worldId: string, stage: CampaignStage) => {
       if (isStagePremium(stage) && !isPremium) {
-        router.push(paywallHref('campaign'));
+        router.push(paywallHref('campaign', { era: worldId }));
         return;
       }
       router.push({
@@ -280,7 +373,13 @@ export function CampaignMapScreen() {
     [router, isPremium],
   );
 
-  const viewWorld = CAMPAIGN.find((w) => w.id === viewEraId) ?? CAMPAIGN[0];
+  // A locked era's banner (and the sticky bar while it names one) opens the paywall too.
+  const openCampaignPaywall = useCallback(
+    (eraId: string) => router.push(paywallHref('campaign', { era: eraId })),
+    [router],
+  );
+
+  const viewWorld =CAMPAIGN.find((w) => w.id === viewEraId) ?? CAMPAIGN[0];
 
   return (
     // Not <Screen>: the painting must run under the status bar and right down
@@ -327,6 +426,7 @@ export function CampaignMapScreen() {
                     total={stats.total}
                     premiumLocked={premiumLocked}
                     shimmerToken={opened ? celebration.token : undefined}
+                    onPress={premiumLocked ? () => openCampaignPaywall(world.id) : undefined}
                   />
                   <EraTrail
                     world={world}
@@ -338,6 +438,7 @@ export function CampaignMapScreen() {
                     hideOwl={hideOwl}
                     premiumLocked={premiumLocked}
                     celebration={celebration}
+                    reward={rewards.get(world.id)!}
                     onOpenStage={openStage}
                     onLayoutY={onTrailLayout}
                   />
@@ -355,9 +456,30 @@ export function CampaignMapScreen() {
             journeyEarned={journey.earned}
             journeyTotal={journey.total}
             visible={barVisible}
+            onPress={
+              isWorldPremium(viewWorld.id) && !isPremium
+                ? () => openCampaignPaywall(viewWorld.id)
+                : undefined
+            }
           />
         )}
       </SafeAreaView>
+      <EraConqueredSheet
+        visible={eraPromptOpen}
+        world={LAST_FREE_ERA}
+        onUnlock={() => {
+          setEraPromptOpen(false);
+          router.push(paywallHref('era_complete'));
+        }}
+        onClose={() => setEraPromptOpen(false)}
+      />
+      <CampaignFinale
+        visible={finaleOpen}
+        worlds={CAMPAIGN}
+        earned={journey.earned}
+        total={journey.total}
+        onClose={() => setFinaleOpen(false)}
+      />
     </View>
   );
 }

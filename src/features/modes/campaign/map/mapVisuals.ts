@@ -123,8 +123,9 @@ export interface StageIcon {
  */
 export const ERA_ICONS: Readonly<Record<string, readonly string[]>> = {
   ancient: [
-    'pyramid',
-    'pillar',
+    // Temple front and flame, distinct from the Egypt/Greece-Rome route icons.
+    'bank',
+    'torch',
     'horse-variant',
     'shield-sun',
     'script-text',

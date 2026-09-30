@@ -2,7 +2,16 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react-n
 
 import { STORE_LABEL } from '@/config/store';
 
-import { ctaLabel, footerCopy, PaywallScreen, planBadge, planSubline, trialLength } from './PaywallScreen';
+import {
+  ctaLabel,
+  footerCopy,
+  PaywallScreen,
+  planBadge,
+  planSubline,
+  splitPrice,
+  trialLength,
+} from './PaywallScreen';
+import { recordPaywallDismissal } from './useWinbackOffer';
 
 const mockRouter = {
   push: jest.fn(),
@@ -11,9 +20,21 @@ const mockRouter = {
   canGoBack: jest.fn(() => true),
 };
 let mockParams: Record<string, string | string[] | undefined> = {};
+let mockBeforeRemove: (() => void) | null = null;
 jest.mock('expo-router', () => ({
   useRouter: () => mockRouter,
   useLocalSearchParams: () => mockParams,
+  useNavigation: () => ({
+    addListener: (_event: string, listener: () => void) => {
+      mockBeforeRemove = listener;
+      return () => undefined;
+    },
+  }),
+}));
+let mockWinback: { offer: unknown; now: number; markShown: jest.Mock } = { offer: null, now: Date.now(), markShown: jest.fn() };
+jest.mock('./useWinbackOffer', () => ({
+  useWinbackOffer: () => mockWinback,
+  recordPaywallDismissal: jest.fn(async () => {}),
 }));
 jest.mock('@/services/analytics', () => ({ track: jest.fn() }));
 const { track } = jest.requireMock<typeof import('@/services/analytics')>('@/services/analytics');
@@ -31,6 +52,7 @@ const mockPremium = {
   priceAmounts: {} as Partial<
     Record<'monthly' | 'yearly' | 'lifetime', { amount: number; currencyCode: string }>
   >,
+  winback: null as { price: string; amount: number; currencyCode: string } | null,
   purchase: jest.fn(async (..._args: unknown[]) => 'cancelled' as 'cancelled' | 'purchased'),
   restore: jest.fn(async () => false),
   revokeForTesting: jest.fn(),
@@ -69,7 +91,7 @@ describe('paywall copy helpers', () => {
     expect(planBadge('yearly', { save: null })).toBe('Best value');
     expect(planBadge('monthly', { save: 44, trialDays: 7 })).toBe('1-week free trial');
     expect(planBadge('monthly', { save: 44 })).toBeUndefined();
-    expect(planSubline('lifetime', undefined)).toBe('Pay once, keep forever');
+    expect(planSubline('lifetime', undefined)).toBeUndefined();
     expect(planSubline('yearly', undefined)).toBeUndefined();
     expect(planSubline('yearly', { amount: 14.99, currencyCode: 'GBP' })).toMatch(
       /1\.25\/month, billed yearly$/,
@@ -82,6 +104,11 @@ describe('PaywallScreen', () => {
     mockPremium.trialDays = {};
     mockPremium.priceAmounts = {};
     mockPremium.purchase.mockImplementation(async () => 'cancelled');
+    mockPremium.purchase.mockClear();
+    mockPremium.winback = null;
+    mockWinback = { offer: null, now: Date.now(), markShown: jest.fn() };
+    mockBeforeRemove = null;
+    jest.mocked(recordPaywallDismissal).mockClear();
     jest.mocked(scheduleTrialReminder).mockClear();
     mockParams = {};
     jest.mocked(track).mockClear();
@@ -144,6 +171,11 @@ describe('PaywallScreen', () => {
     mockPremium.trialDays = { monthly: 7 };
     render(<PaywallScreen />);
     expect(screen.getByTestId('paywall-badge-monthly')).toHaveTextContent(/1-week free trial/i);
+    // The monthly card itself leads with the trial, whichever plan is selected.
+    const monthly = within(screen.getByTestId('paywall-plan-monthly'));
+    expect(monthly.getByTestId('paywall-free-monthly')).toHaveTextContent('Free');
+    expect(monthly.getByText('for 7 days')).toBeOnTheScreen();
+    expect(monthly.getByText('then £2.49 / month')).toBeOnTheScreen();
     // Yearly (the default) has no trial: normal CTA, no timeline.
     expect(screen.queryByTestId('paywall-trial-timeline')).toBeNull();
     fireEvent.press(screen.getByTestId('paywall-plan-monthly'));
@@ -184,9 +216,7 @@ describe('PaywallScreen', () => {
     expect(screen.getByTestId('paywall-subline-yearly')).toHaveTextContent(
       /1\.25\/month, billed yearly/,
     );
-    expect(screen.getByTestId('paywall-subline-lifetime')).toHaveTextContent(
-      'Pay once, keep forever',
-    );
+    expect(screen.queryByTestId('paywall-subline-lifetime')).toBeNull();
   });
 
   it('titles the screen "Start My Free Week" when any plan has a trial', () => {
@@ -222,5 +252,115 @@ describe('PaywallScreen', () => {
     });
     expect(mockPremium.restore).toHaveBeenCalled();
     expect(screen.getByTestId('paywall-notice')).toHaveTextContent('No active subscription found.');
+  });
+});
+
+describe('splitPrice', () => {
+  it('splits a store label into the amount and its period', () => {
+    expect(splitPrice('£2.49 / month')).toEqual({ amount: '£2.49', period: '/ month' });
+    expect(splitPrice('$19.99 / year')).toEqual({ amount: '$19.99', period: '/ year' });
+    expect(splitPrice('₹499.00 once')).toEqual({ amount: '₹499.00', period: 'once' });
+  });
+
+  it('keeps an unrecognised label whole', () => {
+    expect(splitPrice('Free')).toEqual({ amount: 'Free', period: '' });
+  });
+});
+
+describe('PaywallScreen funnel and win-back', () => {
+  beforeEach(() => {
+    mockParams = {};
+    mockPremium.trialDays = {};
+    mockPremium.priceAmounts = {};
+    mockPremium.winback = null;
+    mockPremium.purchase.mockClear();
+    mockPremium.purchase.mockImplementation(async () => 'cancelled');
+    mockWinback = { offer: null, now: Date.now(), markShown: jest.fn() };
+    mockBeforeRemove = null;
+    jest.mocked(recordPaywallDismissal).mockClear();
+    jest.mocked(track).mockClear();
+  });
+
+  it('speaks to the locked category the player tapped', () => {
+    mockParams = { source: 'locked_category', category: 'space' };
+    render(<PaywallScreen />);
+    expect(screen.getByTestId('paywall-personal-category')).toHaveTextContent(/questions waiting for you$/);
+  });
+
+  it('leaves the personal card off the win-back offer', () => {
+    mockParams = { source: 'winback', category: 'space' };
+    mockWinback = {
+      offer: { price: '£8.99', fullPrice: '£14.99 / year', percentOff: 40, endsAt: Date.now() + 86_400_000 },
+      now: Date.now(),
+      markShown: jest.fn(),
+    };
+    render(<PaywallScreen />);
+    expect(screen.queryByTestId('paywall-personal')).toBeNull();
+  });
+
+  it('reports each plan the player taps', () => {
+    mockParams = { source: 'hearts' };
+    render(<PaywallScreen />);
+    fireEvent.press(screen.getByTestId('paywall-plan-monthly'));
+    expect(track).toHaveBeenCalledWith('paywall_plan_selected', { plan: 'monthly', source: 'hearts' });
+  });
+
+  it('reports leaving without buying, and starts the win-back clock', () => {
+    mockParams = { source: 'campaign' };
+    mockPremium.priceAmounts = { yearly: { amount: 14.99, currencyCode: 'GBP' } };
+    mockPremium.winback = { price: '£8.99', amount: 8.99, currencyCode: 'GBP' };
+    render(<PaywallScreen />);
+    fireEvent.press(screen.getByTestId('paywall-plan-lifetime'));
+    act(() => mockBeforeRemove?.());
+    expect(track).toHaveBeenCalledWith(
+      'paywall_dismissed',
+      expect.objectContaining({ source: 'campaign', plan: 'lifetime' }),
+    );
+    expect(recordPaywallDismissal).toHaveBeenCalledWith(40);
+  });
+
+  it('does not count a purchase as a dismissal', async () => {
+    mockPremium.purchase.mockImplementation(async () => 'purchased');
+    render(<PaywallScreen />);
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('paywall-subscribe'));
+    });
+    act(() => mockBeforeRemove?.());
+    expect(track).not.toHaveBeenCalledWith('paywall_dismissed', expect.anything());
+    expect(recordPaywallDismissal).not.toHaveBeenCalled();
+  });
+
+  it('opened from the win-back card, leads with the discount and buys it', async () => {
+    mockParams = { source: 'winback' };
+    mockWinback = {
+      offer: { price: '£8.99', fullPrice: '£14.99 / year', percentOff: 40, endsAt: Date.now() + 3 * 86_400_000 },
+      now: Date.now(),
+      markShown: jest.fn(),
+    };
+    render(<PaywallScreen />);
+    expect(mockWinback.markShown).toHaveBeenCalled();
+    expect(screen.getByTestId('paywall-headline')).toHaveTextContent('40% off your first year');
+    expect(screen.getByTestId('paywall-offer-ends')).toHaveTextContent(/ends in 3 days/);
+    expect(screen.getByTestId('paywall-badge-yearly')).toHaveTextContent('40% off');
+    expect(screen.getByTestId('paywall-offer-yearly')).toHaveTextContent('£8.99');
+    const cta = within(screen.getByTestId('paywall-subscribe'));
+    expect(cta.getByText('Claim 40% off')).toBeOnTheScreen();
+    expect(screen.getByText(/£8\.99 for your first year, then £14\.99 \/ year/)).toBeOnTheScreen();
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('paywall-subscribe'));
+    });
+    expect(mockPremium.purchase).toHaveBeenCalledWith('yearly', 'winback', { winback: true });
+  });
+
+  it('keeps the normal prices on a paywall not opened for the offer', () => {
+    mockParams = { source: 'hearts' };
+    mockWinback = {
+      offer: { price: '£8.99', fullPrice: '£14.99 / year', percentOff: 40, endsAt: Date.now() + 86_400_000 },
+      now: Date.now(),
+      markShown: jest.fn(),
+    };
+    render(<PaywallScreen />);
+    expect(screen.queryByTestId('paywall-offer-yearly')).toBeNull();
+    expect(mockWinback.markShown).not.toHaveBeenCalled();
   });
 });

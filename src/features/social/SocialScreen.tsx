@@ -3,6 +3,7 @@ import { View } from 'react-native';
 
 import { Screen } from '@/components/ui';
 import { LeaderboardScreen } from '@/features/leaderboard/LeaderboardScreen';
+import { t } from '@/i18n';
 
 import { ChallengesPanel } from './ChallengesPanel';
 import { GroupsPanel } from './GroupsPanel';
@@ -10,12 +11,6 @@ import { SegmentTabs } from './SegmentTabs';
 import { socialViewStore, type SocialSegment } from './socialView';
 
 export type { SocialSegment };
-
-const SEGMENTS = [
-  { value: 'global', label: 'Global' },
-  { value: 'groups', label: 'Groups' },
-  { value: 'challenges', label: 'Challenges' },
-] as const;
 
 /** The Social tab: the global leaderboard, private groups and head-to-head challenges. */
 export function SocialScreen() {
@@ -42,7 +37,15 @@ export function SocialScreen() {
   return (
     <Screen edges={['top']}>
       <View className="px-5 pb-2 pt-3">
-        <SegmentTabs value={segment} options={SEGMENTS} onChange={choose} />
+        <SegmentTabs
+          value={segment}
+          options={[
+            { value: 'global', label: t('social.segments.global') },
+            { value: 'groups', label: t('social.segments.groups') },
+            { value: 'challenges', label: t('social.segments.challenges') },
+          ]}
+          onChange={choose}
+        />
       </View>
       <View className="flex-1">
         {segment === 'global' && <LeaderboardScreen embedded />}

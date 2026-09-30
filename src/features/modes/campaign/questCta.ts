@@ -1,8 +1,10 @@
+import { t } from '@/i18n';
+
 import { CAMPAIGN, isStagePremium, nextStage, type CampaignStage, type CampaignWorld } from './campaignMap';
 
 export type QuestAction =
   | { kind: 'stage'; stage: CampaignStage }
-  | { kind: 'paywall' }
+  | { kind: 'paywall'; eraId: string }
   /** Back to the map; at a fork `focusStageId` names the fork the player chooses a route at. */
   | { kind: 'map'; focusStageId?: string };
 
@@ -19,9 +21,9 @@ export function questCta(
   worlds: readonly CampaignWorld[] = CAMPAIGN,
 ): { label: string; action: QuestAction } {
   const next = nextStage(stage.id, worlds);
-  if (next.kind === 'end') return { label: 'Back to map', action: { kind: 'map' } };
-  const label = 'Continue your quest →';
+  if (next.kind === 'end') return { label: t('campaign.play.backToMap'), action: { kind: 'map' } };
+  const label = t('campaign.play.continueQuest');
   if (next.kind === 'fork') return { label, action: { kind: 'map', focusStageId: next.forkStageId } };
-  if (isStagePremium(next.stage, worlds) && !isPremium) return { label, action: { kind: 'paywall' } };
+  if (isStagePremium(next.stage, worlds) && !isPremium) return { label, action: { kind: 'paywall', eraId: next.stage.worldId } };
   return { label, action: { kind: 'stage', stage: next.stage } };
 }

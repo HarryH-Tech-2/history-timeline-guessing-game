@@ -22,4 +22,3 @@ export {
 } from './ProgressionProvider';
 export { ProfileHeader } from './components/ProfileHeader';
 export { AchievementsList } from './components/AchievementsList';
-export { ProfileScreen } from './ProfileScreen';

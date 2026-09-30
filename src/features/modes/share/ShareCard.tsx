@@ -3,7 +3,7 @@ import { Image, Text, View } from 'react-native';
 
 import { STORE_LABEL } from '@/config/store';
 import { getQuestionById } from '@/data';
-import { formatYear } from '@/features/timeline/math';
+import { displayYear, formatNumber, t } from '@/i18n';
 import { lightPalette as p } from '@/theme/tokens';
 
 import { summariseRounds, TIER_COLOURS, tierForError, type ShareCardData } from './shareData';
@@ -80,10 +80,10 @@ export const ShareCard = forwardRef<View, ShareCardProps>(function ShareCard({ d
           <Text
             style={{ fontSize: 28, fontWeight: '800', color: p.accent.default, lineHeight: 32 }}
           >
-            {totalScore.toLocaleString()}
+            {formatNumber(totalScore)}
           </Text>
           <Text style={{ fontSize: 11, fontWeight: '600', color: p.ink.secondary }}>
-            {exact}/{rounds} exact
+            {t('round.share.exact', { exact, rounds })}
           </Text>
         </View>
       </View>
@@ -93,10 +93,10 @@ export const ShareCard = forwardRef<View, ShareCardProps>(function ShareCard({ d
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingBottom: 2 }}>
           <View style={{ width: 10 }} />
           <Text style={{ flex: 1, fontSize: 9, fontWeight: '700', color: p.ink.muted }}>
-            EVENT
+            {t('round.share.event')}
           </Text>
-          <Text style={columnHeader}>YOU</Text>
-          <Text style={columnHeader}>ACTUAL</Text>
+          <Text style={columnHeader}>{t('round.share.you')}</Text>
+          <Text style={columnHeader}>{t('round.share.actual')}</Text>
         </View>
         {shown.map((round, i) => {
           const question = getQuestionById(round.questionId);
@@ -119,16 +119,16 @@ export const ShareCard = forwardRef<View, ShareCardProps>(function ShareCard({ d
                 numberOfLines={1}
                 style={{ flex: 1, fontSize: 11, fontWeight: '600', color: p.ink.primary }}
               >
-                {question?.title ?? 'Question'}
+                {question?.title ?? t('round.share.question')}
               </Text>
               <Text numberOfLines={1} style={[yearCell, { color: p.ink.secondary }]}>
-                {round.guessYear === undefined ? '—' : formatYear(round.guessYear)}
+                {round.guessYear === undefined ? '—' : displayYear(round.guessYear)}
               </Text>
               <Text
                 numberOfLines={1}
                 style={[yearCell, { fontWeight: '700', color: p.ink.primary }]}
               >
-                {question ? formatYear(question.year) : '—'}
+                {question ? displayYear(question.year) : '—'}
               </Text>
             </View>
           );
@@ -138,7 +138,7 @@ export const ShareCard = forwardRef<View, ShareCardProps>(function ShareCard({ d
             testID="share-card-more"
             style={{ fontSize: 10, fontWeight: '600', color: p.ink.muted, paddingLeft: 18 }}
           >
-            + {hidden} more {hidden === 1 ? 'round' : 'rounds'}
+            {t('round.share.moreRounds', { count: hidden })}
           </Text>
         )}
       </View>
@@ -155,7 +155,7 @@ export const ShareCard = forwardRef<View, ShareCardProps>(function ShareCard({ d
         }}
       >
         <Text style={{ fontSize: 12, fontWeight: '700', color: p.ink.primary }}>
-          Can you beat me?
+          {t('round.share.beatMe')}
         </Text>
         <Text style={{ fontSize: 11, color: p.ink.muted }}>Date Guesser · {STORE_LABEL}</Text>
       </View>

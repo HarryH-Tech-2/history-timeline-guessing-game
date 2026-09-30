@@ -1,6 +1,8 @@
 import { Image, Text, View } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
+import { t } from '@/i18n';
+
 /**
  * The developer's photo. Replace `assets/founder.jpg` with a real photo to
  * change it — the round crop and layout stay the same. (The current file is a
@@ -39,9 +41,10 @@ export function FounderNote({
     >
       <Image
         source={FOUNDER_PHOTO}
+        resizeMethod="resize"
         accessibilityIgnoresInvertColors
         accessible
-        accessibilityLabel="Photo of Harry, the developer"
+        accessibilityLabel={t('paywall.founder.photo')}
         testID="founder-photo"
         style={{ width: size, height: size, borderRadius: size / 2 }}
         className="border border-hair"

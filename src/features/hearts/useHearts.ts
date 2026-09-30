@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import {
-  formatHeartCountdown,
   HEART_REFILL_COST,
   heartsAtStake,
   heartsAvailable,
@@ -10,6 +9,8 @@ import {
 } from '@/domain';
 import { usePremium } from '@/features/premium';
 import { useProgression } from '@/features/progression';
+
+import { heartCountdown } from './heartCountdown';
 
 export interface HeartsView {
   /** Hearts available right now (MAX when unlimited). */
@@ -61,7 +62,7 @@ export function useHearts(): HeartsView {
       unlimited: isPremium,
       atStake,
       empty: !isPremium && atStake && count <= 0,
-      nextIn: wait > 0 ? formatHeartCountdown(wait) : null,
+      nextIn: wait > 0 ? heartCountdown(wait) : null,
       refillCost: HEART_REFILL_COST,
       canRefill: !isPremium && count < MAX_HEARTS && state.coins >= HEART_REFILL_COST,
       refill: refillHearts,

@@ -4,7 +4,7 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { Button, Card, Screen } from '@/components/ui';
 import { SummaryUpsell } from '@/features/premium/SummaryUpsell';
-import { formatYear } from '@/features/timeline/math';
+import { displayYear, formatNumber, t } from '@/i18n';
 import { track, type GameMode } from '@/services/analytics';
 import { useThemeColors } from '@/theme';
 import { palette } from '@/theme/tokens';
@@ -64,9 +64,9 @@ interface RunSummaryProps {
  * can be sanity-checked, and calls an exact hit what it is rather than "0 yrs off".
  */
 export function roundDetail(errorYears: number, guessYear?: number): string {
-  if (errorYears === 0) return 'Exact year';
-  const off = `${errorYears.toLocaleString()} ${errorYears === 1 ? 'yr' : 'yrs'} off`;
-  return guessYear === undefined ? off : `Guessed ${formatYear(guessYear)} · ${off}`;
+  if (errorYears === 0) return t('round.summary.exactYear');
+  const off = t('round.summary.off', { count: errorYears });
+  return guessYear === undefined ? off : t('round.summary.guessed', { year: displayYear(guessYear), off });
 }
 
 /** What the owl says, from the star rating or the average round score. */
@@ -82,13 +82,13 @@ export function mascotLine(stars: number | undefined, rounds: readonly SummaryRo
   }
   switch (tier) {
     case 3:
-      return 'Splendid! Herodotus himself would be impressed.';
+      return t('round.mascot.splendid');
     case 2:
-      return 'Well played, scholar. The archives approve.';
+      return t('round.mascot.wellPlayed');
     case 1:
-      return 'Every historian starts somewhere. Onward!';
+      return t('round.mascot.onward');
     default:
-      return 'The past awaits. Shall we go again?';
+      return t('round.mascot.again');
   }
 }
 
@@ -133,7 +133,7 @@ export function RunSummary({
   const shareButton =
     share === undefined ? null : (
       <Button
-        label="Share result"
+        label={t('round.summary.share')}
         variant={share.primary ? 'primary' : 'ghost'}
         onPress={() => {
           track('share_tapped', { mode: share.mode });
@@ -167,9 +167,9 @@ export function RunSummary({
                 <Text className="text-center text-sm text-ink-secondary">{subtitle}</Text>
               )}
               <Text className="text-5xl font-extrabold" style={{ color: accent }}>
-                {totalScore.toLocaleString()}
+                {formatNumber(totalScore)}
               </Text>
-              <Text className="text-xs text-ink-muted">total points</Text>
+              <Text className="text-xs text-ink-muted">{t('round.summary.totalPoints')}</Text>
             </View>
 
             {stars !== undefined && <Stars count={stars} colour={accent} />}
@@ -201,7 +201,7 @@ export function RunSummary({
                       )}
                     </View>
                     <Text className="text-sm font-bold" style={{ color: accent }}>
-                      +{r.score.toLocaleString()}
+                      +{formatNumber(r.score)}
                     </Text>
                   </View>
                 ))}

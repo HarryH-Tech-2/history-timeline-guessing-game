@@ -1,0 +1,362 @@
+{
+  "spc-iss-zarya": {
+    "title": "El primer módulo de la ISS",
+    "longDescription": "Financiado por Estados Unidos y construido en Moscú, el Zarya aportaba energía y propulsión a la incipiente estación. El transbordador Endeavour acopló el nodo estadounidense Unity dos semanas después."
+  },
+  "spc-falcon-1": {
+    "title": "El Falcon 1 llega a la órbita",
+    "longDescription": "Tras tres fracasos que casi llevaron a la empresa a la quiebra, el cuarto Falcon 1 puso en órbita una carga simulada desde un atolón del Pacífico. Tres meses después, la NASA otorgó a SpaceX un contrato de carga hacia la estación espacial."
+  },
+  "spc-curiosity": {
+    "title": "El Curiosity aterriza en Marte",
+    "longDescription": "Demasiado pesado para usar bolsas de aire, el róver de una tonelada fue bajado con cables hasta la superficie desde una plataforma cohete suspendida en el aire. El Curiosity descubrió que el Marte antiguo tenía los ingredientes químicos para la vida y sigue explorando."
+  },
+  "spc-new-horizons-pluto": {
+    "title": "La New Horizons pasa junto a Plutón",
+    "longDescription": "Lanzada en 2006, cuando Plutón todavía era un planeta, la New Horizons pasó a 14 km por segundo y envió imágenes de montañas de hielo de agua y glaciares de nitrógeno congelado. Tardó dieciséis meses en transmitir todos los datos."
+  },
+  "spc-black-hole-image": {
+    "title": "La primera imagen de un agujero negro",
+    "longDescription": "Observatorios desde Hawái hasta el Polo Sur combinaron sus datos para captar el agujero negro supermasivo en el corazón de la galaxia M87. El anillo anaranjado, del tamaño aproximado de nuestro sistema solar, coincidió con las predicciones de Einstein."
+  },
+  "spc-jwst": {
+    "title": "El lanzamiento del telescopio espacial James Webb",
+    "longDescription": "Tras décadas de desarrollo y miles de millones por encima del presupuesto, el Webb viajó al espacio a bordo de un Ariane 5 y luego realizó cientos de despliegues sin ninguna posibilidad de reparación. Sus primeras imágenes, publicadas en julio de 2022, llegaron hasta el universo primitivo."
+  },
+  "spc-artemis-1": {
+    "title": "El lanzamiento de Artemis I",
+    "longDescription": "El Space Launch System, el cohete más potente en alcanzar la órbita hasta entonces, envió a la Orion más lejos de la Tierra que cualquier nave construida para humanos. La misión de 25 días abrió el camino a los vuelos tripulados a la Luna."
+  },
+  "reg-kalmar-union": {
+    "title": "La Unión de Kalmar",
+    "longDescription": "Ideada por la reina Margarita I de Dinamarca, la unión mantuvo juntos a los reinos escandinavos durante más de un siglo. Suecia se separó finalmente en 1523 bajo Gustavo Vasa."
+  },
+  "reg-granada-falls": {
+    "title": "La caída de Granada",
+    "longDescription": "El emir Muhammad XII entregó las llaves de la Alhambra tras un largo asedio, poniendo fin a casi ocho siglos de dominio musulmán en la península ibérica. Ese mismo año, los Reyes Católicos expulsaron a los judíos de España y enviaron a Colón hacia el oeste."
+  },
+  "reg-st-petersburg": {
+    "title": "La fundación de San Petersburgo",
+    "longDescription": "Pedro colocó los cimientos de la Fortaleza de Pedro y Pablo en tierras recién arrebatadas a Suecia. Construida a un enorme costo humano, la ciudad reemplazó a Moscú como capital en 1712 y lo siguió siendo durante dos siglos."
+  },
+  "reg-italy-unified": {
+    "title": "La proclamación del Reino de Italia",
+    "longDescription": "Tras la conquista del sur por Garibaldi y los plebiscitos en toda la península, el primer parlamento italiano, en Turín, proclamó el reino. Venecia se unió en 1866 y Roma se convirtió en la capital en 1871."
+  },
+  "reg-easter-rising": {
+    "title": "El Alzamiento de Pascua",
+    "longDescription": "La insurrección de seis días fue aplastada por las fuerzas británicas y al principio fue impopular, pero la ejecución de sus líderes cambió la opinión pública. En seis años, la mayor parte de Irlanda había salido del Reino Unido."
+  },
+  "reg-velvet-revolution": {
+    "title": "Comienza la Revolución de Terciopelo",
+    "longDescription": "La policía antidisturbios golpeó una manifestación estudiantil pacífica en la calle Národní y, en pocos días, cientos de miles de personas llenaron la plaza de Wenceslao haciendo sonar sus llaves. El Partido Comunista entregó el poder sin que se disparara un solo tiro."
+  },
+  "reg-forbidden-city": {
+    "title": "Se completa la Ciudad Prohibida",
+    "longDescription": "Con 980 edificios tras murallas de diez metros, la Ciudad Prohibida fue el hogar de 24 emperadores Ming y Qing durante casi cinco siglos. Es el mayor complejo palaciego conservado del mundo."
+  },
+  "reg-tokugawa-shogunate": {
+    "title": "Comienza el shogunato Tokugawa",
+    "longDescription": "Tres años después de su victoria en Sekigahara, Ieyasu recibió del emperador el título de shōgun e hizo de la aldea de pescadores de Edo su sede de poder. Los Tokugawa gobernaron hasta la Restauración Meiji de 1868."
+  },
+  "reg-singapore-founded": {
+    "title": "La fundación de la Singapur moderna",
+    "longDescription": "Raffles vio el valor estratégico de la isla en la punta de la península malaya y cerró un acuerdo con el sultán local. El libre comercio atrajo a mercaderes de toda Asia y, en cinco años, la población se había multiplicado por diez."
+  },
+  "reg-hong-kong-handover": {
+    "title": "La devolución de Hong Kong",
+    "longDescription": "El príncipe Carlos y el gobernador Chris Patten zarparon en el yate real Britannia mientras Hong Kong se convertía en una Región Administrativa Especial bajo el principio de “un país, dos sistemas”. El acuerdo se prometió por cincuenta años."
+  },
+  "reg-berlin-conference": {
+    "title": "Se inaugura la Conferencia de Berlín",
+    "longDescription": "Organizada por Bismarck, la conferencia acordó cómo los Estados europeos podían reclamar territorio africano y entregó la cuenca del Congo a Leopoldo II de Bélgica como posesión personal. Para 1914, casi todo el continente estaba colonizado."
+  },
+  "reg-adwa": {
+    "title": "La batalla de Adua",
+    "longDescription": "El ejército de Menelik, de unos 100.000 hombres, derrotó a una fuerza italiana más pequeña en un solo día y obligó a Roma a reconocer la soberanía etíope. Adua se convirtió en un símbolo de la resistencia africana al colonialismo."
+  },
+  "reg-algeria-independence": {
+    "title": "La independencia de Argelia",
+    "longDescription": "La guerra entre el FLN y Francia mató a cientos de miles de personas y derribó la Cuarta República francesa. Casi un millón de colonos europeos abandonaron Argelia en los meses en torno a la independencia."
+  },
+  "reg-south-africa-1994": {
+    "title": "Las primeras elecciones democráticas de Sudáfrica",
+    "longDescription": "Por primera vez, sudafricanos de todas las razas votaron juntos, algunos haciendo fila durante días. El CNA obtuvo el 62 por ciento y Mandela asumió el 10 de mayo; esa fecha es hoy el Día de la Libertad."
+  },
+  "reg-mayflower": {
+    "title": "El Mayflower llega a Cape Cod",
+    "longDescription": "Antes de desembarcar, los pasajeros varones firmaron un pacto por el que acordaban gobernarse por mayoría. Los colonos fundaron la colonia de Plymouth semanas después y perdieron a la mitad de su gente en el primer invierno."
+  },
+  "reg-haiti-independence": {
+    "title": "La independencia de Haití",
+    "longDescription": "Jean-Jacques Dessalines proclamó la independencia tras una revolución de trece años que comenzó como una rebelión de esclavos. Haití se convirtió en la segunda nación independiente de América y en la única nacida de una rebelión de esclavos exitosa."
+  },
+  "reg-mexico-independence": {
+    "title": "México logra su independencia",
+    "longDescription": "Agustín de Iturbide entró con su ejército en la capital el día de su cumpleaños, un día después de que el último virrey español firmara la renuncia a la Nueva España. El Acta de Independencia del Imperio Mexicano se firmó al día siguiente."
+  },
+  "reg-canada-confederation": {
+    "title": "La Confederación canadiense",
+    "longDescription": "Sir John A. Macdonald se convirtió en el primer primer ministro de un dominio autónomo dentro del Imperio británico. La fecha se celebra como el Día de Canadá; las demás provincias se unieron en las décadas siguientes."
+  },
+  "reg-cuban-revolution": {
+    "title": "Triunfa la Revolución cubana",
+    "longDescription": "Tras dos años de guerra de guerrillas desde la Sierra Maestra, el Movimiento 26 de Julio de Fidel Castro llegó al poder. Cuba pronto se alineó con la Unión Soviética, lo que preparó el terreno para la Crisis de los Misiles de 1962."
+  },
+  "reg-atahualpa-captured": {
+    "title": "La captura de Atahualpa",
+    "longDescription": "Atahualpa llenó una habitación de oro y dos de plata como rescate, pero los conquistadores lo ejecutaron de todos modos al año siguiente. El Imperio inca se derrumbó en menos de una década."
+  },
+  "reg-argentina-independence": {
+    "title": "La independencia argentina",
+    "longDescription": "Reunido en una casa particular de Tucumán mientras las fuerzas realistas aún amenazaban desde el norte, el congreso declaró la independencia seis años después de la Revolución de Mayo. José de San Martín pronto llevó la guerra a través de los Andes."
+  },
+  "reg-ayacucho": {
+    "title": "La batalla de Ayacucho",
+    "longDescription": "Antonio José de Sucre, lugarteniente de Bolívar, venció a un ejército español más numeroso en una meseta de los Andes y aceptó la rendición del virrey. La victoria aseguró la independencia del Perú y de toda la América del Sur española."
+  },
+  "reg-brasilia": {
+    "title": "Se inaugura Brasilia",
+    "longDescription": "El presidente Juscelino Kubitschek prometió “cincuenta años de progreso en cinco” y trasladó la capital de Río de Janeiro al interior despoblado. Diseñada por Lúcio Costa con forma de avión, la ciudad es hoy Patrimonio de la Humanidad de la UNESCO."
+  },
+  "reg-tasman-new-zealand": {
+    "title": "Abel Tasman avista Nueva Zelanda",
+    "longDescription": "Navegando para la Compañía Neerlandesa de las Indias Orientales, Tasman avistó “una gran tierra, muy elevada” y la llamó Staten Landt. Cuatro de sus tripulantes murieron en un enfrentamiento en Golden Bay, y ningún europeo regresó durante 127 años."
+  },
+  "reg-first-fleet": {
+    "title": "La Primera Flota desembarca en Sydney Cove",
+    "longDescription": "El capitán Arthur Phillip izó la Union Flag en Sydney Cove después de descartar Botany Bay por inadecuada. La fecha se celebra como el Día de Australia, y muchos aborígenes australianos la recuerdan como el Día de la Invasión."
+  },
+  "reg-eureka-stockade": {
+    "title": "La Empalizada de Eureka",
+    "longDescription": "Buscadores de oro liderados por Peter Lalor prestaron juramento bajo la bandera de la Cruz del Sur y fortificaron una colina; unos 22 mineros y seis soldados murieron en el asalto del amanecer. Los jurados absolvieron a los rebeldes y el sistema de licencias fue abolido."
+  },
+  "reg-nz-suffrage": {
+    "title": "Las mujeres de Nueva Zelanda conquistan el voto",
+    "longDescription": "La campaña de Kate Sheppard presentó una petición firmada por casi una cuarta parte de la población femenina adulta. Las mujeres votaron en unas elecciones generales diez semanas después, décadas antes que en Gran Bretaña o Estados Unidos."
+  },
+  "reg-png-independence": {
+    "title": "La independencia de Papúa Nueva Guinea",
+    "longDescription": "La bandera australiana fue arriada en Port Moresby y el príncipe Carlos representó a la reina, que siguió siendo jefa de Estado. Papúa Nueva Guinea es el país con mayor diversidad lingüística de la Tierra."
+  },
+  "reg-edict-of-milan": {
+    "title": "El Edicto de Milán",
+    "longDescription": "Reunidos en Milán, el emperador de Occidente, Constantino, y su homólogo de Oriente, Licinio, acordaron tratar a los cristianos con benevolencia y devolverles los bienes confiscados. La política puso fin a la era de persecución oficial y, en pocas generaciones, el cristianismo se convertiría en la religión de Estado del imperio."
+  },
+  "reg-battle-of-lechfeld": {
+    "title": "La batalla de Lechfeld",
+    "longDescription": "Durante décadas, los jinetes magiares habían hecho incursiones hasta lo más profundo de Europa occidental. La victoria de Otón I en Lechfeld acabó con esos ataques para siempre, empujó a los húngaros hacia una monarquía cristiana sedentaria y aumentó el prestigio que llevó a Otón a ser coronado emperador en Roma pocos años después."
+  },
+  "reg-battle-of-clontarf": {
+    "title": "La batalla de Clontarf",
+    "longDescription": "El ejército de Brian Boru venció al rey de Leinster y a sus aliados vikingos de Dublín, las Orcadas y la isla de Man en una lucha larga y sangrienta el Viernes Santo. Brian, su hijo y su nieto murieron, y la crisis sucesoria que siguió dejó a Irlanda sin un rey dominante durante generaciones."
+  },
+  "reg-pisa-tower-begun": {
+    "title": "Comienza la Torre inclinada de Pisa",
+    "longDescription": "La torre empezó a hundirse de un lado cuando las obras llegaron al segundo piso, porque sus cimientos poco profundos descansaban sobre arcilla blanda y arena. Las guerras detuvieron la construcción durante cerca de un siglo, y el edificio tardó casi doscientos años en terminarse, mientras su famosa inclinación empeoraba sin cesar."
+  },
+  "reg-ninety-five-theses": {
+    "title": "Las noventa y cinco tesis de Lutero",
+    "longDescription": "Lutero, profesor de teología en Wittenberg, atacó la práctica de vender indulgencias para financiar la reconstrucción de la basílica de San Pedro. La tradición dice que clavó las tesis en la puerta de una iglesia; lo haya hecho o no, las copias impresas se difundieron por Alemania en pocas semanas y desataron la Reforma protestante."
+  },
+  "reg-gunpowder-plot": {
+    "title": "Se frustra la Conspiración de la Pólvora",
+    "longDescription": "Un grupo de católicos ingleses dirigido por Robert Catesby planeaba matar al rey protestante e instalar a un monarca católico. Una carta anónima de advertencia llevó a registrar el sótano, donde encontraron a Fawkes con los explosivos. La Bonfire Night sigue recordando cada año el fracaso de la conspiración."
+  },
+  "reg-defenestration-of-prague": {
+    "title": "La defenestración de Praga",
+    "longDescription": "Indignados por las restricciones de los Habsburgo al culto protestante, nobles bohemios arrojaron a los funcionarios desde unos 21 metros de altura de la Cancillería de Bohemia; los tres sobrevivieron a la caída. El acto desencadenó la revuelta bohemia, que se convirtió en la guerra de los Treinta Años y arrasó gran parte de Europa central."
+  },
+  "reg-lisbon-earthquake": {
+    "title": "El terremoto de Lisboa",
+    "longDescription": "Decenas de miles murieron cuando el sismo golpeó con las iglesias llenas, un tsunami remontó el Tajo y las velas incendiaron la ciudad. El marqués de Pombal reconstruyó el barrio de la Baixa en cuadrícula con los primeros diseños antisísmicos, y la catástrofe sacudió el optimismo de pensadores ilustrados como Voltaire."
+  },
+  "reg-london-underground-opens": {
+    "title": "Se inaugura el primer ferrocarril subterráneo",
+    "longDescription": "Construida cavando zanjas a lo largo de las calles y techándolas después, la línea usaba locomotoras de vapor en túneles poco profundos. Transportó 38.000 pasajeros el primer día y millones el primer año, y se convirtió en el germen del metro de Londres y en modelo para metros de todo el mundo."
+  },
+  "reg-german-empire-proclaimed": {
+    "title": "Se proclama el Imperio alemán",
+    "longDescription": "Con París todavía sitiada en la guerra franco-prusiana, Bismarck organizó la ceremonia en el corazón del palacio real del enemigo vencido, uniendo a los Estados alemanes bajo el liderazgo prusiano. La humillación no se olvidó: la paz que puso fin a la Primera Guerra Mundial se firmó en la misma sala."
+  },
+  "reg-franz-ferdinand-assassinated": {
+    "title": "El asesinato de Francisco Fernando",
+    "longDescription": "Princip era uno de los seis conspiradores que querían liberar Bosnia del dominio austrohúngaro. Tras un atentado con bomba fallido esa mañana, el auto del archiduque tomó una calle equivocada y se detuvo justo frente a él. El ultimátum de Austria-Hungría a Serbia activó la cadena de alianzas que condujo a la Primera Guerra Mundial."
+  },
+  "reg-carnation-revolution": {
+    "title": "La Revolución de los Claveles",
+    "longDescription": "Oficiales de rango menor, cansados de las guerras coloniales de Portugal en África, tomaron el poder, y las multitudes salieron a las calles a apoyarlos. Una empleada de restaurante repartió claveles a los soldados, que los pusieron en los cañones de sus fusiles. El golpe trajo la democracia al país y la independencia a las colonias africanas de Portugal."
+  },
+  "reg-channel-tunnel-opens": {
+    "title": "Se inaugura el túnel del Canal de la Mancha",
+    "longDescription": "Soñado desde la época de Napoleón, el túnel de 50 kilómetros une Folkestone, en Kent, con Coquelles, cerca de Calais. En las ceremonias de inauguración, el tren de la reina y el del presidente se encontraron frente a frente, y ambos líderes cruzaron juntos a una segunda ceremonia en el lado inglés."
+  },
+  "reg-prc-proclaimed": {
+    "title": "Se proclama la República Popular China",
+    "longDescription": "La proclamación llegó cuando los comunistas estaban cerca de la victoria en una larga guerra civil contra los nacionalistas, que se retiraron a Taiwán. El día todavía se celebra como el Día Nacional de China."
+  },
+  "reg-hiroshima-bomb": {
+    "title": "El bombardeo atómico de Hiroshima",
+    "longDescription": "Decenas de miles de personas murieron al instante y muchas más murieron por quemaduras y radiación en los meses siguientes. Una segunda bomba cayó sobre Nagasaki tres días después, y Japón anunció su rendición poco más tarde."
+  },
+  "reg-meerut-uprising": {
+    "title": "Estalla la rebelión india",
+    "longDescription": "La indignación por unos cartuchos de fusil que, según los rumores, estaban engrasados con grasa animal desató una revuelta que se extendió por el norte de la India. Tras ser aplastada, la Corona británica asumió el gobierno directo en lugar de la Compañía de las Indias Orientales."
+  },
+  "reg-fall-of-saigon": {
+    "title": "La caída de Saigón",
+    "longDescription": "Los helicópteros evacuaron a los últimos estadounidenses desde la azotea de la embajada mientras los tanques derribaban las puertas del Palacio Presidencial. La ciudad pasó a llamarse después Ciudad Ho Chi Minh, y Vietnam se reunificó formalmente al año siguiente."
+  },
+  "reg-khomeini-returns": {
+    "title": "Jomeini regresa a Irán",
+    "longDescription": "El sah ya había huido del país semanas antes en medio de protestas masivas. A los pocos días de la llegada de Jomeini la monarquía se derrumbó, y poco después Irán fue declarado república islámica."
+  },
+  "reg-qin-unification": {
+    "title": "Qin unifica China",
+    "longDescription": "La conquista puso fin al período de los Reinos Combatientes y creó el primer imperio chino unificado. El nuevo régimen estandarizó la escritura, las monedas y los pesos, aunque la propia dinastía se derrumbó pocos años después de la muerte del emperador."
+  },
+  "reg-sekigahara": {
+    "title": "La batalla de Sekigahara",
+    "longDescription": "Las deserciones en plena lucha inclinaron la batalla de forma decisiva a favor de Ieyasu. La victoria le abrió el camino para convertirse en shōgun e inició más de dos siglos y medio de gobierno Tokugawa."
+  },
+  "reg-plassey": {
+    "title": "La batalla de Plassey",
+    "longDescription": "Clive ganó en gran parte gracias a asegurarse la deserción del comandante del nabab, Mir Jafar. La batalla dio a la Compañía el control de los enormes ingresos de Bengala y suele considerarse el inicio del dominio británico en la India."
+  },
+  "reg-mongol-sack-baghdad": {
+    "title": "El saqueo mongol de Bagdad",
+    "longDescription": "El último califa abasí se rindió y fue ejecutado, y la famosa Casa de la Sabiduría de la ciudad fue destruida. El saqueo acabó con el centro de la Edad de Oro islámica que había florecido desde la fundación de la ciudad, cinco siglos antes."
+  },
+  "reg-wuchang-uprising": {
+    "title": "El levantamiento de Wuchang",
+    "longDescription": "La revuelta se extendió rápidamente a medida que una provincia tras otra declaraba su independencia de los Qing. En pocos meses, el niño emperador Puyi abdicó y la República de China reemplazó más de dos mil años de gobierno imperial."
+  },
+  "reg-hangul-promulgated": {
+    "title": "Se promulga el hangul",
+    "longDescription": "La corte del rey Sejong había creado el alfabeto unos años antes para que la gente común pudiera leer y escribir sin dominar los caracteres chinos. Corea del Sur celebra el Día del Hangul cada octubre en su honor."
+  },
+  "reg-cyrus-takes-babylon": {
+    "title": "Ciro el Grande toma Babilonia",
+    "longDescription": "La ciudad cayó con poca resistencia después de que el ejército babilonio fuera derrotado en Opis. Más tarde, Ciro permitió que los pueblos exiliados, entre ellos los judíos, regresaran a sus tierras."
+  },
+  "reg-battle-of-talas": {
+    "title": "La batalla de Talas",
+    "longDescription": "El ejército Tang fue derrotado después de que sus aliados karluk se cambiaran de bando. Según la leyenda, los prisioneros chinos capturados en la batalla llevaron la fabricación de papel al mundo islámico."
+  },
+  "reg-capture-of-malacca": {
+    "title": "Los portugueses toman Malaca",
+    "longDescription": "Malaca controlaba el angosto estrecho entre el océano Índico y el mar de la China Meridional. Su conquista dio a Portugal una base para el comercio de especias hasta que los neerlandeses tomaron la ciudad en 1641."
+  },
+  "reg-carthage-destroyed": {
+    "title": "La destrucción de Cartago",
+    "longDescription": "Tras un asedio de unos tres años, un ejército romano al mando de Escipión Emiliano irrumpió en Cartago y combatió calle por calle durante seis días. Los sobrevivientes fueron esclavizados y la ciudad fue destruida sistemáticamente, lo que puso fin a más de un siglo de guerras entre Roma y Cartago. Su territorio se convirtió en la provincia romana de África."
+  },
+  "reg-cairo-founded": {
+    "title": "La fundación de El Cairo",
+    "longDescription": "El califa fatimí al-Muizz envió a su general Jawhar al-Siqilli a arrebatar Egipto a sus gobernantes ijshidíes. Jawhar fundó una ciudad palaciega que más tarde se llamó al-Qahira, “la Victoriosa”, y que llegaría a ser el corazón de una de las ciudades más grandes del mundo. Poco después se comenzó allí la mezquita de al-Azhar."
+  },
+  "reg-tondibi": {
+    "title": "La batalla de Tondibi",
+    "longDescription": "El sultán Ahmad al-Mansur de Marruecos envió a través del desierto una expedición dirigida por Yuder Pachá, armada con armas de fuego de las que carecían los songhai. Su victoria derribó el Imperio songhai, el último de los grandes imperios medievales de África occidental, y Tombuctú y Gao pasaron a dominio marroquí."
+  },
+  "reg-cape-town-founded": {
+    "title": "Los neerlandeses desembarcan en el Cabo",
+    "longDescription": "Jan van Riebeeck llegó con el Drommedaris y el Goede Hoope para construir un fuerte y cultivar verduras para los barcos que navegaban entre Europa y las Indias Orientales. El puesto creció hasta convertirse en Ciudad del Cabo, la ciudad europea más antigua del África austral, e inició siglos de colonización en la región."
+  },
+  "reg-liberia-independence": {
+    "title": "Liberia declara su independencia",
+    "longDescription": "Liberia comenzó como una colonia fundada por la Sociedad Americana de Colonización para afroestadounidenses libertos. Sus colonos adoptaron una Declaración de Independencia redactada por Hilary Teague junto con una nueva constitución, lo que convirtió a Liberia en la primera república africana en proclamar su independencia."
+  },
+  "reg-victoria-falls": {
+    "title": "Livingstone ve las cataratas Victoria",
+    "longDescription": "Guiado por habitantes de la zona, Livingstone fue llevado en canoa hasta una pequeña isla al borde de las cataratas, conocidas localmente como Mosi-oa-Tunya. Las bautizó en honor a la reina Victoria, y la isla lleva hoy su nombre. Las cataratas marcan la actual frontera entre Zambia y Zimbabue."
+  },
+  "reg-isandlwana": {
+    "title": "La batalla de Isandlwana",
+    "longDescription": "El ejército del rey Cetshwayo, de unos 20.000 guerreros, atacó el campamento de la columna central de lord Chelmsford mientras este se encontraba fuera con parte de sus fuerzas. Fue una de las peores derrotas sufridas jamás por un ejército británico frente a una fuerza indígena, aunque Gran Bretaña terminó ganando la guerra más tarde ese mismo año."
+  },
+  "reg-fall-of-khartoum": {
+    "title": "La caída de Jartum",
+    "longDescription": "Gordon había sido enviado a evacuar a las fuerzas egipcias de Sudán, pero decidió defender Jartum frente a Muhammad Ahmad, el autoproclamado Mahdi. Una expedición británica de socorro llegó apenas dos días tarde, y la muerte de Gordon causó indignación en Gran Bretaña. El Estado mahdista gobernó Sudán hasta la batalla de Omdurmán."
+  },
+  "reg-anglo-zanzibar-war": {
+    "title": "La guerra anglo-zanzibariana",
+    "longDescription": "Cuando murió el sultán Hamad bin Thuwaini, su primo Khalid bin Barghash tomó el trono sin la aprobación británica. Al vencer un ultimátum, los barcos de la Marina Real abrieron fuego contra el palacio, que pronto ardió en llamas; se suele decir que los combates duraron unos 38 minutos."
+  },
+  "reg-lucy-discovered": {
+    "title": "El descubrimiento de Lucy",
+    "longDescription": "Donald Johanson y su alumno Tom Gray vieron un hueso de brazo en un barranco y terminaron recuperando varios cientos de fragmentos de un único individuo que vivió hace unos 3,2 millones de años. La apodaron Lucy por la canción de los Beatles “Lucy in the Sky with Diamonds”, que sonó en el campamento esa noche."
+  },
+  "reg-ebola-first-outbreak": {
+    "title": "El primer brote de ébola",
+    "longDescription": "El primer paciente registrado fue un maestro de la zona, y la enfermedad se propagó por la reutilización de agujas en el hospital de la misión. Los científicos llamaron al virus como el cercano río Ébola. Un brote distinto en el sur de Sudán ese mismo año resultó ser de un virus emparentado."
+  },
+  "reg-rwandan-genocide": {
+    "title": "Comienza el genocidio de Ruanda",
+    "longDescription": "En unos cien días, soldados, policías y milicias asesinaron a cientos de miles de personas, en su mayoría tutsis, además de hutus moderados. La matanza terminó cuando el Frente Patriótico Ruandés tomó el control del país en julio, y la inacción de la comunidad internacional sigue siendo motivo de vergüenza duradera."
+  },
+  "reg-world-cup-south-africa": {
+    "title": "El Mundial llega a África",
+    "longDescription": "El torneo se recuerda por el zumbido de las vuvuzelas en todos los estadios. España venció 1–0 a los Países Bajos en tiempo extra en la final, disputada en el mismo estadio de Johannesburgo, y ganó su primer título mundial."
+  },
+  "reg-ben-ali-flees": {
+    "title": "Huye el presidente de Túnez",
+    "longDescription": "Las protestas comenzaron cuando un joven vendedor ambulante, Mohamed Bouazizi, se prendió fuego en Sidi Bouzid en protesta por el acoso policial. El derrocamiento de Ben Ali inspiró levantamientos en todo el mundo árabe, entre ellos en Egipto, Libia, Yemen y Siria."
+  },
+  "reg-pakal-palenque": {
+    "title": "Pakal asciende al trono de Palenque",
+    "longDescription": "La entronización de Pakal está registrada en la Cuenta Larga maya en los monumentos de Palenque, por eso su fecha se conoce con tanta precisión. Reinó durante 68 años, y su tumba en el Templo de las Inscripciones, hallada en 1952, es uno de los grandes descubrimientos de la arqueología maya."
+  },
+  "reg-jamestown": {
+    "title": "La fundación de Jamestown",
+    "longDescription": "Alrededor de cien colonos enviados por la Compañía de Virginia de Londres construyeron el Fuerte James en una isla pantanosa. Las enfermedades y el hambre casi acabaron con ellos, pero el cultivo de tabaco terminó por hacer rentable la colonia, que se convirtió en la capital de Virginia."
+  },
+  "reg-quebec-founded": {
+    "title": "Champlain funda Quebec",
+    "longDescription": "Champlain construyó una “Habitation” fortificada en un estrechamiento del río San Lorenzo para controlar el comercio de pieles. Se convirtió en la capital de Nueva Francia y es una de las ciudades más antiguas fundadas por europeos en América del Norte."
+  },
+  "reg-port-royal-quake": {
+    "title": "El terremoto de Port Royal",
+    "longDescription": "Port Royal era un puerto rico y bullicioso, preferido por los bucaneros. Cuando golpeó el sismo, el suelo arenoso se licuó y buena parte de la ciudad se deslizó al puerto, matando a unas 2.000 personas; Kingston se fundó al otro lado de la bahía para reemplazarla."
+  },
+  "reg-plains-of-abraham": {
+    "title": "La batalla de las Llanuras de Abraham",
+    "longDescription": "El ejército del general James Wolfe subió de noche a la meseta situada sobre Quebec y derrotó a los franceses al mando del marqués de Montcalm. Ambos comandantes resultaron heridos de muerte, y la victoria llevó a Gran Bretaña a tomar el control de Nueva Francia."
+  },
+  "reg-louisiana-purchase": {
+    "title": "La compra de Luisiana",
+    "longDescription": "Los enviados estadounidenses fueron a París con la esperanza de comprar Nueva Orleans y volvieron con unas 828.000 millas cuadradas por 15 millones de dólares. El acuerdo dio a la joven república el Misisipi y gran parte de las Grandes Llanuras, y preparó el terreno para la expedición de Lewis y Clark."
+  },
+  "reg-alamo": {
+    "title": "La caída del Álamo",
+    "longDescription": "Casi todos los defensores, entre ellos Davy Crockett y Jim Bowie, murieron en el asalto del amanecer. “¡Recuerden el Álamo!” se convirtió en el grito de guerra de la Revolución de Texas, que terminó con la derrota de Santa Anna en San Jacinto semanas después."
+  },
+  "reg-battle-of-puebla": {
+    "title": "La batalla de Puebla",
+    "longDescription": "El ejército de Napoleón III esperaba una marcha fácil hacia la Ciudad de México, pero las tropas del general Ignacio Zaragoza resistieron en los fuertes que dominan Puebla. Los franceses volvieron y tomaron la ciudad al año siguiente, pero el día todavía se celebra como el Cinco de Mayo."
+  },
+  "reg-last-spike": {
+    "title": "El último clavo",
+    "longDescription": "El ferrocarril transcontinental había sido la condición de Columbia Británica para unirse a la Confederación. El financista Donald Smith clavó el sencillo clavo de hierro en Craigellachie, y la fotografía del momento se convirtió en una de las imágenes más famosas de Canadá."
+  },
+  "reg-mexican-revolution": {
+    "title": "Comienza la Revolución mexicana",
+    "longDescription": "Díaz había gobernado México durante más de tres décadas y encarceló a Madero durante las elecciones. La revuelta que Madero lanzó atrajo a líderes como Pancho Villa y Emiliano Zapata y se convirtió en una década de guerra civil que transformó el país."
+  },
+  "reg-halifax-explosion": {
+    "title": "La explosión de Halifax",
+    "longDescription": "El carguero francés Mont-Blanc, cargado de explosivos de guerra, chocó con el Imo en el estrecho del puerto y se incendió. La explosión mató a unas 2.000 personas y fue la mayor explosión provocada por el ser humano antes de la bomba atómica."
+  },
+  "reg-cuban-missile-crisis": {
+    "title": "La Crisis de los Misiles en Cuba",
+    "longDescription": "El presidente Kennedy ordenó una “cuarentena” naval a Cuba mientras Jruschov sopesaba su respuesta. La crisis terminó cuando los soviéticos aceptaron retirar los misiles, y Estados Unidos prometió en secreto retirar sus propios misiles de Turquía."
+  },
+  "reg-mexico-city-olympics": {
+    "title": "Los Juegos Olímpicos de México",
+    "longDescription": "Los Juegos en la altura vieron el asombroso salto de longitud de Bob Beamon y el saludo del Poder Negro de Tommie Smith y John Carlos. Se inauguraron apenas días después de la masacre de Tlatelolco contra estudiantes que protestaban en la capital."
+  },
+  "reg-haiti-earthquake": {
+    "title": "El terremoto de Haití",
+    "longDescription": "El sismo golpeó al final de la tarde a unos 25 km al oeste de Puerto Príncipe y derrumbó viviendas, el Palacio Nacional y la catedral. Fue uno de los terremotos más mortíferos jamás registrados y provocó un enorme esfuerzo internacional de ayuda."
+  }
+}

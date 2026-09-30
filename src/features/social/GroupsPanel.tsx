@@ -4,6 +4,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 
 import { Button } from '@/components/ui';
 import { SignInNudge } from '@/features/account/SignInNudge';
+import { t } from '@/i18n';
 import { track } from '@/services/analytics';
 import { useAuth } from '@/services/firebase/auth';
 
@@ -81,13 +82,13 @@ export function GroupsPanel() {
               value={name}
               onChangeText={setName}
               maxLength={24}
-              placeholder="New group name"
+              placeholder={t('social.groups.namePlaceholder')}
               testID="group-name-input"
               className="h-12 flex-1 border border-hair bg-bg-raised px-3 text-base text-ink-primary"
             />
             <View className="w-28">
               <Button
-                label="Create"
+                label={t('social.groups.create')}
                 onPress={() => void create()}
                 disabled={busy || name.trim().length < 3}
                 testID="group-create"
@@ -95,7 +96,7 @@ export function GroupsPanel() {
             </View>
           </View>
           <CodeEntry
-            label="Join"
+            label={t('social.groups.join')}
             testID="group-code"
             onCode={(code) => router.push({ pathname: '/g/[code]', params: { code, via: 'code' } })}
           />
@@ -104,7 +105,7 @@ export function GroupsPanel() {
             <View className="gap-2">
               <Text className="text-sm text-danger">{api.socialErrorMessage(null)}</Text>
               <Button
-                label="Try again"
+                label={t('social.tryAgain')}
                 variant="ghost"
                 onPress={() => {
                   setLoading(true);
@@ -121,7 +122,7 @@ export function GroupsPanel() {
           <ActivityIndicator className="py-10" />
         ) : (
           <Text className="py-10 text-center text-ink-secondary">
-            Make a group for family, friends or work and compete on this week’s XP.
+            {t('social.groups.empty')}
           </Text>
         )
       }
@@ -134,7 +135,9 @@ export function GroupsPanel() {
           <Text className="flex-1 pr-3 text-base font-bold text-ink-primary" numberOfLines={1}>
             {item.name}
           </Text>
-          <Text className="text-sm text-ink-muted">{item.memberUids.length} {item.memberUids.length === 1 ? 'member' : 'members'} ›</Text>
+          <Text className="text-sm text-ink-muted">
+            {t('social.groups.members', { count: item.memberUids.length })} ›
+          </Text>
         </Pressable>
       )}
     />

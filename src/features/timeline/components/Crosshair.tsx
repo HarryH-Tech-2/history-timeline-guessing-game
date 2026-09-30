@@ -8,6 +8,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { formatYear } from '@/features/timeline/math';
+import { t } from '@/i18n';
 
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 
@@ -32,19 +33,21 @@ interface CrosshairProps {
  * so React's copy of the year is current even if nothing else re-renders.
  */
 function YearReadout({ centreYear, atRest }: CrosshairProps) {
+  // Read on the JS thread and captured by the worklets below (they can't call t()).
+  const bce = t('common.bce');
   const animatedProps = useAnimatedProps(() => {
-    const text = formatYear(centreYear.value);
+    const text = formatYear(centreYear.value, bce);
     // `text` is a valid native TextInput prop but is absent from the RN types.
     return { text } as unknown as Partial<TextInputProps>;
   });
 
   const [seed, setSeed] = useState('');
   useLayoutEffect(() => {
-    const current = formatYear(centreYear.value);
+    const current = formatYear(centreYear.value, bce);
     if (current !== seed) setSeed(current);
   });
   useAnimatedReaction(
-    () => (atRest.value ? formatYear(centreYear.value) : undefined),
+    () => (atRest.value ? formatYear(centreYear.value, bce) : undefined),
     (current, previous) => {
       if (current === undefined || current === previous) return;
       runOnJS(setSeed)(current);
@@ -55,7 +58,7 @@ function YearReadout({ centreYear, atRest }: CrosshairProps) {
     <AnimatedTextInput
       editable={false}
       underlineColorAndroid="transparent"
-      accessibilityLabel="Selected year"
+      accessibilityLabel={t('round.timeline.selectedYear')}
       className="min-w-[96px] text-center text-2xl font-extrabold text-accent-soft"
       value={seed}
       animatedProps={animatedProps}

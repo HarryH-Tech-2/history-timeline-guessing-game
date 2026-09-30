@@ -1,3 +1,5 @@
+import { t } from '@/i18n';
+
 import type { PaywallSource } from './paywallSource';
 
 /**
@@ -16,50 +18,25 @@ export interface Benefit {
   detail: string;
 }
 
-export const BENEFITS: Record<BenefitId, Benefit> = {
-  hearts: {
-    id: 'hearts',
-    icon: '❤️',
-    short: 'Unlimited hearts, no waiting',
-    title: 'Unlimited hearts',
-    detail: 'Miss as often as you like — no cooldowns, no refills.',
-  },
-  coins: {
-    id: 'coins',
-    icon: '🪙',
-    short: 'Unlimited coins for hints',
-    title: 'Unlimited coins',
-    detail: 'Hints and streak freezes whenever you want them. Never count coins again.',
-  },
-  campaign: {
-    id: 'campaign',
-    icon: '🗺️',
-    short: 'The full campaign, every era',
-    title: 'The full campaign',
-    detail: 'March on past the Ancient World, from the Middle Ages to the Modern Era.',
-  },
-  endless: {
-    id: 'endless',
-    icon: '♾️',
-    short: 'Endless mode, unlimited lives',
-    title: 'Endless mode',
-    detail: 'An unlimited run of the full catalogue, with unlimited lives.',
-  },
-  categories: {
-    id: 'categories',
-    icon: '🔓',
-    short: 'Every category unlocked',
-    title: 'More categories unlocked',
-    detail: 'Practice every premium category on its own, with more arriving over time.',
-  },
-  museum: {
-    id: 'museum',
-    icon: '🏛️',
-    short: 'Complete your museum',
-    title: 'Complete your museum',
-    detail: 'Collect every artefact, including the premium wings.',
-  },
+const BENEFIT_ICONS: Record<BenefitId, string> = {
+  hearts: '❤️',
+  coins: '🪙',
+  campaign: '🗺️',
+  endless: '♾️',
+  categories: '🔓',
+  museum: '🏛️',
 };
+
+/** One benefit's copy in the current language. */
+export function benefit(id: BenefitId): Benefit {
+  return {
+    id,
+    icon: BENEFIT_ICONS[id],
+    short: t(`paywall.benefits.${id}.short`),
+    title: t(`paywall.benefits.${id}.title`),
+    detail: t(`paywall.benefits.${id}.detail`),
+  };
+}
 
 const ALL_BENEFITS: readonly BenefitId[] = [
   'hearts',
@@ -74,6 +51,7 @@ const ALL_BENEFITS: readonly BenefitId[] = [
 const LEADS: Partial<Record<PaywallSource, readonly BenefitId[]>> = {
   hearts: ['hearts', 'coins', 'endless'],
   campaign: ['campaign', 'hearts', 'museum'],
+  era_complete: ['campaign', 'hearts', 'museum'],
   locked_category: ['categories', 'hearts', 'museum'],
   locked_mode: ['endless', 'hearts', 'categories'],
 };
@@ -83,24 +61,24 @@ const DEFAULT_LEADS: readonly BenefitId[] = ['hearts', 'categories', 'campaign']
 export function benefitOrder(source: PaywallSource): { lead: Benefit[]; rest: Benefit[] } {
   const lead = LEADS[source] ?? DEFAULT_LEADS;
   return {
-    lead: lead.map((id) => BENEFITS[id]),
-    rest: ALL_BENEFITS.filter((id) => !lead.includes(id)).map((id) => BENEFITS[id]),
+    lead: lead.map(benefit),
+    rest: ALL_BENEFITS.filter((id) => !lead.includes(id)).map(benefit),
   };
 }
 
 /** "for a week" / "for 3 days". */
 function trialSpan(days: number): string {
-  return days === 7 ? 'for a week' : `for ${days} days`;
+  return days === 7 ? t('paywall.trialSpan.week') : t('paywall.trialSpan.days', { count: days });
 }
-
-const DEFAULT_HEADLINE = 'Everything in the museum, and never wait for a heart again';
 
 /**
  * The big title when any plan in the offering has a free trial: the trial
  * leads, whatever the source (the source-aware copy moves to the bubble).
  */
 export function trialHeadline(trialDays: number): string {
-  return trialDays === 7 ? 'Start My Free Week' : `Start My ${trialDays}-Day Free Trial`;
+  return trialDays === 7
+    ? t('paywall.headline.trialWeek')
+    : t('paywall.headline.trialDays', { count: trialDays });
 }
 
 /** The first free-trial length any plan in the offering carries, if one does. */
@@ -114,17 +92,22 @@ export function anyTrialDays(
 export function paywallHeadline(source: PaywallSource, trialDays?: number): string {
   switch (source) {
     case 'hearts':
-      return 'Never wait for a heart again';
+      return t('paywall.headline.hearts');
     case 'campaign':
-      return 'Continue your journey through history';
+    case 'era_complete':
+      return t('paywall.headline.campaign');
+    case 'winback':
+      return t('paywall.headline.winback');
     case 'locked_category':
-      return 'Unlock every category';
+      return t('paywall.headline.lockedCategory');
     case 'locked_mode':
-      return 'Play Endless with unlimited lives';
+      return t('paywall.headline.lockedMode');
     case 'onboarding':
-      return trialDays ? `Welcome! Try everything free ${trialSpan(trialDays)}` : DEFAULT_HEADLINE;
+      return trialDays
+        ? t('paywall.headline.onboardingTrial', { span: trialSpan(trialDays) })
+        : t('paywall.headline.default');
     default:
-      return DEFAULT_HEADLINE;
+      return t('paywall.headline.default');
   }
 }
 
@@ -133,21 +116,25 @@ export function paywallHeadline(source: PaywallSource, trialDays?: number): stri
  * lines in the compact bubble (~70 characters).
  */
 export function founderLine(source: PaywallSource, isPremium: boolean, trialDays?: number): string {
-  if (isPremium) return 'Thank you for backing an indie developer — enjoy the whole archive!';
+  if (isPremium) return t('paywall.founder.premium');
   switch (source) {
     case 'hearts':
-      return 'Hi, I’m Harry 👋 Out of hearts? With Premium you never have to wait.';
+      return t('paywall.founder.hearts');
     case 'campaign':
-      return 'Hi, I’m Harry 👋 So glad you’re on the journey — lots more lies ahead.';
+      return t('paywall.founder.campaign');
+    case 'era_complete':
+      return t('paywall.founder.eraComplete');
+    case 'winback':
+      return t('paywall.founder.winback');
     case 'locked_category':
-      return 'Hi, I’m Harry 👋 I keep adding categories — Premium opens every one.';
+      return t('paywall.founder.lockedCategory');
     case 'locked_mode':
-      return 'Hi, I’m Harry 👋 Endless is my favourite way to play. Hope you love it!';
+      return t('paywall.founder.lockedMode');
     case 'onboarding':
       return trialDays
-        ? `Hi, I’m Harry 👋 I make Date Guesser solo. Try it all free ${trialSpan(trialDays)}!`
-        : 'Hi, I’m Harry 👋 I make Date Guesser solo — Premium keeps it growing.';
+        ? t('paywall.founder.onboardingTrial', { span: trialSpan(trialDays) })
+        : t('paywall.founder.onboarding');
     default:
-      return 'Hi, I’m Harry 👋 I make this game solo. Premium keeps it growing — thanks!';
+      return t('paywall.founder.default');
   }
 }

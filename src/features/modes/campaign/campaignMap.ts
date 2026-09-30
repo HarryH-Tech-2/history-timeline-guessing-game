@@ -3,9 +3,11 @@ import {
   getQuestions,
   isCampaignRouteQuestion,
   isInRotation,
+  routeName,
   type CampaignRouteSpec,
 } from '@/data';
 import { DIFFICULTY_ORDER, type Question, type RoundResult } from '@/domain';
+import { t, type TranslationKey } from '@/i18n';
 
 import type { CampaignProgress } from '../persistence';
 
@@ -207,6 +209,45 @@ export const CAMPAIGN: readonly CampaignWorld[] = buildCampaign(
   getQuestions().filter(isCampaignRouteQuestion),
   CAMPAIGN_ROUTE_SPECS,
 );
+
+/**
+ * Translation keys for each era's name and period, by era id. Keys only —
+ * `t()` runs at render time (the campaign is built at import, before the
+ * language is known).
+ */
+const ERA_TEXT: Readonly<Record<string, { name: TranslationKey; period: TranslationKey }>> = {
+  ancient: { name: 'campaign.eras.ancient.name', period: 'campaign.eras.ancient.period' },
+  medieval: { name: 'campaign.eras.medieval.name', period: 'campaign.eras.medieval.period' },
+  'early-modern': { name: 'campaign.eras.earlyModern.name', period: 'campaign.eras.earlyModern.period' },
+  nineteenth: { name: 'campaign.eras.nineteenth.name', period: 'campaign.eras.nineteenth.period' },
+  modern: { name: 'campaign.eras.modern.name', period: 'campaign.eras.modern.period' },
+};
+
+/** An era's display name in the current language (`world.name` is the English). */
+export function eraName(world: Pick<CampaignWorld, 'id' | 'name'>): string {
+  const key = ERA_TEXT[world.id]?.name;
+  return key === undefined ? world.name : t(key);
+}
+
+/** An era's year-span label in the current language. */
+export function eraPeriod(world: Pick<CampaignWorld, 'id' | 'period'>): string {
+  const key = ERA_TEXT[world.id]?.period;
+  return key === undefined ? world.period : t(key);
+}
+
+/**
+ * A stage's display title in the current language (`stage.title` is the
+ * English). Route names are content, so they stay as authored for now.
+ */
+export function stageTitle(stage: CampaignStage, worlds: readonly CampaignWorld[] = CAMPAIGN): string {
+  const world = getWorld(stage.worldId, worlds);
+  if (world === undefined) return stage.title;
+  const era = eraName(world);
+  const route = stage.routeId === undefined ? undefined : world.routes.find((r) => r.id === stage.routeId);
+  return route === undefined
+    ? t('campaign.stageTitle', { era, index: stage.index })
+    : t('campaign.routeStageTitle', { era, route: routeName(route), index: stage.index });
+}
 
 export function getWorld(
   worldId: string,

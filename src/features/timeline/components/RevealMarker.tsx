@@ -5,7 +5,8 @@ import Animated, {
   type SharedValue,
 } from 'react-native-reanimated';
 
-import { formatYear, worldXForYear } from '@/features/timeline/math';
+import { worldXForYear } from '@/features/timeline/math';
+import { displayYear } from '@/i18n';
 
 interface RevealMarkerProps {
   year: number;
@@ -47,7 +48,7 @@ export function RevealMarker({
     transform: [{ translateX: worldX * scale.value - MARKER_WIDTH / 2 }],
   }));
 
-  const pillText = label ? `${label} · ${formatYear(year)}` : formatYear(year);
+  const pillText = label ? `${label} · ${displayYear(year)}` : displayYear(year);
 
   return (
     <Animated.View

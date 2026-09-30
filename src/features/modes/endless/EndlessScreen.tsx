@@ -5,6 +5,7 @@ import { BackButton, Button, Screen } from '@/components/ui';
 import { usePremium } from '@/features/premium';
 import { paywallHref } from '@/features/premium/paywallSource';
 import { RoundView, useRoundRewards } from '@/features/round';
+import { t } from '@/i18n';
 
 import { ModeHud } from '../components/ModeHud';
 import { AssistBar } from '../hints/AssistBar';
@@ -18,7 +19,9 @@ function EndlessPlay({ onHome }: { onHome: () => void }) {
   // There is no end-of-run summary (the run never ends), so the best score
   // lives in the HUD where the player can see it climb.
   const progressLabel =
-    best > 0 ? `Round ${session.roundNumber} · Best ${best.toLocaleString()}` : `Round ${session.roundNumber}`;
+    best > 0
+      ? t('modes.endless.roundBest', { round: session.roundNumber, best })
+      : t('modes.endless.round', { round: session.roundNumber });
 
   return (
     <Screen>
@@ -56,13 +59,12 @@ export function EndlessScreen() {
         <View className="flex-1 items-center justify-center gap-4 px-8" testID="endless-locked">
           <Text className="text-4xl">🔒</Text>
           <Text className="text-center text-xl font-bold text-ink-primary">
-            Endless is a Premium mode
+            {t('modes.endless.lockedTitle')}
           </Text>
           <Text className="text-center text-base text-ink-secondary">
-            Subscribe to chase a high score with unlimited lives — plus unlimited hearts
-            everywhere else.
+            {t('modes.endless.lockedBody')}
           </Text>
-          <Button label="See Premium" onPress={() => router.push(paywallHref('locked_mode'))} />
+          <Button label={t('modes.run.seePremium')} onPress={() => router.push(paywallHref('locked_mode'))} />
         </View>
       </Screen>
     );

@@ -12,18 +12,22 @@ import { useRouter } from 'expo-router';
 
 import { Button, Screen } from '@/components/ui';
 import { isFirebaseConfigured } from '@/config/env';
-import { STORE_NAME, SUBSCRIPTION_SETTINGS } from '@/config/store';
+import { inSubscriptionSettings, storeName } from '@/config/store';
 import { forgetUser } from '@/features/save/SaveProvider';
+import { t } from '@/i18n';
 import { useAuth } from '@/services/firebase/auth';
 import { useThemeColors } from '@/theme';
 import { palette } from '@/theme/tokens';
 
-const DELETED_ITEMS = [
-  'Your sign-in link. You will not be able to sign in to it again.',
-  'Cloud saves: XP, level, coins, hearts, museum, campaign progress and best scores.',
-  'Your row on the global leaderboard.',
-  'The copy of that progress on this device.',
-];
+/** What deletion removes. A function so it follows the language. */
+function deletedItems(): string[] {
+  return [
+    t('account.delete.items.signIn'),
+    t('account.delete.items.cloud'),
+    t('account.delete.items.leaderboard'),
+    t('account.delete.items.device'),
+  ];
+}
 
 /**
  * Permanent account deletion, as required by Google Play. The player confirms
@@ -53,22 +57,22 @@ export function DeleteAccountScreen() {
       await deleteAccount();
       router.replace('/profile');
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : 'Something went wrong.');
+      setError(caught instanceof Error ? caught.message : t('account.somethingWrong'));
       setBusy(false);
     }
   }, [uid, reauthenticate, needsPassword, password, deleteAccount, router]);
 
   const confirm = useCallback(() => {
     if (needsPassword && password.length === 0) {
-      setError('Enter your password to confirm.');
+      setError(t('account.delete.enterPassword'));
       return;
     }
     Alert.alert(
-      'Delete your account?',
-      'This permanently removes your account and all of its progress. It cannot be undone.',
+      t('account.delete.confirmTitle'),
+      t('account.delete.confirmBody'),
       [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Delete', style: 'destructive', onPress: () => void runDeletion() },
+        { text: t('common.cancel'), style: 'cancel' },
+        { text: t('account.delete.confirmButton'), style: 'destructive', onPress: () => void runDeletion() },
       ],
     );
   }, [needsPassword, password, runDeletion]);
@@ -78,12 +82,10 @@ export function DeleteAccountScreen() {
       <Screen>
         <View className="flex-1 items-center justify-center px-8">
           <Text className="mb-2 text-center text-2xl font-extrabold text-ink-primary">
-            Delete account
+            {t('account.delete.title')}
           </Text>
           <Text className="text-center text-base text-ink-secondary">
-            {isFirebaseConfigured
-              ? 'You are playing as a guest, so there is no account to delete. Uninstalling the app removes your on-device progress.'
-              : 'Accounts are not available in this build.'}
+            {isFirebaseConfigured ? t('account.delete.guest') : t('account.delete.offline')}
           </Text>
         </View>
       </Screen>
@@ -98,11 +100,11 @@ export function DeleteAccountScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View className="mb-2 flex-row items-center justify-between">
-          <Text className="text-3xl font-extrabold text-ink-primary">Delete account</Text>
+          <Text className="text-3xl font-extrabold text-ink-primary">{t('account.delete.title')}</Text>
           {router.canGoBack() && (
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Close"
+              accessibilityLabel={t('common.close')}
               testID="delete-account-close"
               onPress={() => router.back()}
               disabled={busy}
@@ -113,21 +115,23 @@ export function DeleteAccountScreen() {
         </View>
 
         <Text className="text-base text-ink-secondary" numberOfLines={1}>
-          Signed in as {user?.email ?? user?.displayName ?? uid}
+          {t('account.delete.signedInAs', { name: user?.email ?? user?.displayName ?? uid ?? '' })}
         </Text>
 
         <View className="gap-2 border border-hair bg-bg-raised p-4">
           <Text className="text-sm font-semibold uppercase tracking-widest text-ink-muted">
-            This will permanently delete
+            {t('account.delete.willDelete')}
           </Text>
-          {DELETED_ITEMS.map((item) => (
+          {deletedItems().map((item) => (
             <Text key={item} className="text-sm text-ink-secondary">
               {'•'} {item}
             </Text>
           ))}
           <Text className="mt-1 text-xs text-ink-muted">
-            Purchases are managed by {STORE_NAME} and are not affected. An active Premium
-            subscription must be cancelled separately in {SUBSCRIPTION_SETTINGS}.
+            {t('account.delete.purchasesNote', {
+              store: storeName(),
+              where: inSubscriptionSettings(),
+            })}
           </Text>
         </View>
 
@@ -136,7 +140,7 @@ export function DeleteAccountScreen() {
             <TextInput
               value={password}
               onChangeText={setPassword}
-              placeholder="Confirm your password"
+              placeholder={t('account.delete.passwordPlaceholder')}
               placeholderTextColor={colors.ink.muted}
               autoCapitalize="none"
               autoComplete="current-password"
@@ -147,14 +151,16 @@ export function DeleteAccountScreen() {
             />
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
+              accessibilityLabel={
+                showPassword ? t('account.delete.hidePassword') : t('account.delete.showPassword')
+              }
               onPress={() => setShowPassword((v) => !v)}
               hitSlop={8}
               className="absolute bottom-0 right-0 top-0 justify-center px-4"
               testID="delete-password-visibility"
             >
               <Text className="text-sm font-semibold text-accent">
-                {showPassword ? 'Hide' : 'Show'}
+                {showPassword ? t('account.delete.hide') : t('account.delete.show')}
               </Text>
             </Pressable>
           </View>
@@ -167,7 +173,7 @@ export function DeleteAccountScreen() {
         )}
 
         <Button
-          label={busy ? 'Deleting…' : 'Delete my account'}
+          label={busy ? t('account.delete.deleting') : t('account.delete.submit')}
           variant="ghost"
           disabled={busy}
           onPress={confirm}

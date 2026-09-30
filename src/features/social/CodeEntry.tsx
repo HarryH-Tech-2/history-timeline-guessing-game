@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Text, TextInput, View } from 'react-native';
 
 import { Button } from '@/components/ui';
+import { t } from '@/i18n';
 
 import { normaliseCode } from './shareInvite';
 
@@ -34,7 +35,7 @@ export function CodeEntry({
           <Button label={label} disabled={!code} onPress={() => code && onCode(code)} testID={testID} />
         </View>
       </View>
-      {raw.length >= 6 && !code && <Text className="text-xs text-danger">Check the code</Text>}
+      {raw.length >= 6 && !code && <Text className="text-xs text-danger">{t('social.checkCode')}</Text>}
     </View>
   );
 }

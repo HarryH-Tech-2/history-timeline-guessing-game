@@ -7,6 +7,7 @@ import { activeStreakCount } from '@/domain';
 import { useProgression } from '@/features/progression';
 import { ReminderNudge } from '@/features/reminders';
 import { RoundView, useRoundRewards } from '@/features/round';
+import { t } from '@/i18n';
 import { ChallengeFromRun, runGuessYears } from '@/features/social/ChallengeFromRun';
 import { palette } from '@/theme/tokens';
 import { dateKey } from '@/utils/date';
@@ -25,23 +26,23 @@ function DailySummary({ record, onHome }: { record: DailyRecord; onHome: () => v
   const streak = activeStreakCount(state.streak, dateKey());
   const rounds: SummaryRow[] = record.rounds.map((r, i) => ({
     key: `${i}`,
-    label: getQuestionById(r.questionId)?.title ?? 'Question',
+    label: getQuestionById(r.questionId)?.title ?? t('modes.daily.questionFallback'),
     score: r.score,
     detail: roundDetail(r.errorYears, r.guessYear),
   }));
 
   return (
     <RunSummary
-      title="Daily complete"
+      title={t('modes.daily.complete')}
       subtitle={
         streak > 0
-          ? `🔥 ${streak}-day streak — come back tomorrow to keep it alive.`
-          : 'Come back tomorrow for a fresh set.'
+          ? t('modes.daily.streakSubtitle', { count: streak })
+          : t('modes.daily.freshSet')
       }
       totalScore={record.totalScore}
       stats={[
         {
-          label: 'Perfect answers',
+          label: t('modes.daily.perfectAnswers'),
           value: `${record.perfectCount} / ${record.rounds.length}`,
         },
       ]}
@@ -61,7 +62,7 @@ function DailySummary({ record, onHome }: { record: DailyRecord; onHome: () => v
       // Share is the primary action on purpose: the card is the game's
       // main word-of-mouth lever (user decision, 2026-09-01).
       share={{ data: dailyShareData(record), mode: 'daily', primary: true }}
-      primaryLabel="Home"
+      primaryLabel={t('modes.run.home')}
       onPrimary={onHome}
     />
   );
@@ -97,7 +98,7 @@ export function DailyScreen() {
           result={session.result}
           onSubmit={session.submit}
           onNext={session.advance}
-          nextLabel={onLastQuestion ? 'Finish' : 'Next'}
+          nextLabel={onLastQuestion ? t('modes.run.finish') : t('modes.run.next')}
           assist={(c) => (
             <AssistBar
               question={session.question}

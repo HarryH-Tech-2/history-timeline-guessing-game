@@ -44,7 +44,7 @@ jest.mock('expo-router', () => ({
 
 let mockPremium = false;
 jest.mock('@/features/premium', () => ({
-  usePremium: () => ({ isPremium: mockPremium, isLoading: false }),
+  usePremium: () => ({ isPremium: mockPremium, isLoading: false, trialDays: {} }),
 }));
 
 // eslint-disable-next-line import/first
@@ -61,13 +61,19 @@ async function seed(progress: CampaignProgress) {
   await saves.campaign.write(progress);
 }
 
-/** Dots on the Ancient trail's connectors leaving `stageIds`: the ones lit once they're cleared. */
+/**
+ * Lit dots on the Ancient trail once `stageIds` are cleared: the road out of
+ * the era banner (lit from the start) plus the connectors leaving those stages.
+ */
 function litDots(stageIds: readonly string[]): number {
   const start = allStages().findIndex((s) => s.id === ancient.stages[0]!.id);
   return eraTrailLayout(ancient, start, Dimensions.get('window').width)
-    .segments.filter((s) => stageIds.includes(s.fromId))
+    .segments.filter((s) => s.kind === 'lead' || (s.kind === 'stage' && stageIds.includes(s.fromId)))
     .reduce((n, s) => n + s.dots.length, 0);
 }
+/** The full map (roads, trophies, sparks) takes a moment to settle under Jest. */
+const LIT_WAIT = { timeout: 4000 };
+const LEAD_ONLY = () => litDots([]);
 const ONE_SEGMENT = () => litDots([ancient.stages[0]!.id]);
 const TO_THE_FORK = () => litDots([ancient.stages[0]!.id, ancient.stages[1]!.id]);
 
@@ -76,6 +82,8 @@ function cleared(stageIds: readonly string[], stars = 1): CampaignProgress {
 }
 
 describe('CampaignMapScreen', () => {
+  // Rendering the whole map (every era's road, trophies and buttons) is slow under Jest.
+  jest.setTimeout(20_000);
   beforeEach(() => {
     mockPush.mockClear();
     mockSetParams.mockClear();
@@ -94,7 +102,36 @@ describe('CampaignMapScreen', () => {
     const first = screen.getByTestId(`stage-${medieval.stages[0]!.id}`);
     expect(first).toHaveProp('accessibilityLabel', 'Stage 1, Premium');
     fireEvent.press(first);
-    expect(mockPush).toHaveBeenCalledWith({ pathname: '/paywall', params: { source: 'campaign' } });
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: '/paywall',
+      params: { source: 'campaign', era: medieval.id },
+    });
+  });
+
+  it('opens the paywall from a locked era banner, not from a free one', async () => {
+    await seed(cleared(ancientAll));
+    render(<CampaignMapScreen />);
+    await waitFor(() => expect(screen.getAllByTestId('era-premium').length).toBeGreaterThan(0));
+
+    fireEvent.press(screen.getByTestId(`world-${ancient.id}`));
+    expect(mockPush).not.toHaveBeenCalled();
+
+    const banner = screen.getByTestId(`world-${medieval.id}`);
+    expect(banner).toHaveProp('accessibilityRole', 'button');
+    fireEvent.press(banner);
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: '/paywall',
+      params: { source: 'campaign', era: medieval.id },
+    });
+  });
+
+  it('keeps era banners inert for Premium players', async () => {
+    mockPremium = true;
+    await seed(cleared(ancientAll));
+    render(<CampaignMapScreen />);
+    await waitFor(() => expect(screen.getByTestId('era-complete')).toBeOnTheScreen());
+    fireEvent.press(screen.getByTestId(`world-${medieval.id}`));
+    expect(mockPush).not.toHaveBeenCalled();
   });
 
   it('lets Premium players straight into the Middle Ages', async () => {
@@ -115,7 +152,7 @@ describe('CampaignMapScreen', () => {
     await seed(cleared([ancient.stages[0]!.id]));
     render(<CampaignMapScreen />);
     // One cleared stage lights the one segment leaving it.
-    await waitFor(() => expect(screen.getAllByTestId('trail-dot-lit')).toHaveLength(ONE_SEGMENT()));
+    await waitFor(() => expect(screen.getAllByTestId('trail-dot-lit')).toHaveLength(ONE_SEGMENT()), LIT_WAIT);
   });
 
   it('marks a fully three-starred era as mastered and tallies the journey stars', async () => {
@@ -128,7 +165,90 @@ describe('CampaignMapScreen', () => {
     );
     const first = screen.getByTestId(`stage-${ancient.stages[0]!.id}`);
     expect(within(first).getByTestId('stage-face-mastered')).toBeOnTheScreen();
+    // Mastered: gold, still the era icon, wearing a crown instead of a tick.
+    expect(within(first).getByTestId('stage-icon-bank')).toBeOnTheScreen();
+    expect(within(first).getByTestId('stage-mastered-crown')).toBeOnTheScreen();
+    expect(within(first).queryByTestId('stage-check-badge')).toBeNull();
+    // The era's trophy is claimed, crowned.
+    expect(
+      within(screen.getByTestId(`era-reward-${ancient.id}`)).getByTestId('era-reward-face-mastered'),
+    ).toBeOnTheScreen();
   });
+
+  it("holds out each era's trophy, counting the stages still to clear", async () => {
+    await seed(cleared([ancient.stages[0]!.id]));
+    render(<CampaignMapScreen />);
+    const trophy = await screen.findByTestId(`era-reward-${ancient.id}`);
+    expect(within(trophy).getByTestId('era-reward-face-locked')).toBeOnTheScreen();
+    expect(screen.getByTestId(`era-reward-body-${ancient.id}`)).toHaveTextContent(
+      `Clear all ${ancient.stages.length} stages to claim it · 1/${ancient.stages.length}`,
+    );
+    // The last era's trophy is the whole campaign's.
+    const last = CAMPAIGN.at(-1)!;
+    expect(screen.getByTestId(`era-reward-body-${last.id}`)).toHaveTextContent(
+      new RegExp(`0/${CAMPAIGN.length} eras$`),
+    );
+    expect(screen.queryByTestId('campaign-finale')).toBeNull();
+  });
+
+  it('claims the era trophy once the main path is cleared, and lights the road on', async () => {
+    await seed(cleared(ancient.stages.map((s) => s.id)));
+    render(<CampaignMapScreen />);
+    const trophy = await screen.findByTestId(`era-reward-${ancient.id}`);
+    await waitFor(() =>
+      expect(within(trophy).getByTestId('era-reward-face-won')).toBeOnTheScreen(),
+    );
+  });
+
+  it('offers Premium, once, when a free player conquers the free era', async () => {
+    mockPremium = false;
+    const main = ancient.stages.map((s) => s.id);
+    const saves = renderHook(useSaves).result.current;
+    await saves.campaign.write(cleared(main.slice(0, -1)));
+    const { rerender } = render(<CampaignMapScreen />);
+    await screen.findByTestId(`era-reward-${ancient.id}`);
+    expect(screen.queryByTestId('era-conquered')).toBeNull();
+
+    await act(async () => {
+      mockFocus.cleanup?.();
+      await saves.campaign.write(cleared(main));
+    });
+    rerender(<CampaignMapScreen />);
+    await act(async () => {
+      mockFocus.cleanup = mockFocus.callback?.();
+    });
+    await waitFor(() => expect(screen.getByTestId('era-conquered')).toBeOnTheScreen(), {
+      timeout: 6000,
+    });
+    expect(screen.getByTestId('era-conquered-body')).toHaveTextContent(/Next up: The Middle Ages/);
+    fireEvent.press(screen.getByTestId('era-conquered-unlock'));
+    expect(mockPush).toHaveBeenCalledWith({ pathname: '/paywall', params: { source: 'era_complete' } });
+    await waitFor(() => expect(screen.queryByTestId('era-conquered')).toBeNull());
+  }, 20000);
+
+  it('throws the campaign finale when the very last stage is cleared', async () => {
+    mockPremium = true;
+    const main = allStages().map((s) => s.id);
+    const saves = renderHook(useSaves).result.current;
+    await saves.campaign.write(cleared(main.slice(0, -1)));
+    const { rerender } = render(<CampaignMapScreen />);
+    await screen.findByTestId(`era-reward-${ancient.id}`);
+    expect(screen.queryByTestId('campaign-finale')).toBeNull();
+
+    await act(async () => {
+      mockFocus.cleanup?.();
+      await saves.campaign.write(cleared(main));
+    });
+    rerender(<CampaignMapScreen />);
+    await act(async () => {
+      mockFocus.cleanup = mockFocus.callback?.();
+    });
+    await waitFor(() => expect(screen.getByTestId('campaign-finale')).toBeOnTheScreen(), {
+      timeout: 5000,
+    });
+    fireEvent.press(screen.getByTestId('campaign-finale-close'));
+    await waitFor(() => expect(screen.queryByTestId('campaign-finale')).toBeNull());
+  }, 20000);
 
   it('keeps a legacy player\'s seal and full bar when they never played a route', async () => {
     const main = ancient.stages.map((s) => s.id);
@@ -145,7 +265,8 @@ describe('CampaignMapScreen', () => {
     render(<CampaignMapScreen />);
     await waitFor(() => expect(screen.getByTestId('journey-stars', HIDDEN)).toHaveTextContent(/^★ 0\//));
     expect(screen.queryByTestId('era-complete')).toBeNull();
-    expect(screen.queryAllByTestId('trail-dot-lit')).toHaveLength(0);
+    // Only the road from the opening banner into the first stage glows.
+    await waitFor(() => expect(screen.queryAllByTestId('trail-dot-lit')).toHaveLength(LEAD_ONLY()), LIT_WAIT);
   });
 
   it('opens on the first era, its painting behind, and START on the first stage', async () => {
@@ -169,7 +290,7 @@ describe('CampaignMapScreen', () => {
     expect(screen.getByLabelText('Minerva the owl')).toBeOnTheScreen();
   });
 
-  it('draws cleared stages starred, the next one as the frontier and the rest locked', async () => {
+  it('draws cleared stages ticked, the next one as the frontier and the rest locked', async () => {
     await seed(cleared([ancient.stages[0]!.id], 2));
     render(<CampaignMapScreen />);
     const [s1, s2, s3] = ancient.stages.map((s) => s.id);
@@ -178,7 +299,11 @@ describe('CampaignMapScreen', () => {
         within(screen.getByTestId(`stage-${s1}`)).getByTestId('stage-face-completed'),
       ).toBeOnTheScreen(),
     );
-    expect(within(screen.getByTestId(`stage-${s1}`)).getByText('★')).toBeOnTheScreen();
+    // A cleared stage keeps its era icon and wears a tick, not a crown.
+    const first = screen.getByTestId(`stage-${s1}`);
+    expect(within(first).getByTestId('stage-icon-bank')).toBeOnTheScreen();
+    expect(within(first).getByTestId('stage-check-badge')).toBeOnTheScreen();
+    expect(within(first).queryByTestId('stage-mastered-crown')).toBeNull();
     expect(
       within(screen.getByTestId(`stage-${s2}`)).getByTestId('stage-face-frontier'),
     ).toBeOnTheScreen();
@@ -254,7 +379,10 @@ describe('CampaignMapScreen', () => {
     const node = await screen.findByTestId(`stage-${crusades!.stages[0]!.id}`);
     expect(node).toHaveProp('accessibilityLabel', `${crusades!.name}, Stage 1, Premium`);
     fireEvent.press(node);
-    expect(mockPush).toHaveBeenCalledWith({ pathname: '/paywall', params: { source: 'campaign' } });
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: '/paywall',
+      params: { source: 'campaign', era: medieval.id },
+    });
   });
   describe('opening scroll', () => {
     const ERA_TOP = 40;
@@ -279,7 +407,7 @@ describe('CampaignMapScreen', () => {
       const scrollTo = jest.spyOn(ScrollView.prototype, 'scrollTo');
       await seed(atFork());
       render(<CampaignMapScreen />);
-      await waitFor(() => expect(screen.getAllByTestId('trail-dot-lit')).toHaveLength(TO_THE_FORK()));
+      await waitFor(() => expect(screen.getAllByTestId('trail-dot-lit')).toHaveLength(TO_THE_FORK()), LIT_WAIT);
       await layOutAncient();
       expect(scrollTo).toHaveBeenLastCalledWith({
         y: offsetOf(ancient.routes[0]!.stages[0]!.id),
@@ -294,7 +422,7 @@ describe('CampaignMapScreen', () => {
       mockSearch = { focus: ancient.stages[1]!.id };
       await seed(atFork());
       render(<CampaignMapScreen />);
-      await waitFor(() => expect(screen.getAllByTestId('trail-dot-lit')).toHaveLength(TO_THE_FORK()));
+      await waitFor(() => expect(screen.getAllByTestId('trail-dot-lit')).toHaveLength(TO_THE_FORK()), LIT_WAIT);
       await layOutAncient();
       expect(scrollTo).toHaveBeenLastCalledWith({
         y: offsetOf(ancient.stages[1]!.id),
@@ -312,7 +440,7 @@ describe('CampaignMapScreen', () => {
       const saves = renderHook(useSaves).result.current;
       await saves.campaign.write(cleared([ancient.stages[0]!.id]));
       const { rerender } = render(<CampaignMapScreen />);
-      await waitFor(() => expect(screen.getAllByTestId('trail-dot-lit')).toHaveLength(ONE_SEGMENT()));
+      await waitFor(() => expect(screen.getAllByTestId('trail-dot-lit')).toHaveLength(ONE_SEGMENT()), LIT_WAIT);
       await layOutAncient();
       expect(scrollTo).toHaveBeenLastCalledWith({ y: offsetOf(fork), animated: false });
 
@@ -332,7 +460,7 @@ describe('CampaignMapScreen', () => {
       await act(async () => {
         mockFocus.cleanup = mockFocus.callback?.();
       });
-      await waitFor(() => expect(screen.getAllByTestId('trail-dot-lit')).toHaveLength(TO_THE_FORK()));
+      await waitFor(() => expect(screen.getAllByTestId('trail-dot-lit')).toHaveLength(TO_THE_FORK()), LIT_WAIT);
       await waitFor(
         () => expect(scrollTo).toHaveBeenLastCalledWith({ y: offsetOf(fork), animated: true }),
         { timeout: 5000 },

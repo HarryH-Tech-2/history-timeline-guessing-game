@@ -1,4 +1,12 @@
-import { devBilling, revenueCatBilling, selectBilling, trialDaysFor, unavailableBilling } from './billing';
+import {
+  devBilling,
+  revenueCatBilling,
+  selectBilling,
+  trialDaysFor,
+  unavailableBilling,
+  winbackOptionOf,
+  winbackPriceOf,
+} from './billing';
 
 describe('billing adapter selection', () => {
   it('uses RevenueCat whenever a public SDK key is present', () => {
@@ -88,5 +96,29 @@ describe('trialDaysFor', () => {
     expect(trialDaysFor({ defaultOption: { freePhase: { billingPeriod: { unit: 'FORTNIGHT', value: 1 } } } })).toBeNull();
     expect(trialDaysFor(null)).toBeNull();
     expect(trialDaysFor({})).toBeNull();
+  });
+});
+
+describe('win-back offer lookup', () => {
+  const intro = (formatted: string, micros: number) => ({
+    price: { formatted, amountMicros: micros, currencyCode: 'GBP' },
+  });
+  const base = { tags: [] as string[], introPhase: null };
+  const winback = { tags: ['winback', 'rc-ignore-offer'], introPhase: intro('£8.99', 8_990_000) };
+
+  it('finds the option tagged winback with a discounted first period', () => {
+    expect(winbackOptionOf({ subscriptionOptions: [base, winback] })).toBe(winback);
+    expect(winbackPriceOf(winback)).toEqual({ price: '£8.99', amount: 8.99, currencyCode: 'GBP' });
+  });
+
+  it('finds nothing when Play has no win-back offer for this player', () => {
+    expect(winbackOptionOf({ subscriptionOptions: [base] })).toBeNull();
+    expect(winbackOptionOf({ subscriptionOptions: null })).toBeNull();
+    expect(winbackOptionOf(null)).toBeNull();
+  });
+
+  it('ignores a tagged option with no paid intro phase (a free trial is not a discount)', () => {
+    const free = { tags: ['winback'], introPhase: intro('Free', 0) };
+    expect(winbackOptionOf({ subscriptionOptions: [free] })).toBeNull();
   });
 });

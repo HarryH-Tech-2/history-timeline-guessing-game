@@ -1,0 +1,362 @@
+{
+  "con-australia-federation": {
+    "title": "A Federação da Austrália",
+    "longDescription": "No dia de Ano-Novo de 1901, as seis colônias britânicas autônomas do continente australiano se federaram na Comunidade da Austrália, proclamada em uma enorme cerimônia no Centennial Park de Sydney. Uma nação foi criada pelo voto, e não pela guerra."
+  },
+  "con-treaty-waitangi": {
+    "title": "O Tratado de Waitangi",
+    "longDescription": "Mais de quarenta chefes maoris assinaram um tratado com a Coroa britânica em Waitangi, e centenas de outras assinaturas foram reunidas pelo país naquele ano. Suas duas versões, em línguas diferentes e com sentidos divergentes, ainda moldam a lei e a identidade da Nova Zelândia."
+  },
+  "con-antarctica-sighted": {
+    "title": "A Antártida é avistada pela primeira vez",
+    "longDescription": "Os navios russos Vostok e Mirny, sob o comando de Fabian von Bellingshausen, registraram campos de gelo na borda do continente antártico — o primeiro avistamento do último continente a ser descoberto. Tripulações britânicas e americanas o viram poucos dias e meses depois."
+  },
+  "con-amundsen-pole": {
+    "title": "Amundsen chega ao Polo Sul",
+    "longDescription": "Roald Amundsen e quatro companheiros fincaram a bandeira da Noruega no Polo Sul, cinco semanas antes da expedição britânica de Robert Falcon Scott. A equipe de Scott chegou ao polo apenas para morrer na marcha de volta."
+  },
+  "con-treaty-of-rome": {
+    "title": "O Tratado de Roma",
+    "longDescription": "França, Alemanha Ocidental, Itália e os países do Benelux assinaram o Tratado de Roma, criando um mercado comum uma década depois de o continente ter ficado em ruínas. A Comunidade Econômica Europeia que ele fundou evoluiu para a atual União Europeia."
+  },
+  "exp-marco-polo": {
+    "title": "Marco Polo parte para o Oriente",
+    "longDescription": "Aos dezessete anos, Marco Polo deixou Veneza com o pai e o tio em uma jornada que o manteria na Ásia por vinte e quatro anos, boa parte deles a serviço de Kublai Khan. O livro de suas viagens moldou a imagem que a Europa tinha do Oriente durante séculos."
+  },
+  "exp-ibn-battuta": {
+    "title": "Ibn Battuta inicia suas viagens",
+    "longDescription": "Ibn Battuta partiu de Tânger rumo a Meca aos vinte e um anos e não parou por quase três décadas, cruzando o Norte da África, a Arábia, a Índia, o Sudeste Asiático e a China — cerca de 120.000 quilômetros, mais do que qualquer viajante conhecido antes da era do vapor."
+  },
+  "exp-zheng-he": {
+    "title": "A primeira viagem do tesouro de Zheng He",
+    "longDescription": "O imperador Yongle enviou o almirante Zheng He ao mar com uma frota cujos maiores navios do tesouro faziam qualquer embarcação europeia parecer minúscula. Sete viagens levaram enviados chineses até a África Oriental, décadas antes de Portugal contornar o Cabo."
+  },
+  "exp-vasco-da-gama": {
+    "title": "Vasco da Gama chega à Índia",
+    "longDescription": "Depois de dez meses no mar e de uma rota que contornou o Cabo da Boa Esperança, Vasco da Gama ancorou diante de Calicute, na costa das especiarias da Índia. A rota inteiramente marítima para a Ásia quebrou os monopólios terrestres e abriu a era dos impérios europeus no Oriente."
+  },
+  "exp-magellan": {
+    "title": "A primeira volta ao mundo é concluída",
+    "longDescription": "Três anos depois da partida dos cinco navios de Fernão de Magalhães, uma única embarcação avariada voltou à Espanha sob o comando de Juan Sebastián Elcano, com dezoito sobreviventes. O próprio Magalhães morreu nas Filipinas, mas a viagem provou que era possível navegar ao redor do mundo."
+  },
+  "exp-drake": {
+    "title": "Drake volta de sua volta ao mundo",
+    "longDescription": "Francis Drake trouxe o Golden Hind de volta abarrotado de prata espanhola, tornando-se o primeiro capitão a sobreviver à própria circum-navegação. A rainha Elizabeth o sagrou cavaleiro no convés do navio, para fúria da Espanha."
+  },
+  "exp-cook-botany-bay": {
+    "title": "Cook desembarca em Botany Bay",
+    "longDescription": "James Cook levou o Endeavour até uma ampla baía tão rica em plantas desconhecidas que seus botânicos a batizaram de Botany Bay. Suas cartas náuticas da costa leste levaram, em duas décadas, à colonização britânica do continente."
+  },
+  "exp-lewis-clark": {
+    "title": "Lewis e Clark partem em expedição",
+    "longDescription": "Enviados pelo presidente Jefferson após a Compra da Louisiana, Meriwether Lewis e William Clark conduziram cerca de quarenta homens rio Missouri acima, através das Montanhas Rochosas e até o Pacífico — mapeando meio continente em dois anos e meio."
+  },
+  "exp-livingstone-stanley": {
+    "title": "“Dr. Livingstone, eu presumo?”",
+    "longDescription": "O jornalista Henry Morton Stanley caminhou durante meses pela África Oriental para encontrar David Livingstone, desaparecido havia anos enquanto procurava a nascente do Nilo. O encontro dos dois em Ujiji tornou-se o momento de exploração mais recontado do século."
+  },
+  "exp-shackleton": {
+    "title": "Shackleton resgata sua tripulação",
+    "longDescription": "Depois que o Endurance foi esmagado pelo gelo, Ernest Shackleton navegou 1.300 quilômetros em um bote aberto para buscar ajuda e depois voltou para retirar todos os vinte e dois homens da Ilha Elefante. Nenhum membro da expedição se perdeu."
+  },
+  "exp-lindbergh": {
+    "title": "Lindbergh atravessa o Atlântico",
+    "longDescription": "Charles Lindbergh voou sozinho a partir de Nova York por trinta e três horas e meia e pousou em Le Bourget diante de uma multidão de 150.000 pessoas. O voo fez dele o homem mais famoso do mundo e convenceu todos de que a aviação tinha futuro."
+  },
+  "exp-earhart": {
+    "title": "Earhart atravessa o Atlântico sozinha",
+    "longDescription": "Exatamente cinco anos depois de Lindbergh, Amelia Earhart pilotou seu Lockheed Vega vermelho da Terra Nova, em meio a tempestades e gelo, até o campo de um fazendeiro perto de Derry — a primeira mulher, e apenas a segunda pessoa, a cruzar o Atlântico sozinha."
+  },
+  "exp-everest": {
+    "title": "O Everest enfim é conquistado",
+    "longDescription": "Edmund Hillary e Tenzing Norgay alcançaram o cume de 8.849 metros do Everest às 11h30 da manhã, e a notícia chegou a Londres na véspera da coroação de Elizabeth II. Nenhuma escalada confirmada jamais havia chegado tão alto."
+  },
+  "exp-trieste": {
+    "title": "O mergulho ao ponto mais profundo da Terra",
+    "longDescription": "Jacques Piccard e Don Walsh levaram o batiscafo Trieste a quase onze quilômetros de profundidade, até o fundo da Depressão Challenger, o ponto mais profundo do oceano. Ninguém voltou lá por mais de meio século."
+  },
+  "exp-gagarin": {
+    "title": "O primeiro ser humano no espaço",
+    "longDescription": "Preso à minúscula cápsula Vostok 1, o cosmonauta Yuri Gagarin tornou-se o primeiro ser humano a deixar o planeta, completando uma órbita antes de descer de paraquedas em um campo russo. “A Terra é azul”, relatou. “Que maravilha.”"
+  },
+  "trt-verdun": {
+    "title": "O Tratado de Verdun",
+    "longDescription": "Após três anos de guerra civil, os netos de Carlos Magno dividiram o Império Franco em reinos ocidental, central e oriental. As partes ocidental e oriental costumam ser vistas como as sementes da França e da Alemanha."
+  },
+  "trt-tordesillas": {
+    "title": "O Tratado de Tordesilhas",
+    "longDescription": "Dois anos após a primeira viagem de Colombo, Espanha e Portugal acordaram um meridiano 370 léguas a oeste das ilhas de Cabo Verde: as terras a oeste seriam espanholas, as terras a leste, portuguesas. Essa linha é o motivo pelo qual o Brasil fala português hoje."
+  },
+  "trt-westphalia": {
+    "title": "A Paz de Vestfália",
+    "longDescription": "Negociada ao longo de anos em duas cidades da Vestfália, a paz encerrou a Guerra dos Trinta Anos e a guerra de independência holandesa. Costuma ser citada como o nascimento do sistema moderno de Estados soberanos."
+  },
+  "trt-utrecht": {
+    "title": "O Tratado de Utrecht",
+    "longDescription": "O acordo manteve um Bourbon no trono espanhol, mas proibiu a união da França com a Espanha, e entregou à Grã-Bretanha Gibraltar, Minorca e um lucrativo contrato de tráfico de escravizados. Marcou a chegada da Grã-Bretanha como grande potência colonial."
+  },
+  "trt-paris-1783": {
+    "title": "O Tratado de Paris",
+    "longDescription": "Assinado no Hôtel d’York por Benjamin Franklin, John Adams e John Jay em nome dos Estados Unidos, o tratado reconheceu a independência americana e fixou fronteiras generosas que se estendiam a oeste até o Mississippi."
+  },
+  "trt-vienna-congress": {
+    "title": "O fim do Congresso de Viena",
+    "longDescription": "Diplomatas liderados por Metternich, Castlereagh e Talleyrand passaram meses redesenhando o continente após as Guerras Napoleônicas. A Ata Final foi assinada nove dias antes de Waterloo e moldou um equilíbrio de poder que durou décadas."
+  },
+  "trt-nanking": {
+    "title": "O Tratado de Nanquim",
+    "longDescription": "Assinado a bordo do HMS Cornwallis, o tratado abriu cinco portos chineses ao comércio britânico, impôs uma grande indenização e cedeu a Ilha de Hong Kong à Grã-Bretanha. Deu início a um século que a China lembra como de humilhação."
+  },
+  "trt-guadalupe-hidalgo": {
+    "title": "O Tratado de Guadalupe Hidalgo",
+    "longDescription": "O México cedeu mais da metade de seu território, incluindo Califórnia, Nevada, Utah e boa parte do Arizona e do Novo México, em troca de quinze milhões de dólares. Havia sido encontrado ouro na Califórnia poucos dias antes da assinatura."
+  },
+  "trt-brest-litovsk": {
+    "title": "O Tratado de Brest-Litovsk",
+    "longDescription": "O governo de Lenin entregou a Ucrânia, as terras bálticas, a Finlândia e a Polônia às Potências Centrais para sair da guerra. O tratado foi anulado pela derrota da Alemanha oito meses depois."
+  },
+  "trt-munich-agreement": {
+    "title": "O Acordo de Munique",
+    "longDescription": "Sem a Tchecoslováquia à mesa, Grã-Bretanha, França, Itália e Alemanha concordaram que a região dos Sudetos, de língua alemã, seria anexada pelo Reich. Em seis meses, Hitler havia ocupado o restante das terras tchecas."
+  },
+  "trt-un-charter": {
+    "title": "A assinatura da Carta das Nações Unidas",
+    "longDescription": "Delegados de cinquenta países assinaram a Carta no Veterans War Memorial Building após dois meses de negociação. Ela entrou em vigor em outubro daquele ano, e a data é celebrada como o Dia das Nações Unidas."
+  },
+  "trt-nato": {
+    "title": "O Tratado do Atlântico Norte",
+    "longDescription": "Estados Unidos, Canadá e dez Estados da Europa Ocidental assinaram um pacto de defesa mútua enquanto a Guerra Fria se acirrava. O Artigo 5, a cláusula de defesa coletiva, foi invocado apenas uma vez: após os ataques de 11 de setembro de 2001."
+  },
+  "trt-antarctic-treaty": {
+    "title": "O Tratado da Antártida",
+    "longDescription": "Assinado pelos países ativos na Antártida durante o Ano Geofísico Internacional, o tratado congelou as reivindicações territoriais, proibiu testes de armas e garantiu a liberdade de pesquisa científica. Continua em vigor até hoje."
+  },
+  "trt-camp-david": {
+    "title": "Os Acordos de Camp David",
+    "longDescription": "Promovidos pelo presidente Carter no retiro presidencial, os acordos levaram, no ano seguinte, ao primeiro tratado de paz entre Israel e um Estado árabe. Sadat e Begin dividiram o Prêmio Nobel da Paz."
+  },
+  "trt-maastricht": {
+    "title": "O Tratado de Maastricht",
+    "longDescription": "O Tratado da União Europeia transformou a Comunidade Europeia na União Europeia, criou a cidadania europeia e traçou o caminho para o euro. Entrou em vigor em novembro de 1993."
+  },
+  "trt-good-friday": {
+    "title": "O Acordo da Sexta-Feira Santa",
+    "longDescription": "Após negociações maratônicas presididas pelo senador americano George Mitchell, os governos britânico e irlandês e os partidos da Irlanda do Norte chegaram a um acordo baseado no consentimento, na divisão do poder e no desarmamento. Os eleitores o aprovaram em referendos no mês seguinte."
+  },
+  "trt-paris-climate": {
+    "title": "O Acordo de Paris",
+    "longDescription": "Adotado na cúpula COP21 por 196 partes, o acordo estabeleceu a meta de manter o aumento da temperatura global bem abaixo de 2°C e de buscar limitá-lo a 1,5°C. Cada país apresenta seus próprios compromissos de emissões, revisados a cada cinco anos."
+  },
+  "spt-rugby-first-international": {
+    "title": "A primeira partida internacional de rúgbi",
+    "longDescription": "Quatro mil espectadores viram a Escócia vencer a Inglaterra por um gol e um try contra um try, em um campo de críquete em Edimburgo. O confronto é o mais antigo do rúgbi internacional e ainda é disputado pela Calcutta Cup."
+  },
+  "spt-fa-cup-final": {
+    "title": "A primeira final da FA Cup",
+    "longDescription": "Cerca de duas mil pessoas pagaram um xelim para ver o Wanderers vencer por 1–0 com um gol de Morton Betts, que jogava sob o pseudônimo “A. H. Chequer”. A FA Cup é disputada em todas as temporadas em tempos de paz desde então."
+  },
+  "spt-first-test-match": {
+    "title": "A primeira partida de críquete Test",
+    "longDescription": "Charles Bannerman marcou 165 corridas no primeiro innings do que mais tarde foi reconhecido como o primeiro Test match. Um século depois, o Centenary Test no mesmo estádio terminou, de forma notável, com a mesma margem de 45 corridas."
+  },
+  "spt-wimbledon": {
+    "title": "O primeiro Campeonato de Wimbledon",
+    "longDescription": "O All England Croquet and Lawn Tennis Club organizou um torneio de simples masculino para arrecadar dinheiro para um rolo compressor puxado a pônei. Spencer Gore venceu William Marshall na final, diante de cerca de duzentos espectadores."
+  },
+  "spt-modern-olympics": {
+    "title": "Os primeiros Jogos Olímpicos da Era Moderna",
+    "longDescription": "Realizados no restaurado Estádio Panatenaico, os jogos reuniram 241 atletas em 43 provas. O pastor grego Spyridon Louis tornou-se herói nacional ao vencer a primeira maratona."
+  },
+  "spt-tour-de-france": {
+    "title": "O primeiro Tour de France",
+    "longDescription": "Criado para impulsionar as vendas do jornal esportivo L’Auto, o primeiro Tour teve seis etapas enormes, somando 2.428 km. Maurice Garin venceu com quase três horas de vantagem; apenas 21 dos competidores chegaram ao fim."
+  },
+  "spt-winter-olympics": {
+    "title": "Os primeiros Jogos Olímpicos de Inverno",
+    "longDescription": "Dezesseis nações enviaram cerca de 250 atletas para competir à sombra do Mont Blanc. O COI declarou retroativamente o evento como os primeiros Jogos Olímpicos de Inverno dois anos depois."
+  },
+  "spt-world-cup-1930": {
+    "title": "A primeira Copa do Mundo da FIFA",
+    "longDescription": "Apenas quatro seleções europeias fizeram a longa viagem de navio até o Uruguai, que comemorava seu centenário. Os anfitriões venceram a Argentina por 4–2 na final, no recém-construído Estádio Centenário."
+  },
+  "spt-jesse-owens": {
+    "title": "Jesse Owens conquista quatro ouros em Berlim",
+    "longDescription": "Sob o olhar do regime de Hitler, o jovem de 22 anos de Ohio conquistou quatro medalhas de ouro em nove dias, feito só igualado por Carl Lewis em 1984. Seu duelo no salto em distância com o alemão Luz Long tornou-se um símbolo de espírito esportivo."
+  },
+  "spt-jackie-robinson": {
+    "title": "Jackie Robinson quebra a barreira racial",
+    "longDescription": "Enfrentando insultos das torcidas e dos adversários, Robinson ganhou o primeiro prêmio de Novato do Ano e ajudou a acabar com a segregação no esporte americano. Hoje todos os jogadores da MLB usam seu número 42 no aniversário de sua estreia."
+  },
+  "spt-formula-one": {
+    "title": "A primeira corrida do Campeonato Mundial de Fórmula 1",
+    "longDescription": "Assistida pelo rei George VI, a corrida em um antigo aeródromo da RAF deu início ao Campeonato Mundial de Fórmula 1. Farina se tornou o primeiro campeão mundial da categoria naquele ano."
+  },
+  "spt-bannister-mile": {
+    "title": "A milha em menos de quatro minutos",
+    "longDescription": "Com Chris Chataway e Chris Brasher ditando o ritmo em uma noite de vento, Bannister fez o que muitos acreditavam ser fisicamente impossível. Seu recorde durou apenas 46 dias, mas a barreira foi quebrada para sempre."
+  },
+  "spt-super-bowl": {
+    "title": "O primeiro Super Bowl",
+    "longDescription": "Oficialmente chamado de AFL–NFL World Championship Game, o jogo no Los Angeles Memorial Coliseum não esgotou os ingressos. Os Packers de Vince Lombardi venceram por 35–10, e hoje o troféu leva o nome dele."
+  },
+  "spt-rumble-jungle": {
+    "title": "A Luta na Selva",
+    "longDescription": "Sessenta mil pessoas assistiram, no calor das 4 da manhã, Ali, de 32 anos, absorver os golpes de Foreman nas cordas antes de nocauteá-lo no oitavo assalto. É frequentemente chamado de o maior evento esportivo do século."
+  },
+  "spt-comaneci": {
+    "title": "O primeiro 10 perfeito",
+    "longDescription": "O placar só conseguia exibir três dígitos, então sua série perfeita nas barras assimétricas apareceu como 1.00. Comăneci acabou somando sete notas 10 perfeitas e conquistando três ouros nos jogos."
+  },
+  "spt-miracle-on-ice": {
+    "title": "O Milagre no Gelo",
+    "longDescription": "A União Soviética havia vencido os quatro títulos olímpicos anteriores e esmagado os americanos por 10–3 em um amistoso dias antes. “Você acredita em milagres? Sim!” tornou-se uma das narrações mais famosas do esporte."
+  },
+  "spt-hand-of-god": {
+    "title": "A Mão de Deus",
+    "longDescription": "Em uma quarta de final de Copa do Mundo, Diego Maradona empurrou a bola com a mão por cima de Peter Shilton e depois driblou cinco jogadores ingleses no que mais tarde foi eleito o Gol do Século. A Argentina acabou vencendo o torneio."
+  },
+  "spt-bolt-9-58": {
+    "title": "Usain Bolt corre em 9,58",
+    "longDescription": "Um ano depois de seu triunfo olímpico em Pequim, o jamaicano correu em 9,58 segundos no Olympiastadion, a maior melhora do recorde dos 100 m desde o início da cronometragem eletrônica. Dias depois, correu os 200 m em 19,19."
+  },
+  "trd-jiaozi": {
+    "title": "O primeiro papel-moeda oficial",
+    "longDescription": "Havia décadas, os comerciantes de Sichuan trocavam recibos de papel por pesadas moedas de ferro. Em 1024, o governo Song assumiu o sistema e começou a imprimir suas próprias cédulas, séculos antes de a Europa fazer o mesmo."
+  },
+  "trd-medici-bank": {
+    "title": "A fundação do Banco Médici",
+    "longDescription": "Giovanni transferiu o negócio bancário da família de Roma para Florença e construiu a casa financeira mais poderosa da Europa. Seus lucros financiaram a ascensão dos Médici ao governo da cidade e o mecenato de artistas de Donatello a Michelangelo."
+  },
+  "trd-east-india-company": {
+    "title": "A Companhia das Índias Orientais recebe sua carta",
+    "longDescription": "A “Governor and Company of Merchants of London trading into the East Indies” começou como um empreendimento de comércio de especiarias. Ao longo de dois séculos, tornou-se um império privado que governava a maior parte da Índia com seu próprio exército."
+  },
+  "trd-voc": {
+    "title": "A fundação da Companhia Holandesa das Índias Orientais",
+    "longDescription": "Criada por carta dos Estados Gerais com o monopólio do comércio asiático, a Vereenigde Oostindische Compagnie levantou capital vendendo ações transferíveis a investidores comuns. A negociação dessas ações deu origem à Bolsa de Valores de Amsterdã."
+  },
+  "trd-tulip-mania": {
+    "title": "O colapso da mania das tulipas",
+    "longDescription": "No auge da febre, contratos de bulbos raros de tulipa eram negociados por mais de dez vezes o salário anual de um artesão qualificado. Em fevereiro, os compradores sumiram, os preços despencaram e o episódio se tornou o arquétipo da bolha de mercado."
+  },
+  "trd-bank-of-england": {
+    "title": "A fundação do Banco da Inglaterra",
+    "longDescription": "Idealizado pelo comerciante escocês William Paterson, o banco levantou o capital em doze dias. Tornou-se o modelo para bancos centrais do mundo todo e está na Threadneedle Street desde 1734."
+  },
+  "trd-south-sea-bubble": {
+    "title": "O estouro da Bolha dos Mares do Sul",
+    "longDescription": "A companhia havia assumido a dívida pública em troca de um monopólio comercial que mal existia. As ações se valorizaram dez vezes em poucos meses e depois desabaram, arruinando milhares de pessoas, entre elas Isaac Newton, que teria perdido £20.000."
+  },
+  "trd-buttonwood": {
+    "title": "O Acordo de Buttonwood",
+    "longDescription": "O acordo de duas frases fixou comissões e comprometeu os signatários a negociar apenas entre si. É o documento fundador da Bolsa de Valores de Nova York, hoje a maior do mundo."
+  },
+  "trd-erie-canal": {
+    "title": "A inauguração do Canal de Erie",
+    "longDescription": "Desdenhado como “a Vala de Clinton”, em referência ao governador que o defendeu, o canal reduziu drasticamente os custos de transporte e fez de Nova York o porto mais movimentado do país. O governador Clinton marcou a inauguração despejando água do Lago Erie no Atlântico."
+  },
+  "trd-corn-laws": {
+    "title": "A revogação das Leis dos Cereais",
+    "longDescription": "Motivado pela fome na Irlanda e por anos de campanha da Liga contra as Leis dos Cereais, o primeiro-ministro Robert Peel aprovou a revogação no Parlamento com votos da oposição. A medida inaugurou setenta anos de livre comércio britânico e custou a Peel seu governo."
+  },
+  "trd-federal-reserve": {
+    "title": "A criação do Federal Reserve",
+    "longDescription": "Depois que o Pânico de 1907 expôs a fragilidade do sistema bancário americano, o Congresso criou um sistema de doze bancos de reserva regionais supervisionados por uma junta em Washington. O Fed começou a operar em novembro do ano seguinte."
+  },
+  "trd-bretton-woods": {
+    "title": "A Conferência de Bretton Woods",
+    "longDescription": "Reunidos no Mount Washington Hotel enquanto a guerra ainda se alastrava, delegados liderados por John Maynard Keynes e Harry Dexter White atrelaram as moedas a um dólar lastreado em ouro. O sistema durou até 1971."
+  },
+  "trd-diners-club": {
+    "title": "O primeiro cartão de pagamento",
+    "longDescription": "Frank McNamara, envergonhado por ter esquecido a carteira em um jantar de negócios, lançou um cartão que permitia aos associados pagar refeições em vários restaurantes. Em um ano, o Diners Club já tinha 42.000 associados."
+  },
+  "trd-first-atm": {
+    "title": "O primeiro caixa eletrônico",
+    "longDescription": "Inventada por John Shepherd-Barron, a máquina liberava £10 em troca de um cheque especial impregnado com um marcador levemente radioativo. Os caixas eletrônicos se espalharam pelo mundo em uma década."
+  },
+  "trd-nixon-shock": {
+    "title": "O Choque Nixon",
+    "longDescription": "Diante de uma corrida às reservas de ouro dos EUA, o presidente Nixon suspendeu a conversibilidade, congelou salários e preços e impôs uma sobretaxa às importações. O sistema de Bretton Woods ruiu e começou a era das moedas flutuantes."
+  },
+  "trd-black-monday": {
+    "title": "A Segunda-Feira Negra",
+    "longDescription": "A queda começou em Hong Kong e avançou para o oeste pela Europa até Nova York, onde as vendas computadorizadas de “seguro de portfólio” aceleraram o tombo. Ao contrário de 1929, a economia escapou de uma depressão."
+  },
+  "trd-euro-cash": {
+    "title": "Chegam as cédulas e moedas de euro",
+    "longDescription": "Três anos depois de o euro ser lançado como moeda eletrônica, cédulas e moedas substituíram o franco, o marco, a lira e outras nove moedas, na maior troca de dinheiro em espécie da história."
+  },
+  "trd-lehman": {
+    "title": "O colapso do Lehman Brothers",
+    "longDescription": "Com US$ 600 bilhões em ativos e nenhum salvador, o Lehman pediu proteção pelo Capítulo 11 e jogou os mercados em queda livre. A falência transformou a crise das hipotecas subprime no pior colapso financeiro desde 1929."
+  },
+  "spc-laika": {
+    "title": "Laika orbita a Terra",
+    "longDescription": "Lançada menos de um mês depois do primeiro Sputnik, a cápsula não tinha como voltar à Terra. Laika morreu em poucas horas por superaquecimento, mas o voo provou que um passageiro vivo podia sobreviver ao lançamento e à ausência de peso."
+  },
+  "spc-nasa-founded": {
+    "title": "A fundação da NASA",
+    "longDescription": "A nova agência absorveu o antigo Comitê Consultivo Nacional para a Aeronáutica e seus 8.000 funcionários, começando a operar em 1º de outubro. Em três anos, já tinha a missão de levar um homem à Lua."
+  },
+  "spc-luna-2": {
+    "title": "A Luna 2 chega à Lua",
+    "longDescription": "A Luna 2 atingiu a superfície lunar perto da cratera Autólico após um voo de 33 horas. Dois dias depois, Khrushchov presenteou o presidente Eisenhower com uma cópia de sua flâmula durante uma visita aos Estados Unidos."
+  },
+  "spc-shepard": {
+    "title": "O primeiro americano no espaço",
+    "longDescription": "A cápsula Mercury de Shepard chegou a 187 km de altitude antes de cair no Atlântico. Vinte dias depois, o presidente Kennedy pediu ao Congresso o compromisso de levar um homem à Lua antes do fim da década."
+  },
+  "spc-tereshkova": {
+    "title": "A primeira mulher no espaço",
+    "longDescription": "Tereshkova passou quase três dias em órbita, mais do que todos os astronautas americanos somados até aquele momento. Ela continua sendo a única mulher a ter feito uma missão espacial sozinha."
+  },
+  "spc-leonov-spacewalk": {
+    "title": "A primeira caminhada espacial",
+    "longDescription": "O traje de Leonov inflou no vácuo a ponto de ele não caber de volta na câmara de descompressão; ele teve de liberar ar para conseguir se espremer para dentro. A tripulação depois pousou bem fora da rota, nos Urais nevados, e esperou duas noites pelo resgate."
+  },
+  "spc-apollo-8": {
+    "title": "A Apollo 8 orbita a Lua",
+    "longDescription": "O primeiro voo tripulado do Saturn V deu dez voltas ao redor da Lua. A fotografia de Bill Anders da Terra nascendo sobre o horizonte lunar tornou-se uma das imagens mais reproduzidas de todos os tempos."
+  },
+  "spc-apollo-13": {
+    "title": "“Houston, tivemos um problema”",
+    "longDescription": "Dois dias após o início do voo, uma explosão danificou gravemente o módulo de serviço. Usando o módulo lunar como bote salva-vidas, Lovell, Swigert e Haise contornaram a Lua e pousaram em segurança no mar quatro dias depois."
+  },
+  "spc-salyut-1": {
+    "title": "A primeira estação espacial",
+    "longDescription": "A primeira tripulação a embarcar na Salyut 1 bateu um recorde de permanência, mas uma falha de válvula despressurizou a cápsula Soyuz 11 durante a reentrada e os três cosmonautas morreram. Desde então, os cosmonautas usam trajes pressurizados no lançamento e no pouso."
+  },
+  "spc-apollo-soyuz": {
+    "title": "O aperto de mão Apollo–Soyuz",
+    "longDescription": "Tom Stafford e Alexei Leonov se cumprimentaram pela escotilha de um módulo de acoplamento construído especialmente para a missão. A missão encerrou a corrida espacial e prenunciou a Estação Espacial Internacional."
+  },
+  "spc-viking-1": {
+    "title": "A Viking 1 pousa em Marte",
+    "longDescription": "Pousando exatamente sete anos depois da Apollo 11, a Viking 1 operou por mais de seis anos e vasculhou o solo em busca de sinais de vida. Seus resultados ambíguos ainda são debatidos."
+  },
+  "spc-voyager-1": {
+    "title": "O lançamento da Voyager 1",
+    "longDescription": "A Voyager 1 passou por Júpiter e Saturno e depois virou sua câmera para trás para fazer a fotografia “Pálido Ponto Azul” da Terra. Entrou no espaço interestelar em 2012 e continua transmitindo."
+  },
+  "spc-shuttle-columbia": {
+    "title": "O primeiro voo do ônibus espacial",
+    "longDescription": "John Young e Robert Crippen fizeram uma missão de teste de dois dias e pousaram o Columbia como um avião no leito de um lago seco na Califórnia. A frota de ônibus espaciais realizou 135 missões ao longo de trinta anos."
+  },
+  "spc-sally-ride": {
+    "title": "A primeira americana no espaço",
+    "longDescription": "Ride havia respondido a um anúncio de jornal que buscava candidatos a astronauta enquanto terminava seu doutorado em Stanford. Voou duas vezes e mais tarde integrou as comissões que investigaram os dois desastres dos ônibus espaciais."
+  },
+  "spc-challenger": {
+    "title": "O desastre da Challenger",
+    "longDescription": "Um anel de vedação de borracha (O-ring) em um propulsor de combustível sólido falhou no ar gelado da manhã. O desastre deixou a frota de ônibus espaciais em solo por quase três anos e levou a mudanças profundas na NASA."
+  },
+  "spc-mir": {
+    "title": "O lançamento da Mir",
+    "longDescription": "Montada a partir de seis módulos ao longo de uma década, a Mir recebeu cosmonautas, tripulações de ônibus espaciais americanos e o mais longo voo espacial individual da história, os 437 dias de Valeri Polyakov. Foi retirada de órbita sobre o Pacífico em 2001."
+  },
+  "spc-hubble": {
+    "title": "O lançamento do Telescópio Espacial Hubble",
+    "longDescription": "As primeiras imagens do Hubble saíram vergonhosamente borradas por causa de um espelho polido no formato errado, até que uma missão de manutenção em 1993 instalou óptica corretiva. Desde então, fez mais de 1,5 milhão de observações e transformou a astronomia."
+  }
+}
