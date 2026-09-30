@@ -10,7 +10,7 @@ export const DAILY_REMINDER_ID = 'daily-reminder';
 export const REMINDER_CHANNEL_ID = 'daily-reminder';
 
 const CONTENT: Notifications.NotificationContentInput = {
-  title: "Today's Daily is ready 🏛️",
+  title: 'Your daily is ready 🏛️',
   body: 'Eight new dates. Keep your streak.',
   data: { route: '/daily' },
 };
