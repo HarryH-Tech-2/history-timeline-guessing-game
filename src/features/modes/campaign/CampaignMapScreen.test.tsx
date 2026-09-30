@@ -196,6 +196,8 @@ describe('CampaignMapScreen', () => {
     expect(within(a1).getByTestId('frontier-pulse')).toBeOnTheScreen();
     expect(within(b1).getByTestId('frontier-pulse')).toBeOnTheScreen();
     expect(screen.getAllByTestId('start-bubble')).toHaveLength(1);
+    // Two openers pulse side by side: Minerva stays out of the way, START stays.
+    expect(screen.queryByLabelText('Minerva the owl')).toBeNull();
     expect(b1).toHaveProp('accessibilityLabel', `${routeB!.name}, Stage 1`);
     // The rejoin stage waits for a whole route.
     expect(
@@ -221,6 +223,16 @@ describe('CampaignMapScreen', () => {
       within(screen.getByTestId(`stage-${routeB!.stages[0]!.id}`)).getByTestId('stage-face-open'),
     ).toBeOnTheScreen();
     expect(screen.getByTestId(`route-stars-${routeA!.id}`)).toHaveTextContent('★ 3/9');
+    expect(screen.getByLabelText('Minerva the owl')).toBeOnTheScreen();
+  });
+
+  it('brings Minerva back once the player has picked a route', async () => {
+    const [routeA] = ancient.routes;
+    await seed(cleared([ancient.stages[0]!.id, ancient.stages[1]!.id, routeA!.stages[0]!.id]));
+    render(<CampaignMapScreen />);
+    const a2 = await screen.findByTestId(`stage-${routeA!.stages[1]!.id}`);
+    await waitFor(() => expect(within(a2).getByTestId('stage-face-frontier')).toBeOnTheScreen());
+    expect(screen.getByLabelText('Minerva the owl')).toBeOnTheScreen();
   });
 
   it('sends a free player tapping a Middle Ages route stage to the paywall', async () => {

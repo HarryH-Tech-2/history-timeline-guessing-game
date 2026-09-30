@@ -22,6 +22,7 @@ import {
   eraStatus,
   frontierStage,
   isStagePremium,
+  isStageUnlocked,
   isWorldPremium,
   progressSince,
   pulseStageIds,
@@ -32,7 +33,12 @@ import {
 import { SEQUENCE_DELAY_MS, STICKY_BAR_SPACE } from './map/constants';
 import { EraBackdrop } from './map/EraBackdrop';
 import { EraBanner } from './map/EraBanner';
-import { EraTrail, NO_CELEBRATION, type Celebration } from './map/EraTrail';
+import {
+  EraTrail,
+  NO_CELEBRATION,
+  type Celebration,
+  type StageStanding,
+} from './map/EraTrail';
 import { backdropProbe, bannerTucked, eraInView } from './map/mapVisuals';
 import { StickyEraBar } from './map/StickyEraBar';
 import { eraTrailLayout, type TrailLayout } from './map/trailLayout';
@@ -68,7 +74,7 @@ export function CampaignMapScreen() {
   const { isPremium } = usePremium();
   const [progress, setProgress] = useState<CampaignProgress>({});
   const [celebration, setCelebration] = useState<Celebration>(NO_CELEBRATION);
-  /** The era scrolled into view: its painting fills the screen and the sticky bar names it. */
+  /** The era under the sticky bar, which names it (the painting follows `backdropEraId`). */
   const [viewEraId, setViewEraId] = useState(CAMPAIGN[0]?.id);
   /** Whether that era's own banner has scrolled up under the sticky bar. */
   const [barVisible, setBarVisible] = useState(false);
@@ -89,7 +95,44 @@ export function CampaignMapScreen() {
   const barVisibleRef = useRef(barVisible);
   const scrollY = useRef(0);
 
-  const frontierId = frontierStage(progress)?.id;
+  // Everything the trail needs from progress, worked out once per change —
+  // not per node, and not on every scroll-driven render.
+  const frontier = useMemo(() => frontierStage(progress), [progress]);
+  const frontierId = frontier?.id;
+  const pulseIds = useMemo(() => pulseStageIds(progress, CAMPAIGN, frontier), [progress, frontier]);
+  /** At a fresh fork two openers pulse side by side; Minerva would crowd them. */
+  const hideOwl = frontier?.routeId !== undefined && frontier.index === 1 && pulseIds.size > 1;
+  const standings = useMemo(
+    () =>
+      new Map<string, StageStanding>(
+        allStagesIncludingRoutes().map((s) => [
+          s.id,
+          { unlocked: isStageUnlocked(s.id, progress), stars: progress[s.id]?.stars ?? 0 },
+        ]),
+      ),
+    [progress],
+  );
+  const eraStats = useMemo(
+    () =>
+      new Map(
+        CAMPAIGN.map((w) => {
+          const stages = worldStages(w);
+          return [
+            w.id,
+            {
+              status: eraStatus(w, progress),
+              earned: starsEarned(stages, progress),
+              total: stages.length * 3,
+            },
+          ] as const;
+        }),
+      ),
+    [progress],
+  );
+  const journey = useMemo(() => {
+    const stages = allStagesIncludingRoutes();
+    return { earned: starsEarned(stages, progress), total: stages.length * 3 };
+  }, [progress]);
   /** Each era's trail geometry; the swing phase runs on along the main path. */
   const layouts = useMemo(() => {
     const orderOf = new Map(allStages().map((s, i) => [s.id, i]));
@@ -105,7 +148,6 @@ export function CampaignMapScreen() {
     focusRef.current = focus;
     layoutsRef.current = layouts;
   }, [focus, layouts]);
-  const pulseIds = pulseStageIds(progress);
 
   /**
    * Point the backdrop at the era crossing the middle of the viewport and the
@@ -168,6 +210,14 @@ export function CampaignMapScreen() {
     tryScroll();
     trackEra(scrollY.current);
   }, [tryScroll, trackEra]);
+
+  const onTrailLayout = useCallback(
+    (worldId: string, y: number) => {
+      trailY.current.set(worldId, y);
+      measured();
+    },
+    [measured],
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -260,6 +310,7 @@ export function CampaignMapScreen() {
               const premiumLocked = isWorldPremium(world.id) && !isPremium;
               const firstStage = world.stages[0];
               const opened = firstStage !== undefined && celebration.unlocked.has(firstStage.id);
+              const stats = eraStats.get(world.id)!;
               return (
                 <View
                   key={world.id}
@@ -271,9 +322,9 @@ export function CampaignMapScreen() {
                 >
                   <EraBanner
                     world={world}
-                    status={eraStatus(world, progress)}
-                    earned={starsEarned(worldStages(world), progress)}
-                    total={worldStages(world).length * 3}
+                    status={stats.status}
+                    earned={stats.earned}
+                    total={stats.total}
                     premiumLocked={premiumLocked}
                     shimmerToken={opened ? celebration.token : undefined}
                   />
@@ -281,16 +332,14 @@ export function CampaignMapScreen() {
                     world={world}
                     layout={layouts.get(world.id)!}
                     width={width}
-                    progress={progress}
+                    standings={standings}
                     frontierId={frontierId}
                     pulseIds={pulseIds}
+                    hideOwl={hideOwl}
                     premiumLocked={premiumLocked}
                     celebration={celebration}
-                    onOpenStage={(stage) => openStage(world.id, stage)}
-                    onLayoutY={(y) => {
-                      trailY.current.set(world.id, y);
-                      measured();
-                    }}
+                    onOpenStage={openStage}
+                    onLayoutY={onTrailLayout}
                   />
                 </View>
               );
@@ -301,10 +350,10 @@ export function CampaignMapScreen() {
         {viewWorld !== undefined && (
           <StickyEraBar
             world={viewWorld}
-            earned={starsEarned(worldStages(viewWorld), progress)}
-            total={worldStages(viewWorld).length * 3}
-            journeyEarned={starsEarned(allStagesIncludingRoutes(), progress)}
-            journeyTotal={allStagesIncludingRoutes().length * 3}
+            earned={eraStats.get(viewWorld.id)!.earned}
+            total={eraStats.get(viewWorld.id)!.total}
+            journeyEarned={journey.earned}
+            journeyTotal={journey.total}
             visible={barVisible}
           />
         )}

@@ -456,8 +456,9 @@ export function frontierStage(
 export function pulseStageIds(
   progress: CampaignProgress,
   worlds: readonly CampaignWorld[] = CAMPAIGN,
+  /** The frontier, when the caller already has it. */
+  frontier: CampaignStage | undefined = frontierStage(progress, worlds),
 ): ReadonlySet<string> {
-  const frontier = frontierStage(progress, worlds);
   const ids = new Set<string>();
   if (frontier === undefined) return ids;
   ids.add(frontier.id);

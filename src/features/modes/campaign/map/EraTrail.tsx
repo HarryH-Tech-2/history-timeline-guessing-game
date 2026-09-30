@@ -1,12 +1,7 @@
+import { memo } from 'react';
 import { View } from 'react-native';
 
-import type { CampaignProgress } from '../../persistence';
-import {
-  isStageUnlocked,
-  starsEarned,
-  type CampaignStage,
-  type CampaignWorld,
-} from '../campaignMap';
+import type { CampaignStage, CampaignWorld } from '../campaignMap';
 import { RouteBanner } from './RouteBanner';
 import { StageButton } from './StageButton';
 import type { TrailLayout } from './trailLayout';
@@ -21,17 +16,26 @@ export interface Celebration {
 
 export const NO_CELEBRATION: Celebration = { token: 0, cleared: new Set(), unlocked: new Set() };
 
+/** A stage's standing on the map, worked out once per progress change. */
+export interface StageStanding {
+  unlocked: boolean;
+  stars: number;
+}
+
 /**
  * One era's stretch of the trail, drawn from its precomputed layout: dotted
- * segments, the fork's route banners, then the stage buttons on top.
+ * segments, the fork's route banners, then the stage buttons on top. Memoised:
+ * scrolling re-renders the screen, but a trail only redraws when its own
+ * inputs change.
  */
-export function EraTrail({
+export const EraTrail = memo(function EraTrail({
   world,
   layout,
   width,
-  progress,
+  standings,
   frontierId,
   pulseIds,
+  hideOwl,
   premiumLocked,
   celebration,
   onOpenStage,
@@ -40,27 +44,31 @@ export function EraTrail({
   world: CampaignWorld;
   layout: TrailLayout;
   width: number;
-  progress: CampaignProgress;
+  /** Every stage's unlocked state and stars, keyed by stage id. */
+  standings: ReadonlyMap<string, StageStanding>;
   frontierId?: string;
   /** Stages wearing the frontier pulse (both route openers at a fresh fork). */
   pulseIds: ReadonlySet<string>;
+  /** Leave Minerva off the frontier (a fresh fork, both openers pulsing). */
+  hideOwl: boolean;
   premiumLocked: boolean;
   celebration: Celebration;
-  onOpenStage: (stage: CampaignStage) => void;
-  onLayoutY: (y: number) => void;
+  onOpenStage: (worldId: string, stage: CampaignStage) => void;
+  onLayoutY: (worldId: string, y: number) => void;
 }) {
+  const starsOf = (stageId: string) => standings.get(stageId)?.stars ?? 0;
   return (
     <View
       testID={`era-trail-${world.id}`}
       style={{ height: layout.height }}
-      onLayout={(e) => onLayoutY(e.nativeEvent.layout.y)}>
+      onLayout={(e) => onLayoutY(world.id, e.nativeEvent.layout.y)}>
       {layout.segments.map((segment) => (
         <TrailDots
           key={`${segment.fromId}>${segment.toId}`}
           from={segment.from}
           to={segment.to}
           colour={world.colour}
-          lit={(progress[segment.fromId]?.stars ?? 0) >= 1}
+          lit={starsOf(segment.fromId) >= 1}
           lighting={celebration.cleared.has(segment.fromId)}
           token={celebration.token}
         />
@@ -70,7 +78,7 @@ export function EraTrail({
           key={banner.route.id}
           route={banner.route}
           colour={world.colour}
-          earned={starsEarned(banner.route.stages, progress)}
+          earned={banner.route.stages.reduce((n, s) => n + starsOf(s.id), 0)}
           total={banner.route.stages.length * 3}
           left={banner.left}
           top={banner.top}
@@ -89,19 +97,20 @@ export function EraTrail({
             stage={stage}
             routeName={route?.name}
             colour={world.colour}
-            unlocked={isStageUnlocked(stage.id, progress)}
+            unlocked={standings.get(stage.id)?.unlocked ?? false}
             frontier={stage.id === frontierId}
             pulse={pulseIds.has(stage.id)}
             premiumLocked={premiumLocked}
-            stars={progress[stage.id]?.stars ?? 0}
+            stars={starsOf(stage.id)}
             x={x}
             y={y}
             owlSide={x > width / 2 ? 'left' : 'right'}
+            hideOwl={hideOwl}
             celebrate={kind === null ? null : { token: celebration.token, kind }}
-            onPress={() => onOpenStage(stage)}
+            onPress={() => onOpenStage(world.id, stage)}
           />
         );
       })}
     </View>
   );
-}
+});

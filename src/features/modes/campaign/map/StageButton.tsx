@@ -129,6 +129,7 @@ export function StageButton({
   x,
   y,
   owlSide,
+  hideOwl = false,
   celebrate,
   onPress,
 }: {
@@ -149,6 +150,8 @@ export function StageButton({
   y: number;
   /** Which side Minerva stands on (the side away from the trail's swing). */
   owlSide: 'left' | 'right';
+  /** Keep Minerva away from a crowded frontier (two route openers pulsing side by side). */
+  hideOwl?: boolean;
   celebrate: { token: number; kind: 'cleared' | 'unlocked' } | null;
   onPress: () => void;
 }) {
@@ -216,7 +219,7 @@ export function StageButton({
         </View>
       )}
 
-      {frontier && (
+      {frontier && !hideOwl && (
         <Image
           source={OWL}
           resizeMode="contain"
