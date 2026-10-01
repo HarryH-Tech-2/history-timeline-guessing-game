@@ -45,6 +45,11 @@ export function transformToFit(
   maxYear: number,
   screenWidth: number,
 ): Transform {
+  // Never frame anything before MIN_YEAR: slide the window later instead.
+  if (minYear < MIN_YEAR) {
+    maxYear += MIN_YEAR - minYear;
+    minYear = MIN_YEAR;
+  }
   const left = worldXForYear(minYear);
   const right = worldXForYear(maxYear);
   const rawScale = screenWidth / (right - left);

@@ -2,10 +2,12 @@ import { memo } from 'react';
 import { Text } from 'react-native';
 import Animated, {
   useAnimatedStyle,
+  useDerivedValue,
   type SharedValue,
 } from 'react-native-reanimated';
 
-import type { Tick } from '@/features/timeline/ticks';
+import { BASE_WIDTH, warp } from '@/features/timeline/math';
+import { decadeSlotYear, type Tick } from '@/features/timeline/ticks';
 import { displayYear } from '@/i18n';
 import { LABEL_RAMPS, LINE_RAMPS, rampOpacity, tierOf } from '@/features/timeline/tickVisibility';
 
@@ -19,25 +21,44 @@ interface TimelineTickProps {
 const TICK_WIDTH = 96;
 
 /**
- * A decade gridline: one animated view, no label. There are ~500 of these
- * across the range, so it is kept to the bare minimum — position and opacity
- * are folded into a single animated style.
+ * One recycled decade gridline (see decadeSlotYear): which decade it marks is
+ * worked out on the UI thread from the crosshair year, so panning anywhere —
+ * however fast — never mounts, unmounts or re-renders a view. The year is a
+ * derived value of its own, so the style below only re-runs when this slot
+ * wraps to a new decade or the zoom changes, not on every frame of a pan.
  */
-function MinorTickComponent({ tick, scale }: TimelineTickProps) {
+function DecadeSlotComponent({
+  slot,
+  poolSize,
+  centreYear,
+  scale,
+}: {
+  slot: number;
+  poolSize: number;
+  centreYear: SharedValue<number>;
+  scale: SharedValue<number>;
+}) {
   const [lineFrom, lineTo] = LINE_RAMPS[3]!;
-  const style = useAnimatedStyle(() => ({
-    transform: [{ translateX: tick.worldX * scale.value }],
-    opacity: rampOpacity(scale.value, lineFrom, lineTo),
-  }));
+  const year = useDerivedValue(() => decadeSlotYear(slot, centreYear.value, poolSize));
+  const style = useAnimatedStyle(() => {
+    const y = year.value;
+    if (y === null) return { transform: [{ translateX: 0 }], opacity: 0 };
+    return {
+      transform: [{ translateX: warp(y) * BASE_WIDTH * scale.value }],
+      opacity: rampOpacity(scale.value, lineFrom, lineTo),
+    };
+  });
   return (
     <Animated.View
       pointerEvents="none"
       style={style}
       className="absolute bottom-10 left-0 h-10 w-px bg-ink-primary/15"
-      testID={`timeline-decade-${tick.year}`}
+      testID={`timeline-decade-slot-${slot}`}
     />
   );
 }
+
+export const DecadeSlot = memo(DecadeSlotComponent);
 
 /**
  * A century gridline rising from the track's baseline, with its date centred
@@ -91,8 +112,4 @@ function MajorTickComponent({ tick, scale }: TimelineTickProps) {
   );
 }
 
-function TimelineTickComponent(props: TimelineTickProps) {
-  return props.tick.major ? <MajorTickComponent {...props} /> : <MinorTickComponent {...props} />;
-}
-
-export const TimelineTick = memo(TimelineTickComponent);
+export const TimelineTick = memo(MajorTickComponent);

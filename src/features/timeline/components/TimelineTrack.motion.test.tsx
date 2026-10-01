@@ -16,18 +16,12 @@ const captureController = (c: TimelineController) => {
   controller = c;
 };
 
-function Harness({
-  onController,
-  anchorYear,
-}: {
-  onController: (controller: TimelineController) => void;
-  anchorYear?: number;
-}) {
+function Harness({ onController }: { onController: (controller: TimelineController) => void }) {
   const c = useTimelineTransform({ haptics: false });
   useEffect(() => {
     onController(c);
   }, [c, onController]);
-  return <TimelineTrack controller={c} anchorYear={anchorYear} />;
+  return <TimelineTrack controller={c} />;
 }
 
 /** translateX that puts `year` under the crosshair at the current zoom. */
@@ -47,7 +41,7 @@ function rest() {
   });
 }
 
-type PanEvent = 'onBegin' | 'onUpdate' | 'onFinalize';
+type PanEvent = 'onBegin' | 'onUpdate' | 'onEnd' | 'onFinalize';
 function firePan(name: PanEvent, payload: object = {}) {
   // Drive the pan's callbacks directly: RNGH's jest helper always replays a
   // complete BEGAN→ACTIVE→END sequence, so a finger can't be held down with it.
@@ -99,95 +93,64 @@ describe('timeline stays React-quiet while it is moving', () => {
     expect(controller!.atRest.value).toBe(true);
   });
 
-  it('keeps the mounted decade block while a finger is down and swaps it once at rest', () => {
+  it('never mounts or unmounts decade lines while panning, however far', () => {
     render(<Harness onController={captureController} />);
     layOut();
-    act(() => {
-      controller!.scale.value = 1;
-      controller!.translateX.value = translateFor(1860);
-    });
     rest();
-    // Zoomed in around 1860: its 500-year block (and the neighbours) are mounted.
-    expect(screen.queryByTestId('timeline-decade-1860')).not.toBeNull();
-    expect(screen.queryByTestId('timeline-decade-410')).toBeNull();
+    const slots = screen.getAllByTestId(/^timeline-decade-slot-/).length;
+    expect(slots).toBeGreaterThan(0);
 
-    // Drag the crosshair to AD 400. Re-mounting ~100 ticks mid-gesture is a
-    // React commit, and every React commit pauses Reanimated's own commits
-    // until it has mounted — a visible hitch — so nothing changes yet.
+    // A fling across two millennia without ever coming to rest: the recycled
+    // pool follows on the UI thread, so the React tree never changes.
     act(() => {
       firePan('onBegin');
-      controller!.translateX.value = translateFor(400);
+      controller!.translateX.value = translateFor(-500);
     });
+    expect(screen.getAllByTestId(/^timeline-decade-slot-/)).toHaveLength(slots);
     act(() => {
-      jest.advanceTimersByTime(SETTLE_MS * 4);
-    });
-    expect(screen.queryByTestId('timeline-decade-1860')).not.toBeNull();
-    expect(screen.queryByTestId('timeline-decade-410')).toBeNull();
-
-    act(() => {
+      controller!.translateX.value = translateFor(1950);
       firePan('onFinalize');
     });
-    rest();
-    expect(screen.queryByTestId('timeline-decade-410')).not.toBeNull();
-    expect(screen.queryByTestId('timeline-decade-1860')).toBeNull();
+    expect(screen.getAllByTestId(/^timeline-decade-slot-/)).toHaveLength(slots);
   });
 
-  it('keeps the decades around an anchor year mounted whatever the crosshair is doing', () => {
-    render(<Harness onController={captureController} anchorYear={121} />);
-    layOut();
-    // Never came to rest, finger still down: the crosshair block is withheld,
-    // but the anchor's 500-year block (and its neighbours) are there from the
-    // first render.
-    act(() => {
-      firePan('onBegin');
-    });
-    expect(screen.queryByTestId('timeline-decade-130')).not.toBeNull();
-    expect(screen.queryByTestId('timeline-decade-410')).not.toBeNull();
-    expect(screen.queryByTestId('timeline-decade-1860')).toBeNull();
-
-    act(() => {
-      firePan('onFinalize');
-    });
-    rest();
-    // At rest around 1863 the crosshair block joins the anchor's: both stay.
-    expect(screen.queryByTestId('timeline-decade-1860')).not.toBeNull();
-    expect(screen.queryByTestId('timeline-decade-130')).not.toBeNull();
-  });
-
-  it('holds an outgoing anchor block until the view comes to rest', () => {
-    const view = render(<Harness onController={captureController} anchorYear={121} />);
-    layOut();
-    rest();
-    expect(screen.queryByTestId('timeline-decade-130')).not.toBeNull();
-
-    // Submit: the anchor jumps to the new answer while the reveal is zooming.
-    act(() => {
-      controller!.scale.value = controller!.scale.value * 0.9;
-    });
-    // (1776 is far enough away that its neighbouring blocks don't cover AD 130.)
-    view.rerender(<Harness onController={captureController} anchorYear={1776} />);
-    expect(screen.queryByTestId('timeline-decade-1780')).not.toBeNull();
-    // Still moving: the old anchor's ticks must not leave the tree yet.
-    expect(screen.queryByTestId('timeline-decade-130')).not.toBeNull();
-
-    rest();
-    expect(screen.queryByTestId('timeline-decade-1780')).not.toBeNull();
-    expect(screen.queryByTestId('timeline-decade-130')).toBeNull();
-  });
-
-  it('draws gridlines beyond the 1000 BCE floor so the oldest end is never blank', () => {
+  it('pans the crosshair onto 1000 BCE, with nothing drawn before it', () => {
     render(<Harness onController={captureController} />);
     layOut();
-    act(() => {
-      controller!.scale.value = 1;
-      controller!.translateX.value = translateFor(MIN_YEAR);
-    });
-    rest();
-    // The crosshair stops at 1000 BCE, but the left half of the track shows
-    // the centuries before it — they need separators like everywhere else.
     expect(screen.queryByTestId('timeline-tick--1000')).not.toBeNull();
-    expect(screen.queryByTestId('timeline-tick--1100')).not.toBeNull();
-    expect(screen.queryByTestId('timeline-tick--1500')).not.toBeNull();
-    expect(screen.queryByTestId('timeline-decade--1010')).not.toBeNull();
+    expect(screen.queryByTestId('timeline-tick--1100')).toBeNull();
+
+    // Drag far past the oldest end: the crosshair stops exactly on 1000 BCE.
+    act(() => {
+      firePan('onBegin');
+      firePan('onUpdate', { translationX: 100000, velocityX: 5000 });
+    });
+    expect(controller!.translateX.value).toBeCloseTo(translateFor(MIN_YEAR));
+    act(() => {
+      firePan('onFinalize');
+    });
+  });
+});
+
+describe('precise year selection', () => {
+  it('moves a slow drag less than the finger and settles on a whole year', () => {
+    render(<Harness onController={captureController} />);
+    layOut();
+    const before = controller!.translateX.value;
+
+    act(() => {
+      firePan('onBegin');
+      firePan('onUpdate', { translationX: -40, velocityX: -50 });
+    });
+    // Precision mode: 40px of careful finger travel moves the timeline 16px.
+    expect(before - controller!.translateX.value).toBeCloseTo(16);
+
+    act(() => {
+      firePan('onEnd', { velocityX: -50 });
+      firePan('onFinalize');
+    });
+    rest();
+    const year = controller!.centreYear.value;
+    expect(Math.abs(year - Math.round(year))).toBeLessThan(1e-6);
   });
 });

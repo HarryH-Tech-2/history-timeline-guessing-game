@@ -13,15 +13,11 @@ export interface Tick {
  * Static tick set for the timeline. Positions are precomputed once; the live
  * pan/zoom transform moves them on the UI thread, so this list never rebuilds.
  *
- * - Major ticks (labelled) every century across the whole range.
- * - Minor ticks every decade across the whole range, so the pre-1000 stretch
- *   has the same separators as the modern era. They only fade in once the
- *   zoom is tight enough for decades to be legible (see TimelineTick), so the
- *   extra views cost nothing visually when zoomed out.
+ * Major ticks (labelled) every century across the whole range; decade lines
+ * come from a recycled pool instead (see decadeSlotYear).
  *
- * Both run on past the playable floor (see TICK_OVERSCAN_YEARS): the
- * crosshair stops at MIN_YEAR, but half the track is still visible to its
- * left, and without ticks there the oldest end read as a blank void.
+ * Nothing is drawn before MIN_YEAR: the crosshair can be panned onto 1000 BCE,
+ * and the half-track to its left is left plain, with no gridlines.
  */
 function buildTicks(): readonly Tick[] {
   const ticks: Tick[] = [];
@@ -35,49 +31,38 @@ function buildTicks(): readonly Tick[] {
     });
   }
 
-  for (let year = FIRST_TICK_YEAR; year <= PRESENT_YEAR; year += 10) {
-    if (year % 100 === 0) continue; // already a major tick
-    ticks.push({ year, worldX: worldXForYear(year), major: false });
-  }
-
   return ticks;
 }
 
-/**
- * How far before MIN_YEAR the gridlines continue. Two millennia covers half a
- * phone-width track down to ~scale 0.1, below which century labels have faded
- * out anyway. Decorative only: the crosshair can never reach these years.
- */
-export const TICK_OVERSCAN_YEARS = 2000;
-const FIRST_TICK_YEAR = MIN_YEAR - TICK_OVERSCAN_YEARS;
+export const FIRST_TICK_YEAR = MIN_YEAR;
 
 export const TICKS = buildTicks();
 
 /** The labelled century ticks (~30 playable + 20 overscan), always mounted. */
-export const MAJOR_TICKS: readonly Tick[] = TICKS.filter((t) => t.major);
+export const MAJOR_TICKS: readonly Tick[] = TICKS;
 
 /**
- * Decade ticks are only legible once the view spans a few centuries, so they
- * are mounted lazily in 500-year blocks around the crosshair (see
- * TimelineTrack). Mounting all ~500 up front made the quiz screen take
- * noticeably long to appear after tapping a mode.
+ * Decade gridlines are drawn by a fixed pool of recycled views (see
+ * TimelineTrack) rather than one view per decade: ~700 decades across the
+ * range is too many to mount, and mounting a window of them around the
+ * crosshair meant swapping views in and out as the player panned — a React
+ * commit, so only ever done at rest, which left a fast fling showing no
+ * decade lines at all until a second or so after it stopped.
+ *
+ * Slot `slot` of a pool of `poolSize` always shows the one decade, of the
+ * `poolSize` consecutive decades centred on `centreYear`, that is congruent to
+ * it mod `poolSize`. As the view pans, a slot's year changes only when its
+ * decade leaves one edge of that window and it wraps around to the other —
+ * so each frame touches at most a slot or two, never the whole pool.
+ *
+ * Returns null when the slot has nothing to draw: a century year (a major
+ * tick already marks it) or a year past either end of the gridlines.
  */
-export const DECADE_BLOCK_YEARS = 500;
-
-export const MINOR_TICKS_BY_BLOCK: ReadonlyMap<number, readonly Tick[]> = (() => {
-  const blocks = new Map<number, Tick[]>();
-  for (const tick of TICKS) {
-    if (tick.major) continue;
-    const block = Math.floor(tick.year / DECADE_BLOCK_YEARS);
-    const list = blocks.get(block);
-    if (list) list.push(tick);
-    else blocks.set(block, [tick]);
-  }
-  return blocks;
-})();
-
-/** Index of the 500-year block containing `year`; safe on the UI thread. */
-export function decadeBlockOf(year: number): number {
+export function decadeSlotYear(slot: number, centreYear: number, poolSize: number): number | null {
   'worklet';
-  return Math.floor(year / DECADE_BLOCK_YEARS);
+  const first = Math.floor(centreYear / 10) - Math.floor(poolSize / 2);
+  const offset = (((slot - first) % poolSize) + poolSize) % poolSize;
+  const year = (first + offset) * 10;
+  if (year % 100 === 0 || year < FIRST_TICK_YEAR || year > PRESENT_YEAR) return null;
+  return year;
 }

@@ -32,9 +32,6 @@ export const LABEL_RAMPS: readonly Ramp[] = [[0.04, 0.07], [0.16, 0.24], [0.8, 1
 /** Years between neighbouring ticks of each tier, for spacing maths. */
 export const TIER_YEARS: readonly number[] = [1000, 500, 100, 10];
 
-/** Decade ticks are unmounted entirely below this zoom (see TimelineTrack). */
-export const DECADE_MIN_SCALE = 0.55;
-
 export function rampOpacity(scale: number, from: number, to: number): number {
   'worklet';
   if (to <= from) return 1;

@@ -18,9 +18,12 @@ import { haptic } from '@/features/haptics';
 import {
   BASE_WIDTH,
   clampYear,
+  dragGain,
+  FLING_MIN_SPEED,
   transformToFit,
   transformToRefocus,
   transformToReveal,
+  translateBounds as boundsFor,
   unwarp,
   warp,
   yearForWorldX,
@@ -31,6 +34,12 @@ const FRAME_TIMING = { duration: 420, easing: Easing.out(Easing.cubic) };
 
 /** A tap on the overview bar glides there, quicker than a re-frame. */
 const JUMP_TIMING = { duration: 260, easing: Easing.out(Easing.cubic) };
+
+/** One +/- step's glide to the next year. */
+const STEP_DURATION_MS = 140;
+
+/** Settling onto the nearest whole year once the finger lifts. */
+const SNAP_TIMING = { duration: 160, easing: Easing.out(Easing.quad) };
 
 /** Minimum gap between haptic ticks, so fast zoomed-out pans don't flood the
  * JS thread (and the vibration motor) with a call per decade crossed. */
@@ -130,7 +139,9 @@ export function useTimelineTransform(options: Options = {}): TimelineController 
   const width = useSharedValue(0);
   const ready = useSharedValue(false);
 
+  /** Running drag position (the gain-scaled sum of finger deltas). */
   const startTranslateX = useSharedValue(0);
+  const lastTranslationX = useSharedValue(0);
 
   // Mirror width on the JS side for imperative reads (guess submission).
   const widthRef = useRef(0);
@@ -225,34 +236,66 @@ export function useTimelineTransform(options: Options = {}): TimelineController 
 
   const translateBounds = useCallback((currentScale: number): [number, number] => {
     'worklet';
-    // Keep the crosshair year within [MIN_YEAR, PRESENT_YEAR].
-    const tMin = width.value / 2 - BASE_WIDTH * currentScale;
-    const tMax = width.value / 2;
-    return [tMin, tMax];
+    return boundsFor(currentScale, width.value);
   }, [width]);
+
+  /** `t` kept inside the pan bounds at the current zoom. */
+  const clampTranslate = (t: number) => {
+    'worklet';
+    const [tMin, tMax] = boundsFor(scale.value, width.value);
+    return Math.min(tMax, Math.max(tMin, t));
+  };
+
+  /** translateX that puts the nearest whole year under the crosshair. */
+  const snappedTranslate = (from: number) => {
+    'worklet';
+    const year = clampYear(Math.round(unwarp((width.value / 2 - from) / scale.value / BASE_WIDTH)));
+    return width.value / 2 - warp(year) * BASE_WIDTH * scale.value;
+  };
+
+  const settleOnYear = () => {
+    'worklet';
+    translateX.value = withTiming(snappedTranslate(translateX.value), SNAP_TIMING);
+  };
 
   const pan = Gesture.Pan()
     .withTestId('timeline-pan')
     .onBegin(() => {
       touchBegan();
+      cancelAnimation(translateX);
       startTranslateX.value = translateX.value;
+      lastTranslationX.value = 0;
     })
     .onFinalize(() => {
       touchFinalized();
     })
     .onUpdate((event) => {
+      // Finger movement is scaled by its speed (see dragGain): slow drags
+      // creep year by year, quick swipes cover centuries.
+      const delta = event.translationX - lastTranslationX.value;
+      lastTranslationX.value = event.translationX;
+      const next = startTranslateX.value + delta * dragGain(event.velocityX ?? 0);
       // Hard stop at both ends: the crosshair can never leave
       // [MIN_YEAR, PRESENT_YEAR], even transiently mid-drag.
-      const next = startTranslateX.value + event.translationX;
       const [tMin, tMax] = translateBounds(scale.value);
-      translateX.value = Math.min(tMax, Math.max(tMin, next));
+      startTranslateX.value = Math.min(tMax, Math.max(tMin, next));
+      translateX.value = startTranslateX.value;
     })
     .onEnd((event) => {
+      const velocity = event.velocityX ?? 0;
+      // A careful placement lands exactly on the nearest year; only a real
+      // fling coasts, and it too comes to rest on a whole year.
+      if (Math.abs(velocity) < FLING_MIN_SPEED) {
+        settleOnYear();
+        return;
+      }
       const [tMin, tMax] = translateBounds(scale.value);
-      translateX.value = withDecay({
-        velocity: event.velocityX,
-        clamp: [tMin, tMax],
-      });
+      translateX.value = withDecay(
+        { velocity: velocity * dragGain(velocity), clamp: [tMin, tMax] },
+        (finished) => {
+          if (finished) settleOnYear();
+        },
+      );
     });
 
   const gesture = pan;
@@ -321,14 +364,23 @@ export function useTimelineTransform(options: Options = {}): TimelineController 
     return clampYear(yearForWorldX(worldX));
   }, [scale, translateX]);
 
+  // The year the last step is heading for, so steps fired faster than the
+  // step animation (a held +/- button) count from there instead of from the
+  // half-moved position, which would round back and swallow steps.
+  const lastStep = useRef({ year: 0, at: -Infinity });
+
   const stepYear = useCallback(
     (delta: number) => {
       const w = widthRef.current;
       if (w <= 0) return;
-      const target = clampYear(Math.round(readGuessYear()) + delta);
+      const now = Date.now();
+      const from =
+        now - lastStep.current.at < STEP_DURATION_MS ? lastStep.current.year : Math.round(readGuessYear());
+      const target = clampYear(from + delta);
+      lastStep.current = { year: target, at: now };
       // Translate that puts `target` exactly under the centre crosshair.
       const t = w / 2 - warp(target) * BASE_WIDTH * scale.value;
-      translateX.value = withTiming(t, { duration: 140, easing: Easing.out(Easing.quad) });
+      translateX.value = withTiming(clampTranslate(t), { duration: STEP_DURATION_MS, easing: Easing.out(Easing.quad) });
     },
     [readGuessYear, scale, translateX],
   );
@@ -337,7 +389,7 @@ export function useTimelineTransform(options: Options = {}): TimelineController 
     (year: number, animate: boolean) => {
       'worklet';
       if (width.value <= 0) return;
-      const t = width.value / 2 - warp(clampYear(year)) * BASE_WIDTH * scale.value;
+      const t = clampTranslate(width.value / 2 - warp(clampYear(year)) * BASE_WIDTH * scale.value);
       if (animate) {
         translateX.value = withTiming(t, JUMP_TIMING);
       } else {

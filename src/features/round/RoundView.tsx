@@ -24,7 +24,9 @@ import { PromptCard } from './components/PromptCard';
 import { RevealImage } from './components/RevealImage';
 import { RevealSheet } from './components/RevealSheet';
 
-const DEFAULT_RANGE = { min: 1700, max: 2026 } as const;
+/** Default timeline window: 150 years (~2.5px per year on a phone), narrow
+ * enough to land on an exact year by dragging. The era bar covers big jumps. */
+const DEFAULT_RANGE = { min: 1788, max: 1938 } as const;
 
 export interface AssistControls {
   submit: () => void;
@@ -98,19 +100,11 @@ export function RoundView({
   useEffect(() => {
     if (lastAnswerYear.current !== null) refocus(lastAnswerYear.current);
   }, [question.id, refocus]);
-  // The same year, as render state for the track: its decade dividers are
-  // mounted from the submit that reveals it (one commit, at a standstill), so
-  // when the next question re-frames around it they are already there. A
-  // block swap otherwise waits for the re-frame to settle (~1 s) and the
-  // dividers pop in late — most visibly on the ancient questions where big
-  // misses, and so big re-frames, are common.
-  const [anchorYear, setAnchorYear] = useState<number | undefined>(undefined);
 
   // Both ways of answering land here: the crosshair year, or a year picked
   // from multiple choice (which skips the timeline and scores at half).
   const answer = useCallback(
     (guessYear: number, assisted: boolean) => {
-      setAnchorYear(question.year);
       // "Right" is a single shared threshold so the haptic and the sting agree.
       const right = isRightAnswer(Math.round(guessYear) - question.year);
 
@@ -196,7 +190,6 @@ export function RoundView({
           revealYear={showMarkers ? question.year : undefined}
           revealColour={colour}
           guessYear={showMarkers && result ? result.guessYear : undefined}
-          anchorYear={anchorYear}
         />
       </View>
       {showImage && <RevealImage source={image} title={question.title} />}

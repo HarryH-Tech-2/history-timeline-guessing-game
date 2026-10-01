@@ -282,7 +282,7 @@ describe('RoundView framing between questions', () => {
       />,
     );
     // Lay the track out so the transform is live; the default framing is
-    // 1700–2026, so the crosshair starts in the 1800s.
+    // 1788–1938, so the crosshair starts at 1863.
     act(() => {
       fireEvent(screen.getByTestId('timeline-pan-layer'), 'layout', {
         nativeEvent: { layout: { width: 390, height: 160 } },
@@ -324,55 +324,6 @@ describe('RoundView framing between questions', () => {
     });
     // The next question starts at the default zoom, centred on the last answer.
     expect(readout()).toBe('121');
-  });
-
-  it('has the decade dividers around the last answer mounted the moment the next question renders', () => {
-    const { rerender } = render(
-      <RoundView
-        question={ancient}
-        phase="guessing"
-        result={null}
-        onSubmit={jest.fn()}
-        onNext={jest.fn()}
-      />,
-    );
-    act(() => {
-      fireEvent(screen.getByTestId('timeline-pan-layer'), 'layout', {
-        nativeEvent: { layout: { width: 390, height: 160 } },
-      });
-    });
-    act(() => {
-      jest.advanceTimersByTime(500);
-    });
-
-    fireEvent.press(screen.getByTestId('submit-button'));
-    rerender(
-      <RoundView
-        question={ancient}
-        phase="revealed"
-        result={evaluateGuess(ancient, 1863)}
-        onSubmit={jest.fn()}
-        onNext={jest.fn()}
-      />,
-    );
-    act(() => {
-      jest.advanceTimersByTime(2000);
-    });
-
-    rerender(
-      <RoundView
-        question={next}
-        phase="guessing"
-        result={null}
-        onSubmit={jest.fn()}
-        onNext={jest.fn()}
-      />,
-    );
-    // No timers advanced: the re-frame towards 121 has not even started. The
-    // decades around 121 must already be on the track, so they fade in with
-    // the zoom instead of popping in a second or two after the question.
-    expect(screen.queryByTestId('timeline-decade-130')).not.toBeNull();
-    expect(screen.queryByTestId('timeline-decade-110')).not.toBeNull();
   });
 });
 

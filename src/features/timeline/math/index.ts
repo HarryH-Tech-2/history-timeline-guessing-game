@@ -4,3 +4,4 @@ export * from './scoring';
 export * from './format';
 export * from './geometry';
 export * from './overview';
+export * from './dragGain';

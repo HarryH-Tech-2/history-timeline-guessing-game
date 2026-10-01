@@ -1,32 +1,19 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Pressable, Text, useWindowDimensions, View } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
-import Animated, {
-  FadeIn,
-  runOnJS,
-  useAnimatedReaction,
-  useAnimatedStyle,
-} from 'react-native-reanimated';
+import Animated, { FadeIn, useAnimatedStyle } from 'react-native-reanimated';
 
 import { haptic } from '@/features/haptics';
 import type { TimelineController } from '@/features/timeline/hooks/useTimelineTransform';
 import { BASE_WIDTH, MIN_YEAR, PRESENT_YEAR, worldXForYear } from '@/features/timeline/math';
-import {
-  DECADE_BLOCK_YEARS,
-  decadeBlockOf,
-  MAJOR_TICKS,
-  MINOR_TICKS_BY_BLOCK,
-  type Tick,
-} from '@/features/timeline/ticks';
-// Decade lines start fading in at scale 0.7 (see tickVisibility); they are
-// mounted from DECADE_MIN_SCALE, a little earlier, so they never pop in late.
-import { DECADE_MIN_SCALE } from '@/features/timeline/tickVisibility';
+import { MAJOR_TICKS } from '@/features/timeline/ticks';
+import { LINE_RAMPS } from '@/features/timeline/tickVisibility';
 import { t } from '@/i18n';
 import { palette } from '@/theme/tokens';
 
 import { Crosshair } from './Crosshair';
 import { RevealMarker } from './RevealMarker';
-import { TimelineTick } from './TimelineTick';
+import { DecadeSlot, TimelineTick } from './TimelineTick';
 
 interface TimelineTrackProps {
   controller: TimelineController;
@@ -36,21 +23,20 @@ interface TimelineTrackProps {
   revealColour?: string;
   /** The submitted guess, marked alongside the answer once revealed. */
   guessYear?: number;
-  /**
-   * A year whose decade dividers must be mounted regardless of where the
-   * crosshair is or whether the view is at rest — the answer just revealed,
-   * which the next question re-frames around. Mounting them with the question
-   * itself means they fade in with the re-frame instead of popping in once the
-   * re-frame has settled.
-   */
-  anchorYear?: number;
 }
 
 /** Vertical offset for the guess pill so it sits below the answer pill when
  * the two years are close enough for the labels to collide. */
 const GUESS_PILL_STAGGER = 26;
 
-/** Fine-tune control: nudges the crosshair year by exactly one year. */
+/** Press-and-hold on a +/- button: delay before repeating, then the repeat
+ * interval, which shortens each step down to the minimum. */
+const HOLD_DELAY_MS = 380;
+const HOLD_REPEAT_START_MS = 160;
+const HOLD_REPEAT_MIN_MS = 45;
+
+/** Fine-tune control: nudges the crosshair year by exactly one year (tap), or
+ * keeps stepping while held. */
 function YearStepButton({
   delta,
   onStep,
@@ -60,12 +46,39 @@ function YearStepButton({
 }) {
   const glyph = delta > 0 ? '+' : '−';
   const side = delta > 0 ? 'right-2' : 'left-2';
+
+  // Holding the button repeats the step, speeding up the longer it is held.
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const repeated = useRef(false);
+  const stopRepeat = useCallback(() => {
+    if (timer.current !== null) clearTimeout(timer.current);
+    timer.current = null;
+  }, []);
+  useEffect(() => stopRepeat, [stopRepeat]);
+  const startRepeat = useCallback(() => {
+    repeated.current = false;
+    stopRepeat();
+    let interval = HOLD_REPEAT_START_MS;
+    const tick = () => {
+      repeated.current = true;
+      haptic.selection();
+      onStep(delta);
+      interval = Math.max(HOLD_REPEAT_MIN_MS, interval * 0.85);
+      timer.current = setTimeout(tick, interval);
+    };
+    timer.current = setTimeout(tick, HOLD_DELAY_MS);
+  }, [delta, onStep, stopRepeat]);
+
   return (
     // The wrapper spans the track (above the date strip) so the button sits at
     // its vertical centre; box-none keeps the rest of the column pannable.
     <View pointerEvents="box-none" className={`absolute top-0 bottom-10 ${side} justify-center`}>
       <Pressable
+        onPressIn={startRepeat}
+        onPressOut={stopRepeat}
         onPress={() => {
+          // A hold has already stepped; the release adds nothing more.
+          if (repeated.current) return;
           haptic.selection();
           onStep(delta);
         }}
@@ -87,83 +100,15 @@ function YearStepButton({
 }
 
 const PX_PER_YEAR = BASE_WIDTH / (PRESENT_YEAR - MIN_YEAR);
-/** Blocks either side of the crosshair's block to keep mounted. */
-const BLOCK_REACH = 1;
 
 /**
- * The decade ticks worth having mounted right now: none while zoomed out
- * (they would be invisible anyway), otherwise the 500-year blocks around the
- * crosshair. Mounting all ~500 decades up front is what made the quiz screen
- * slow to appear; this keeps it to ≤ ~150 and only re-renders when the
- * crosshair crosses a block boundary or the zoom crosses the threshold.
+ * Decade slots needed to cover a track `width` px wide at the zoom where
+ * decade lines start fading in (any wider and they are invisible anyway),
+ * plus one either side for the edges.
  */
-function useVisibleDecadeTicks(
-  controller: TimelineController,
-  anchorYear: number | undefined,
-): readonly Tick[] {
-  // Destructured so the worklet captures only shared values, never the
-  // controller (whose composed gesture cannot be copied to the UI thread).
-  const { centreYear, scale, width, atRest } = controller;
-  const [block, setBlock] = useState<number | null>(null);
-
-  useAnimatedReaction(
-    () => {
-      // Swapping blocks mounts/unmounts ~100 views: a React commit, which
-      // pauses Reanimated's commits until it lands. Never mid-gesture (see
-      // TimelineController.atRest); undefined = hold what is mounted.
-      if (!atRest.value) return undefined;
-      // On wide screens the blocks either side must still cover the view, so
-      // decades wait for a tighter zoom there; phones use the base threshold.
-      const coverYears = (BLOCK_REACH + 0.5) * DECADE_BLOCK_YEARS;
-      const minScale = Math.max(DECADE_MIN_SCALE, width.value / 2 / (coverYears * PX_PER_YEAR));
-      if (width.value <= 0 || scale.value < minScale) return null;
-      return decadeBlockOf(centreYear.value);
-    },
-    (current, previous) => {
-      if (current === undefined || current === previous) return;
-      runOnJS(setBlock)(current);
-    },
-  );
-
-  const anchorBlock = anchorYear === undefined ? null : decadeBlockOf(anchorYear);
-
-  // The anchor moves on submit, in the same breath as the reveal starts
-  // zooming. Dropping the old anchor's ticks there takes ~50 animated views
-  // out of the tree with updates still in flight, and Reanimated goes on
-  // pushing props at them for the rest of the session. So an outgoing anchor
-  // is held until the view next comes to rest, and let go at a standstill.
-  const [held, setHeld] = useState<readonly number[]>([]);
-  if (anchorBlock !== null && !held.includes(anchorBlock)) setHeld([...held, anchorBlock]);
-  const anchorRef = useRef(anchorBlock);
-  useEffect(() => {
-    anchorRef.current = anchorBlock;
-  }, [anchorBlock]);
-  const release = useCallback(() => {
-    setHeld((prev) => {
-      const next = prev.filter((b) => b === anchorRef.current);
-      return next.length === prev.length ? prev : next;
-    });
-  }, []);
-  useAnimatedReaction(
-    () => atRest.value,
-    (rest, wasAtRest) => {
-      if (rest && wasAtRest === false) runOnJS(release)();
-    },
-  );
-
-  return useMemo(() => {
-    const blocks = new Set<number>();
-    for (const centre of [block, anchorBlock, ...held]) {
-      if (centre === null) continue;
-      for (let b = centre - BLOCK_REACH; b <= centre + BLOCK_REACH; b += 1) blocks.add(b);
-    }
-    const ticks: Tick[] = [];
-    for (const b of blocks) {
-      const list = MINOR_TICKS_BY_BLOCK.get(b);
-      if (list) ticks.push(...list);
-    }
-    return ticks;
-  }, [block, anchorBlock, held]);
+export function decadePoolSize(width: number): number {
+  const [fadeFrom] = LINE_RAMPS[3]!;
+  return Math.ceil(width / (10 * PX_PER_YEAR * fadeFrom)) + 2;
 }
 
 /**
@@ -224,12 +169,14 @@ export function TimelineTrack({
   revealYear,
   revealColour = '#E8862B',
   guessYear,
-  anchorYear,
 }: TimelineTrackProps) {
   const { translateX, scale } = controller;
   const revealed = revealYear !== undefined;
-  const { height: windowHeight } = useWindowDimensions();
-  const minorTicks = useVisibleDecadeTicks(controller, anchorYear);
+  const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+  const decadeSlots = useMemo(
+    () => Array.from({ length: decadePoolSize(windowWidth) }, (_, i) => i),
+    [windowWidth],
+  );
 
   const panStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value }],
@@ -256,8 +203,14 @@ export function TimelineTrack({
               {MAJOR_TICKS.map((tick) => (
                 <TimelineTick key={tick.year} tick={tick} scale={scale} />
               ))}
-              {minorTicks.map((tick) => (
-                <TimelineTick key={tick.year} tick={tick} scale={scale} />
+              {decadeSlots.map((slot) => (
+                <DecadeSlot
+                  key={slot}
+                  slot={slot}
+                  poolSize={decadeSlots.length}
+                  centreYear={controller.centreYear}
+                  scale={scale}
+                />
               ))}
               {revealed && guessYear !== undefined && (
                 <RevealMarker

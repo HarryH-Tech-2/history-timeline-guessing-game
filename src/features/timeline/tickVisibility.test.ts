@@ -1,6 +1,5 @@
 import { transformToFit, transformToReveal } from './math/geometry';
 import {
-  DECADE_MIN_SCALE,
   LINE_RAMPS,
   rampOpacity,
   TIER_YEARS,
@@ -10,14 +9,11 @@ import {
 const WIDTH = 360;
 
 /**
- * On-screen px between neighbouring gridlines of the finest tier that is both
- * mounted and clearly visible (≥ 0.6 line opacity) at this zoom — i.e. how
+ * On-screen px between neighbouring gridlines of the finest tier that is clearly visible (≥ 0.6 line opacity) at this zoom — i.e. how
  * dense the "separators" the player sees actually are. Null = an empty track.
  */
 function finestLegibleSpacing(scale: number): number | null {
   for (let tier = TIER_YEARS.length - 1; tier >= 0; tier -= 1) {
-    // Decade ticks are unmounted entirely below DECADE_MIN_SCALE.
-    if (tier === 3 && scale < DECADE_MIN_SCALE) continue;
     const [from, to] = LINE_RAMPS[tier]!;
     if (rampOpacity(scale, from, to) >= 0.6) return TIER_YEARS[tier]! * scale;
   }
