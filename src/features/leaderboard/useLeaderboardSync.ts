@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-import { isFirebaseConfigured } from '@/config/env';
+import { demoProfile, isFirebaseConfigured } from '@/config/env';
 import { levelForXp } from '@/domain';
 import { usePremium } from '@/features/premium/PremiumProvider';
 import { useProgression } from '@/features/progression';
@@ -55,7 +55,8 @@ export function useLeaderboardSync(): void {
   );
 
   useEffect(() => {
-    if (!isFirebaseConfigured || !isSignedIn || uid === null || isLoading) return;
+    // The dev-only screenshot profile must never reach the boards.
+    if (demoProfile || !isFirebaseConfigured || !isSignedIn || uid === null || isLoading) return;
     // Nobody appears on the board until they have earned a little XP.
     if (!qualifiesForLeaderboard(state.xp)) return;
     // This week's XP only counts while the banked week is the current one.

@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { LogBox } from 'react-native';
 
-import { isFirebaseConfigured } from '@/config/env';
+import { demoProfile, isFirebaseConfigured } from '@/config/env';
 import type { ProgressionState } from '@/domain';
 import {
   bestScoresSaves,
@@ -12,7 +13,12 @@ import {
 } from '@/features/modes/persistence';
 import { LOCAL_UID, progressionSaves } from '@/features/progression/persistence';
 import { useAuth } from '@/services/firebase/auth';
+
+import { DEMO_UID, demoCampaign, demoProgression } from './demoProfile';
 import type { Store } from '@/storage';
+
+// Dev warning toasts would land in the store screenshots the demo profile is for.
+if (demoProfile) LogBox.ignoreAllLogs();
 
 export interface SaveContextValue {
   /** The uid every save is filed under right now (`'local'` offline). */
@@ -78,9 +84,12 @@ export function SaveProvider({ children }: { children: ReactNode }) {
   const { uid: authUid, isLoading } = useAuth();
 
   // null = we don't know who the player is yet.
-  const uid: string | null = !isFirebaseConfigured
-    ? LOCAL_UID
-    : (authUid ?? (isLoading ? null : LOCAL_UID));
+  // The dev-only screenshot profile takes a local slot of its own (see demoProfile).
+  const uid: string | null = demoProfile
+    ? DEMO_UID
+    : !isFirebaseConfigured
+      ? LOCAL_UID
+      : (authUid ?? (isLoading ? null : LOCAL_UID));
 
   const [readyUid, setReadyUid] = useState<string | null>(null);
 
@@ -92,9 +101,17 @@ export function SaveProvider({ children }: { children: ReactNode }) {
       bestScoresSaves.hydrate(uid),
       dailySaves.hydrate(uid),
       campaignSaves.hydrate(uid),
-    ]).then(() => {
-      if (!cancelled) setReadyUid(uid);
-    });
+    ])
+      .then(async () => {
+        if (uid !== DEMO_UID) return;
+        // Reset on every launch, so each screenshot session starts identical.
+        const stores = storesFor(uid);
+        await stores.progression.write(demoProgression());
+        await stores.campaign.write(demoCampaign());
+      })
+      .then(() => {
+        if (!cancelled) setReadyUid(uid);
+      });
     return () => {
       cancelled = true;
     };

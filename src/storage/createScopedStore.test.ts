@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { createScopedStore, dirtyKey, LOCAL_UID, type CloudSaves } from './createScopedStore';
+import { createScopedStore, DEMO_UID, dirtyKey, LOCAL_UID, type CloudSaves } from './createScopedStore';
 import type { Storage } from './types';
 
 function memoryStorage(): Storage & { map: Map<string, string> } {
@@ -166,6 +166,23 @@ describe('createScopedStore', () => {
     await new Promise((r) => setTimeout(r, 30));
     expect(cloud.saves).toBe(1);
     await expect(user.read()).resolves.toEqual({ count: 1 });
+  });
+
+  it('the demo screenshot profile never reaches the cloud, and no real account adopts it', async () => {
+    const storage = memoryStorage();
+    const cloud = fakeCloud();
+    const store = make(storage, cloud);
+
+    await store.hydrate(DEMO_UID);
+    await store.forUser(DEMO_UID).write({ count: 9000 });
+    await new Promise((r) => setTimeout(r, 30));
+    expect(cloud.saves).toBe(0);
+
+    await store.hydrate('real-player');
+    await expect(store.forUser('real-player').read()).resolves.toEqual(fallback);
+    expect(cloud.saves).toBe(0);
+    // The demo slot itself is left alone for the next demo session.
+    expect(storage.map.get(`${key}:${DEMO_UID}`)).toBe(JSON.stringify({ count: 9000 }));
   });
 
   it('write: without a cloud adapter nothing is scheduled', async () => {

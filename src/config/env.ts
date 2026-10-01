@@ -61,3 +61,10 @@ export const appEnv: 'development' | 'preview' | 'production' = (() => {
 
 /** True in Metro/dev clients and EAS preview builds; false in the store build. */
 export const isDeveloperBuild = appEnv !== 'production';
+
+/**
+ * Store-screenshot demo profile (features/save/demoProfile): only in a Metro
+ * dev bundle (`__DEV__`) started with EXPO_PUBLIC_DEMO_PROFILE=1. Saves go to a
+ * local-only slot and nothing is published to the cloud or leaderboards.
+ */
+export const demoProfile = __DEV__ && process.env.EXPO_PUBLIC_DEMO_PROFILE === '1';

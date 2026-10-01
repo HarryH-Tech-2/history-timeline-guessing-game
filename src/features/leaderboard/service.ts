@@ -1,6 +1,7 @@
-import { isFirebaseConfigured } from '@/config/env';
+import { demoProfile, isFirebaseConfigured } from '@/config/env';
 
 import { boardValue, type Board, type BoardContext } from './boards';
+import { demoRank, demoTop } from './demoBoard';
 import {
   LeaderboardEntrySchema,
   qualifiesForLeaderboard,
@@ -61,6 +62,7 @@ export async function fetchTop(
   board: Board = 'all',
   ctx: BoardContext = { today: '', week: '' },
 ): Promise<readonly LeaderboardEntry[]> {
+  if (demoProfile) return demoTop(max, board, ctx);
   if (!isFirebaseConfigured) return [];
   try {
     const [{ getFirebaseDb }, { collection, getDocs, limit, orderBy, query, where }] =
@@ -93,6 +95,7 @@ export async function fetchRank(
   ctx: BoardContext,
   myValue: number,
 ): Promise<number | null> {
+  if (demoProfile) return demoRank(board, ctx, myValue);
   if (!isFirebaseConfigured) return null;
   try {
     const [{ getFirebaseDb }, { collection, getCountFromServer, query, where }] =

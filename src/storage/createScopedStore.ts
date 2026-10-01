@@ -17,6 +17,8 @@ export interface CloudSaves {
  * purely local — never mirrored — and the first real uid adopts them once.
  */
 export const LOCAL_UID = 'local';
+/** The dev-only store-screenshot profile (features/save/demoProfile): never mirrored, never adopted. */
+export const DEMO_UID = 'demo';
 
 export interface ScopedStore<T> {
   /**
@@ -97,7 +99,7 @@ export function createScopedStore<T>({
 }: ScopedStoreConfig<T>): ScopedStore<T> {
   /** The mirror for `uid`, or undefined when its saves stay on the device. */
   const cloudFor = (uid: string): CloudSaves | undefined =>
-    uid === LOCAL_UID ? undefined : cloud;
+    uid === LOCAL_UID || uid === DEMO_UID ? undefined : cloud;
 
   /** Push `value` and clear the dirty marker only once the cloud has it. */
   const push = async (remote: CloudSaves, uid: string, value: unknown): Promise<void> => {

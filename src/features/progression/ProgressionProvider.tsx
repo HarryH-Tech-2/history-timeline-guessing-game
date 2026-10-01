@@ -15,6 +15,7 @@ import {
   type ProgressionState,
   type RoundResult,
 } from '@/domain';
+import { demoProfile } from '@/config/env';
 import { usePremium } from '@/features/premium/PremiumProvider';
 import { useSaves } from '@/features/save';
 import { dateKey } from '@/utils/date';
@@ -132,7 +133,7 @@ export function ProgressionProvider({ children }: { children: ReactNode }) {
   // can at worst re-send an unlock, which Play treats as a no-op.
   const unlocked = state.unlocked;
   useEffect(() => {
-    if (isLoading || unlocked.length === 0) return;
+    if (demoProfile || isLoading || unlocked.length === 0) return;
     void syncPlayGamesAchievements(unlocked);
   }, [isLoading, unlocked]);
 
