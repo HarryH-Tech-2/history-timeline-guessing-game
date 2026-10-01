@@ -38,6 +38,19 @@ export const social = {
     },
     /** "Historian · L13": the era title for a level, with the level kept short. */
     rankLine: '{title} · L{level}',
+    /** Rank titles by level band (domain/progression LEVEL_TITLES). */
+    titles: {
+      apprentice: 'Apprentice',
+      scribe: 'Scribe',
+      chronicler: 'Chronicler',
+      scholar: 'Scholar',
+      historian: 'Historian',
+      archivist: 'Archivist',
+      curator: 'Curator',
+      sage: 'Sage',
+      timeless: 'Timeless',
+      legend: 'Legend',
+    },
     you: 'You',
     movedUp: { one: 'Up {count} place', other: 'Up {count} places' },
     movedDown: { one: 'Down {count} place', other: 'Down {count} places' },

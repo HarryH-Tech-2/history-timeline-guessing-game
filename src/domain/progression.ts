@@ -136,22 +136,27 @@ export const LastDailySchema = z.object({
 });
 export type LastDaily = z.infer<typeof LastDailySchema>;
 
-/** Era-themed rank titles by level band, shown beside names on the leaderboard. */
-const LEVEL_TITLES: readonly [minLevel: number, title: string][] = [
-  [40, 'Legend'],
-  [30, 'Timeless'],
-  [25, 'Sage'],
-  [20, 'Curator'],
-  [16, 'Archivist'],
-  [12, 'Historian'],
-  [8, 'Scholar'],
-  [5, 'Chronicler'],
-  [3, 'Scribe'],
-  [1, 'Apprentice'],
-];
+/**
+ * Era-themed rank titles by level band, shown beside names on the leaderboard.
+ * These are i18n keys (`social.leaderboard.titles.<key>`), not display text.
+ */
+const LEVEL_TITLES = [
+  [40, 'legend'],
+  [30, 'timeless'],
+  [25, 'sage'],
+  [20, 'curator'],
+  [16, 'archivist'],
+  [12, 'historian'],
+  [8, 'scholar'],
+  [5, 'chronicler'],
+  [3, 'scribe'],
+  [1, 'apprentice'],
+] as const satisfies readonly (readonly [minLevel: number, key: string])[];
 
-export function titleForLevel(level: number): string {
-  return LEVEL_TITLES.find(([min]) => level >= min)?.[1] ?? 'Apprentice';
+export type LevelTitle = (typeof LEVEL_TITLES)[number][1];
+
+export function titleForLevel(level: number): LevelTitle {
+  return LEVEL_TITLES.find(([min]) => level >= min)?.[1] ?? 'apprentice';
 }
 
 /**

@@ -111,7 +111,10 @@ function Medallion({ entry, className, style }: { entry: LeaderboardEntry; class
 /** "Historian · L13": the era title for a level, with the number kept small. */
 function rankLine(xp: number): string {
   const level = levelForXp(xp);
-  return t('social.leaderboard.rankLine', { title: titleForLevel(level), level });
+  return t('social.leaderboard.rankLine', {
+    title: t(`social.leaderboard.titles.${titleForLevel(level)}`),
+    level,
+  });
 }
 
 /** Solid accent tag marking the player's own entry, so it can't be missed. */
@@ -330,8 +333,12 @@ function BoardTabs({ board, onChange }: { board: Board; onChange: (b: Board) => 
               active ? 'border-accent' : 'border-transparent'
             }`}
           >
+            {/*
+              Full width, not content-sized: Android under-measures some CJK
+              labels (ja "今週" laid out one glyph wide and lost its second).
+            */}
             <Text
-              className={`text-sm font-bold ${active ? 'text-accent' : 'text-ink-muted'}`}
+              className={`w-full text-center text-sm font-bold ${active ? 'text-accent' : 'text-ink-muted'}`}
             >
               {boardLabel(b)}
             </Text>
