@@ -6,6 +6,8 @@ export const NODE = 68;
 export const FRONTIER_NODE = 80;
 /** Height of the darker 3D lip showing under a button or banner. */
 export const LIP = 6;
+/** Space under an era banner's lip before its trail starts (EraBanner's pb-2). */
+export const ERA_BANNER_PAD_BOTTOM = 8;
 /** Vertical distance between one stage button and the next. */
 export const STEP_Y = 174;
 /**
@@ -20,8 +22,11 @@ export const SWING = 0.74;
  * dots over this many staggers, whatever its length.
  */
 export const TRAIL_DOTS = 5;
-/** Distance between trail dots along the curved connector. */
-export const TRAIL_DOT_SPACING = 17;
+/**
+ * Distance between trail dots along the curved connector. The road is drawn
+ * as one capsule per dot, so this is also how finely its bends are cut.
+ */
+export const TRAIL_DOT_SPACING = 12;
 /** Delay between trail dots lighting up in the unlock sequence. */
 export const DOT_STAGGER_MS = 90;
 /** When the light-up sequence starts after the map regains focus. */

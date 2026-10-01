@@ -14,7 +14,7 @@ import { t } from '@/i18n';
 
 import { eraName, type CampaignWorld } from '../campaignMap';
 import { eraNumeral } from './constants';
-import { inkOn, shade } from './mapVisuals';
+import { bannerInk, shade } from './mapVisuals';
 
 /** Lip under the sticky bar; smaller than the buttons' so it stays slim. */
 const BAR_LIP = 4;
@@ -45,7 +45,7 @@ export function StickyEraBar({
   /** Makes the bar a button while it shows (a locked era opens the paywall). */
   onPress?: () => void;
 }) {
-  const ink = inkOn(world.colour);
+  const ink = bannerInk(world.colour);
   const reducedMotion = useReducedMotion();
   // Absolute children ignore the SafeAreaView's padding, so the status-bar
   // inset is added here or the bar slides up under the clock and icons.
@@ -100,7 +100,7 @@ export function StickyEraBar({
         >
           <Text
             className="flex-1 text-sm font-extrabold"
-            style={{ color: ink }}
+            style={ink}
             numberOfLines={1}
             testID="sticky-era-title"
           >
@@ -110,7 +110,7 @@ export function StickyEraBar({
             {' · '}
             {eraName(world)}
           </Text>
-          <Text className="text-sm font-extrabold" style={{ color: ink }} testID="sticky-era-stars">
+          <Text className="text-sm font-extrabold" style={ink} testID="sticky-era-stars">
             ★ {earned}/{total}
           </Text>
           <View

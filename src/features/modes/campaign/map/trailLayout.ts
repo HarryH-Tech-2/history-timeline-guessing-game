@@ -1,6 +1,8 @@
 import type { CampaignRoute, CampaignStage, CampaignWorld } from '../campaignMap';
 import {
+  ERA_BANNER_PAD_BOTTOM,
   FINALE_MEDAL,
+  LIP,
   NEXT_BANNER_GAP,
   NODE,
   REWARD_MEDAL,
@@ -151,10 +153,13 @@ export function eraTrailLayout(
   const link = (from: CampaignStage, to: CampaignStage) =>
     road(`${from.id}>${to.id}`, 'stage', from.id, to.id, at.get(from.id)!, at.get(to.id)!, button, button);
 
-  // Out of the era banner (just above the trail) into the first stage.
+  // Out from under the era banner (drawn over the trail) into the first
+  // stage. It starts behind the banner's face, clear of its padding and lip,
+  // so the road's rounded end is hidden and it emerges cleanly from the lip.
   const first = main[0];
   if (first !== undefined) {
-    road(`start>${first.id}`, 'lead', `start:${world.id}`, first.id, { x: width / 2, y: -8 }, at.get(first.id)!, 0, button);
+    const underBanner = -(ERA_BANNER_PAD_BOTTOM + LIP + 16);
+    road(`start>${first.id}`, 'lead', `start:${world.id}`, first.id, { x: width / 2, y: underBanner }, at.get(first.id)!, 0, button);
   }
   main.forEach((stage, i) => {
     const next = main[i + 1];

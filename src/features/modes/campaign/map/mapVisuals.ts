@@ -85,6 +85,27 @@ export function inkOn(hex: string): string {
   return whiteContrast >= 3 ? '#FFFFFF' : DARK_INK;
 }
 
+/**
+ * Banner text on an era colour: always white, like the Middle Ages banner.
+ * On the lighter era colours (where white alone is too faint to read) it gets
+ * a tight drop shadow in the era's own darker shade, which keeps the letters
+ * crisp without turning them dark.
+ */
+export function bannerInk(hex: string): {
+  color: string;
+  textShadowColor?: string;
+  textShadowOffset?: { width: number; height: number };
+  textShadowRadius?: number;
+} {
+  if (inkOn(hex) === '#FFFFFF') return { color: '#FFFFFF' };
+  return {
+    color: '#FFFFFF',
+    textShadowColor: shade(hex, 0.55),
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  };
+}
+
 /** `hex` darkened by `amount` (0 = unchanged, 1 = black) — the 3D lip under a button. */
 export function shade(hex: string, amount: number): string {
   const out = channels(hex)

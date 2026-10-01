@@ -14,7 +14,7 @@ import { t } from '@/i18n';
 
 import { eraName, eraPeriod, type CampaignWorld, type EraStatus } from '../campaignMap';
 import { eraNumeral, LIP, SEQUENCE_DELAY_MS } from './constants';
-import { inkOn, shade } from './mapVisuals';
+import { bannerInk, shade } from './mapVisuals';
 
 /** A light bar that sweeps across the banner once, when its era opens. */
 function Shimmer({ token }: { token: number }) {
@@ -73,7 +73,7 @@ export function EraBanner({
   /** Makes the banner a button (a locked era opens the paywall). */
   onPress?: () => void;
 }) {
-  const ink = inkOn(world.colour);
+  const ink = bannerInk(world.colour);
   const fraction = status.total > 0 ? status.cleared / status.total : 0;
   const seal = premiumLocked
     ? { text: t('campaign.banner.premium'), testID: 'era-premium' }
@@ -85,7 +85,10 @@ export function EraBanner({
 
   return (
     <Pressable
-      className="px-5 pb-2 pt-8 active:opacity-90"
+      // z-10: above its trail, so the road into the first stage runs out from
+      // under the banner (as it does under the route signposts) instead of
+      // its rounded end sitting on top of the lip.
+      className="z-10 px-5 pb-2 pt-8 active:opacity-90"
       testID={`world-${world.id}`}
       onPress={onPress}
       disabled={onPress === undefined}
@@ -113,7 +116,7 @@ export function EraBanner({
           <View className="flex-row items-center justify-between">
             <Text
               className="text-[11px] font-extrabold uppercase tracking-widest"
-              style={{ color: ink, opacity: 0.85 }}
+              style={[ink, { opacity: 0.85 }]}
             >
               {t('campaign.banner.eraLabel', { numeral: eraNumeral(world.index), period: eraPeriod(world) })}
             </Text>
@@ -135,13 +138,13 @@ export function EraBanner({
           <View className="mt-0.5 flex-row items-end justify-between gap-2">
             <Text
               className="flex-1 text-2xl font-extrabold"
-              style={{ color: ink }}
+              style={ink}
               numberOfLines={1}
               adjustsFontSizeToFit
             >
               {eraName(world)}
             </Text>
-            <Text className="text-sm font-extrabold" style={{ color: ink }}>
+            <Text className="text-sm font-extrabold" style={ink}>
               ★ {earned}/{total}
             </Text>
           </View>
@@ -152,11 +155,11 @@ export function EraBanner({
             >
               <View
                 className="h-2.5 rounded-full"
-                style={{ width: `${fraction * 100}%`, backgroundColor: ink }}
+                style={{ width: `${fraction * 100}%`, backgroundColor: ink.color }}
                 testID={`era-progress-${world.id}`}
               />
             </View>
-            <Text className="text-[11px] font-bold" style={{ color: ink }}>
+            <Text className="text-[11px] font-bold" style={ink}>
               {status.cleared}/{status.total}
             </Text>
           </View>

@@ -71,8 +71,10 @@ function litDots(stageIds: readonly string[]): number {
     .segments.filter((s) => s.kind === 'lead' || (s.kind === 'stage' && stageIds.includes(s.fromId)))
     .reduce((n, s) => n + s.dots.length, 0);
 }
-/** The full map (roads, trophies, sparks) takes a moment to settle under Jest. */
-const LIT_WAIT = { timeout: 4000 };
+/** The full map (roads, trophies, sparks) takes a moment to settle under Jest
+ * — longer since the era banners sit above their trails (z-index), so 4 s was
+ * no longer reliably enough when the whole file runs. */
+const LIT_WAIT = { timeout: 10_000 };
 const LEAD_ONLY = () => litDots([]);
 const ONE_SEGMENT = () => litDots([ancient.stages[0]!.id]);
 const TO_THE_FORK = () => litDots([ancient.stages[0]!.id, ancient.stages[1]!.id]);
