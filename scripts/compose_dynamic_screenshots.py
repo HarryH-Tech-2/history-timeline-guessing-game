@@ -3,9 +3,15 @@ experiment: tilted phone with perspective and a deep shadow bleeding off the
 frame, full-bleed copper-to-dark gradient, question art / Minerva bursting past
 the phone edge, and an enlarged UI callout.
 
-Usage: python scripts/compose_dynamic_screenshots.py <captures_dir> <out_dir>
+Usage: python scripts/compose_dynamic_screenshots.py <captures_dir> <out_dir> [1.2]
+       python scripts/compose_dynamic_screenshots.py --locale <play_locale> <captures_dir> <out_dir>
+              [--listing <json>]   # default assets/store/listing/<play_locale>.json
 <captures_dir> holds raw 1080x2340 device captures named per SLIDES below.
 Missing captures are skipped so the set can be built incrementally.
+
+--locale builds the 8-slide SLIDES_1_3 set with headline/sub copy from the
+listing JSON "screenshots" block, a per-language font (Yu Gothic for Japanese)
+and wrapping/shrinking so the copy always fits.
 """
 import math
 import sys
@@ -74,6 +80,27 @@ SLIDES_1_2 = [
          art="evt-moon-landing.webp", art_pos=(640, 500, 420), owl=None, callout=None, tilt=8, scale=740),
     dict(name="07-dark", cap="home_dark", head="Easy on the eyes", sub="Warm copper in light and dark.",
          art=None, owl=None, callout=None, tilt=-9, scale=760),
+]
+
+
+# The localized 1.3 set (--locale). Copy comes from the listing JSON, so head/sub
+# are filled in at build time. Callouts: only the auto-detected readout on
+# 01-guess survives; the fixed-box reveal callout from SLIDES_1_2 pointed at
+# pixel coordinates of the 1.2 captures and would crop the wrong area of new
+# (or translated) captures.
+# TODO: re-add a 02-reveal points callout once it can be auto-detected (e.g.
+# by scanning the reveal capture for the score pill colour) like find_readout.
+SLIDES_1_3 = [
+    dict(name="01-guess", cap="quiz", art=None, owl=None,
+         callout=dict(auto="readout", width=360, pos=(860, 1560), angle=7), tilt=-9, scale=740),
+    dict(name="02-reveal", cap="reveal", art=None, owl="right", callout=None, tilt=8, scale=740),
+    dict(name="03-campaign", cap="campaign", art=None, owl="left", callout=None, tilt=-8, scale=760),
+    dict(name="04-modes", cap="home", art=None, owl=None, callout=None, tilt=9, scale=760),
+    dict(name="05-leaderboard", cap="leaderboard", art=None, owl=None, callout=None, tilt=-8, scale=760),
+    dict(name="06-museum", cap="museum", art="evt-moon-landing.webp", art_pos=(640, 500, 420), owl=None,
+         callout=None, tilt=8, scale=740),
+    dict(name="07-achievements", cap="achievements", art=None, owl="left", callout=None, tilt=-8, scale=740),
+    dict(name="08-dark", cap="home_dark", art=None, owl=None, callout=None, tilt=-9, scale=760),
 ]
 
 
@@ -224,6 +251,32 @@ def text_block(canvas, head, sub):
     return y + 18 + (bb[3] - bb[1])
 
 
+def text_block_localized(canvas, head, sub, lang):
+    """text_block for any language: per-language fonts, Japanese wraps by
+    character with kinsoku, and both lines shrink until they fit (W-120, at
+    most two lines each)."""
+    import locale_text as lt
+    f = lt.fonts(lang)
+    d = ImageDraw.Draw(canvas)
+    max_w = W - 120
+    hf, hlines = lt.fit_lines(head, f["black"], max_w, lang, 104, 60, one_line_min=84)
+    sf, slines = lt.fit_lines(sub, f["semi"], max_w, lang, 42, 28, one_line_min=36)
+    # Rows are laid out on a reference glyph box (cap height + descender), not
+    # each line's own ink, so spacing doesn't depend on which letters appear.
+    ref = "国g" if lt.is_cjk(lang) else "Hg"
+    y = 110
+    for fnt, lines, fill, gap, shadow in ((hf, hlines, CREAM, 0.12, True), (sf, slines, CREAM_MUTED, 0.22, False)):
+        rt, rb = d.textbbox((0, 0), ref, font=fnt)[1::2]
+        for ln in lines:
+            bb = d.textbbox((0, 0), ln, font=fnt)
+            x = (W - (bb[2] - bb[0])) / 2 - bb[0]
+            if shadow:
+                d.text((x + 4, y - rt + 6), ln, font=fnt, fill=(60, 30, 10, 120))
+            d.text((x, y - rt), ln, font=fnt, fill=fill)
+            y += (rb - rt) + round(fnt.size * gap)
+        y += 30 - round(fnt.size * gap)  # head -> sub gap, as text_block
+    return y - 30
+
 
 READOUT_FILL = (249, 237, 224)
 
@@ -271,13 +324,16 @@ def callout_sprite(raw, box, width):
 
 
 # ------------------------------------------------------------------ build --
-def build(slide):
+def build(slide, lang=None):
     cap = CAPS / f"{slide['cap']}.png"
     if not cap.exists():
         print("skip", slide["name"], "(no capture", cap.name + ")")
         return None
     canvas = background()
-    text_bottom = text_block(canvas, slide["head"], slide["sub"])
+    if lang:
+        text_bottom = text_block_localized(canvas, slide["head"], slide["sub"], lang)
+    else:
+        text_bottom = text_block(canvas, slide["head"], slide["sub"])
 
     flat = phone(cap, slide.get("scale", 740))
     ph = tilt_sprite(flat, slide["tilt"])
@@ -313,11 +369,48 @@ def build(slide):
     return out
 
 
+def localized_slides(listing):
+    copy = listing["screenshots"]
+    slides = []
+    for s in SLIDES_1_3:
+        c = copy.get(s["name"])
+        if not c:
+            print("skip", s["name"], "(no copy in listing JSON)")
+            continue
+        slides.append(dict(s, head=c["head"], sub=c["sub"]))
+    return slides
+
+
+def parse_args(argv):
+    """Legacy: <caps> <out> [1.2]. Localized: --locale <play_locale> <caps> <out> [--listing <json>]."""
+    if "--locale" not in argv:
+        return dict(caps=argv[0], out=argv[1], set=argv[2] if len(argv) > 2 else None, locale=None, listing=None)
+    argv = list(argv)
+    opts = {}
+    for flag in ("--locale", "--listing"):
+        if flag in argv:
+            i = argv.index(flag)
+            opts[flag[2:]] = argv[i + 1]
+            del argv[i:i + 2]
+    return dict(caps=argv[0], out=argv[1], set="1.3", locale=opts["locale"], listing=opts.get("listing"))
+
+
 if __name__ == "__main__":
-    CAPS, OUT = Path(sys.argv[1]), Path(sys.argv[2])
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    args = parse_args(sys.argv[1:])
+    CAPS, OUT = Path(args["caps"]), Path(args["out"])
     OUT.mkdir(parents=True, exist_ok=True)
-    slides = SLIDES_1_2 if sys.argv[3:4] == ["1.2"] else SLIDES
-    made = [b for b in (build(s) for s in slides) if b is not None]
+    lang = None
+    if args["locale"]:
+        import locale_text
+        listing = locale_text.load_listing(args["locale"], args["listing"])
+        lang = listing["app_locale"]
+        print(f"locale {listing['play_locale']} (app {lang}), fonts {locale_text.fonts(lang)['black']}/"
+              f"{locale_text.fonts(lang)['semi']}")
+        slides = localized_slides(listing)
+    else:
+        slides = SLIDES_1_2 if args["set"] == "1.2" else SLIDES
+    made = [b for b in (build(s, lang) for s in slides) if b is not None]
     if made:
         sheet = Image.new("RGB", (280 * len(made), 500), (240, 236, 228))
         for i, im in enumerate(made):

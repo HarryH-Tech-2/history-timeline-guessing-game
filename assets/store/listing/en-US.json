@@ -1,0 +1,69 @@
+{
+  "play_locale": "en-US",
+  "app_locale": "en",
+  "title": "History Date Guesser: Quiz",
+  "short_description": "Slide the timeline, guess the year. 538 moments in history, no multiple choice.",
+  "full_description": "Guess the year. Master history.\n\nHistory Date Guesser is the history trivia game where every answer is a year. See a famous moment from the past, slide the timeline to when you think it happened, and score up to 1,000 points for landing on the exact year. No multiple choice, no lucky guesses: just you, the timeline and world history from 1000 BCE to today.\n\nEvery one of the 538 questions comes with its own illustrated miniature scene, and every answer reveals the story behind the date, so you learn something with every guess.\n\nHOW TO PLAY\n• Read the moment, study the scene and drag the timeline to your year\n• Fine-tune one year at a time with the + and − buttons\n• The closer you land, the more you score. Nail the exact year for a perfect 1,000\n• Read the real story after every guess\n\nWAYS TO PLAY\n• Daily – eight fresh questions a day, the same for everyone. Keep your streak alive and share your score card\n• Survival – three lives. How far can you get?\n• Campaign – journey through five eras, from The Ancient World to The Modern Era. Pick your route, earn three stars on every stage and claim each era's trophy\n• Endless – unlimited lives, chase a high score (Premium)\n• Challenges – send a friend the same eight questions and see who knows their history, or start a group and compete on weekly XP\n\n538 QUESTIONS ACROSS 12 CATEGORIES\n• Historic Events, Battles, Famous People, Technology\n• Exploration & Discovery, Treaties, Sport, Money & Trade\n• Arts & Culture, Philosophy and Space (Premium)\n• Regional – pick Europe, Asia, Africa, North America, South America or Oceania and play its defining moments (Premium)\n\nBUILD YOUR MUSEUM\nGuess close to the real year and the artefact joins your collection. Fill each wing of the Museum, one exhibit for every question in the game.\n\nACHIEVEMENTS, LEVELS AND LEADERBOARDS\n• Unlock 28 achievements, from Bullseye to Time Lord\n• Earn XP and coins, level up and climb the historian titles\n• Compete on the leaderboard: Today, Week and All time\n• Keep your Daily streak going, with streak freezes for the days you miss\n• Back up your progress to Google and pick it up on a new phone\n\nMEET MINERVA\nYour owl companion cheers your perfect years and picks you up after a miss.\n\nMADE TO FEEL GOOD\n• Light and dark themes\n• Sound effects and vibration, each with its own switch\n• An optional reminder so you never miss the Daily\n• Play in English, Português (Brasil), Español (Latinoamérica) or 日本語\n• No account needed to start playing\n\nPerfect for history students, quiz night regulars, teachers, trivia fans and anyone who has ever argued about when something happened.\n\nPREMIUM\nHistory Date Guesser is free to play. Optional Premium gives you unlimited hearts and coins, the full Campaign (every era after The Ancient World), Endless mode, the Arts & Culture, Philosophy, Regional and Space categories, and the premium wings of your Museum. Choose monthly (with a free trial where offered), yearly, or a one-time lifetime unlock. Subscriptions renew automatically until cancelled in Google Play.\n\nHow well do you really know when things happened? Download and find out.",
+  "screenshots": {
+    "01-guess": {
+      "head": "Guess the year",
+      "sub": "Slide the timeline. No multiple choice."
+    },
+    "02-reveal": {
+      "head": "Nail the exact year",
+      "sub": "Up to 1,000 points for a perfect guess"
+    },
+    "03-campaign": {
+      "head": "Journey through time",
+      "sub": "Five eras. Earn stars and claim trophies"
+    },
+    "04-modes": {
+      "head": "Play your way",
+      "sub": "Daily, Survival, Campaign and Endless"
+    },
+    "05-leaderboard": {
+      "head": "Climb the ranks",
+      "sub": "Today, this week and of all time"
+    },
+    "06-museum": {
+      "head": "Build your Museum",
+      "sub": "Guess close and keep the artefact"
+    },
+    "07-achievements": {
+      "head": "28 achievements",
+      "sub": "From Bullseye to Time Lord"
+    },
+    "08-dark": {
+      "head": "Easy on the eyes",
+      "sub": "Light and dark themes, day or night"
+    }
+  },
+  "video": {
+    "question": [
+      "When did",
+      "this happen?"
+    ],
+    "statement": [
+      "You know the moment.",
+      "Can you place the year?"
+    ],
+    "drag_kicker": "No multiple choice",
+    "drag_lines": [
+      "Slide the timeline.",
+      "Trust your gut."
+    ],
+    "reveal_kicker": "Perfect",
+    "reveal_line": "Nail the exact year.",
+    "brand": "History Date Guesser",
+    "cta": "Free on Google Play",
+    "end_lines": [
+      "538 moments. 12 categories.",
+      "A new Daily every day."
+    ],
+    "tagline": "3,000 years of history. One timeline."
+  },
+  "youtube": {
+    "title": "History Date Guesser – Can you guess the year? | History quiz game for Android",
+    "description": "When did it happen? Slide the timeline and guess the exact year.\n\nHistory Date Guesser is a history trivia game where every answer is a year: 538 illustrated moments from 1000 BCE to today, no multiple choice. Play the Daily, Survival, a five-era Campaign and more, collect artefacts for your Museum and climb the leaderboards.\n\nFree on Google Play:\nhttps://play.google.com/store/apps/details?id=com.harryhh.historydateguesser\n\nMusic:\n\"Ancient Rite\" Kevin MacLeod (incompetech.com)\nLicensed under Creative Commons: By Attribution 4.0 License\nhttp://creativecommons.org/licenses/by/4.0/"
+  }
+}

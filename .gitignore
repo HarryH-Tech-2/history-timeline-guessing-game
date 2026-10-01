@@ -40,3 +40,6 @@ __pycache__/
 regional-prices-preview.csv
 GoogleService-Info.plist
 modules/*/android/build/
+
+# Rendered promo videos (large; upload, do not commit)
+promo/out/

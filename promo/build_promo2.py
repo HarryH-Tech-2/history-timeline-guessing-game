@@ -9,9 +9,20 @@ licence-free. Drop a music file at promo/music.mp3 (or .wav/.m4a) to mix a bed.
     python promo/build_promo2.py                 # 16:9 -> promo/history-date-guesser-promo-v2.mp4
     python promo/build_promo2.py --aspect 9:16   # portrait -> promo/history-date-guesser-promo-v2-portrait.mp4
     python promo/build_promo2.py --preview 15    # every 15th frame to a contact sheet, no encode
+
+Localized (copy from assets/store/listing/<play_locale>.json "video", question
+titles from the app's content overlay src/data/i18n/<lang>/questions-*.json):
+    python promo/build_promo2.py --locale ja-JP [--aspect 9:16] [--preview 15] [--listing <json>]
+      -> promo/out/<play_locale>/history-date-guesser-promo-<play_locale>[-portrait].mp4
+Per-locale phone footage: promo/locales/<play_locale>/seg-drag.mp4 + seg-reveal.mp4
+(CFR 30fps 1080x2340 screen recordings) with optional segments.json
+{"drag": {"start": s, "dur": d}, "reveal": {"start": s, "dur": d}}; missing
+files fall back to the English segments with a warning. Frames are cached per
+locale in promo/tmp2/<play_locale>/.
 """
 import argparse
 import glob
+import json
 import math
 import os
 import subprocess
@@ -22,6 +33,8 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 ROOT = "C:/Users/harry/Documents/code/history-date-guessing-game"
+sys.path.insert(0, f"{ROOT}/scripts")
+import locale_text  # noqa: E402  (shared with compose_dynamic_screenshots.py)
 PROMO = f"{ROOT}/promo"
 ART = f"{ROOT}/assets/questions"
 SEGS = os.path.expanduser("~/.claude/jobs/b40c9d50/tmp")  # seg-heartdrag.mp4 / seg-heartreveal.mp4 (CFR)
@@ -31,6 +44,26 @@ SR = 48000
 
 FONT_DIR = "C:/Windows/Fonts"
 SERIF_B, SANS_B, SANS = "palab.ttf", "segoeuib.ttf", "segoeui.ttf"
+
+# Locale state (set by apply_locale; the defaults reproduce the original English cut).
+LANG = "en"
+BCE = "BCE"  # src/i18n/locales/<lang>/common.ts `bce`
+STR = dict(
+    question=["When did", "this happen?"],
+    statement=["You know the moment.", "Can you place the year?"],
+    drag_kicker="No multiple choice",
+    drag_lines=["Slide the timeline.", "Trust your gut."],
+    reveal_kicker="Perfect",
+    reveal_line="Nail the exact year.",
+    brand="History Date Guesser",
+    cta="Free on Google Play",
+    points="+1,000",
+    end_lines=["538 moments. 12 categories.", "A new Daily every day."],
+    tagline="3,000 years of history. One timeline.",
+)
+APP_BCE = {"en": "BCE", "pt-BR": "a.C.", "es-419": "a. C.", "ja": "\u7d00\u5143\u524d%y"}
+POINTS = {"pt-BR": "+1.000"}
+SEG_SRC = {"drag": (f"{SEGS}/seg-heartdrag.mp4", 0.0), "reveal": (f"{SEGS}/seg-heartreveal.mp4", 0.0)}
 
 CREAM = (247, 243, 234)
 ORANGE = (232, 137, 30)
@@ -91,6 +124,16 @@ def ease_in_out(u):
 
 def fmt_year(y):
     y = int(round(y))
+    if LANG != "en":
+        # Match the app's formatYear (src/features/timeline/math/format.ts):
+        # CE years bare; BCE "480 a.C." or, when the era word has a %y slot,
+        # the Japanese prefix form.
+        if y > 0:
+            return str(y)
+        if y == 0:
+            return "0"  # timeline tick at the epoch, as the English cut
+        mag = str(-y)
+        return BCE.replace("%y", mag) if "%y" in BCE else f"{mag} {BCE}"
     if y < 0:
         return f"{-y} BCE"
     if y == 0:
@@ -98,6 +141,101 @@ def fmt_year(y):
     if y < 1000:
         return f"{y} CE"
     return str(y)
+
+
+def fit_font(name, size, s, max_w, min_size=None, tracking=0):
+    """Largest font <= size where one line of `s` is <= max_w wide."""
+    min_size = min_size or int(size * 0.5)
+    while size > min_size:
+        f = font(name, size)
+        if f.getlength(s) + tracking * max(0, len(s) - 1) <= max_w:
+            return f
+        size -= 2
+    return font(name, min_size)
+
+
+def fit_lines(s, name, size, max_w, max_lines=2, min_size=None):
+    """(font, lines) via locale_text: wraps on spaces / between CJK characters, then shrinks."""
+    return locale_text.fit_lines(s, f"{FONT_DIR}/{name}", max_w, LANG, size, min_size or int(size * 0.6),
+                                 max_lines=max_lines, one_line_min=int(size * 0.85))
+
+
+def overlay_questions(lang):
+    """{id: {title, longDescription}} from the app's translated content overlay."""
+    out = {}
+    for f in sorted(glob.glob(f"{ROOT}/src/data/i18n/{lang}/questions-*.json")):
+        with open(f, encoding="utf-8") as fh:
+            out.update(json.load(fh))
+    return out
+
+
+def short_line(desc, lang, fits):
+    """A one-glance subtitle from a long reveal description: the first sentence
+    if it `fits`, else its longest clause-bounded prefix that fits (with an
+    ellipsis), else '' (no subtitle)."""
+    cjk = locale_text.is_cjk(lang)
+    first = (desc.split("\u3002")[0] if cjk else desc.split(". ")[0]).strip().rstrip(".")
+    if fits(first):
+        return first
+    seps = "\u3001\uff0c" if cjk else ",;:\u2014"
+    min_len = 8 if cjk else 20
+    for i in reversed([i for i, ch in enumerate(first) if ch in seps]):
+        cand = first[:i].strip()
+        if len(cand) >= min_len and fits(cand + "\u2026"):
+            return cand + "\u2026"
+    return ""
+
+
+def apply_locale(play_locale, listing_path=None):
+    """Point copy, fonts, question text, gameplay segments and caches at one locale."""
+    global LANG, BCE, SERIF_B, SANS_B, SANS, TMP, DRAG_DUR, REVEAL_DUR
+    listing = locale_text.load_listing(play_locale, listing_path)
+    LANG = listing["app_locale"]
+    BCE = APP_BCE.get(LANG, "BCE")
+    v = listing["video"]
+    STR.update(question=v["question"], statement=v["statement"], drag_kicker=v["drag_kicker"],
+               drag_lines=v["drag_lines"], reveal_kicker=v["reveal_kicker"], reveal_line=v["reveal_line"],
+               brand=v["brand"], cta=v["cta"], points=v.get("points", POINTS.get(LANG, "+1,000")))
+    if LANG != "en":
+        # Optional keys; without them the end card skips these lines rather than show English.
+        STR["end_lines"] = v.get("end_lines", [])
+        STR["tagline"] = v.get("tagline", "")
+    else:
+        STR["end_lines"] = v.get("end_lines", STR["end_lines"])
+        STR["tagline"] = v.get("tagline", STR["tagline"])
+    f = locale_text.fonts(LANG)
+    SERIF_B, SANS_B, SANS = f["serif_b"], f["sans_b"], f["sans"]
+    _fonts.clear()
+    TMP = f"{PROMO}/tmp2/{play_locale}"
+    if LANG != "en":
+        ov = overlay_questions(LANG)
+        subs = v.get("question_subs", {})  # optional hand-written {question id: line}
+        for q in QUESTIONS:
+            row = ov.get(q["id"])
+            if not row:
+                print(f"WARNING: {q['id']} missing from src/data/i18n/{LANG}; keeping the English title")
+                continue
+            q["title"] = row["title"]
+            q["sub"] = subs.get(q["id"])  # None -> derived from desc per layout (Renderer.resolve_subs)
+            q["desc"] = row["longDescription"]
+    loc_dir = f"{PROMO}/locales/{play_locale}"
+    trims = {}
+    if os.path.exists(f"{loc_dir}/segments.json"):
+        with open(f"{loc_dir}/segments.json", encoding="utf-8") as fh:
+            trims = json.load(fh)
+    for name, fname in (("drag", "seg-drag.mp4"), ("reveal", "seg-reveal.mp4")):
+        path = f"{loc_dir}/{fname}"
+        if os.path.exists(path):
+            t = trims.get(name, {})
+            SEG_SRC[name] = (path, float(t.get("start", 0.0)))
+            if "dur" in t:
+                if name == "drag":
+                    DRAG_DUR = float(t["dur"])
+                else:
+                    REVEAL_DUR = float(t["dur"])
+        else:
+            print(f"WARNING: {path} missing; using the English gameplay segment {SEG_SRC[name][0]}")
+    return listing
 
 
 def text_layer(s, fnt, fill, tracking=0, shadow=True):
@@ -325,7 +463,9 @@ class Renderer:
         if u <= 0:
             return
         x = L.text_x if x is None else x
-        blit(fr, text_layer(s.upper(), font(SANS_B, 28 if not L.portrait else 30), color, tracking=5), x, y + (1 - u) * 12, alpha=u, anchor=anchor)
+        max_w = L.text_w if anchor[0] == "l" else L.W - 120
+        f = fit_font(SANS_B, 28 if not L.portrait else 30, s.upper(), max_w - 30, tracking=5)
+        blit(fr, text_layer(s.upper(), f, color, tracking=5), x, y + (1 - u) * 12, alpha=u, anchor=anchor)
 
     def question(self, fr, t, t_in, t_out):
         """'When did / this happen?' in the text column; fades out at t_out."""
@@ -333,8 +473,8 @@ class Renderer:
         a = ease_out((t - t_in) / 0.4) * (1 - ease_out((t - (t_out - 0.18)) / 0.18))
         if a <= 0:
             return
-        f = font(SERIF_B, L.q_size)
-        lines = ["When did", "this happen?"]
+        lines = STR["question"]
+        f = font(SERIF_B, min(fit_font(SERIF_B, L.q_size, ln, L.text_w - 30).size for ln in lines))
         y = L.question_y
         for i, ln in enumerate(lines):
             blit(fr, text_layer(ln, f, CREAM), L.text_x, y + i * (L.q_size * 1.12) + (1 - a) * 20, alpha=a)
@@ -346,12 +486,14 @@ class Renderer:
             return
         a = ease_out(u * 3)
         scale = 1 + 0.45 * (1 - ease_out(u))
-        f = font(SERIF_B, L.year_size)
+        f = fit_font(SERIF_B, L.year_size, fmt_year(q["year"]), L.text_w - 30)
         blit(fr, text_layer(fmt_year(q["year"]), f, ORANGE), L.text_x - 6, L.question_y - 10, alpha=a, scale=scale)
-        # subtitle
+        # subtitle (one or two lines, shrunk to the text column)
         s = ease_out((t - t_land - 0.25) / 0.35)
-        if s > 0:
-            blit(fr, text_layer(q["sub"], font(SANS, L.sub_size), MUTED), L.text_x, L.question_y + L.year_size * 1.25 + (1 - s) * 10, alpha=s)
+        if s > 0 and q.get("sub"):
+            sf, lines = fit_lines(q["sub"], SANS, L.sub_size, L.text_w - 30, max_lines=2, min_size=int(L.sub_size * 0.8))
+            for i, ln in enumerate(lines):
+                blit(fr, text_layer(ln, sf, MUTED), L.text_x, L.question_y + L.year_size * 1.25 + i * sf.size * 1.35 + (1 - s) * 10, alpha=s)
 
     def timeline(self, fr, q, t, sweep, appear_at=None):
         """Copper timeline with a sweeping needle and readout box; the needle lands on the answer."""
@@ -383,6 +525,8 @@ class Renderer:
                 d.line([(x, base - h), (x, base)], fill=(COPPER if major else (120, 90, 60)) + (255,), width=3 if major else 2)
                 if major:
                     lab = text_layer(fmt_year(yr) if yr < 1000 else str(yr), lf, MUTED, shadow=False)
+                    if lab.width > 170:  # long era words (Japanese prefix) on tick labels
+                        lab = lab.resize((170, max(1, round(lab.height * 170 / lab.width))), Image.LANCZOS)
                     layer.alpha_composite(lab, (int(x - lab.width / 2), base + 12))
             yr += q["tick"]
         # needle position
@@ -402,7 +546,8 @@ class Renderer:
         flash = landed and (t - a1) < 0.22
         fill = ORANGE + (255,) if landed else (250, 240, 225, 255)
         d.rounded_rectangle([bx, by, bx + bw, by + bh], radius=10, fill=fill, outline=ORANGE + (255,), width=3)
-        rf = font(SANS_B, 40 if not L.portrait else 44)
+        rf = fit_font(SANS_B, 40 if not L.portrait else 44, fmt_year(-888),
+                      bw - 16, min_size=22)
         txt = text_layer(fmt_year(year), rf, (CREAM if landed else ORANGE), shadow=False)
         sc = 1.18 if flash else 1.0
         blit(layer, txt, bx + bw / 2, by + bh / 2, scale=sc, anchor="cm")
@@ -457,16 +602,21 @@ class Renderer:
         L = self.L
         prev = self.A.backdrops[QUESTIONS[-1]["id"]]
         cur = self.A.plain
-        f = font(SERIF_B, 118 if not L.portrait else 84)
+        size = 118 if not L.portrait else 84
+        # each statement may wrap to two lines; both share the smaller fitted size
+        f = font(SERIF_B, min(fit_lines(s, SERIF_B, size, L.W - 160)[0].size for s in STR["statement"]))
+        wrapped = [locale_text.wrap(s, f, L.W - 160, LANG) or [s] for s in STR["statement"]]
 
         def fn(t):
             fr = self.frame_from(self.crossfade(prev, cur, t / 0.3))
-            lines = [("You know the moment.", 0.15, 1.65), ("Can you place the year?", 1.75, STATEMENT_DUR + 1)]
-            for s, ta, tb in lines:
+            lines = [(wrapped[0], 0.15, 1.65), (wrapped[1], 1.75, STATEMENT_DUR + 1)]
+            for rows, ta, tb in lines:
                 a = ease_out((t - ta) / 0.4) * (1 - ease_out((t - tb) / 0.25))
                 if a > 0:
                     col = CREAM if ta < 1 else ORANGE
-                    blit(fr, text_layer(s, f, col), L.W / 2, L.H / 2 - 20 + (1 - ease_out((t - ta) / 0.6)) * 30, alpha=a, anchor="cm")
+                    for k, s in enumerate(rows):
+                        yy = L.H / 2 - 20 + (k - (len(rows) - 1) / 2) * f.size * 1.15
+                        blit(fr, text_layer(s, f, col), L.W / 2, yy + (1 - ease_out((t - ta) / 0.6)) * 30, alpha=a, anchor="cm")
             return fr
 
         return STATEMENT_DUR, fn
@@ -475,6 +625,9 @@ class Renderer:
         L, A = self.L, self.A
         frames = A.drag_frames
         n = len(frames)
+        line_w = L.text_w - 30 if not L.portrait else L.W - 120
+        size = 92 if not L.portrait else 84
+        f = font(SERIF_B, min(fit_font(SERIF_B, size, s, line_w).size for s in STR["drag_lines"]))
 
         def fn(t):
             fr = self.frame_from(A.plain)
@@ -482,9 +635,8 @@ class Renderer:
             self.phone(fr, frames[k], t, in_at=0.0)
             tx = L.text_x if not L.portrait else L.W / 2
             anc = "lt" if not L.portrait else "ct"
-            self.kicker(fr, "No multiple choice", L.phone_text_y, 0.3, t, x=tx, anchor=anc)
-            f = font(SERIF_B, 92 if not L.portrait else 84)
-            for i, (s, ta) in enumerate([("Slide the timeline.", 0.45), ("Trust your gut.", 1.2)]):
+            self.kicker(fr, STR["drag_kicker"], L.phone_text_y, 0.3, t, x=tx, anchor=anc)
+            for i, (s, ta) in enumerate(zip(STR["drag_lines"], (0.45, 1.2))):
                 a = ease_out((t - ta) / 0.4)
                 if a > 0:
                     blit(fr, text_layer(s, f, CREAM), tx, L.phone_text_y + 60 + i * 112 + (1 - a) * 16, alpha=a, anchor=anc)
@@ -504,16 +656,17 @@ class Renderer:
             self.phone(fr, frames[k], t, in_at=-1)
             tx = L.text_x if not L.portrait else L.W / 2
             anc = "lt" if not L.portrait else "ct"
-            self.kicker(fr, "Perfect", L.phone_text_y, land, t, x=tx, anchor=anc)
+            self.kicker(fr, STR["reveal_kicker"], L.phone_text_y, land, t, x=tx, anchor=anc)
             u = (t - land) / 0.3
             if u > 0:
                 sc = 1 + 0.5 * (1 - ease_out(u))
                 big = font(SERIF_B, 200 if not L.portrait else 170)
-                blit(fr, text_layer("+1,000", big, ORANGE), tx if anc == "lt" else tx, L.phone_text_y + 50, alpha=ease_out(u * 3), scale=sc, anchor=anc)
+                blit(fr, text_layer(STR["points"], big, ORANGE), tx if anc == "lt" else tx, L.phone_text_y + 50, alpha=ease_out(u * 3), scale=sc, anchor=anc)
             a = ease_out((t - land - 0.5) / 0.4)
             if a > 0:
-                f = font(SERIF_B, 72 if not L.portrait else 64)
-                blit(fr, text_layer("Nail the exact year.", f, CREAM), tx, L.phone_text_y + (300 if not L.portrait else 260) + (1 - a) * 14, alpha=a, anchor=anc)
+                f = fit_font(SERIF_B, 72 if not L.portrait else 64, STR["reveal_line"],
+                             (L.text_w - 30) if not L.portrait else (L.W - 120))
+                blit(fr, text_layer(STR["reveal_line"], f, CREAM), tx, L.phone_text_y + (300 if not L.portrait else 260) + (1 - a) * 14, alpha=a, anchor=anc)
             o = ease_out((t - land - 0.2) / 0.45)
             if o > 0:
                 owl = A.owl
@@ -530,6 +683,13 @@ class Renderer:
         L, A = self.L, self.A
         wall = A.wall
         prev = A.plain
+        size = 96 if not L.portrait else 80
+        end_font = font(SERIF_B, min([fit_font(SERIF_B, size, s, L.W - 160).size for s in STR["end_lines"]] or [size]))
+        # brand card text column: portrait is centred, landscape sits right of the icon
+        col_w = L.W - 120 if L.portrait else L.W - (260 + 320) - 60
+        bf = fit_font(SERIF_B, 88 if L.portrait else 96, STR["brand"], col_w)
+        tf = fit_font(SANS, 40 if L.portrait else 42, STR["tagline"], col_w) if STR["tagline"] else None
+        cf = fit_font(SANS_B, 52 if L.portrait else 54, STR["cta"], col_w)
 
         def fn(t):
             ox = int(24 * t)
@@ -537,8 +697,8 @@ class Renderer:
             w = wall[oy:oy + L.H, ox:ox + L.W]
             w = (w.astype(np.float32) * A.vignette * A.band).astype(np.uint8)
             fr = self.frame_from(self.crossfade(prev, w, t / 0.4))
-            f = font(SERIF_B, 96 if not L.portrait else 80)
-            copy = [("200 moments. 8 categories.", 0.3, 2.5), ("A new Daily every day.", 1.1, 2.5)]
+            f = end_font
+            copy = list(zip(STR["end_lines"], (0.3, 1.1), (2.5, 2.5)))
             for i, (s, ta, tb) in enumerate(copy):
                 a = ease_out((t - ta) / 0.4) * (1 - ease_out((t - tb) / 0.3))
                 if a > 0:
@@ -547,16 +707,18 @@ class Renderer:
             if u > 0:
                 if L.portrait:
                     blit(fr, A.icon, L.W / 2, L.H / 2 - 260, alpha=u, anchor="cm")
-                    blit(fr, text_layer("History Date Guesser", font(SERIF_B, 88), CREAM), L.W / 2, L.H / 2 - 40, alpha=u, anchor="cm")
-                    blit(fr, text_layer("2,500 years of history. One timeline.", font(SANS, 40), MUTED), L.W / 2, L.H / 2 + 60, alpha=u, anchor="cm")
-                    blit(fr, text_layer("Free on Google Play", font(SANS_B, 52), ORANGE), L.W / 2, L.H / 2 + 160, alpha=u, anchor="cm")
+                    blit(fr, text_layer(STR["brand"], bf, CREAM), L.W / 2, L.H / 2 - 40, alpha=u, anchor="cm")
+                    if tf:
+                        blit(fr, text_layer(STR["tagline"], tf, MUTED), L.W / 2, L.H / 2 + 60, alpha=u, anchor="cm")
+                    blit(fr, text_layer(STR["cta"], cf, ORANGE), L.W / 2, L.H / 2 + (160 if tf else 90), alpha=u, anchor="cm")
                     blit(fr, A.owl, L.W - A.owl.width - 40, L.H - A.owl.height - 60 + (1 - u) * 60, alpha=u)
                 else:
                     x = 260
                     blit(fr, A.icon, x, L.H / 2, alpha=u, anchor="lm")
-                    blit(fr, text_layer("History Date Guesser", font(SERIF_B, 96), CREAM), x + 320, L.H / 2 - 120, alpha=u)
-                    blit(fr, text_layer("2,500 years of history. One timeline.", font(SANS, 42), MUTED), x + 320, L.H / 2 + 10, alpha=u)
-                    blit(fr, text_layer("Free on Google Play", font(SANS_B, 54), ORANGE), x + 320, L.H / 2 + 90, alpha=u)
+                    blit(fr, text_layer(STR["brand"], bf, CREAM), x + 320, L.H / 2 - 120, alpha=u)
+                    if tf:
+                        blit(fr, text_layer(STR["tagline"], tf, MUTED), x + 320, L.H / 2 + 10, alpha=u)
+                    blit(fr, text_layer(STR["cta"], cf, ORANGE), x + 320, L.H / 2 + (90 if tf else 20), alpha=u)
                     blit(fr, A.owl, L.W - A.owl.width - 70, L.H - A.owl.height - 20 + (1 - u) * 60, alpha=u)
             out = 1 - ease_out((t - (END_DUR - 0.7)) / 0.7)
             if out < 1:
@@ -565,7 +727,21 @@ class Renderer:
 
         return END_DUR, fn
 
+    def resolve_subs(self):
+        """Non-English rounds have no hand-written sub: derive one from the
+        translated reveal description that fits two lines of the text column."""
+        L = self.L
+
+        def fits(lines):
+            return lambda s: locale_text.wrap(s, font(SANS, L.sub_size), L.text_w - 30, LANG, lines) is not None
+
+        for q in QUESTIONS:
+            if q.get("sub") is None and q.get("desc"):
+                # prefer a one-line sub like the English ones; two lines only if no clause fits one
+                q["sub"] = short_line(q["desc"], LANG, fits(1)) or short_line(q["desc"], LANG, fits(2))
+
     def build(self):
+        self.resolve_subs()
         self.scenes = [self.quiz_scene(i) for i in range(4)]
         self.scenes += [self.statement_scene(), self.drag_scene(), self.reveal_scene(), self.end_scene()]
         self.total = sum(d for d, _ in self.scenes)
@@ -756,17 +932,25 @@ def synth_audio(total, out_wav, music=None, music_offset=0.0, music_gain=0.45):
 
 # ---------------------------------------------------------------- pipeline
 def prepare_phone_frames(L):
+    """Extract the drag/reveal segments to PNG frames in TMP (per locale with
+    --locale). A stamp file records source, trim, size and mtime so a changed
+    segment or aspect re-extracts instead of reusing stale frames."""
     os.makedirs(TMP, exist_ok=True)
     phone_w = round(1080 * L.phone_h / 2110)
-    for name, src, dur in [("drag", "seg-heartdrag.mp4", DRAG_DUR), ("reveal", "seg-heartreveal.mp4", REVEAL_DUR)]:
-        if glob.glob(f"{TMP}/{name}_*.png") and os.path.exists(f"{TMP}/{name}.{L.phone_h}"):
+    for name, dur in [("drag", DRAG_DUR), ("reveal", REVEAL_DUR)]:
+        src, start = SEG_SRC[name]
+        key = json.dumps([os.path.abspath(src), start, dur, L.phone_h,
+                          os.path.getmtime(src) if os.path.exists(src) else 0])
+        stamp = f"{TMP}/{name}.stamp"
+        if glob.glob(f"{TMP}/{name}_*.png") and os.path.exists(stamp) and open(stamp).read() == key:
             continue
         for f in glob.glob(f"{TMP}/{name}_*.png"):
             os.remove(f)
-        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", f"{SEGS}/{src}", "-t", str(dur),
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", f"{start:.3f}", "-i", src, "-t", str(dur),
                         "-vf", f"crop=1080:2110:0:95,scale={phone_w}:{L.phone_h},fps={FPS}",
                         f"{TMP}/{name}_%03d.png"], check=True)
-        open(f"{TMP}/{name}.{L.phone_h}", "w").close()
+        with open(stamp, "w") as fh:
+            fh.write(key)
 
 
 def music_file():
@@ -786,7 +970,12 @@ def main():
     ap.add_argument("--music-offset", type=float, default=0.0, help="seconds into the track to start")
     ap.add_argument("--music-gain", type=float, default=0.6)
     ap.add_argument("--audio-only", action="store_true", help="write the mixed WAV only (fast check)")
+    ap.add_argument("--locale", help="Play locale (en-US, pt-BR, es-419, ja-JP): copy from assets/store/listing/<locale>.json")
+    ap.add_argument("--listing", help="override the listing JSON path (testing)")
     args = ap.parse_args()
+    if args.locale:
+        apply_locale(args.locale, args.listing)
+        print(f"locale {args.locale} (app {LANG}); fonts {SERIF_B}/{SANS_B}/{SANS}; frame cache {TMP}")
 
     L = Layout(args.aspect)
     prepare_phone_frames(L)
@@ -812,14 +1001,19 @@ def main():
         print("preview:", out)
         return
 
+    os.makedirs(TMP, exist_ok=True)
     wav = f"{TMP}/audio-{args.aspect.replace(':', 'x')}.wav"
     music = args.music or music_file()
     synth_audio(total, wav, music, args.music_offset, args.music_gain)
     print("audio:", wav, "music:", music or "none")
     if args.audio_only:
         return
-    out = args.out or (f"{PROMO}/history-date-guesser-promo-v2.mp4" if not L.portrait
-                       else f"{PROMO}/history-date-guesser-promo-v2-portrait.mp4")
+    if args.locale and not args.out:
+        os.makedirs(f"{PROMO}/out/{args.locale}", exist_ok=True)
+        out = f"{PROMO}/out/{args.locale}/history-date-guesser-promo-{args.locale}{'-portrait' if L.portrait else ''}.mp4"
+    else:
+        out = args.out or (f"{PROMO}/history-date-guesser-promo-v2.mp4" if not L.portrait
+                           else f"{PROMO}/history-date-guesser-promo-v2-portrait.mp4")
     cmd = ["ffmpeg", "-v", "error", "-y",
            "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{L.W}x{L.H}", "-r", str(FPS), "-i", "-",
            "-i", wav, "-map", "0:v", "-map", "1:a",

@@ -1,0 +1,69 @@
+{
+  "play_locale": "pt-BR",
+  "app_locale": "pt-BR",
+  "title": "Quiz de História: Que Ano Foi?",
+  "short_description": "Deslize a linha do tempo e acerte o ano de 538 momentos da história.",
+  "full_description": "Adivinhe o ano. Domine a história.\n\nHistory Date Guesser é o quiz de história em que toda resposta é um ano. Veja um momento famoso do passado, deslize a linha do tempo até quando você acha que ele aconteceu e ganhe até 1.000 pontos se acertar o ano exato. Sem alternativas, sem chute de sorte: só você, a linha do tempo e a história do mundo de 1000 a.C. até hoje.\n\nCada uma das 538 perguntas tem sua própria cena em miniatura ilustrada, e cada resposta conta a história por trás da data. Você aprende algo novo a cada palpite.\n\nCOMO JOGAR\n• Leia o momento, observe a cena e arraste a linha do tempo até o seu ano\n• Ajuste ano a ano com os botões + e −\n• Quanto mais perto, mais pontos. Acerte o ano exato e leve 1.000\n• Depois de cada palpite, descubra a história real\n\nMODOS DE JOGO\n• Desafio do Dia – oito perguntas novas por dia, as mesmas para todo mundo. Mantenha sua sequência e compartilhe seu resultado\n• Sobrevivência – três vidas. Até onde você chega?\n• Campanha – viaje por cinco eras, de O Mundo Antigo até A Era Contemporânea. Escolha sua rota, ganhe três estrelas em cada fase e conquiste o troféu de cada era\n• Sem fim – vidas ilimitadas para buscar o recorde (Premium)\n• Desafios – mande as mesmas oito perguntas para um amigo e veja quem sabe mais história, ou crie um grupo e disputem o XP da semana\n\n538 PERGUNTAS EM 12 CATEGORIAS\n• Eventos históricos, Batalhas, Personalidades, Tecnologia\n• Exploração e descobertas, Tratados, Esporte, Dinheiro e comércio\n• Artes e cultura, Filosofia e Espaço (Premium)\n• Regional – escolha Europa, Ásia, África, América do Norte, América do Sul ou Oceania e jogue os momentos que marcaram cada região (Premium)\n\nMONTE SEU MUSEU\nChegue perto do ano certo e o artefato entra para a sua coleção. Complete cada ala do Museu: há uma peça para cada pergunta do jogo.\n\nCONQUISTAS, NÍVEIS E RANKING\n• Desbloqueie 28 conquistas, de Na Mosca a Senhor do Tempo\n• Ganhe XP e moedas, suba de nível e conquiste títulos de historiador\n• Dispute o ranking: Hoje, Semana e Geral\n• Mantenha sua sequência no Desafio do Dia, com protetores de sequência para os dias em que não der para jogar\n• Faça backup do seu progresso com o Google e continue em um celular novo\n\nCONHEÇA A MINERVA\nSua coruja companheira comemora seus anos perfeitos e te dá uma força depois de um erro.\n\nFEITO COM CARINHO\n• Temas claro e escuro\n• Efeitos sonoros e vibração, cada um com seu próprio botão\n• Lembrete opcional para você não perder o Desafio do Dia\n• Jogue em português, English, español ou 日本語\n• Não precisa de conta para começar a jogar\n\nPerfeito para estudantes, professores, fãs de quiz e trivia, e para quem já discutiu sobre quando alguma coisa aconteceu.\n\nPREMIUM\nHistory Date Guesser é gratuito. O Premium opcional oferece corações e moedas ilimitados, a Campanha completa (todas as eras depois de O Mundo Antigo), o modo Sem fim, as categorias Artes e cultura, Filosofia, Regional e Espaço, e as alas premium do seu Museu. Escolha mensal (com teste grátis quando disponível), anual ou acesso vitalício com pagamento único. As assinaturas são renovadas automaticamente até serem canceladas no Google Play.\n\nVocê sabe mesmo quando as coisas aconteceram? Baixe e descubra.",
+  "screenshots": {
+    "01-guess": {
+      "head": "Adivinhe o ano",
+      "sub": "Deslize a linha do tempo. Sem alternativas."
+    },
+    "02-reveal": {
+      "head": "Acerte o ano exato",
+      "sub": "Até 1.000 pontos por um palpite perfeito"
+    },
+    "03-campaign": {
+      "head": "Viaje pelo tempo",
+      "sub": "Cinco eras. Ganhe estrelas e troféus"
+    },
+    "04-modes": {
+      "head": "Jogue do seu jeito",
+      "sub": "Desafio do Dia, Sobrevivência, Campanha e mais"
+    },
+    "05-leaderboard": {
+      "head": "Suba no ranking",
+      "sub": "Hoje, esta semana e de todos os tempos"
+    },
+    "06-museum": {
+      "head": "Monte seu Museu",
+      "sub": "Chegue perto e fique com o artefato"
+    },
+    "07-achievements": {
+      "head": "28 conquistas",
+      "sub": "De Na Mosca a Senhor do Tempo"
+    },
+    "08-dark": {
+      "head": "Modo escuro",
+      "sub": "Temas claro e escuro, de dia ou de noite"
+    }
+  },
+  "video": {
+    "question": [
+      "Quando foi",
+      "que isso aconteceu?"
+    ],
+    "statement": [
+      "Você conhece o momento.",
+      "Mas sabe o ano?"
+    ],
+    "drag_kicker": "Sem alternativas",
+    "drag_lines": [
+      "Deslize a linha do tempo.",
+      "Confie no seu instinto."
+    ],
+    "reveal_kicker": "Perfeito",
+    "reveal_line": "Acerte o ano exato.",
+    "brand": "Quiz de História: Que Ano Foi?",
+    "cta": "Grátis no Google Play",
+    "end_lines": [
+      "538 momentos. 12 categorias.",
+      "Um Desafio do Dia novo todo dia."
+    ],
+    "tagline": "3.000 anos de história. Uma linha do tempo."
+  },
+  "youtube": {
+    "title": "Quiz de História: Que Ano Foi? – Adivinhe o ano na linha do tempo | History Date Guesser",
+    "description": "Quando isso aconteceu? Deslize a linha do tempo e acerte o ano exato.\n\nHistory Date Guesser é um quiz de história em que toda resposta é um ano: 538 momentos ilustrados, de 1000 a.C. até hoje, sem alternativas. Jogue o Desafio do Dia, o Sobrevivência, uma Campanha por cinco eras e muito mais, colecione artefatos para o seu Museu e suba no ranking.\n\nGrátis no Google Play:\nhttps://play.google.com/store/apps/details?id=com.harryhh.historydateguesser\n\nMúsica:\n\"Ancient Rite\" Kevin MacLeod (incompetech.com)\nLicensed under Creative Commons: By Attribution 4.0 License\nhttp://creativecommons.org/licenses/by/4.0/"
+  }
+}
