@@ -14,7 +14,7 @@ import {
 import { LOCAL_UID, progressionSaves } from '@/features/progression/persistence';
 import { useAuth } from '@/services/firebase/auth';
 
-import { DEMO_UID, demoCampaign, demoProgression } from './demoProfile';
+import { DEMO_UID } from '@/storage/createScopedStore';
 import type { Store } from '@/storage';
 
 // Dev warning toasts would land in the store screenshots the demo profile is for.
@@ -105,6 +105,8 @@ export function SaveProvider({ children }: { children: ReactNode }) {
       .then(async () => {
         if (uid !== DEMO_UID) return;
         // Reset on every launch, so each screenshot session starts identical.
+        // Loaded lazily: it builds the campaign map, which no real launch needs here.
+        const { demoCampaign, demoProgression } = await import('./demoProfile');
         const stores = storesFor(uid);
         await stores.progression.write(demoProgression());
         await stores.campaign.write(demoCampaign());
