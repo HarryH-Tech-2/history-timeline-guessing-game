@@ -352,7 +352,10 @@ export function rejoinStageOf(
  *  1. it already has a star (protects every existing player, even past a fork);
  *  2. it is the very first stage;
  *  3. route stage 1 once its fork stage has a star; later route stages once the
- *     previous route stage has one;
+ *     previous route stage has one — or any route stage once the player is
+ *     already past the fork (the rejoin stage has a star), so a player who
+ *     cleared the era before routes existed never sees locked stages above
+ *     cleared ones;
  *  4. the main stage right after a fork once the last stage of EITHER route has one;
  *  5. any other main stage once the previous main stage has one.
  * This also gates later eras behind earlier ones. Unknown ids are locked.
@@ -366,6 +369,8 @@ export function isStageUnlocked(
   if (found === undefined) return false;
   if (isCleared(progress, stageId)) return true;
   if (found.route !== undefined) {
+    const rejoin = rejoinStageOf(found.route, worlds);
+    if (rejoin !== undefined && isCleared(progress, rejoin.id)) return true;
     const i = found.stage.index - 1;
     const previousId = i === 0 ? found.route.afterStageId : found.route.stages[i - 1]!.id;
     return isCleared(progress, previousId);

@@ -216,6 +216,17 @@ describe('route unlocking', () => {
     expect(isStageUnlocked('ancient-s5', starred(['ancient-s5']), W)).toBe(true);
   });
 
+  it('opens every route stage for a player already past the fork', () => {
+    // Played the era before routes existed: the rejoin stage has a star, so
+    // no route stage may sit locked above stages they have already cleared.
+    const legacy = starred(ancientMain);
+    for (const route of W[0]!.routes) {
+      for (const stage of route.stages) expect(isStageUnlocked(stage.id, legacy, W)).toBe(true);
+    }
+    // A player who reached the fork but not past it still walks a route in order.
+    expect(isStageUnlocked('ancient-north-s2', starred(['ancient-s1', 'ancient-s2']), W)).toBe(false);
+  });
+
   it('keeps the real campaign fully unlocked for a player with stars everywhere', () => {
     const all = starred(allStagesIncludingRoutes().map((s) => s.id));
     for (const s of allStagesIncludingRoutes()) expect(isStageUnlocked(s.id, all)).toBe(true);
