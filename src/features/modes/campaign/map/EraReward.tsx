@@ -25,15 +25,61 @@ import type { RewardSpot } from './trailLayout';
 const GOLD = '#F5C542';
 const PARCHMENT = '#F3E9D2';
 const PLAQUE = 'rgba(29,23,18,0.8)';
-const RAYS = 12;
+const CREAM = '#FFF3C4';
+const RAYS = 16;
+const SPARKLES = 8;
 
 /** Where the trophy stands: still to win, won, or won with every stage at three stars. */
 export type RewardState = 'locked' | 'won' | 'mastered';
 
 /**
- * A burst of light behind a won trophy: alternating gold and era-coloured
- * rays. Spins in when the trophy is first won; the campaign's final trophy
- * keeps turning slowly once it's claimed.
+ * One ray of the sunburst: a wedge with its point at the centre of a
+ * `span`-square box, widening outwards (a zero-size View drawn with borders).
+ */
+function Ray({ span, length, base, angle, colour, opacity }: {
+  span: number;
+  length: number;
+  base: number;
+  angle: number;
+  colour: string;
+  opacity: number;
+}) {
+  return (
+    <View
+      style={{
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        width: span,
+        height: span,
+        transform: [{ rotate: `${angle}deg` }],
+      }}
+    >
+      <View
+        style={{
+          position: 'absolute',
+          left: span / 2 - base / 2,
+          top: span / 2 - length,
+          width: 0,
+          height: 0,
+          borderLeftWidth: base / 2,
+          borderRightWidth: base / 2,
+          borderTopWidth: length,
+          borderLeftColor: 'transparent',
+          borderRightColor: 'transparent',
+          borderTopColor: colour,
+          opacity,
+        }}
+      />
+    </View>
+  );
+}
+
+/**
+ * A burst of light behind a won trophy: a soft gold halo, sharp sunburst rays
+ * (long gold, short cream) and a ring of diamond sparkles turning the other
+ * way. When the trophy is first won the rays flare out while they spin in; the
+ * campaign's final trophy keeps turning slowly once it's claimed.
  */
 export function Rays({
   size,
@@ -48,54 +94,110 @@ export function Rays({
 }) {
   const reducedMotion = useReducedMotion();
   const turn = useSharedValue(0);
+  const flare = useSharedValue(1);
 
   useEffect(() => {
     if (reducedMotion) return;
     if (forever) {
-      turn.value = withRepeat(withTiming(360, { duration: 24_000, easing: Easing.linear }), -1, false);
+      turn.value = withRepeat(withTiming(360, { duration: 30_000, easing: Easing.linear }), -1, false);
     } else if (spinToken !== undefined) {
       turn.value = 0;
+      flare.value = 0.4;
       turn.value = withDelay(
         SEQUENCE_DELAY_MS,
-        withTiming(90, { duration: 1800, easing: Easing.out(Easing.cubic) }),
+        withTiming(67.5, { duration: 1800, easing: Easing.out(Easing.cubic) }),
+      );
+      flare.value = withDelay(
+        SEQUENCE_DELAY_MS,
+        withSequence(withTiming(1.15, { duration: 420, easing: Easing.out(Easing.quad) }), withSpring(1, { damping: 9 })),
       );
     }
-    return () => cancelAnimation(turn);
-  }, [forever, spinToken, reducedMotion, turn]);
+    return () => {
+      cancelAnimation(turn);
+      cancelAnimation(flare);
+    };
+  }, [forever, spinToken, reducedMotion, turn, flare]);
 
-  const style = useAnimatedStyle(() => ({ transform: [{ rotate: `${turn.value}deg` }] }));
-  const span = size * 2;
+  const raysStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${turn.value}deg` }, { scale: flare.value }],
+  }));
+  const sparkleStyle = useAnimatedStyle(() => ({ transform: [{ rotate: `${-turn.value * 1.5}deg` }] }));
+
+  const span = size * 2.3;
+  const box = {
+    position: 'absolute' as const,
+    left: -(span - size) / 2,
+    top: -(span - size) / 2,
+    width: span,
+    height: span,
+  };
+  const ring = size * 0.86; // sparkle orbit radius
+  const dot = Math.max(6, Math.round(size * 0.09));
+
   return (
-    <Animated.View
-      pointerEvents="none"
-      style={[
-        style,
-        {
-          position: 'absolute',
-          left: -(span - size) / 2,
-          top: -(span - size) / 2,
-          width: span,
-          height: span,
-          alignItems: 'center',
-          justifyContent: 'center',
-        },
-      ]}
-    >
-      {Array.from({ length: RAYS }, (_, i) => (
+    <View pointerEvents="none" style={box}>
+      {/* Halo: stacked discs fake a radial glow. */}
+      {[
+        [1.05, 0.14],
+        [0.82, 0.2],
+        [0.64, 0.28],
+      ].map(([r, a]) => (
         <View
-          key={i}
+          key={r}
           style={{
             position: 'absolute',
-            width: size * 0.16,
-            height: span,
-            borderRadius: size * 0.08,
-            backgroundColor: i % 2 === 0 ? GOLD : tint(colour, 0.2),
-            opacity: 0.42,
-            transform: [{ rotate: `${(i * 180) / RAYS}deg` }],
+            left: span / 2 - size * r!,
+            top: span / 2 - size * r!,
+            width: size * r! * 2,
+            height: size * r! * 2,
+            borderRadius: size * r!,
+            backgroundColor: GOLD,
+            opacity: a,
           }}
         />
       ))}
-    </Animated.View>
+      <Animated.View style={[raysStyle, { position: 'absolute', left: 0, top: 0, width: span, height: span }]}>
+        {Array.from({ length: RAYS }, (_, i) => {
+          const long = i % 2 === 0;
+          return (
+            <Ray
+              key={i}
+              span={span}
+              length={size * (long ? 1.12 : 0.86)}
+              base={size * (long ? 0.3 : 0.18)}
+              angle={(i * 360) / RAYS}
+              colour={long ? GOLD : CREAM}
+              opacity={long ? 0.6 : 0.5}
+            />
+          );
+        })}
+      </Animated.View>
+      <Animated.View style={[sparkleStyle, { position: 'absolute', left: 0, top: 0, width: span, height: span }]}>
+        {Array.from({ length: SPARKLES }, (_, i) => {
+          const a = ((i + 0.5) * 2 * Math.PI) / SPARKLES;
+          const s = i % 2 === 0 ? dot : dot * 0.6;
+          return (
+            <View
+              key={i}
+              style={{
+                position: 'absolute',
+                left: span / 2 + Math.cos(a) * ring - s / 2,
+                top: span / 2 + Math.sin(a) * ring - s / 2,
+                width: s,
+                height: s,
+                backgroundColor: i % 2 === 0 ? '#FFFFFF' : tint(colour, 0.5),
+                borderRadius: s * 0.15,
+                transform: [{ rotate: '45deg' }],
+                shadowColor: GOLD,
+                shadowOpacity: 0.9,
+                shadowRadius: 4,
+                elevation: 2,
+              }}
+            />
+          );
+        })}
+      </Animated.View>
+    </View>
   );
 }
 
