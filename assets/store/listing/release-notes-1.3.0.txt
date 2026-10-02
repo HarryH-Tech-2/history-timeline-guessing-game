@@ -1,0 +1,36 @@
+<en-US>
+What's new in 1.3.0
+• Challenge friends: send them the same 8 questions and go head to head, or start a private group with its own weekly leaderboard
+• A brand-new Campaign map: choose your route through each era and win a trophy for every era you conquer
+• 200+ new questions, 538 in total
+• A more precise timeline: land on the exact year with finer dragging and hold-to-repeat +/−
+• Now in Português, Español and 日本語
+• Avatars on the leaderboard
+</en-US>
+<pt-BR>
+Novidades da versão 1.3.0
+• Desafie seus amigos: mande as mesmas 8 perguntas e dispute cara a cara, ou crie um grupo privado com ranking semanal
+• Novo mapa da Campanha: escolha sua rota em cada era e ganhe um troféu por cada era conquistada
+• Mais de 200 perguntas novas, 538 no total
+• Linha do tempo mais precisa: acerte o ano exato com o arraste fino e os botões +/−
+• Agora em português, español e 日本語
+• Avatares no ranking
+</pt-BR>
+<es-419>
+Novedades de la versión 1.3.0
+• Reta a tus amigos: mándales las mismas 8 preguntas y compitan cara a cara, o arma un grupo privado con su propia tabla semanal
+• Nuevo mapa de la Campaña: elige tu ruta en cada era y gana un trofeo por cada era conquistada
+• Más de 200 preguntas nuevas, 538 en total
+• Línea de tiempo más precisa: da con el año exacto con el arrastre fino y los botones +/−
+• Ahora en español, português y 日本語
+• Avatares en la clasificación
+</es-419>
+<ja-JP>
+バージョン1.3.0の新機能
+• フレンドに挑戦：同じ8問を送って1対1で勝負。グループを作って週間ランキングで競うこともできます
+• キャンペーンマップを一新：時代ごとにルートを選び、制覇した時代のトロフィーを獲得
+• 新問題を200問以上追加、全538問に
+• 年表がより正確に：細かいドラッグと長押しの＋/−で、ぴったりの年に合わせやすく
+• 日本語、Português、Españolに対応
+• ランキングにアバターを表示
+</ja-JP>
