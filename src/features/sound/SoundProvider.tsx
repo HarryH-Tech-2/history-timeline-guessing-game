@@ -11,6 +11,7 @@ import {
 import { createAudioPlayer, setAudioModeAsync, type AudioPlayer } from 'expo-audio';
 import { z } from 'zod';
 
+import { readFirstRunOffSetting } from '@/features/onboarding/firstRunSetting';
 import { createStore } from '@/storage';
 
 /** The two answer stings. Keys double as the `play()` argument. */
@@ -21,14 +22,15 @@ const SOURCES: Record<SoundEffect, number> = {
   wrong: require('../../../assets/answer-wrong.mp3'),
 };
 
-const soundStore = createStore<boolean>({
+/** `null` until the player (or the first-run default) has decided. */
+const soundStore = createStore<boolean | null>({
   key: 'chronos.sound',
-  schema: z.boolean(),
-  fallback: true,
+  schema: z.boolean().nullable(),
+  fallback: null,
 });
 
 export interface SoundContextValue {
-  /** Whether answer sound effects are switched on (default on). */
+  /** Whether answer sound effects are switched on (off on a new install). */
   enabled: boolean;
   setEnabled: (enabled: boolean) => void;
   toggle: () => void;
@@ -53,13 +55,13 @@ export const SoundContext = createContext<SoundContextValue>(DEFAULT_CONTEXT);
  * pausing it — these are half-second stings, not a soundtrack.
  */
 export function SoundProvider({ children }: { children: ReactNode }) {
-  const [enabled, setEnabledState] = useState(true);
+  const [enabled, setEnabledState] = useState(false);
   const players = useRef<Record<SoundEffect, AudioPlayer> | null>(null);
 
-  // Rehydrate the persisted choice after first paint (defaults to on).
+  // Rehydrate the persisted choice after first paint (off on a new install).
   useEffect(() => {
     let active = true;
-    void soundStore.read().then((saved) => {
+    void readFirstRunOffSetting(soundStore).then((saved) => {
       if (active) setEnabledState(saved);
     });
     return () => {

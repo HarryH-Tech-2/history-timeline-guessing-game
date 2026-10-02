@@ -14,7 +14,7 @@ export const home = {
   modes: {
     survival: { title: 'Supervivencia', description: 'Tres vidas. ¿Hasta dónde llegas?' },
     campaign: { title: 'Campaña', description: 'Recorre mundos y gana estrellas.' },
-    endless: { title: 'Sin fin', description: 'Vidas ilimitadas. Ve por el récord.' },
+    endless: { title: 'Infinito', description: 'Vidas ilimitadas. Ve por el récord.' },
     lockedA11y: '{title}, modo Premium',
   },
   categories: {

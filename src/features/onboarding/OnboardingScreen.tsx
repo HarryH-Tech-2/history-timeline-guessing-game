@@ -4,18 +4,15 @@ import { useRouter } from 'expo-router';
 import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 
 import { Screen } from '@/components/ui';
-import { usePremium } from '@/features/premium/PremiumProvider';
-import { paywallHref } from '@/features/premium/paywallSource';
 import { t } from '@/i18n';
 import { track } from '@/services/analytics';
 
-import { completeOnboarding, onboardingStore } from './onboardingStore';
+import { completeOnboarding } from './onboardingStore';
 import { FirstGuessStep } from './steps/FirstGuessStep';
 import { SetupStep, type SetupOutcome } from './steps/SetupStep';
 import { WelcomeStep } from './steps/WelcomeStep';
-import { WhyStep } from './steps/WhyStep';
 
-const STEP_COUNT = 4;
+const STEP_COUNT = 3;
 
 function Dots({ step }: { step: number }) {
   return (
@@ -39,12 +36,12 @@ function Dots({ step }: { step: number }) {
 
 /**
  * First-run flow, shown once per device to a brand-new player: welcome, a
- * real first guess, what the game is for, then name and reminders before
- * jumping straight into the Daily. Every step can be skipped.
+ * real first guess, then name and reminders before jumping straight into the
+ * Daily. Every step can be skipped. No paywall at the end: a player who has
+ * just arrived meets Premium later, once they have played.
  */
 export function OnboardingScreen() {
   const router = useRouter();
-  const { isPremium } = usePremium();
   const [step, setStep] = useState(0);
 
   useEffect(() => {
@@ -52,22 +49,17 @@ export function OnboardingScreen() {
   }, [step]);
 
   const leave = useCallback(
-    async (destination: 'daily' | 'home', offerPremium: boolean) => {
-      // Guard on the device flag so the soft paywall can only ever show once.
-      const firstFinish = (await onboardingStore.read()).completedAt === null;
+    async (destination: 'daily' | 'home') => {
       await completeOnboarding();
       router.replace('/(tabs)');
       if (destination === 'daily') router.push('/daily');
-      // A finished (not skipped) flow ends on a soft Premium pitch, over
-      // wherever they chose to go; closing it lands them there.
-      if (offerPremium && firstFinish && !isPremium) router.push(paywallHref('onboarding'));
     },
-    [router, isPremium],
+    [router],
   );
 
   const skip = useCallback(() => {
     track('onboarding_skipped', { step: step + 1 });
-    void leave('home', false);
+    void leave('home');
   }, [leave, step]);
 
   const finish = useCallback(
@@ -77,7 +69,7 @@ export function OnboardingScreen() {
         named: outcome.named,
         reminders: outcome.reminders,
       });
-      void leave(outcome.choice === 'daily' ? 'daily' : 'home', true);
+      void leave(outcome.choice === 'daily' ? 'daily' : 'home');
     },
     [leave],
   );
@@ -114,8 +106,7 @@ export function OnboardingScreen() {
         >
           {step === 0 && <WelcomeStep onNext={next} />}
           {step === 1 && <FirstGuessStep onNext={next} />}
-          {step === 2 && <WhyStep onNext={next} />}
-          {step === 3 && <SetupStep onFinish={finish} />}
+          {step === 2 && <SetupStep onFinish={finish} />}
         </Animated.View>
       </View>
     </Screen>

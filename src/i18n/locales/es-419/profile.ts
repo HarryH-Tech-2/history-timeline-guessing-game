@@ -102,7 +102,6 @@ export const profile = {
     backupLabel: 'Respaldar tu progreso con {providers}',
     backupBody: 'Opcional. Tu XP, monedas, museo y campaña te acompañan a un teléfono nuevo.',
     backupUnavailable: 'Las cuentas necesitan conexión y no están disponibles en esta versión.',
-    version: 'Versión',
     language: 'Idioma',
     languageLabel: 'Cambiar el idioma de la app',
     languageSheetTitle: 'Idioma',

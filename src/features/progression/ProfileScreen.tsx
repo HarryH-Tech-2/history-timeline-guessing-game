@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Image, Pressable, ScrollView, Text, View } from 'react-native';
-import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 
 import { Button, Screen } from '@/components/ui';
@@ -310,7 +309,7 @@ function MasteryGrid({ collection }: { collection: Readonly<Record<string, numbe
 
 /**
  * The player's profile: identity, level progress, lifetime stats, the
- * achievements gallery, and app settings (theme, version, account status).
+ * achievements gallery, and app settings (theme, account status).
  */
 export function ProfileScreen() {
   const router = useRouter();
@@ -347,7 +346,6 @@ export function ProfileScreen() {
       ? t('profile.status.synced')
       : t('profile.status.device');
   const languageName = LANGUAGES.find((l) => l.code === language)?.name ?? language;
-  const version = Constants.expoConfig?.version ?? '1.0.0';
 
   return (
     <Screen edges={['top']}>
@@ -654,10 +652,6 @@ export function ProfileScreen() {
             <Text className="text-xl text-ink-muted">›</Text>
           </Pressable>
         )}
-        <View className="flex-row items-center justify-between border border-hair bg-bg-raised p-4">
-          <SettingLabel icon="ℹ️" title={t('profile.settings.version')} />
-          <Text className="text-base text-ink-secondary">{version}</Text>
-        </View>
       </ScrollView>
     </Screen>
   );

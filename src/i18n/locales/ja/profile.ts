@@ -99,7 +99,6 @@ export const profile = {
     backupLabel: '{providers}で進行状況をバックアップ',
     backupBody: '任意です。XP、コイン、博物館、キャンペーンを新しいスマホに引き継げます。',
     backupUnavailable: 'アカウントにはネット接続が必要で、このバージョンでは利用できません。',
-    version: 'バージョン',
     language: '言語',
     languageLabel: 'アプリの言語を変更',
     languageSheetTitle: '言語',

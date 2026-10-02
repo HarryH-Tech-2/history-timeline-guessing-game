@@ -3,6 +3,9 @@ import { act, renderHook, waitFor } from '@testing-library/react-native';
 import * as Haptics from 'expo-haptics';
 import type { ReactNode } from 'react';
 
+import { PROGRESSION_SAVE_KEY } from '@/features/progression/persistence';
+import { scopedKey } from '@/storage';
+
 import { haptic, setHapticsEnabled } from './haptics';
 import { HapticsProvider, useHaptics } from './HapticsProvider';
 
@@ -16,6 +19,11 @@ jest.mock('expo-haptics', () => ({
 
 function wrapper({ children }: { children: ReactNode }) {
   return <HapticsProvider>{children}</HapticsProvider>;
+}
+
+/** A game save from before this build: the device of an existing player. */
+async function seedExistingSave() {
+  await AsyncStorage.setItem(scopedKey(PROGRESSION_SAVE_KEY, 'uid-1'), '{}');
 }
 
 describe('haptics gate', () => {
@@ -51,14 +59,34 @@ describe('HapticsProvider', () => {
     setHapticsEnabled(true);
   });
 
-  it('is on by default', async () => {
+  it('is off on a new install', async () => {
+    const { result } = renderHook(() => useHaptics(), { wrapper });
+    await waitFor(() => expect(result.current.enabled).toBe(false));
+    haptic.selection();
+    expect(Haptics.selectionAsync).not.toHaveBeenCalled();
+  });
+
+  it('stays on for a player who already has a save on the device', async () => {
+    await seedExistingSave();
     const { result } = renderHook(() => useHaptics(), { wrapper });
     await waitFor(() => expect(result.current.enabled).toBe(true));
     haptic.selection();
     expect(Haptics.selectionAsync).toHaveBeenCalledTimes(1);
   });
 
+  it('keeps a new install off once a save appears later', async () => {
+    const first = renderHook(() => useHaptics(), { wrapper });
+    await waitFor(() => expect(first.result.current.enabled).toBe(false));
+    first.unmount();
+    await seedExistingSave();
+    const second = renderHook(() => useHaptics(), { wrapper });
+    // Give the read a chance to (wrongly) flip it on.
+    await act(async () => {});
+    expect(second.result.current.enabled).toBe(false);
+  });
+
   it('switches the gate off, persists the choice and rehydrates it', async () => {
+    await seedExistingSave();
     const { result, unmount } = renderHook(() => useHaptics(), { wrapper });
     await waitFor(() => expect(result.current.enabled).toBe(true));
 

@@ -1,4 +1,4 @@
-/** The first-run flow: welcome, first guess, why play, name and reminders. */
+/** The first-run flow: welcome, first guess, name and reminders. */
 export const onboarding = {
   skip: 'Skip',
   stepOf: 'Step {step} of {total}',
@@ -15,17 +15,6 @@ export const onboarding = {
     eyebrow: 'Your first guess',
     title: 'When did this happen?',
     notice: 'Within 20 years counts as a hit, and adds the event to your museum.',
-  },
-  why: {
-    eyebrow: 'What you’re playing for',
-    title: 'Three ways to win',
-    museumTitle: 'Build your museum',
-    museumText: 'Guess close and the event becomes an artefact in your collection.',
-    dailyTitle: 'Play the Daily',
-    dailyText: 'Eight questions, the same for everyone, once a day. Keep the streak alive.',
-    boardsTitle: 'Climb the boards',
-    boardsText: 'Today, this week, or all time. There is always a rank within reach.',
-    next: 'Nearly there',
   },
   setup: {
     eyebrow: 'Last thing',

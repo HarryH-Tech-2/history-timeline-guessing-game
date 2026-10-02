@@ -1,4 +1,4 @@
-import { memo, useEffect } from 'react';
+import { memo, useEffect, useMemo } from 'react';
 import { View } from 'react-native';
 import Animated, {
   cancelAnimation,
@@ -16,21 +16,56 @@ import { DOT_STAGGER_MS, SEQUENCE_DELAY_MS, TRAIL_DOT_SPACING, TRAIL_DOTS } from
 import type { RoadDot } from './trailCurve';
 
 /**
- * The road is drawn as a run of capsules along its heading, each longer than
- * the dot spacing so neighbours overlap into one solid line. The rim is a
- * separate pass underneath, so the joins between capsules never show.
+ * The road is a fine polyline of round-ended capsules, one per dot, each
+ * running from the midpoint before its dot to the midpoint after it: the
+ * round ends make every join a round one, so the bends read as smooth curves.
+ * The rim is a separate pass underneath, so the joins never show.
  */
-const DASH_LEN = TRAIL_DOT_SPACING + 12;
 const FAINT_THICK = 7;
 const FAINT_RIM = 1.5;
 const LIT_THICK = 10;
 const LIT_RIM = 2;
-/** Each capsule's box, centred on its point on the road: roomy enough for any rotation. */
-const BOX = DASH_LEN + 2 * LIT_RIM + 4;
+/** Neighbouring dots further apart than this straddle a gap (a route banner): no bridge. */
+const BREAK = TRAIL_DOT_SPACING * 1.8;
 /** How long the beckoning spark takes to run the length of its connector. */
 const BECKON_MS = 1400;
 
 const SPARK = 14;
+
+/** One capsule of the road: its centre, length along the road, and heading (degrees). */
+export interface Piece {
+  x: number;
+  y: number;
+  length: number;
+  angle: number;
+}
+
+/**
+ * The capsules for a run of dots. Inner ends meet at the midpoints between
+ * neighbours; the outer ends (and either side of a gap) reach half a spacing
+ * past the dot along its own heading, where the next dot would have been.
+ */
+export function roadPieces(dots: readonly RoadDot[]): Piece[] {
+  const reach = (d: RoadDot, sign: number) => {
+    const a = (d.angle * Math.PI) / 180;
+    const half = (sign * TRAIL_DOT_SPACING) / 2;
+    return { x: d.x + half * Math.cos(a), y: d.y + half * Math.sin(a) };
+  };
+  const joint = (neighbour: RoadDot | undefined, d: RoadDot, sign: number) =>
+    neighbour !== undefined && Math.hypot(neighbour.x - d.x, neighbour.y - d.y) <= BREAK
+      ? { x: (neighbour.x + d.x) / 2, y: (neighbour.y + d.y) / 2 }
+      : reach(d, sign);
+  return dots.map((d, i) => {
+    const from = joint(dots[i - 1], d, -1);
+    const to = joint(dots[i + 1], d, 1);
+    return {
+      x: (from.x + to.x) / 2,
+      y: (from.y + to.y) / 2,
+      length: Math.hypot(to.x - from.x, to.y - from.y),
+      angle: (Math.atan2(to.y - from.y, to.x - from.x) * 180) / Math.PI,
+    };
+  });
+}
 
 /**
  * A glowing spark running along the road into the next stage to play, over
@@ -93,34 +128,56 @@ function Spark({ dots, colour }: { dots: readonly RoadDot[]; colour: string }) {
   );
 }
 
-/** One capsule of the road, `rim` wider all round when drawn as the outline pass. */
-function capsule(thick: number, rim: number, colour: string) {
+type Layer = 'outline' | 'fill';
+
+/** Opaque, so overlapping capsules read as one even band. */
+const FAINT_FILL = '#FFF8EA';
+const FAINT_OUTLINE = '#8F7D63';
+const LIT_OUTLINE = '#FFFFFF';
+
+/**
+ * A capsule `thick` across plus `rim` all round, a round cap longer at each
+ * end than the piece so neighbours join round.
+ */
+function capsule(length: number, thick: number, rim: number, colour: string) {
   const h = thick + 2 * rim;
+  return { width: length + h, height: h, borderRadius: h / 2, backgroundColor: colour };
+}
+
+function faint(layer: Layer, length: number) {
+  return layer === 'outline'
+    ? capsule(length, FAINT_THICK, FAINT_RIM, FAINT_OUTLINE)
+    : capsule(length, FAINT_THICK, 0, FAINT_FILL);
+}
+
+function lit(layer: Layer, length: number, colour: string) {
+  return layer === 'outline'
+    ? capsule(length, LIT_THICK, LIT_RIM, LIT_OUTLINE)
+    : capsule(length, LIT_THICK, 0, colour);
+}
+
+/** A box of `width` × `height` centred on the piece, turned to its heading. */
+function placed(piece: Piece, width: number, height: number) {
   return {
     position: 'absolute',
-    width: DASH_LEN + 2 * rim,
-    height: h,
-    borderRadius: h / 2,
-    backgroundColor: colour,
+    left: piece.x - width / 2,
+    top: piece.y - height / 2,
+    width,
+    height,
+    transform: [{ rotate: `${piece.angle}deg` }],
   } as const;
 }
 
-/** Opaque, so overlapping capsules read as one even band. */
-const FAINT_FILL = capsule(FAINT_THICK, 0, '#FFF8EA');
-const FAINT_OUTLINE = capsule(FAINT_THICK, FAINT_RIM, '#8F7D63');
-const LIT_OUTLINE = capsule(LIT_THICK, LIT_RIM, '#FFFFFF');
-const litFill = (colour: string) => capsule(LIT_THICK, 0, colour);
-
-type Layer = 'outline' | 'fill';
-
 /** A lit capsule fading in over the faint one, `delay` ms into the unlock sequence. */
-function LightingDash({
+function LightingPiece({
   layer,
+  piece,
   colour,
   delay,
   token,
 }: {
   layer: Layer;
+  piece: Piece;
   colour: string;
   delay: number;
   token: number;
@@ -136,71 +193,61 @@ function LightingDash({
   }, [delay, token, reducedMotion, glow]);
 
   const style = useAnimatedStyle(() => ({ opacity: glow.value }));
-  return layer === 'outline' ? (
-    <>
-      <View style={FAINT_OUTLINE} />
-      <Animated.View style={[style, LIT_OUTLINE]} />
-    </>
-  ) : (
-    <>
-      <View style={FAINT_FILL} />
-      <Animated.View testID="trail-dot-lit" style={[style, litFill(colour)]} />
-    </>
-  );
-}
-
-/**
- * One capsule of the road, turned to follow the curve, in one layer: the rim
- * (outline pass) or the body (fill pass). Faint parchment until lit, then the
- * era colour with a white rim. Plain views unless it is lighting up
- * (`lightDelay`, part of the unlock sequence) — a map has hundreds of these,
- * so the resting ones carry no hooks at all.
- */
-function TrailDot({
-  layer,
-  dot,
-  colour,
-  lit,
-  lightDelay,
-  token,
-}: {
-  layer: Layer;
-  dot: RoadDot;
-  colour: string;
-  lit: boolean;
-  lightDelay: number | null;
-  token: number;
-}) {
+  const under = faint(layer, piece.length);
+  const over = lit(layer, piece.length, colour);
+  // The lit capsule is the larger one: the box fits it, and both centre in it.
   return (
     <View
       pointerEvents="none"
-      style={{
-        position: 'absolute',
-        left: dot.x - BOX / 2,
-        top: dot.y - BOX / 2,
-        width: BOX,
-        height: BOX,
-        alignItems: 'center',
-        justifyContent: 'center',
-        transform: [{ rotate: `${dot.angle}deg` }],
-      }}
+      style={[placed(piece, over.width, over.height), { alignItems: 'center', justifyContent: 'center' }]}
     >
-      {!lit ? (
-        <View style={layer === 'outline' ? FAINT_OUTLINE : FAINT_FILL} />
-      ) : lightDelay !== null ? (
-        <LightingDash layer={layer} colour={colour} delay={lightDelay} token={token} />
-      ) : layer === 'outline' ? (
-        <View style={LIT_OUTLINE} />
-      ) : (
-        <View testID="trail-dot-lit" style={litFill(colour)} />
-      )}
+      <View style={under} />
+      <Animated.View
+        testID={layer === 'fill' ? 'trail-dot-lit' : undefined}
+        style={[style, over, { position: 'absolute', left: 0, top: 0 }]}
+      />
     </View>
   );
 }
 
 /**
- * Solid road between two points on the map, its capsules precomputed along an
- * S-curve by the trail layout. Lit in the era colour once the stage it leaves
+ * One capsule of the road in one layer: the rim (outline pass) or the body
+ * (fill pass). Faint parchment until lit, then the era colour with a white
+ * rim. A single plain view unless it is lighting up (`lightDelay`, part of
+ * the unlock sequence) — a map has hundreds of these, so the resting ones
+ * carry no hooks at all.
+ */
+function TrailPiece({
+  layer,
+  piece,
+  colour,
+  isLit,
+  lightDelay,
+  token,
+}: {
+  layer: Layer;
+  piece: Piece;
+  colour: string;
+  isLit: boolean;
+  lightDelay: number | null;
+  token: number;
+}) {
+  if (isLit && lightDelay !== null) {
+    return <LightingPiece layer={layer} piece={piece} colour={colour} delay={lightDelay} token={token} />;
+  }
+  const look = isLit ? lit(layer, piece.length, colour) : faint(layer, piece.length);
+  return (
+    <View
+      pointerEvents="none"
+      testID={isLit && layer === 'fill' ? 'trail-dot-lit' : undefined}
+      style={[placed(piece, look.width, look.height), look]}
+    />
+  );
+}
+
+/**
+ * Solid road between two points on the map, along the dots the trail layout
+ * precomputed on an S-curve. Lit in the era colour once the stage it leaves
  * from is cleared — the road behind the player glows, the road ahead stays
  * faint. The light-up runs over the same time whatever the segment's length.
  * A spark runs along the road into the next stage to play (`beckon`).
@@ -208,7 +255,7 @@ function TrailDot({
 export const TrailDots = memo(function TrailDots({
   dots,
   colour,
-  lit,
+  lit: isLit,
   lighting,
   token,
   beckon = false,
@@ -216,24 +263,25 @@ export const TrailDots = memo(function TrailDots({
   dots: readonly RoadDot[];
   colour: string;
   lit: boolean;
-  /** This segment was lit since the last visit: light it dot by dot. */
+  /** This segment was lit since the last visit: light it piece by piece. */
   lighting: boolean;
   token: number;
   /** Leads into the stage to play next: run a spark along it. */
   beckon?: boolean;
 }) {
   const reducedMotion = useReducedMotion();
+  const pieces = useMemo(() => roadPieces(dots), [dots]);
   const stagger = dots.length > 1 ? ((TRAIL_DOTS - 1) * DOT_STAGGER_MS) / (dots.length - 1) : 0;
   return (
     <>
       {(['outline', 'fill'] as const).map((layer) =>
-        dots.map((dot, i) => (
-          <TrailDot
+        pieces.map((piece, i) => (
+          <TrailPiece
             key={`${layer}${i}`}
             layer={layer}
-            dot={dot}
+            piece={piece}
             colour={colour}
-            lit={lit}
+            isLit={isLit}
             lightDelay={lighting ? SEQUENCE_DELAY_MS + 200 + i * stagger : null}
             token={token}
           />

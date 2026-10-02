@@ -17,17 +17,6 @@ export const onboarding = {
     title: '¿Cuándo pasó esto?',
     notice: 'Quedar a 20 años o menos cuenta como acierto, y el evento entra a tu museo.',
   },
-  why: {
-    eyebrow: 'Por qué juegas',
-    title: 'Tres formas de ganar',
-    museumTitle: 'Arma tu museo',
-    museumText: 'Acércate y el evento se vuelve un artefacto de tu colección.',
-    dailyTitle: 'Juega el Reto del día',
-    dailyText: 'Ocho preguntas, las mismas para todos, una vez al día. Mantén viva tu racha.',
-    boardsTitle: 'Sube en la clasificación',
-    boardsText: 'Hoy, esta semana o de todos los tiempos. Siempre hay un puesto a tu alcance.',
-    next: 'Ya casi',
-  },
   setup: {
     eyebrow: 'Una última cosa',
     title: 'Hazlo tuyo',

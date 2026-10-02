@@ -34,7 +34,7 @@ describe('OnboardingScreen', () => {
   });
   afterEach(() => onboardingStore.clear());
 
-  it('walks through all four steps and lands in the Daily', async () => {
+  it('walks through all three steps and lands in the Daily', async () => {
     render(<OnboardingScreen />);
     expect(track).toHaveBeenCalledWith('onboarding_step_viewed', { step: 1 });
 
@@ -45,13 +45,11 @@ describe('OnboardingScreen', () => {
     fireEvent.press(screen.getByTestId('submit-button'));
     expect(screen.getByTestId('reveal-sheet')).toBeOnTheScreen();
     expect(screen.queryByTestId('onboarding-coach-marks')).toBeNull();
-    fireEvent.press(screen.getByTestId('next-button')); // reveal → why
+    fireEvent.press(screen.getByTestId('next-button')); // reveal → setup
     // Next hands off a frame later, once the timeline has stopped.
-    await waitFor(() => expect(screen.getByTestId('onboarding-reason-2')).toBeOnTheScreen());
+    await waitFor(() => expect(screen.getByTestId('onboarding-explore')).toBeOnTheScreen());
     expect(track).toHaveBeenCalledWith('onboarding_step_viewed', { step: 3 });
-
-    fireEvent.press(screen.getByTestId('onboarding-next')); // why → setup
-    expect(track).toHaveBeenCalledWith('onboarding_step_viewed', { step: 4 });
+    expect(track).not.toHaveBeenCalledWith('onboarding_step_viewed', { step: 4 });
     expect(screen.queryByTestId('onboarding-skip')).toBeNull(); // no skipping the last step
 
     await act(async () => {
@@ -73,46 +71,29 @@ describe('OnboardingScreen', () => {
     fireEvent.press(screen.getByTestId('onboarding-next'));
     fireEvent.press(screen.getByTestId('submit-button'));
     fireEvent.press(screen.getByTestId('next-button'));
-    await waitFor(() => expect(screen.getByTestId('onboarding-reason-2')).toBeOnTheScreen());
-    fireEvent.press(screen.getByTestId('onboarding-next'));
+    await waitFor(() => expect(screen.getByTestId('onboarding-explore')).toBeOnTheScreen());
     await act(async () => {
       fireEvent.press(screen.getByTestId('onboarding-explore'));
     });
     await waitFor(() => expect(mockRouter.replace).toHaveBeenCalledWith('/(tabs)'));
   }
 
-  const ONBOARDING_PAYWALL = { pathname: '/paywall', params: { source: 'onboarding' } };
-
-  it('offers Premium once at the end of onboarding to a free player', async () => {
+  it('never ends on the paywall, whichever way the player leaves', async () => {
     await finishViaExplore();
-    expect(mockRouter.push).toHaveBeenCalledWith(ONBOARDING_PAYWALL);
-    expect(mockRouter.push).toHaveBeenCalledTimes(1);
+    expect(mockRouter.push).not.toHaveBeenCalled();
   });
 
-  it('puts the Premium offer on top of the Daily when that was the choice', async () => {
+  it('opens only the Daily when that was the choice', async () => {
     render(<OnboardingScreen />);
     fireEvent.press(screen.getByTestId('onboarding-next'));
     fireEvent.press(screen.getByTestId('submit-button'));
     fireEvent.press(screen.getByTestId('next-button'));
-    await waitFor(() => expect(screen.getByTestId('onboarding-reason-2')).toBeOnTheScreen());
-    fireEvent.press(screen.getByTestId('onboarding-next'));
+    await waitFor(() => expect(screen.getByTestId('onboarding-explore')).toBeOnTheScreen());
     await act(async () => {
       fireEvent.press(screen.getByTestId('onboarding-play-daily'));
     });
-    await waitFor(() => expect(mockRouter.push).toHaveBeenCalledWith(ONBOARDING_PAYWALL));
-    expect(mockRouter.push.mock.calls).toEqual([['/daily'], [ONBOARDING_PAYWALL]]);
-  });
-
-  it('sends a Premium player straight home', async () => {
-    mockPremium.isPremium = true;
-    await finishViaExplore();
-    expect(mockRouter.push).not.toHaveBeenCalled();
-  });
-
-  it('never offers it twice, even if the flow is run again', async () => {
-    await onboardingStore.write({ completedAt: 1 });
-    await finishViaExplore();
-    expect(mockRouter.push).not.toHaveBeenCalled();
+    await waitFor(() => expect(mockRouter.push).toHaveBeenCalledWith('/daily'));
+    expect(mockRouter.push.mock.calls).toEqual([['/daily']]);
   });
 
   it('records a skip with the step it happened on and goes home', async () => {
@@ -132,8 +113,7 @@ describe('OnboardingScreen', () => {
     fireEvent.press(screen.getByTestId('onboarding-next'));
     fireEvent.press(screen.getByTestId('submit-button'));
     fireEvent.press(screen.getByTestId('next-button'));
-    await waitFor(() => expect(screen.getByTestId('onboarding-reason-2')).toBeOnTheScreen());
-    fireEvent.press(screen.getByTestId('onboarding-next'));
+    await waitFor(() => expect(screen.getByTestId('onboarding-explore')).toBeOnTheScreen());
 
     fireEvent.changeText(screen.getByTestId('onboarding-name'), 'ab');
     fireEvent.press(screen.getByTestId('onboarding-explore'));

@@ -97,7 +97,6 @@ export const profile = {
     backupLabel: 'Back up your progress with {providers}',
     backupBody: 'Optional. Your XP, coins, museum and campaign follow you to a new phone.',
     backupUnavailable: 'Accounts need a connection and aren’t available in this build.',
-    version: 'Version',
     language: 'Language',
     languageLabel: 'Change the app language',
     languageSheetTitle: 'Language',

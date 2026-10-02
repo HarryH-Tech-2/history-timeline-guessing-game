@@ -3,6 +3,9 @@ import { act, renderHook, waitFor } from '@testing-library/react-native';
 import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
 import type { ReactNode } from 'react';
 
+import { PROGRESSION_SAVE_KEY } from '@/features/progression/persistence';
+import { scopedKey } from '@/storage';
+
 import { SoundProvider, useSound } from './SoundProvider';
 
 const mockedCreate = jest.mocked(createAudioPlayer);
@@ -13,6 +16,11 @@ function playersCreated() {
 
 function wrapper({ children }: { children: ReactNode }) {
   return <SoundProvider>{children}</SoundProvider>;
+}
+
+/** A game save from before this build: the device of an existing player. */
+async function seedExistingSave() {
+  await AsyncStorage.setItem(scopedKey(PROGRESSION_SAVE_KEY, 'uid-1'), '{}');
 }
 
 describe('SoundProvider', () => {
@@ -30,10 +38,21 @@ describe('SoundProvider', () => {
     );
   });
 
-  it('is on by default and plays the matching sting from the start', async () => {
+  it('is off on a new install', async () => {
     const { result } = renderHook(() => useSound(), { wrapper });
     await waitFor(() => expect(mockedCreate).toHaveBeenCalledTimes(2));
-    expect(result.current.enabled).toBe(true);
+    await act(async () => {});
+    expect(result.current.enabled).toBe(false);
+    act(() => result.current.play('right'));
+    const [right] = playersCreated();
+    expect(right!.play).not.toHaveBeenCalled();
+  });
+
+  it('stays on for an existing player and plays the matching sting from the start', async () => {
+    await seedExistingSave();
+    const { result } = renderHook(() => useSound(), { wrapper });
+    await waitFor(() => expect(mockedCreate).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(result.current.enabled).toBe(true));
 
     act(() => result.current.play('right'));
     const [right, wrong] = playersCreated();
@@ -46,8 +65,10 @@ describe('SoundProvider', () => {
   });
 
   it('stays silent while switched off and persists the choice', async () => {
+    await seedExistingSave();
     const { result, unmount } = renderHook(() => useSound(), { wrapper });
     await waitFor(() => expect(mockedCreate).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(result.current.enabled).toBe(true));
 
     act(() => result.current.toggle());
     expect(result.current.enabled).toBe(false);

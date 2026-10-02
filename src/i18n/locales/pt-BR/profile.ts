@@ -102,7 +102,6 @@ export const profile = {
     backupLabel: 'Fazer backup do progresso com {providers}',
     backupBody: 'Opcional. Seu XP, moedas, museu e campanha vão junto para um celular novo.',
     backupUnavailable: 'Contas precisam de conexão e não estão disponíveis nesta versão.',
-    version: 'Versão',
     language: 'Idioma',
     languageLabel: 'Mudar o idioma do app',
     languageSheetTitle: 'Idioma',

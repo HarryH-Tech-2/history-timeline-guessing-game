@@ -17,17 +17,6 @@ export const onboarding = {
     title: 'これはいつの出来事？',
     notice: '誤差20年以内なら当たり。出来事が博物館に加わります。',
   },
-  why: {
-    eyebrow: 'このゲームの楽しみ',
-    title: '3つの楽しみ方',
-    museumTitle: '博物館をつくろう',
-    museumText: '近い年を当てると、その出来事が収蔵品としてコレクションに加わります。',
-    dailyTitle: 'デイリーに挑戦',
-    dailyText: '1日1回、全員共通の8問。連続記録をつなげよう。',
-    boardsTitle: 'ランキングを駆け上がろう',
-    boardsText: '今日、今週、全期間。いつでも手の届く順位があります。',
-    next: 'あと少し',
-  },
   setup: {
     eyebrow: '最後に',
     title: '自分好みに',

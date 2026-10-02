@@ -4,9 +4,9 @@ import * as Haptics from 'expo-haptics';
  * The single gate every vibration in the app goes through. A module-level
  * flag (rather than context) so worklet-adjacent code and plain components
  * can buzz without a provider in scope; HapticsProvider keeps it in step with
- * the persisted Vibration setting.
+ * the persisted Vibration setting. Off until it has read that.
  */
-let enabled = true;
+let enabled = false;
 
 export function setHapticsEnabled(next: boolean): void {
   enabled = next;
