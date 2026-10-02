@@ -93,13 +93,18 @@ SLIDES_1_2 = [
 SLIDES_1_3 = [
     dict(name="01-guess", cap="quiz", art=None, owl=None,
          callout=dict(auto="readout", width=360, pos=(860, 1560), angle=7), tilt=-9, scale=740),
-    dict(name="02-reveal", cap="reveal", art=None, owl="right", callout=None, tilt=8, scale=740),
-    dict(name="03-campaign", cap="campaign", art=None, owl="left", callout=None, tilt=-8, scale=760),
+    # Minerva only where she fits beside the phone: a smaller phone pushed left
+    # leaves her a clear strip, so she no longer sits on the reveal story text.
+    # 03-campaign and 07-achievements have no owl: the campaign map already shows
+    # her, and on achievements she covered the badge cards.
+    dict(name="02-reveal", cap="reveal", art=None, owl="right", owl_h=470, shift=-95, callout=None,
+         tilt=8, scale=640),
+    dict(name="03-campaign", cap="campaign", art=None, owl=None, callout=None, tilt=-8, scale=760),
     dict(name="04-modes", cap="home", art=None, owl=None, callout=None, tilt=9, scale=760),
     dict(name="05-leaderboard", cap="leaderboard", art=None, owl=None, callout=None, tilt=-8, scale=760),
     dict(name="06-museum", cap="museum", art="evt-moon-landing.webp", art_pos=(640, 500, 420), owl=None,
          callout=None, tilt=8, scale=740),
-    dict(name="07-achievements", cap="achievements", art=None, owl="left", callout=None, tilt=-8, scale=740),
+    dict(name="07-achievements", cap="achievements", art=None, owl=None, callout=None, tilt=-8, scale=760),
     dict(name="08-dark", cap="home_dark", art=None, owl=None, callout=None, tilt=-9, scale=760),
 ]
 
@@ -338,7 +343,7 @@ def build(slide, lang=None):
     flat = phone(cap, slide.get("scale", 740))
     ph = tilt_sprite(flat, slide["tilt"])
     # Anchor the phone so its top sits just under the copy; it may bleed off the bottom.
-    px = (W - ph.width) // 2 + (30 if slide["tilt"] < 0 else -30)
+    px = (W - ph.width) // 2 + (30 if slide["tilt"] < 0 else -30) + slide.get("shift", 0)
     py = text_bottom + 90 - (ph.height - flat.height) // 2
     canvas = composite(canvas, ph, (px, py), shadow=(48, (0, 56), 190))
 
@@ -348,8 +353,9 @@ def build(slide, lang=None):
         canvas = composite(canvas, card, (x - (card.width - size) // 2, y - (card.height - size) // 2),
                            shadow=(34, (0, 34), 160))
     if slide.get("owl"):
-        owl = owl_sprite(640)
-        ox = W - owl.width + 90 if slide["owl"] == "right" else -110
+        owl = owl_sprite(slide.get("owl_h", 640))
+        bleed = 90 * owl.height // 640
+        ox = W - owl.width + bleed if slide["owl"] == "right" else -bleed - 20
         canvas = composite(canvas, owl, (ox, H - owl.height + 40), shadow=(30, (0, 24), 150))
 
     if slide.get("callout"):
