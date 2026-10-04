@@ -1,6 +1,7 @@
 /** The guess loop: round screen, reveal, HUD, hints, run summary, share card. */
 export const round = {
   submitGuess: 'Submit guess',
+  submit: 'Submit',
   image: {
     enlarge: 'Enlarge illustration of {title}',
     close: 'Close image',
@@ -64,7 +65,7 @@ export const round = {
     free: 'Free',
     cost: '{cost} 🪙',
     used: '{label} used',
-    usedTag: '· ✓ Used',
+    usedTag: '✓ Used',
     buttonLabel: '{label}, {price}',
     tapToAnswer: 'Tap a year to answer · half points',
     answer: 'Answer {year}',

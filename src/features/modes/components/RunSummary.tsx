@@ -48,6 +48,11 @@ interface RunSummaryProps {
   accent?: string;
   primaryLabel: string;
   onPrimary: () => void;
+  /**
+   * Draw `primaryLabel` as a ghost: the `notice` carries the screen's one main
+   * action (the Daily's challenge button) and this is just the way out.
+   */
+  quietPrimary?: boolean;
   secondaryLabel?: string;
   onSecondary?: () => void;
   /** A quiet text link under the buttons (e.g. Replay once Continue leads). */
@@ -122,6 +127,7 @@ export function RunSummary({
   accent = palette.accent.default,
   primaryLabel,
   onPrimary,
+  quietPrimary = false,
   secondaryLabel,
   onSecondary,
   tertiaryLabel,
@@ -217,7 +223,7 @@ export function RunSummary({
               <Button
                 label={primaryLabel}
                 onPress={onPrimary}
-                variant={share?.primary ? 'ghost' : 'primary'}
+                variant={share?.primary || quietPrimary ? 'ghost' : 'primary'}
                 testID="summary-primary"
               />
               {!share?.primary && shareButton}

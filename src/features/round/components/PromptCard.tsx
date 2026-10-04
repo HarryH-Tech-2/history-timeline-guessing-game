@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { Image, Pressable, Text, useWindowDimensions, View } from 'react-native';
 
 import { Card, ImageLightbox } from '@/components/ui';
@@ -12,10 +12,15 @@ const IMAGE_MIN = 112;
 /** Never squeeze the card below the smallest art plus a two-line title and
  * its padding, or the title spills out over the timeline. */
 const CARD_MIN = IMAGE_MIN + 108;
+/** Room kept for two lines of description under the title (a third, for the
+ * longest ones, comes out of the illustration). */
+const DESCRIPTION_HEIGHT = 44;
 
 interface PromptCardProps {
   questionId: string;
   title: string;
+  /** One line of context under the title while guessing. Never names the year. */
+  description?: string;
   /**
    * Collapsed layout for the reveal: thumbnail plus headline only, so the
    * timeline and the reveal sheet both fit on screen without overlapping.
@@ -26,11 +31,12 @@ interface PromptCardProps {
   showImage?: boolean;
 }
 
-/** The question prompt: illustration and the event's name. Tapping the
- * illustration opens it full-screen with pinch-to-zoom. */
-export function PromptCard({
+/** The question prompt: illustration, the event's name and a line about it.
+ * Tapping the illustration opens it full-screen with pinch-to-zoom. */
+function PromptCardComponent({
   questionId,
   title,
+  description,
   compact = false,
   showImage = true,
 }: PromptCardProps) {
@@ -48,6 +54,8 @@ export function PromptCard({
       onClose={() => setZoomed(false)}
     />
   ) : null;
+
+  const hasDescription = description !== undefined && description !== '';
 
   if (compact) {
     return (
@@ -90,7 +98,10 @@ export function PromptCard({
   // IMAGE_MIN) so the timeline below keeps its full height instead of being
   // squeezed and spilling over this card and the buttons.
   return (
-    <Card className="shrink items-center gap-3 p-4" style={{ minHeight: CARD_MIN }}>
+    <Card
+      className="shrink items-center gap-3 p-4"
+      style={{ minHeight: CARD_MIN + (hasDescription ? DESCRIPTION_HEIGHT : 0) }}
+    >
       {image && (
         <Pressable
           onPress={() => setZoomed(true)}
@@ -111,10 +122,23 @@ export function PromptCard({
         </Pressable>
       )}
 
-      <Text className="text-center text-2xl font-bold leading-tight text-ink-primary">
-        {title}
-      </Text>
+      <View className="items-center gap-1">
+        <Text className="text-center text-2xl font-bold leading-tight text-ink-primary">
+          {title}
+        </Text>
+        {hasDescription && (
+          <Text
+            numberOfLines={3}
+            className="text-center text-sm leading-5 text-ink-secondary"
+            testID="prompt-description"
+          >
+            {description}
+          </Text>
+        )}
+      </View>
       {lightbox}
     </Card>
   );
 }
+
+export const PromptCard = memo(PromptCardComponent);

@@ -132,7 +132,8 @@ export function Button({
       onPress={handlePress}
       style={hero ? [animatedStyle, HERO_SHADOW] : animatedStyle}
       className={cn(
-        'flex-row items-center justify-center gap-2 px-6',
+        'items-center justify-center px-6',
+        sublabel ? undefined : 'flex-row gap-2',
         sublabel ? 'min-h-16 py-3' : hero ? 'h-16' : 'h-14',
         CONTAINER[variant],
         disabled && 'opacity-40',

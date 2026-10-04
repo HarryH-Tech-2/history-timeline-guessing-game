@@ -88,7 +88,7 @@ export const social = {
   },
   challenges: {
     create: '⚔️ Desafiar um amigo',
-    fromRun: '⚔️ Desafiar um amigo com estas perguntas',
+    fromRunDetail: 'As mesmas 8 perguntas',
     play: 'Jogar',
     empty: 'Desafie um amigo com as mesmas 8 perguntas e veja quem manda bem em história.',
     yours: 'Seu desafio',

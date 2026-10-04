@@ -114,13 +114,18 @@ export function RoundView({
       playSound(right ? 'right' : 'wrong');
 
       // Show the answer with the least movement: the timeline stays where the
-      // player left it unless the true year is off screen.
-      controller.reveal(guessYear, question.year);
+      // player left it unless the true year is off screen. With an
+      // illustration the reveal covers the timeline, so there is nothing to
+      // re-frame: animating ~200 hidden ticks only cost frames as the sheet
+      // came in.
+      if (imageForQuestion(question.id) === undefined) {
+        controller.reveal(guessYear, question.year);
+      }
 
       if (assisted) onSubmit(guessYear, { assisted: true });
       else onSubmit(guessYear);
     },
-    [controller, question.year, onSubmit, playSound],
+    [controller, question.id, question.year, onSubmit, playSound],
   );
 
   const handleSubmit = useCallback(
@@ -243,6 +248,7 @@ export function RoundView({
               <PromptCard
                 questionId={question.id}
                 title={question.title}
+                description={question.shortDescription}
                 compact={revealed}
                 showImage={!showImage}
               />
@@ -266,6 +272,7 @@ export function RoundView({
         <PromptCard
           questionId={question.id}
           title={question.title}
+          description={question.shortDescription}
           compact={revealed}
           showImage={!showImage}
         />

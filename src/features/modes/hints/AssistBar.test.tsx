@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react-native';
 
 import type { Question } from '@/domain';
 import { INITIAL_PROGRESSION } from '@/domain';
@@ -42,7 +42,11 @@ describe('AssistBar', () => {
     expect(screen.getByTestId('assist-row')).toBeOnTheScreen();
     expect(screen.getByTestId('hint-button')).toBeOnTheScreen();
     expect(screen.getByTestId('choices-button')).toBeOnTheScreen();
-    expect(screen.getByTestId('submit-button')).toBeOnTheScreen();
+    // Submit sits between the two helpers.
+    const order = within(screen.getByTestId('assist-row'))
+      .getAllByRole('button')
+      .map((b) => b.props.testID as string);
+    expect(order).toEqual(['hint-button', 'submit-button', 'choices-button']);
   });
 
   it('submits the timeline guess from its submit button', () => {

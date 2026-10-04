@@ -1,362 +1,452 @@
 {
   "reg-cabral-brazil": {
     "title": "Cabral llega a Brasil",
+    "shortDescription": "Pedro Álvares Cabral ancló frente a un monte al que llamó Monte Pascoal y reclamó la tierra para Portugal.",
     "longDescription": "La flota de Cabral se había desviado mucho hacia el oeste en el Atlántico en su ruta a la India bordeando África. Tras unos días en tierra, siguió navegando y envió un barco de regreso a Lisboa con la noticia del hallazgo, que se convirtió en el punto de partida del Brasil portugués."
   },
   "reg-lima-founded": {
     "title": "La fundación de Lima",
+    "shortDescription": "Francisco Pizarro fundó una nueva capital costera para el Perú español en la fiesta de la Epifanía.",
     "longDescription": "Pizarro eligió el valle del Rímac, cerca del mar, en lugar de Cusco, la capital inca en la sierra, para que la colonia pudiera abastecerse por barco. Lima llegó a ser la sede del Virreinato del Perú y la ciudad más rica de la Sudamérica española."
   },
   "reg-potosi-silver": {
     "title": "Se descubre plata en Potosí",
+    "shortDescription": "El minero Diego de Huallpa dio por casualidad con los enormes yacimientos de plata del Cerro Rico.",
     "longDescription": "La explotación española del “Cerro Rico” comenzó casi de inmediato, y Potosí se convirtió en una de las ciudades más grandes del mundo, trabajada en gran parte con mano de obra indígena forzada. Su plata inundó España y siguió hacia Europa y China, transformando la economía global."
   },
   "reg-buenos-aires-garay": {
     "title": "La refundación de Buenos Aires",
+    "shortDescription": "Tras bajar por el Paraná, Garay fundó el asentamiento que se convertiría en la capital de Argentina.",
     "longDescription": "La primera Buenos Aires, fundada por Pedro de Mendoza en 1536, había sido abandonada tras el hambre y los ataques. La segunda fundación, la de Garay, perduró, aunque siguió siendo durante generaciones un pequeño puerto de contrabando antes de prosperar como puerta de entrada a la Pampa."
   },
   "reg-tupac-amaru-ii": {
     "title": "La rebelión de Túpac Amaru II",
+    "shortDescription": "José Gabriel Condorcanqui, que se hacía llamar Túpac Amaru II, apresó al corregidor Antonio de Arriaga.",
     "longDescription": "Arriaga fue ahorcado seis días después, y el levantamiento se extendió por los Andes del sur contra el trabajo forzado y los impuestos coloniales. Túpac Amaru II fue capturado y ejecutado en Cusco al año siguiente, pero la revuelta se convirtió en un símbolo perdurable de la resistencia indígena."
   },
   "reg-portuguese-court-rio": {
     "title": "La corte portuguesa llega a Río",
+    "shortDescription": "El príncipe regente Juan y su corte, que huían de la invasión napoleónica de Portugal, llegaron a Río de Janeiro.",
     "longDescription": "La corte desembarcó primero en Salvador antes de seguir hacia Río, que se convirtió en la capital de todo el imperio portugués. El traslado abrió los puertos de Brasil, fundó nuevas instituciones y allanó el camino para la independencia brasileña."
   },
   "reg-venezuela-independence": {
     "title": "Venezuela declara su independencia",
+    "shortDescription": "Un congreso en Caracas votó declarar la independencia de la Corona española.",
     "longDescription": "La declaración, redactada por Cristóbal Mendoza y Juan Germán Roscio, creó la Confederación Americana de Venezuela. La Primera República se derrumbó en menos de un año, y la independencia plena solo se aseguró tras años de guerra encabezada por Simón Bolívar."
   },
   "reg-boyaca": {
     "title": "La Batalla de Boyacá",
+    "shortDescription": "Simón Bolívar y Francisco de Paula Santander derrotaron al ejército español de José María Barreiro.",
     "longDescription": "La batalla de dos horas destruyó la principal fuerza española en la Nueva Granada, y el gobierno realista de Santa Fe (Bogotá) se derrumbó. Abrió el camino para la creación de la Gran Colombia."
   },
   "reg-darwin-galapagos": {
     "title": "Darwin llega a las Galápagos",
+    "shortDescription": "El joven naturalista Charles Darwin pasó cinco semanas entre la extraña fauna de las islas.",
     "longDescription": "El Beagle cartografió las islas mientras Darwin recolectaba pinzones, cenzontles y tortugas que variaban de una isla a otra. Esas observaciones alimentaron después su teoría de la evolución por selección natural, publicada en 1859."
   },
   "reg-paraguayan-war": {
     "title": "Comienza la Guerra del Paraguay",
+    "shortDescription": "El Paraguay de Francisco Solano López entró en guerra con Brasil, al que luego se sumaron Argentina y Uruguay.",
     "longDescription": "La Guerra de la Triple Alianza fue el conflicto más mortífero de la historia de Sudamérica. Terminó en 1870 tras la muerte de López en Cerro Corá, con Paraguay devastado y gran parte de su población muerta."
   },
   "reg-war-of-the-pacific": {
     "title": "Comienza la Guerra del Pacífico",
+    "shortDescription": "Chile ocupó Antofagasta y arrastró a la guerra a Bolivia y a su aliado, el Perú.",
     "longDescription": "La disputa comenzó por los impuestos bolivianos a una compañía chilena de salitre en el desierto de Atacama. Chile ganó la guerra, se quedó con la costa rica en salitre y dejó a Bolivia sin salida al mar hasta hoy."
   },
   "reg-lei-aurea": {
     "title": "La Ley Áurea",
+    "shortDescription": "La princesa Isabel firmó la Ley Áurea, que declaró extinta la esclavitud en Brasil.",
     "longDescription": "Brasil fue el último país de América en abolir la esclavitud, tras haber recibido más africanos esclavizados que ningún otro. La ley no ofreció indemnización a los esclavistas, y el propio Imperio cayó por un golpe republicano al año siguiente."
   },
   "reg-valdivia-earthquake": {
     "title": "El gran terremoto de Chile",
+    "shortDescription": "Un sismo de magnitud 9,4–9,6 devastó la región de Valdivia.",
     "longDescription": "El terremoto provocó tsunamis que cruzaron el Pacífico y mataron a personas en lugares tan lejanos como Hawái y Japón. También desencadenó deslizamientos de tierra y una erupción volcánica, y transformó la costa del sur de Chile."
   },
   "reg-chile-coup": {
     "title": "El golpe de Estado en Chile",
+    "shortDescription": "Las Fuerzas Armadas derrocaron al presidente Salvador Allende, que murió dentro de La Moneda.",
     "longDescription": "Allende se negó a renunciar y pronunció un último discurso por radio mientras las tropas rodeaban el palacio. El general Augusto Pinochet encabezó entonces una dictadura militar que duró hasta 1990."
   },
   "reg-dirk-hartog-landing": {
     "title": "La placa de peltre de Dirk Hartog",
+    "shortDescription": "El Eendracht tocó tierra en una isla frente a Australia Occidental y su capitán clavó una placa grabada en un poste.",
     "longDescription": "Arrastrado muy al este en la nueva ruta rápida hacia las Indias Orientales Neerlandesas, Dirk Hartog realizó el segundo desembarco europeo registrado en suelo australiano. La placa que dejó en el cabo Inscription fue hallada por Willem de Vlamingh 81 años después y hoy está en el Rijksmuseum."
   },
   "reg-wallis-tahiti": {
     "title": "Wallis llega a Tahití",
+    "shortDescription": "El capitán Samuel Wallis ancló en la bahía de Matavai y bautizó Tahití en honor al rey Jorge III.",
     "longDescription": "Tras un primer encuentro tenso con canoas tahitianas, la tripulación del Dolphin permaneció más de un mes e intercambió clavos de hierro por comida. Los informes de Wallis llevaron a James Cook a la misma bahía para observar el tránsito de Venus."
   },
   "reg-bounty-mutiny": {
     "title": "El motín del Bounty",
+    "shortDescription": "Los amotinados se apoderaron del HMS Bounty y dejaron a la deriva a William Bligh y a 18 hombres leales en una lancha abierta.",
     "longDescription": "El Bounty había estado recolectando plantas de árbol del pan en Tahití cuando la tripulación se sublevó contra Bligh en aguas de las Islas de los Amigos. Bligh navegó en la lancha unas 3.600 millas náuticas hasta Timor, mientras los amotinados acabaron escondiéndose en la isla Pitcairn."
   },
   "reg-australian-gold-rush": {
     "title": "Se descubre oro en Ophir",
+    "shortDescription": "Hargraves halló oro cerca de Orange y, en pocas semanas, cientos de buscadores acudieron al arroyo.",
     "longDescription": "Recién llegado de los yacimientos de oro de California, Hargraves reconoció el mismo tipo de terreno en Nueva Gales del Sur. Pronto siguieron hallazgos aún más ricos en Victoria, y la fiebre transformó la población y la economía de las colonias."
   },
   "reg-first-melbourne-cup": {
     "title": "La primera Melbourne Cup",
+    "shortDescription": "Un caballo llamado Archer ganó la primera Melbourne Cup ante unos 4000 espectadores.",
     "longDescription": "Tres caballos cayeron en la primera curva y dos de ellos murieron, pero la carrera se convirtió en la más famosa de Australia. Archer regresó al año siguiente y volvió a ganar la Cup."
   },
   "reg-fiji-cession": {
     "title": "Fiyi es cedida a Gran Bretaña",
+    "shortDescription": "Agobiado por las deudas, el jefe supremo de Fiyi firmó un Acta de Cesión que convirtió las islas en colonia británica.",
     "longDescription": "Cakobau había ofrecido las islas a Gran Bretaña más de veinte años antes y había sido rechazado. El dominio colonial trajo trabajadores contratados de la India, transformando la población de Fiyi, y duró hasta la independencia en el siglo siguiente."
   },
   "reg-tonga-constitution": {
     "title": "La Constitución de Tonga",
+    "shortDescription": "El rey de Tonga otorgó una constitución escrita que unificó formalmente el reino.",
     "longDescription": "Influido por modelos hawaianos y británicos, el documento estableció una monarquía, un parlamento y una nobleza terrateniente. Tonga aún celebra el Día de la Constitución, y el reino nunca fue colonizado formalmente."
   },
   "reg-ned-kelly-glenrowan": {
     "title": "La última resistencia de Ned Kelly",
+    "shortDescription": "Con una armadura de placas casera, Ned Kelly recibió disparos en las piernas y fue capturado vivo tras un asedio en una posada.",
     "longDescription": "La banda de Kelly había planeado descarrilar un tren de la policía, pero el asedio a la Glenrowan Inn terminó con el resto de la banda muerto. Kelly fue juzgado en Melbourne y ahorcado en la cárcel de Melbourne ese mismo año."
   },
   "reg-hawkes-bay-earthquake": {
     "title": "El terremoto de Hawke’s Bay",
+    "shortDescription": "El terremoto más mortífero de Nueva Zelanda mató a 256 personas y elevó el lecho marino hasta dejarlo en seco.",
     "longDescription": "Los incendios arrasaron el centro de Napier tras el sismo, y la laguna Ahuriri se elevó más de dos metros, convirtiéndose después en el terreno de un aeropuerto. Napier fue reconstruida en el estilo art déco por el que hoy es famosa."
   },
   "reg-sydney-harbour-bridge": {
     "title": "Se inaugura el puente de la bahía de Sídney",
+    "shortDescription": "El gran arco de acero que cruza la bahía de Sídney se abrió al público.",
     "longDescription": "Justo cuando el primer ministro Jack Lang se preparaba para cortar la cinta, Francis de Groot, de la New Guard de extrema derecha, llegó a caballo y la cortó con su espada. La cinta se volvió a atar y la ceremonia continuó."
   },
   "reg-castle-bravo": {
     "title": "La prueba Castle Bravo",
+    "shortDescription": "Una bomba de hidrógeno de EE. UU. liberó 15 megatones, mucho más de lo que esperaban sus diseñadores.",
     "longDescription": "Un error de cálculo sobre el litio-7 hizo que la explosión fuera unas dos veces y media mayor de lo previsto. La lluvia radiactiva obligó a evacuar los atolones de Rongelap y Utirik y contaminó a la tripulación del pesquero japonés Lucky Dragon No. 5."
   },
   "reg-samoa-independence": {
     "title": "Samoa se independiza",
+    "shortDescription": "Samoa Occidental puso fin a la administración fiduciaria de Nueva Zelanda y se convirtió en Estado soberano.",
     "longDescription": "Nueva Zelanda había arrebatado las islas a Alemania al comienzo de la Primera Guerra Mundial y luego las administró bajo mandatos de la Sociedad de las Naciones y de la ONU. El país eliminó “Occidental” de su nombre en 1997."
   },
   "reg-rainbow-warrior": {
     "title": "El hundimiento del Rainbow Warrior",
+    "shortDescription": "Dos minas lapa hundieron el buque insignia de Greenpeace y mataron al fotógrafo Fernando Pereira.",
     "longDescription": "El barco se preparaba para protestar contra las pruebas nucleares francesas en el atolón de Mururoa. Dos agentes de la DGSE francesa fueron capturados y se declararon culpables de homicidio culposo, y el caso reforzó la postura antinuclear de Nueva Zelanda."
   },
   "reg-christchurch-earthquake": {
     "title": "El terremoto de Christchurch",
+    "shortDescription": "Un terremoto de magnitud 6,2 sacudió Christchurch y mató a 185 personas.",
     "longDescription": "El sismo superficial llegó meses después de otro más fuerte pero menos mortífero en las cercanías, y derribó la aguja de la catedral de ChristChurch. Se convirtió en el desastre natural más costoso de Nueva Zelanda y dejó gran parte del centro de la ciudad por reconstruir."
   },
   "rte-siege-of-tyre": {
     "title": "Alejandro asedia Tiro",
+    "shortDescription": "Alejandro Magno pasó meses asediando Tiro, la ciudad insular fenicia, antes de tomarla por asalto.",
     "longDescription": "Como no podía llegar por tierra a la isla amurallada, los ingenieros de Alejandro construyeron un gran malecón mar adentro mientras su flota bloqueaba los puertos. La caída de Tiro dejó a la armada persa sin su mejor base y abrió el camino por la costa hacia Egipto."
   },
   "rte-death-of-alexander": {
     "title": "Alejandro Magno muere en Babilonia",
+    "shortDescription": "Alejandro Magno murió en Babilonia tras una breve enfermedad, con poco más de treinta años y sin un heredero claro.",
     "longDescription": "Alejandro había hecho de Babilonia el centro de un imperio que se extendía de Grecia al Indo. Sin un sucesor adulto, sus generales se disputaron sus conquistas durante décadas y forjaron los reinos helenísticos de los Ptolomeos, los Seléucidas y los Antigónidas."
   },
   "rte-battle-of-carrhae": {
     "title": "La Batalla de Carras",
+    "shortDescription": "El general parto Surena aniquiló a las legiones de Marco Licinio Craso en las llanuras abiertas de Mesopotamia.",
     "longDescription": "Craso, el hombre más rico de Roma, marchó al este en busca de gloria y fue desgastado por arqueros a caballo abastecidos de flechas por caravanas de camellos. Su muerte rompió la alianza con César y Pompeyo, y el Éufrates se convirtió en una frontera duradera entre Roma y Partia."
   },
   "rte-death-of-cleopatra": {
     "title": "La muerte de Cleopatra",
+    "shortDescription": "Cleopatra VII murió en Alejandría mientras el ejército de Octavio tomaba la ciudad, lo que puso fin a tres siglos de dominio ptolemaico.",
     "longDescription": "Tras la derrota en Accio y el suicidio de Marco Antonio, Cleopatra eligió la muerte antes que ser exhibida por Roma en un triunfo. Egipto fue anexado como provincia romana bajo el control personal de Octavio, que pronto sería Augusto."
   },
   "rte-destruction-of-second-temple": {
     "title": "Los romanos destruyen el Segundo Templo",
+    "shortDescription": "Las legiones romanas de Tito tomaron Jerusalén e incendiaron el Segundo Templo, aplastando la primera guerra judeo-romana.",
     "longDescription": "El asedio puso fin a la gran revuelta judía contra Roma, y el Templo nunca fue reconstruido. Su pérdida aún se llora en Tisha b’Av, y el botín fue llevado por Roma en el triunfo que muestra el Arco de Tito."
   },
   "rte-fall-of-nineveh": {
     "title": "La caída de Nínive",
+    "shortDescription": "Una alianza de babilonios y medos asedió y saqueó Nínive, la mayor ciudad del Imperio asirio.",
     "longDescription": "Tras un asedio de varios meses, los atacantes irrumpieron en Nínive y la destruyeron. La caída de su capital derrumbó el Imperio neoasirio en pocos años y dejó a Babilonia, bajo Nabopolasar y su hijo Nabucodonosor, como la nueva potencia del Cercano Oriente."
   },
   "rte-battle-of-pelusium": {
     "title": "La Batalla de Pelusio",
+    "shortDescription": "El rey persa Cambises II derrotó al faraón Psamético III en Pelusio, en el borde oriental del delta del Nilo.",
     "longDescription": "La victoria permitió a los persas tomar Menfis e incorporar Egipto al Imperio aqueménida. Cayeron los últimos faraones nativos de la dinastía XXVI, y Egipto sería gobernado desde Persia durante la mayor parte de los dos siglos siguientes."
   },
   "rte-burning-of-persepolis": {
     "title": "El incendio de Persépolis",
+    "shortDescription": "Antes de abandonar Persépolis, el ejército de Alejandro incendió los grandes palacios ceremoniales de los reyes aqueménidas.",
     "longDescription": "Ya fuera planeado como venganza por el incendio persa de Atenas o iniciado durante un banquete de borrachos, el fuego destruyó las salas de audiencia de Darío y Jerjes. Marcó el fin simbólico del Imperio aqueménida, cuyo último rey, Darío III, fue asesinado más tarde ese año."
   },
   "rte-pompey-takes-jerusalem": {
     "title": "Pompeyo toma Jerusalén",
+    "shortDescription": "Pompeyo el Grande intervino en una guerra civil asmonea y tomó Jerusalén tras asediar el Templo fortificado.",
     "longDescription": "Pompeyo entró en el Sanctasanctórum, pero dejó intacto el tesoro del Templo. Judea perdió su independencia y se convirtió en un Estado cliente de Roma, lo que preparó el terreno para el gobierno de Herodes y las posteriores revueltas contra Roma."
   },
   "rte-death-of-julian": {
     "title": "El emperador Juliano cae en Persia",
+    "shortDescription": "El emperador Juliano fue herido de muerte cerca de Samarra mientras se retiraba de su invasión del Imperio sasánida.",
     "longDescription": "Juliano había intentado restaurar a los antiguos dioses y lograr una gran victoria sobre Sapor II. Su muerte dejó al ejército varado en manos de su sucesor, Joviano, que compró su retirada cediendo fuertes y territorios romanos en Mesopotamia."
   },
   "rte-siege-of-lachish": {
     "title": "El asedio de Laquis",
+    "shortDescription": "El rey asirio Senaquerib asedió y tomó Laquis, la segunda ciudad del reino de Judá.",
     "longDescription": "Los ingenieros asirios construyeron contra las murallas una rampa de asedio que los arqueólogos aún pueden ver hoy. Senaquerib estaba tan orgulloso de la victoria que la hizo tallar en grandes relieves de piedra para su palacio de Nínive, hoy en el Museo Británico."
   },
   "rte-battle-of-megiddo-609": {
     "title": "El rey Josías cae en Meguido",
+    "shortDescription": "El rey Josías de Judá murió en Meguido al intentar detener al ejército egipcio de Necao II, que iba en auxilio de Asiria.",
     "longDescription": "Necao se apresuraba a ayudar a las últimas fuerzas asirias contra Babilonia. La muerte de Josías puso fin a sus reformas religiosas y dejó a Judá como vasallo de Egipto, pronto atrapado entre Egipto y el creciente poder de Babilonia."
   },
   "rte-battle-of-raphia": {
     "title": "La Batalla de Rafia",
+    "shortDescription": "Ptolomeo IV de Egipto derrotó al rey seléucida Antíoco III en una de las mayores batallas del mundo helenístico.",
     "longDescription": "Ambos reyes llevaron elefantes de guerra: africanos los de Ptolomeo e indios los de Antíoco. La victoria de Ptolomeo, lograda con soldados egipcios recién entrenados en la falange, mantuvo Celesiria en manos ptolemaicas por un tiempo."
   },
   "rte-battle-of-hormozdgan": {
     "title": "La Batalla de Hormozdgán",
+    "shortDescription": "Ardashir I derrotó y mató al rey parto Artabano IV, y fundó el Imperio sasánida.",
     "longDescription": "La victoria puso fin a casi cinco siglos de dominio arsácida en Irán. La nueva dinastía sasánida sería la gran rival de Roma en el este durante cuatrocientos años, hasta las conquistas árabes."
   },
   "rte-battle-of-emesa": {
     "title": "La Batalla de Emesa",
+    "shortDescription": "El emperador romano Aureliano derrotó al ejército de Zenobia, reina del escindido Imperio de Palmira.",
     "longDescription": "Zenobia se había apoderado de Egipto y de gran parte del Oriente romano desde su capital, Palmira. Después de Emesa huyó a su tierra y pronto fue capturada, y las provincias orientales volvieron al control romano."
   },
   "rte-crossing-the-rubicon": {
     "title": "César cruza el Rubicón",
+    "shortDescription": "Julio César cruzó el río Rubicón con una legión y entró en Italia, desafiando al Senado e iniciando una guerra civil.",
     "longDescription": "La ley romana prohibía a un general entrar en Italia con su ejército, así que cruzar el pequeño río era un acto de rebelión. La guerra civil que siguió destruyó a Pompeyo e hizo de César el amo de Roma, y la frase perdura para cualquier punto sin retorno."
   },
   "rte-octavian-becomes-augustus": {
     "title": "Octavio se convierte en Augusto",
+    "shortDescription": "El Senado romano concedió a Octavio el nombre de Augusto, lo que marcó el inicio del Imperio romano.",
     "longDescription": "Octavio se presentó como restaurador de la República mientras conservaba el control del ejército y de las provincias clave. El nuevo nombre, que significa “venerable”, se convirtió en el título de todos los emperadores posteriores."
   },
   "rte-great-fire-of-rome": {
     "title": "El gran incendio de Roma",
+    "shortDescription": "Un incendio se desató cerca del Circo Máximo y ardió durante días, destruyendo gran parte de la ciudad de Roma.",
     "longDescription": "Corrieron rumores de que Nerón había iniciado el fuego para despejar terreno para su Casa Dorada, y él culpó a los cristianos, dando inicio a la primera persecución romana. La ciudad reconstruida tuvo calles más anchas y normas más estrictas contra incendios."
   },
   "rte-battle-of-the-milvian-bridge": {
     "title": "La Batalla del Puente Milvio",
+    "shortDescription": "Constantino derrotó a su rival Majencio en un puente sobre el Tíber, a las afueras de Roma.",
     "longDescription": "Constantino dijo después que había visto en el cielo una señal que le prometía la victoria, y sus soldados combatieron con un símbolo cristiano en los escudos. La victoria lo convirtió en el único gobernante de Occidente e inició el giro del imperio hacia el cristianismo."
   },
   "rte-visigoths-sack-rome": {
     "title": "Los visigodos saquean Roma",
+    "shortDescription": "Los visigodos de Alarico irrumpieron en Roma y la saquearon durante tres días.",
     "longDescription": "Fue la primera vez en ocho siglos que Roma caía ante un enemigo extranjero. La conmoción resonó en todo el mundo mediterráneo, y el Imperio de Occidente, ya escaso de soldados y dinero, nunca recuperó su fuerza."
   },
   "rte-battle-of-chaeronea": {
     "title": "La Batalla de Queronea",
+    "shortDescription": "Filipo II de Macedonia derrotó a los ejércitos aliados de Atenas y Tebas, con el joven Alejandro al frente de la caballería.",
     "longDescription": "La victoria hizo de Macedonia la dueña de la Grecia continental, y Filipo organizó las ciudades-Estado en la Liga de Corinto. El Batallón Sagrado de Tebas fue aniquilado, y sus caídos son recordados por el León de piedra de Queronea."
   },
   "rte-battle-of-issus": {
     "title": "La Batalla de Issos",
+    "shortDescription": "Alejandro Magno derrotó al rey persa Darío III en una estrecha llanura costera del sur de Anatolia.",
     "longDescription": "Darío huyó del campo de batalla y dejó que capturaran a su madre, su esposa y sus hijas. La victoria abrió Siria y Fenicia a Alejandro, y la escena fue inmortalizada más tarde en el famoso mosaico de Alejandro de Pompeya."
   },
   "rte-council-of-nicaea": {
     "title": "El Primer Concilio de Nicea",
+    "shortDescription": "El emperador Constantino convocó a obispos de todo el Imperio romano para zanjar las disputas que dividían a la Iglesia.",
     "longDescription": "El concilio condenó las enseñanzas de Arrio sobre la naturaleza de Cristo y redactó el Credo niceno. También fijó cómo debía calcularse la fecha de la Pascua y sentó el modelo para los concilios ecuménicos posteriores."
   },
   "rte-constantinople-inaugurated": {
     "title": "Constantinopla se convierte en la Nueva Roma",
+    "shortDescription": "Constantino consagró formalmente la reconstruida ciudad de Bizancio como nueva capital del Imperio romano.",
     "longDescription": "Constantino eligió un lugar que dominaba los estrechos entre Europa y Asia y lo llenó de foros, iglesias y estatuas traídas de todo el imperio. La ciudad sobreviviría a Occidente casi mil años como capital del Imperio bizantino."
   },
   "rte-battle-of-the-catalaunian-plains": {
     "title": "La Batalla de los Campos Cataláunicos",
+    "shortDescription": "Un ejército romano y visigodo al mando de Flavio Aecio frenó en seco a los hunos de Atila en la Galia.",
     "longDescription": "Fue una de las últimas grandes campañas del Imperio romano de Occidente, y el rey visigodo Teodorico I murió en el combate. Atila se retiró de la Galia, aunque invadió Italia al año siguiente."
   },
   "rte-battle-of-leuctra": {
     "title": "La Batalla de Leuctra",
+    "shortDescription": "El general tebano Epaminondas derrotó a un ejército espartano con un ala izquierda de enorme profundidad.",
     "longDescription": "Epaminondas formó su ala izquierda con cincuenta filas de fondo y aplastó la derecha espartana, donde cayó su rey. Esparta nunca recuperó sus efectivos ni su prestigio, y Tebas se convirtió brevemente en la principal potencia de Grecia."
   },
   "rte-battle-of-ipsus": {
     "title": "La Batalla de Ipsos",
+    "shortDescription": "Una coalición de antiguos generales de Alejandro derrotó y mató a Antígono el Tuerto en Frigia.",
     "longDescription": "Seleuco trajo de la India elefantes de guerra que decidieron la batalla. El sueño de Antígono de reunificar el imperio de Alejandro murió con él, y el mundo helenístico se asentó en reinos rivales."
   },
   "rte-battle-of-cynoscephalae": {
     "title": "La Batalla de Cinoscéfalos",
+    "shortDescription": "El cónsul romano Tito Quincio Flaminino derrotó al rey Filipo V de Macedonia en unas colinas cubiertas de niebla.",
     "longDescription": "Los flexibles manípulos romanos superaron en maniobra a la falange macedonia en un terreno irregular. Filipo tuvo que renunciar a su dominio sobre Grecia, y Flaminino proclamó la libertad de las ciudades griegas bajo protección romana."
   },
   "rte-battle-of-pydna": {
     "title": "La Batalla de Pidna",
+    "shortDescription": "Un ejército romano al mando de Lucio Emilio Paulo aplastó al rey Perseo de Macedonia cerca de Pidna.",
     "longDescription": "En un terreno accidentado, la falange macedonia perdió su formación y las legiones la despedazaron. La derrota puso fin a la dinastía antigónida, que gobernaba Macedonia desde los sucesores de Alejandro Magno, y en dos décadas Macedonia era una provincia romana."
   },
   "rte-death-of-tiberius-gracchus": {
     "title": "El asesinato de Tiberio Graco",
+    "shortDescription": "El tribuno Tiberio Graco y cientos de sus partidarios murieron a manos de una turba de senadores en la colina Capitolina.",
     "longDescription": "Tiberio había impulsado una ley para repartir las tierras públicas entre los ciudadanos pobres, lo que indignó a los ricos. Su asesinato fue el primer derramamiento de sangre político abierto en Roma en siglos e inició la era violenta que acabó con la República."
   },
   "rte-saladin-retakes-jerusalem": {
     "title": "Saladino recupera Jerusalén",
+    "shortDescription": "Balián de Ibelín rindió Jerusalén a Saladino, lo que puso fin al dominio cruzado de la ciudad.",
     "longDescription": "Meses después de aplastar al ejército cruzado en Hattin, Saladino sitió Jerusalén. Su defensor, Balián de Ibelín, negoció una rendición que permitió a muchos habitantes pagar su propio rescate, y la pérdida de la ciudad llevó a Europa a lanzar la Tercera Cruzada."
   },
   "rte-templars-arrested": {
     "title": "El arresto de los caballeros templarios",
+    "shortDescription": "Un viernes trece, el rey Felipe IV hizo arrestar a la vez a los templarios de toda Francia.",
     "longDescription": "Profundamente endeudado con la orden, Felipe IV ordenó el arresto simultáneo del gran maestre Jacques de Molay y de decenas de templarios franceses. Las confesiones arrancadas bajo tortura alimentaron acusaciones de herejía, y en pocos años el papa disolvió la orden por completo."
   },
   "rte-joan-of-arc-burned": {
     "title": "Juana de Arco muere en la hoguera",
+    "shortDescription": "Capturada y juzgada por herejía, Juana de Arco fue quemada en la plaza del mercado de Ruan.",
     "longDescription": "Juana había guiado a las fuerzas francesas para liberar Orleans y había visto coronar a Carlos VII, pero fue capturada por los borgoñones y vendida a los ingleses. Un tribunal eclesiástico la condenó, y murió con unos diecinueve años; un juicio posterior limpió su nombre y con el tiempo fue canonizada."
   },
   "rte-fall-of-acre": {
     "title": "La caída de Acre",
+    "shortDescription": "El sultán mameluco al-Ashraf Jalil tomó Acre por asalto, lo que en la práctica acabó con los Estados cruzados.",
     "longDescription": "Tras un asedio de seis semanas, el ejército mameluco atravesó las murallas dobles de Acre. Templarios, hospitalarios y habitantes lucharon hasta el puerto mientras los barcos evacuaban a quienes podían, y las demás ciudades cruzadas de la costa fueron abandonadas en pocos meses."
   },
   "rte-black-prince-poitiers": {
     "title": "El Príncipe Negro vence en Poitiers",
+    "shortDescription": "Eduardo, el Príncipe Negro, derrotó a los franceses y tomó prisionero al rey Juan II.",
     "longDescription": "Acorralado cerca de Poitiers durante una incursión por Francia, el ejército más pequeño del Príncipe Negro, de arqueros y hombres de armas a pie, rechazó sucesivos ataques franceses. El rey Juan II y su joven hijo fueron capturados, y el enorme rescate exigido por él marcó la siguiente fase de la Guerra de los Cien Años."
   },
   "rte-las-navas-de-tolosa": {
     "title": "La Batalla de las Navas de Tolosa",
+    "shortDescription": "Castilla, Aragón y Navarra aplastaron al ejército almohade en Sierra Morena.",
     "longDescription": "Guiados por un paso de montaña oculto, los ejércitos combinados de Castilla, Aragón y Navarra sorprendieron al campamento almohade. La derrota quebró el poder almohade en la península ibérica y abrió el camino a las grandes conquistas cristianas de Córdoba y Sevilla en las décadas siguientes."
   },
   "rte-battle-on-the-ice": {
     "title": "La Batalla del Hielo",
+    "shortDescription": "El príncipe Alejandro Nevski de Nóvgorod derrotó a los caballeros livonios en el lago Peipus.",
     "longDescription": "La rama livona de la Orden Teutónica y sus aliados avanzaron hacia el este, sobre las tierras de Nóvgorod. El príncipe Alejandro Nevski les salió al paso en el lago helado y los rechazó, frenando el avance de la Cruzada del Norte hacia el este y convirtiéndose en una perdurable leyenda nacional rusa."
   },
   "rte-battle-of-castillon": {
     "title": "La Batalla de Castillon",
+    "shortDescription": "La artillería francesa destrozó un ataque inglés en la última batalla de la guerra de los Cien Años.",
     "longDescription": "El veterano comandante inglés John Talbot cargó contra un campamento de artillería francés fortificado y cayó junto con gran parte de su ejército. Burdeos se rindió poco después, y Calais quedó como el único punto de apoyo de Inglaterra en el continente."
   },
   "rte-barbarossa-drowns": {
     "title": "Federico Barbarroja se ahoga en la Cruzada",
+    "shortDescription": "El emperador del Sacro Imperio Federico I se ahogó en el río Saleph camino a Tierra Santa.",
     "longDescription": "Al frente de un gran ejército alemán en la Tercera Cruzada, el anciano emperador se ahogó cerca de Seleucia, en el sur de Anatolia. Sin él, la mayor parte de su ejército se dispersó, y Ricardo Corazón de León y Felipe II de Francia quedaron al frente de la cruzada."
   },
   "rte-battle-of-sluys": {
     "title": "La Batalla de La Esclusa",
+    "shortDescription": "Una flota inglesa aniquiló a la armada francesa anclada y ganó el control del canal de la Mancha.",
     "longDescription": "Al comienzo de la Guerra de los Cien Años, Eduardo III entró en el estuario donde los franceses habían concentrado sus barcos encadenados entre sí. Los arqueros y hombres de armas ingleses libraron la batalla en las cubiertas como si fuera en tierra, y la flota francesa quedó prácticamente aniquilada."
   },
   "rte-battle-of-arsuf": {
     "title": "La Batalla de Arsuf",
+    "shortDescription": "Los cruzados de Ricardo Corazón de León vencieron al ejército de Saladino en el camino costero a Jaffa.",
     "longDescription": "Marchando hacia el sur desde Acre durante la Tercera Cruzada, Ricardo mantuvo su columna con estricta disciplina bajo ataques constantes hasta que sus caballeros por fin cargaron cerca de Arsuf. La victoria aseguró la costa y el puerto de Jaffa, aunque los cruzados nunca recuperaron Jerusalén."
   },
   "rte-battle-of-montgisard": {
     "title": "La Batalla de Montgisard",
+    "shortDescription": "Balduino IV de Jerusalén y los templarios sorprendieron y dispersaron al ejército de Saladino.",
     "longDescription": "Saladino invadió el Reino de Jerusalén convencido de que su rey, joven y enfermo, no podría detenerlo. Balduino IV, junto a los caballeros templarios, sorprendió al ejército ayubí disperso cerca de Ramla y lo derrotó: una de las peores derrotas de Saladino."
   },
   "rte-siege-of-lisbon": {
     "title": "El asedio cruzado de Lisboa",
+    "shortDescription": "Alfonso Enríquez y una flota de voluntarios de la Segunda Cruzada arrebataron Lisboa a los musulmanes.",
     "longDescription": "Cruzados ingleses, flamencos y alemanes que navegaban hacia Tierra Santa fueron persuadidos de unirse al primer rey de Portugal para sitiar la Lisboa musulmana. Tras meses de asedio la ciudad se rindió, y más tarde se convertiría en la capital de Portugal."
   },
   "rte-krak-des-chevaliers-falls": {
     "title": "La rendición del Krak de los Caballeros",
+    "shortDescription": "El sultán Baibars engañó a la guarnición hospitalaria para que rindiera su imponente fortaleza.",
     "longDescription": "El sultán mameluco Baibars sitió el castillo concéntrico de los caballeros hospitalarios y penetró en su recinto exterior. Una carta, supuestamente del gran maestre de la orden, autorizó entonces a los defensores a rendirse: el castillo que había resistido más de un siglo cayó por una artimaña."
   },
   "rte-battle-of-nicopolis": {
     "title": "La Batalla de Nicópolis",
+    "shortDescription": "El sultán Bayaceto I destruyó un ejército cruzado húngaro y francés a orillas del Danubio.",
     "longDescription": "El rey Segismundo de Hungría y una hueste de caballeros franceses marcharon para frenar el avance otomano en los Balcanes. Las impetuosas cargas francesas se estrellaron contra las líneas de Bayaceto, y la derrota dejó a los otomanos libres para afianzar su dominio sobre el sudeste de Europa."
   },
   "rte-tang-dynasty-founded": {
     "title": "La fundación de la dinastía Tang",
+    "shortDescription": "Li Yuan fundó la dinastía Tang, cuya capital, Chang’an, se convirtió en el extremo oriental de la Ruta de la Seda.",
     "longDescription": "Cuando el último emperador Sui fue asesinado, el general Li Yuan proclamó una nueva dinastía. Bajo los Tang, Chang’an se convirtió en una de las ciudades más grandes de la Tierra, llena de mercaderes sogdianos, comerciantes persas y peregrinos budistas que llegaban por la Ruta de la Seda."
   },
   "rte-song-dynasty-founded": {
     "title": "La fundación de la dinastía Song",
+    "shortDescription": "Zhao Kuangyin se apoderó del trono de los Zhou Posteriores y fundó la dinastía Song.",
     "longDescription": "Proclamado emperador por sus propias tropas, Zhao Kuangyin —el emperador Taizu— reunificó la mayor parte de China. La era Song trajo el papel moneda, la imprenta, la brújula en el mar y un floreciente comercio marítimo a través de puertos como Quanzhou."
   },
   "rte-ming-dynasty-founded": {
     "title": "La fundación de la dinastía Ming",
+    "shortDescription": "Zhu Yuanzhang proclamó la dinastía Ming en Nankín y pronto tomó la capital de los Yuan.",
     "longDescription": "Salido de la pobreza a través de las rebeliones de los Turbantes Rojos, Zhu Yuanzhang se convirtió en el emperador Hongwu. Sus ejércitos tomaron Dadu ese mismo año, obligando al último emperador Yuan a huir al norte, hacia la estepa, y poniendo fin al dominio mongol en China."
   },
   "rte-death-of-genghis-khan": {
     "title": "La muerte de Gengis Kan",
+    "shortDescription": "Gengis Kan murió mientras sus ejércitos aplastaban el reino de Xia Occidental.",
     "longDescription": "A su muerte, el Imperio mongol se extendía desde el norte de China hasta el mar Caspio. Su lugar de sepultura se mantuvo en secreto, y sus hijos y nietos siguieron ampliando el imperio hasta unir Europa y Asia Oriental en una sola red comercial protegida."
   },
   "rte-kamikaze-destroys-mongol-fleet": {
     "title": "El kamikaze destruye la flota de Kublai Kan",
+    "shortDescription": "Un gran tifón, el “viento divino”, devastó la flota invasora de los Yuan frente a Kyushu.",
     "longDescription": "Kublai Kan envió una enorme armada de barcos mongoles, chinos y coreanos contra Japón. Los samuráis defendieron la costa de la bahía de Hakata durante semanas hasta que un tifón azotó la flota anclada y hundió gran parte de ella: el origen de la leyenda japonesa del kamikaze."
   },
   "rte-yuan-dynasty-proclaimed": {
     "title": "Kublai Kan proclama la dinastía Yuan",
+    "shortDescription": "Kublai Kan proclamó el Gran Yuan y gobernó China como una dinastía al estilo chino.",
     "longDescription": "Nieto de Gengis Kan, Kublai trasladó su capital a Dadu, donde hoy se encuentra Pekín, y presidió un imperio cuya paz mantenía la Ruta de la Seda terrestre llena de mercaderes, enviados y misioneros, entre ellos el veneciano Marco Polo."
   },
   "rte-battle-of-legnica": {
     "title": "La Batalla de Legnica",
+    "shortDescription": "Los jinetes mongoles aplastaron a Enrique el Piadoso de Silesia en el corazón de Europa Central.",
     "longDescription": "Mientras el ejército principal de Batu Kan invadía Hungría, un destacamento mongol arrasó Polonia. En Legnica derrotó a una fuerza silesia y polaca; el duque Enrique II el Piadoso fue muerto y decapitado cuando intentaba huir, y Europa tembló al ver hasta dónde habían llegado los mongoles hacia el oeste."
   },
   "rte-diamond-sutra-printed": {
     "title": "Se imprime el Sutra del Diamante",
+    "shortDescription": "Un hombre llamado Wang Jie mandó hacer un rollo budista impreso con planchas de madera para distribuirlo gratis.",
     "longDescription": "Sellado durante siglos en las grutas de Mogao de Dunhuang, un oasis de la Ruta de la Seda, el rollo lleva un colofón con la fecha exacta de su impresión. Lo adquirió Aurel Stein a comienzos del siglo XX y hoy lo conserva la Biblioteca Británica."
   },
   "rte-timur-sacks-delhi": {
     "title": "Tamerlán saquea Delhi",
+    "shortDescription": "Tamerlán derrotó al sultanato de Delhi y su ejército saqueó la ciudad durante días.",
     "longDescription": "Tamerlán, el gobernante turco-mongol de Samarcanda, invadió el norte de la India y derrotó al sultán Nasir-ud-Din Mahmud Shah a las afueras de Delhi. La ciudad fue saqueada, y Tamerlán se llevó artesanos y tesoros para embellecer su capital en la Ruta de la Seda."
   },
   "rte-mongol-siege-of-kyiv": {
     "title": "Los mongoles toman Kiev",
+    "shortDescription": "Tras un breve asedio, los mongoles de Batu Kan tomaron y devastaron Kiev.",
     "longDescription": "Kiev había sido la ciudad más grande de los principados de la Rus’. El asalto mongol atravesó sus murallas en pocos días, y la ruina de la ciudad marcó el inicio de siglos en los que las tierras de la Rus’ pagaron tributo a la Horda de Oro."
   },
   "rte-battle-of-yamen": {
     "title": "La Batalla de Yamen",
+    "shortDescription": "La armada Yuan destruyó la flota de los Song del Sur y puso fin a la dinastía Song.",
     "longDescription": "Lo que quedaba de la corte Song había huido a la costa sur con su emperador niño. Cuando la flota Yuan rompió la línea de barcos Song encadenados en Yamen, el ministro Lu Xiufu saltó al mar con el joven emperador, y Kublai Kan se convirtió en amo de toda China."
   },
   "rte-battle-of-the-kalka": {
     "title": "La Batalla del río Kalka",
+    "shortDescription": "Los mongoles de Subotai y Jebe aplastaron a un ejército de la Rus y los cumanos en la estepa.",
     "longDescription": "En una gran expedición de reconocimiento alrededor del mar Caspio, los generales mongoles Subotai y Jebe fingieron una retirada y se volvieron contra los príncipes de la Rus’ y los cumanos que los perseguían. Los príncipes capturados fueron aplastados bajo una plataforma de la victoria: un sombrío primer encuentro entre los mongoles y Europa."
   },
   "rte-battle-of-chioggia": {
     "title": "La Batalla de Chioggia",
+    "shortDescription": "Bloqueada dentro de la laguna de Venecia, la fuerza genovesa de Chioggia se rindió.",
     "longDescription": "Génova se había apoderado de Chioggia y amenazaba a la propia Venecia en la lucha entre las dos repúblicas marítimas por el control del comercio oriental. Venecia hundió barcos para encerrar a los genoveses, los rindió por hambre y aseguró su supremacía comercial."
   },
   "rte-battle-of-the-zab": {
     "title": "La Batalla del Zab",
+    "shortDescription": "Los rebeldes abasíes derrotaron al último califa omeya, Marwán II, a orillas del río Gran Zab.",
     "longDescription": "La victoria puso fin al dominio omeya desde Damasco y llevó al poder a los abasíes. Estos desplazaron el centro del mundo islámico hacia el este y fundaron Bagdad, cuyos mercados y sabios serían el eje de la Edad de Oro islámica en la encrucijada de la Ruta de la Seda."
   },
   "rte-treaty-of-stralsund": {
     "title": "El Tratado de Stralsund",
+    "shortDescription": "Las victoriosas ciudades hanseáticas obtuvieron privilegios comerciales y el control de fortalezas danesas.",
     "longDescription": "Tras la guerra con el rey Valdemar IV, las ciudades mercantes de la Liga Hanseática obligaron a Dinamarca a concederles libre comercio y a entregarles castillos a lo largo del Øresund durante años. El tratado marcó el apogeo del poder hanseático sobre el comercio del Báltico."
   },
   "rte-balboa-sights-pacific": {
     "title": "Balboa avista el Pacífico",
+    "shortDescription": "Vasco Núñez de Balboa fue el primer europeo en ver el Pacífico desde América.",
     "longDescription": "Tras cruzar el selvático istmo de Panamá con soldados españoles y guías indígenas, Balboa se adelantó solo hasta una cima y vio las aguas que llamó Mar del Sur. Días después se metió en el oleaje y reclamó el océano y todas sus costas para la Corona de Castilla."
   },
   "rte-magellan-enters-strait": {
     "title": "Magallanes entra en su estrecho",
+    "shortDescription": "Los barcos de Fernando de Magallanes se adentraron el día de Todos los Santos en el canal que hoy lleva su nombre.",
     "longDescription": "Tras meses explorando la costa de la Patagonia, la flota de Magallanes entró en un laberinto de canales fríos y sinuosos. La travesía duró treinta y ocho días, le costó un barco desertor y terminó en un océano tan tranquilo que lo llamó Pacífico."
   }
 }

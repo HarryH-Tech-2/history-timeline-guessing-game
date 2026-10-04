@@ -19,7 +19,7 @@ export function runGuessYears(rounds: readonly { guessYear?: number }[]): number
 }
 
 /**
- * "Challenge a friend with these questions" on a run summary: turns the run's
+ * "Challenge a friend" on a run summary, as its main action: turns the run's
  * questions into a challenge and opens the share sheet. Guests can use it too
  * (they have anonymous uids). Renders nothing unless the run had exactly
  * CHALLENGE_SIZE questions. With `guessYears` the run itself becomes the
@@ -66,8 +66,9 @@ export function ChallengeFromRun({
   return (
     <View className="gap-2">
       <Button
-        label={t('social.challenges.fromRun')}
-        variant="ghost"
+        label={t('social.challenges.create')}
+        sublabel={t('social.challenges.fromRunDetail')}
+        variant="hero"
         disabled={busy}
         testID="challenge-from-run"
         onPress={() => void create()}

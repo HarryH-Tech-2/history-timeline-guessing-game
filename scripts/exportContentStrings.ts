@@ -20,7 +20,10 @@ const out = {
     data.getCategories().map((c) => [c.id, { name: c.name, description: c.description }]),
   ),
   questions: Object.fromEntries(
-    data.getQuestions().map((q) => [q.id, { title: q.title, longDescription: q.longDescription }]),
+    data.getQuestions().map((q) => [
+      q.id,
+      { title: q.title, shortDescription: q.shortDescription, longDescription: q.longDescription },
+    ]),
   ),
   topics: Object.fromEntries(TOPICS.map((t) => [t.id, { name: t.name, blurb: t.blurb }])),
   regions: Object.fromEntries(data.REGIONS.map((r) => [r.id, { name: r.name, blurb: r.blurb }])),

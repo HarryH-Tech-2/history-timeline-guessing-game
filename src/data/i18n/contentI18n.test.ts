@@ -34,8 +34,14 @@ describe('translated catalogue', () => {
     setLanguage('pt-BR');
     const pt = getQuestionById('evt-moon-landing')!;
     expect(pt.title).not.toBe(en.title);
+    expect(pt.shortDescription).not.toBe(en.shortDescription);
     expect(pt.longDescription).not.toBe(en.longDescription);
-    expect({ ...pt, title: en.title, longDescription: en.longDescription }).toEqual(en);
+    expect({
+      ...pt,
+      title: en.title,
+      shortDescription: en.shortDescription,
+      longDescription: en.longDescription,
+    }).toEqual(en);
   });
 
   it('keeps seeded picks identical across languages (same Daily for everyone)', () => {
@@ -58,8 +64,20 @@ describe.each(LANGUAGES.filter((l) => l.code !== 'en').map((l) => l.code))('%s c
   it('translates every bundled question', () => {
     const missing = getQuestions()
       .map((q) => q.id)
-      .filter((id) => !overlay.questions[id]?.title || !overlay.questions[id]?.longDescription);
+      .filter(
+        (id) =>
+          !overlay.questions[id]?.title ||
+          !overlay.questions[id]?.shortDescription ||
+          !overlay.questions[id]?.longDescription,
+      );
     expect(missing).toEqual([]);
+  });
+
+  it('never names the answer year in the prompt line', () => {
+    const leaks = getQuestions()
+      .filter((q) => overlay.questions[q.id]?.shortDescription?.includes(String(Math.abs(q.year))))
+      .map((q) => q.id);
+    expect(leaks).toEqual([]);
   });
 
   it('only has translations for questions that exist', () => {

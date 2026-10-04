@@ -58,7 +58,7 @@ export const TRADE_QUESTIONS = [
     region: 'London',
     latitude: 51.5155,
     longitude: -0.0922,
-    shortDescription: 'A group of London merchants received a royal charter on the last day of 1600.',
+    shortDescription: 'A group of London merchants received a royal charter on the last day of the year.',
     longDescription:
       'The “Governor and Company of Merchants of London trading into the East Indies” began as a spice-trading venture. Over two centuries it grew into a private empire that ruled most of India with its own army.',
     source: 'https://en.wikipedia.org/wiki/East_India_Company',

@@ -1,5 +1,5 @@
 import { ScrollView, Text, View } from 'react-native';
-import Animated, { FadeInUp } from 'react-native-reanimated';
+import Animated, { Easing, FadeInDown } from 'react-native-reanimated';
 
 import { Button } from '@/components/ui';
 import type { RoundResult } from '@/domain';
@@ -56,6 +56,28 @@ function ribbonNote(verdict: Verdict): string | null {
   return null;
 }
 
+/** The sheet's entrance: a short eased rise, with no spring to settle. */
+const ENTER_MS = 220;
+const ENTERING = FadeInDown.duration(ENTER_MS).easing(Easing.out(Easing.cubic));
+
+/**
+ * The counting score. Its own component so each frame of the count re-renders
+ * this one number rather than the whole sheet, and held until the sheet has
+ * landed so the two never animate at once.
+ */
+function ScoreCount({ total, colour }: { total: number; colour: string }) {
+  const animatedScore = useCountUp(total, 700, ENTER_MS);
+  return (
+    <Text
+      className="text-3xl font-extrabold"
+      style={{ color: colour, fontVariant: ['tabular-nums'] }}
+      accessibilityLabel={t('round.reveal.scoreLabel', { score: String(total) })}
+    >
+      +{animatedScore}
+    </Text>
+  );
+}
+
 /**
  * Post-submission card: a verdict ribbon, the correct year as the hero, the
  * score in a chip, then the teaching moment. Lifts off the timeline as a
@@ -67,7 +89,6 @@ export function RevealSheet({
   onNext,
   nextLabel = t('round.reveal.next'),
 }: RevealSheetProps) {
-  const animatedScore = useCountUp(result.score.total);
   const { question } = result;
   const verdict = verdictOf(result);
   const ribbon = RIBBON[verdict];
@@ -75,7 +96,7 @@ export function RevealSheet({
 
   return (
     <Animated.View
-      entering={FadeInUp.springify().damping(16).stiffness(140)}
+      entering={ENTERING}
       className="px-3 pb-3"
       testID="reveal-sheet"
     >
@@ -145,13 +166,7 @@ export function RevealSheet({
               >
                 {t('round.reveal.score')}
               </Text>
-              <Text
-                className="text-3xl font-extrabold"
-                style={{ color: categoryColour, fontVariant: ['tabular-nums'] }}
-                accessibilityLabel={t('round.reveal.scoreLabel', { score: String(result.score.total) })}
-              >
-                +{animatedScore}
-              </Text>
+              <ScoreCount total={result.score.total} colour={categoryColour} />
             </View>
           </View>
 

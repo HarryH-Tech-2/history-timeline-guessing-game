@@ -145,4 +145,19 @@ describe('RunSummary', () => {
       .map((b) => b.props.accessibilityLabel as string);
     expect(labels.indexOf('Share result')).toBeLessThan(labels.indexOf('Home'));
   });
+
+  it('still takes the player out from a quiet primary button', () => {
+    const onPrimary = jest.fn();
+    render(
+      <RunSummary
+        title="Daily complete"
+        totalScore={900}
+        primaryLabel="Home"
+        onPrimary={onPrimary}
+        quietPrimary
+      />,
+    );
+    fireEvent.press(screen.getByTestId('summary-primary'));
+    expect(onPrimary).toHaveBeenCalledTimes(1);
+  });
 });

@@ -88,7 +88,7 @@ export const social = {
   },
   challenges: {
     create: '⚔️ 友達にチャレンジ',
-    fromRun: '⚔️ この問題で友達にチャレンジ',
+    fromRunDetail: '同じ8問で勝負',
     play: 'プレイ',
     empty: '友達に同じ8問でチャレンジして、どちらが歴史に詳しいか確かめよう。',
     yours: 'あなたのチャレンジ',

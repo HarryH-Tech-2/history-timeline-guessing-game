@@ -3,6 +3,7 @@ import type { Translation } from '../../types';
 /** The guess loop: round screen, reveal, HUD, hints, run summary, share card. */
 export const round = {
   submitGuess: '回答する',
+  submit: '回答する',
   image: {
     enlarge: '{title}のイラストを拡大',
     close: '画像を閉じる',
@@ -66,7 +67,7 @@ export const round = {
     free: '無料',
     cost: '{cost} 🪙',
     used: '{label} 使用済み',
-    usedTag: '· ✓ 使用済み',
+    usedTag: '✓ 使用済み',
     buttonLabel: '{label}、{price}',
     tapToAnswer: '年をタップして回答 · 得点半分',
     answer: '{year}と回答',

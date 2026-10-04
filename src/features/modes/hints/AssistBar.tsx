@@ -27,7 +27,7 @@ interface AssistBarProps {
   onChoicesShown?: () => void;
 }
 
-/** A small coin-priced helper pill, sized to its content: glyph, name and
+/** A coin-priced helper beside Submit, as tall as it: glyph and name over the
  * price (a tick once it has been used this round). */
 function AssistButton({
   glyph,
@@ -56,31 +56,29 @@ function AssistButton({
       accessibilityState={{ disabled: inactive }}
       testID={testID}
       className={cn(
-        'h-10 flex-row items-center gap-1.5 rounded-full border px-4 active:opacity-70',
+        'h-16 flex-1 items-center justify-center gap-0.5 rounded-xl border px-1.5 active:opacity-70',
         used ? 'border-hair bg-bg-overlay' : 'border-accent/35 bg-accent/5',
       )}
       style={{ opacity: disabled && !used ? 0.45 : 1 }}
     >
-      <Text className="text-sm" style={{ includeFontPadding: false }}>
-        {glyph}
-      </Text>
       <Text
-        className={cn('text-sm font-bold', used ? 'text-ink-muted' : 'text-ink-primary')}
+        className={cn('text-[13px] font-bold', used ? 'text-ink-muted' : 'text-ink-primary')}
         numberOfLines={1}
+        adjustsFontSizeToFit
+        minimumFontScale={0.8}
       >
-        {label}
+        {glyph} {label}
       </Text>
-      <Text className="text-xs font-semibold text-ink-muted" numberOfLines={1}>
-        {used ? t('round.hints.usedTag') : `· ${price}`}
+      <Text className="text-[11px] font-semibold text-ink-muted" numberOfLines={1}>
+        {used ? t('round.hints.usedTag') : price}
       </Text>
     </Pressable>
   );
 }
 
 /**
- * The guess footer: the century hint and multiple choice as a pair of
- * coin-priced chips above a full-width Submit, with whatever they unlocked
- * shown above the chips.
+ * The guess footer, one row: the century hint and multiple choice either side
+ * of Submit, with whatever they unlocked shown above the row.
  * Mounted per question (RoundView keys it), so it starts fresh each round.
  */
 export function AssistBar({ question, onSubmit, onChoose, onChoicesShown }: AssistBarProps) {
@@ -165,7 +163,7 @@ export function AssistBar({ question, onSubmit, onChoose, onChoicesShown }: Assi
         </View>
       )}
 
-      <View className="flex-row justify-center gap-3" testID="assist-row">
+      <View className="flex-row items-center gap-2" testID="assist-row">
         <AssistButton
           glyph="💡"
           label={t('round.hints.hint')}
@@ -175,6 +173,15 @@ export function AssistBar({ question, onSubmit, onChoose, onChoicesShown }: Assi
           onPress={buyHint}
           testID="hint-button"
         />
+        {choices === null && (
+          <Button
+            variant="hero"
+            label={t('round.submit')}
+            onPress={onSubmit}
+            className="flex-[1.4] px-2"
+            testID="submit-button"
+          />
+        )}
         <AssistButton
           glyph="🔢"
           label={t('round.hints.fourChoices')}
@@ -185,10 +192,6 @@ export function AssistBar({ question, onSubmit, onChoose, onChoicesShown }: Assi
           testID="choices-button"
         />
       </View>
-
-      {choices === null && (
-        <Button variant="hero" label={t('round.submitGuess')} onPress={onSubmit} testID="submit-button" />
-      )}
     </View>
   );
 }

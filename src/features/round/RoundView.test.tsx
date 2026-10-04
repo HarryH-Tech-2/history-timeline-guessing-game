@@ -219,6 +219,13 @@ describe('RoundView reveal illustration', () => {
     expect(screen.queryByTestId('prompt-image')).toBeNull();
   });
 
+  it('shows the line about the event under the title while guessing', () => {
+    render(
+      <RoundView question={question} phase="guessing" result={null} onSubmit={jest.fn()} onNext={jest.fn()} />,
+    );
+    expect(screen.getByTestId('prompt-description')).toHaveTextContent('Independence declared.');
+  });
+
   it('keeps the same timeline views mounted behind the illustration', () => {
     // Unmounting ~200 animated ticks while the reveal re-frame is in flight
     // leaves Reanimated pushing updates to views that no longer exist, which

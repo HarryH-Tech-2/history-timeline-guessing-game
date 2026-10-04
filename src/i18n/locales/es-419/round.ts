@@ -2,6 +2,7 @@ import type { Translation } from '../../types';
 
 export const round = {
   submitGuess: 'Enviar respuesta',
+  submit: 'Enviar',
   image: {
     enlarge: 'Ampliar la ilustración de {title}',
     close: 'Cerrar imagen',
@@ -65,7 +66,7 @@ export const round = {
     free: 'Gratis',
     cost: '{cost} 🪙',
     used: '{label} usada',
-    usedTag: '· ✓ Usada',
+    usedTag: '✓ Usada',
     buttonLabel: '{label}, {price}',
     tapToAnswer: 'Toca un año para responder · mitad de puntos',
     answer: 'Responder {year}',

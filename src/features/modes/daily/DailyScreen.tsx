@@ -18,7 +18,6 @@ import { ModeHud } from '../components/ModeHud';
 import { AssistBar } from '../hints/AssistBar';
 import { roundDetail, RunSummary, type SummaryRow } from '../components/RunSummary';
 import type { DailyRecord } from '../persistence';
-import { dailyShareData } from './shareCard';
 import { useDailySession } from './useDailySession';
 
 function DailySummary({ record, onHome }: { record: DailyRecord; onHome: () => void }) {
@@ -48,9 +47,10 @@ function DailySummary({ record, onHome }: { record: DailyRecord; onHome: () => v
       ]}
       rounds={rounds}
       // Just finished today's: the natural moment to offer tomorrow's reminder.
-      // Replaying today's eight as a challenge is the Daily's social hook.
+      // Challenging a friend to today's eight is the one action here (user
+      // decision, 2026-10-04: it replaced the Share button), so Home is quiet.
       notice={
-        <View className="gap-2">
+        <View className="gap-3">
           <ReminderNudge />
           <ChallengeFromRun
             questionIds={record.rounds.map((r) => r.questionId)}
@@ -59,9 +59,7 @@ function DailySummary({ record, onHome }: { record: DailyRecord; onHome: () => v
           />
         </View>
       }
-      // Share is the primary action on purpose: the card is the game's
-      // main word-of-mouth lever (user decision, 2026-09-01).
-      share={{ data: dailyShareData(record), mode: 'daily', primary: true }}
+      quietPrimary
       primaryLabel={t('modes.run.home')}
       onPrimary={onHome}
     />

@@ -23,6 +23,13 @@ describe('seed data', () => {
     expect(getQuestions().some((q) => q.categoryId === 'continents')).toBe(false);
   });
 
+  it('never names the answer year in what is shown before the guess', () => {
+    const leaks = getQuestions()
+      .filter((q) => [q.title, q.shortDescription].some((text) => text.includes(String(Math.abs(q.year)))))
+      .map((q) => q.id);
+    expect(leaks).toEqual([]);
+  });
+
   it('provides at least ten questions per category', () => {
     for (const category of getCategories()) {
       expect(getQuestionsByCategory(category.id).length).toBeGreaterThanOrEqual(10);

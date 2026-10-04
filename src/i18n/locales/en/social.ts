@@ -89,7 +89,7 @@ export const social = {
   },
   challenges: {
     create: '⚔️ Challenge a friend',
-    fromRun: '⚔️ Challenge a friend with these questions',
+    fromRunDetail: 'Same 8 questions',
     play: 'Play',
     empty: 'Challenge a friend to the same 8 questions and see who knows their history.',
     yours: 'Your challenge',

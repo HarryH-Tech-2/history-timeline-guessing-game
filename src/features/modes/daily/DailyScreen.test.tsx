@@ -1,6 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
-import RNShare from 'react-native-share';
 
 import type { Category, Question } from '@/domain';
 
@@ -65,7 +64,6 @@ jest.mock('@/data', () => ({
 }));
 
 // eslint-disable-next-line import/first
-import { STORE_URL } from '../share';
 import { DailyScreen } from './DailyScreen';
 
 describe('DailyScreen', () => {
@@ -94,23 +92,12 @@ describe('DailyScreen', () => {
     // The run is now complete and locked behind the summary.
     await waitFor(() => {
       expect(screen.getByText('Daily complete')).toBeOnTheScreen();
-      expect(screen.getByTestId('summary-share')).toBeOnTheScreen();
     });
 
-    // Sharing captures the off-screen image card and hands the OS sheet the
-    // PNG plus the store link; the card itself carries the result.
-    expect(screen.getByTestId('share-card')).toBeOnTheScreen();
-    fireEvent.press(screen.getByText('Share result'));
-    await waitFor(() => expect(RNShare.open).toHaveBeenCalledTimes(1));
-    const options = jest.mocked(RNShare.open).mock.calls[0]![0] as {
-      url: string;
-      type: string;
-      message: string;
-    };
-    expect(options.url).toBe('file:///tmp/capture.png');
-    expect(options.type).toBe('image/png');
-    // The picture is the whole message: only the store link rides along.
-    expect(options.message).toBe(STORE_URL ?? undefined);
+    // The summary offers no result share: challenging a friend is its one
+    // action (shown for a full eight-question Daily), and Home is the way out.
+    expect(screen.queryByTestId('summary-share')).toBeNull();
+    expect(screen.queryByTestId('share-card')).toBeNull();
     expect(screen.getByText('Home')).toBeOnTheScreen();
   });
 });

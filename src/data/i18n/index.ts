@@ -25,13 +25,13 @@ import ptQ6 from './pt-BR/questions-6.json';
 
 /**
  * Translated catalogue text, keyed by id. Only what players see is
- * translated: a question's title and reveal description; a category's name
+ * translated: a question's title, prompt line and reveal description; a category's name
  * and description; topic/region names and blurbs; route names. Anything
  * missing (e.g. a question added later, or only in Firestore) falls back to
  * the English row, so a new question never shows up blank.
  */
 interface ContentOverlay {
-  questions: Record<string, { title: string; longDescription: string }>;
+  questions: Record<string, { title: string; shortDescription?: string; longDescription: string }>;
   categories: Record<string, { name: string; description: string }>;
   topics: Record<string, { name: string; blurb: string }>;
   regions: Record<string, { name: string; blurb: string }>;
@@ -50,7 +50,15 @@ export function contentOverlay(language: Language): ContentOverlay | undefined {
 
 export function localizeQuestion(question: Question, overlay: ContentOverlay | undefined): Question {
   const text = overlay?.questions[question.id];
-  return text ? { ...question, title: text.title, longDescription: text.longDescription } : question;
+  if (!text) return question;
+  // A translated question with no prompt line yet shows none, rather than an
+  // English sentence under a translated title.
+  return {
+    ...question,
+    title: text.title,
+    shortDescription: text.shortDescription ?? '',
+    longDescription: text.longDescription,
+  };
 }
 
 export function localizeCategory(category: Category, overlay: ContentOverlay | undefined): Category {
