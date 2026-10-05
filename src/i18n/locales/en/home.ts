@@ -1,5 +1,6 @@
 export const home = {
   seePremium: 'See Premium',
+  tryFree: 'Try it free',
   streakChip: { one: '{count}-day streak', other: '{count}-day streak' },
   theme: {
     toLight: 'Switch to light mode',
@@ -61,11 +62,19 @@ export const home = {
     refillRate: 'Hearts refill one every 15 minutes.',
     goPremium: 'Go Premium · unlimited hearts',
     refill: 'Refill hearts · {cost} 🪙',
+    trialCta: { one: 'Keep playing · {count} day free', other: 'Keep playing · {count} days free' },
+    trialSub: 'Unlimited hearts with Premium',
   },
   signInNudge: {
     title: 'Keep your progress',
     body: 'Your progress is saved on this device. Back it up to Google and your campaign, museum, XP and coins follow you to a new phone.',
     notNow: 'Not now',
+  },
+  /** The free trial's recap card, in the days before the first charge. */
+  trialRecap: {
+    rounds: { one: '{count} round played', other: '{count} rounds played' },
+    heartsSaved: { one: '{count} heart saved', other: '{count} hearts saved' },
+    soFar: 'So far with Premium: {stats}',
   },
   winback: {
     title: '{percent}% off your first year',

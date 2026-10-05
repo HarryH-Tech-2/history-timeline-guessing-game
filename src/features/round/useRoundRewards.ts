@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { costsHeart, heartsAtStake } from '@/domain';
 import { usePremium } from '@/features/premium';
+import { recordTrialRound } from '@/features/premium/trialRecap';
 import { achievementById, useProgression } from '@/features/progression';
 import { requestReviewAfterRun } from '@/features/review';
 import { streakLength } from '@/features/timeline/math';
@@ -74,9 +75,10 @@ export function useRoundRewards(
     // A loose guess costs a heart — unless this mode has its own lives, the
     // player holds Premium (unlimited hearts), or they are still in the free
     // games every new player gets before hearts are at stake.
-    if (usesHearts && !isPremium && heartsAtStake(state.stats) && costsHeart(latest)) {
-      loseHeart();
-    }
+    const heartAtRisk = usesHearts && heartsAtStake(state.stats) && costsHeart(latest);
+    if (heartAtRisk && !isPremium) loseHeart();
+    // During a free trial, keep count of what Premium is doing for the player.
+    if (isPremium) void recordTrialRound(heartAtRisk);
   }, [session.results, awardRound, loseHeart, usesHearts, isPremium, state.stats]);
 
   useEffect(() => {

@@ -18,6 +18,11 @@ export const reminders = {
       other: '無料トライアルはあと{count}日で終了します',
     },
     body: 'そのままでプレミアムを継続。解約は{store}からいつでもできます。',
+    /** The same reminder once the player has played with Premium. */
+    bodyStats: {
+      one: 'プレミアムでここまで{count}ラウンドプレイ。そのままで継続、解約は{store}からいつでもできます。',
+      other: 'プレミアムでここまで{count}ラウンドプレイ。そのままで継続、解約は{store}からいつでもできます。',
+    },
   },
   winback: {
     title: 'プレミアム初年度が{percent}%オフ',

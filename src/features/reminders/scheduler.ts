@@ -113,6 +113,42 @@ export async function scheduleTrialReminder({
   }
 }
 
+/**
+ * Re-write the pending trial reminder so it says how much the player has
+ * played with Premium so far. Only when notifications are already allowed
+ * (the purchase asked), and only while `at` is still ahead. Never rejects.
+ */
+export async function refreshTrialReminder({
+  at,
+  daysLeft,
+  rounds,
+}: {
+  at: Date;
+  daysLeft: number;
+  rounds: number;
+}): Promise<void> {
+  try {
+    if (at.getTime() <= Date.now()) return;
+    const current = await Notifications.getPermissionsAsync();
+    if (!current.granted) return;
+    await Notifications.cancelScheduledNotificationAsync(TRIAL_REMINDER_ID);
+    await Notifications.scheduleNotificationAsync({
+      identifier: TRIAL_REMINDER_ID,
+      content: {
+        title: t('reminders.trial.title', { count: daysLeft }),
+        body: t('reminders.trial.bodyStats', { count: rounds, store: STORE_LABEL }),
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DATE,
+        date: at,
+        channelId: REMINDER_CHANNEL_ID,
+      },
+    });
+  } catch {
+    // Best effort.
+  }
+}
+
 /** The pending "your win-back discount is here" reminder. */
 export const WINBACK_REMINDER_ID = 'winback-offer';
 

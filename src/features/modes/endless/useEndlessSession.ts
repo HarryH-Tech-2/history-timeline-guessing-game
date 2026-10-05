@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { getRandomQuestion } from '@/data';
+import type { RoundResult } from '@/domain';
 import { useGameSession, type GameSession } from '@/features/round';
 import { useSaves } from '@/features/save';
 import { comboModifiers } from '@/features/timeline/math';
@@ -15,8 +16,10 @@ export interface EndlessSession {
  * Endless: an open-ended stream of random questions with no lives to lose.
  * The run only ends when the player leaves; the best score is banked live as
  * the total climbs, so nothing is lost by walking away mid-run.
+ *
+ * With `limit` (a free player's taster) the run finishes after that many rounds.
  */
-export function useEndlessSession(): EndlessSession {
+export function useEndlessSession(limit?: number): EndlessSession {
   const seen = useRef<Set<string>>(new Set());
 
   const first = useCallback(() => {
@@ -25,12 +28,16 @@ export function useEndlessSession(): EndlessSession {
     return q;
   }, []);
 
-  const next = useCallback(() => {
-    if (seen.current.size >= 1000) seen.current.clear();
-    const q = getRandomQuestion(seen.current);
-    seen.current.add(q.id);
-    return q;
-  }, []);
+  const next = useCallback(
+    (results: readonly RoundResult[]) => {
+      if (limit !== undefined && results.length >= limit) return null;
+      if (seen.current.size >= 1000) seen.current.clear();
+      const q = getRandomQuestion(seen.current);
+      seen.current.add(q.id);
+      return q;
+    },
+    [limit],
+  );
 
   const session = useGameSession({
     mode: 'endless',

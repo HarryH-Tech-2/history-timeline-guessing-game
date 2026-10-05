@@ -36,6 +36,16 @@ export const modes = {
     bestValue: { one: '{count}ラウンド · {score}', other: '{count}ラウンド · {score}' },
     shareTitle: { one: 'サバイバル · {count}ラウンド', other: 'サバイバル · {count}ラウンド' },
   },
+  /** A free player's taster of Endless or a premium category. */
+  sample: {
+    round: '無料お試し · {round}/{total}',
+    overTitle: '{name}のお試しはここまで',
+    played: { one: '{count}ラウンドプレイ', other: '{count}ラウンドプレイ' },
+    withPremium: 'プレミアムなら{total}',
+    keepPlaying: '{name}を続ける',
+    endlessBody: 'プレミアムなら終わりなし。全問題にライフ無制限で挑戦できます。',
+    categoryBody: 'プレミアムなら{name}の全問題をプレイでき、ハートも無制限に。',
+  },
   endless: {
     round: 'ラウンド{round}',
     roundBest: 'ラウンド{round} · ベスト{best}',

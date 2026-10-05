@@ -18,6 +18,11 @@ export const reminders = {
       other: 'Seu teste grátis termina em {count} dias',
     },
     body: 'Não faça nada para continuar Premium, ou cancele quando quiser na loja {store}.',
+    /** The same reminder once the player has played with Premium. */
+    bodyStats: {
+      one: '{count} rodada jogada com o Premium até agora. Não faça nada para continuar, ou cancele quando quiser na loja {store}.',
+      other: '{count} rodadas jogadas com o Premium até agora. Não faça nada para continuar, ou cancele quando quiser na loja {store}.',
+    },
   },
   winback: {
     title: '{percent}% de desconto no seu primeiro ano de Premium',

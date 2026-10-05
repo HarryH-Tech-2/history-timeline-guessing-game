@@ -2,6 +2,7 @@ import type { Translation } from '../../types';
 
 export const home = {
   seePremium: 'プレミアムを見る',
+  tryFree: '無料でお試し',
   streakChip: { one: '{count}日連続', other: '{count}日連続' },
   theme: {
     toLight: 'ライトモードに切り替え',
@@ -61,11 +62,19 @@ export const home = {
     refillRate: 'ハートは15分ごとに1つ回復します。',
     goPremium: 'プレミアムにする · ハート無制限',
     refill: 'ハートを回復 · {cost} 🪙',
+    trialCta: { one: 'プレイを続ける · {count}日間無料', other: 'プレイを続ける · {count}日間無料' },
+    trialSub: 'プレミアムならハート無制限',
   },
   signInNudge: {
     title: '進行状況を守ろう',
     body: '進行状況はこの端末に保存されています。Googleにバックアップすれば、キャンペーン、博物館、XP、コインを新しいスマホに引き継げます。',
     notNow: '今はしない',
+  },
+  /** The free trial's recap card, in the days before the first charge. */
+  trialRecap: {
+    rounds: { one: '{count}ラウンドプレイ', other: '{count}ラウンドプレイ' },
+    heartsSaved: { one: 'ハート{count}個を節約', other: 'ハート{count}個を節約' },
+    soFar: 'プレミアムでここまで：{stats}',
   },
   winback: {
     title: '初年度{percent}%オフ',

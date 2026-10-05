@@ -45,6 +45,13 @@ describe('useCategorySession', () => {
     expect(new Set(asked)).toEqual(new Set(pool.map((q) => q.id)));
   });
 
+  it('deals only a taster when given a limit', () => {
+    const { result } = renderHook(() => useCategorySession(categoryId, undefined, 3));
+    expect(result.current.totalQuestions).toBe(3);
+    playThrough(result, 3);
+    expect(result.current.session.status).toBe('finished');
+  });
+
   it('deals a Regional run of at most ten distinct questions from the chosen region', () => {
     expect(REGION_RUN_LENGTH).toBe(10);
     const regionPool = getRegionalQuestions('oceania');

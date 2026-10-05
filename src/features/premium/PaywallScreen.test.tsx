@@ -135,7 +135,7 @@ describe('PaywallScreen', () => {
     await act(async () => {
       fireEvent.press(screen.getByTestId('paywall-subscribe'));
     });
-    expect(mockPremium.purchase).toHaveBeenCalledWith('yearly', 'run_summary');
+    expect(mockPremium.purchase).toHaveBeenCalledWith('monthly', 'run_summary');
   });
 
   it('closes back to whatever opened it', () => {
@@ -154,17 +154,17 @@ describe('PaywallScreen', () => {
     expect(mockRouter.replace).toHaveBeenCalledWith('/');
   });
 
-  it('defaults to yearly and relabels the button as plans change', () => {
+  it('defaults to monthly and relabels the button as plans change', () => {
     render(<PaywallScreen />);
     const cta = () => within(screen.getByTestId('paywall-subscribe'));
-    expect(cta().getByText('Get my yearly subscription')).toBeOnTheScreen();
-    expect(cta().getByText('£14.99 / year')).toBeOnTheScreen();
+    expect(cta().getByText('Get my monthly subscription')).toBeOnTheScreen();
+    expect(cta().getByText('£2.49 / month')).toBeOnTheScreen();
     fireEvent.press(screen.getByTestId('paywall-plan-lifetime'));
     expect(cta().getByText('Get lifetime access')).toBeOnTheScreen();
     expect(cta().getByText('£39.99 once')).toBeOnTheScreen();
-    fireEvent.press(screen.getByTestId('paywall-plan-monthly'));
-    expect(cta().getByText('Get my monthly subscription')).toBeOnTheScreen();
-    expect(cta().getByText('£2.49 / month')).toBeOnTheScreen();
+    fireEvent.press(screen.getByTestId('paywall-plan-yearly'));
+    expect(cta().getByText('Get my yearly subscription')).toBeOnTheScreen();
+    expect(cta().getByText('£14.99 / year')).toBeOnTheScreen();
   });
 
   it('shows the trial badge, CTA and timeline on the monthly plan when eligible', () => {
@@ -176,7 +176,8 @@ describe('PaywallScreen', () => {
     expect(monthly.getByTestId('paywall-free-monthly')).toHaveTextContent('Free');
     expect(monthly.getByText('for 7 days')).toBeOnTheScreen();
     expect(monthly.getByText('then £2.49 / month')).toBeOnTheScreen();
-    // Yearly (the default) has no trial: normal CTA, no timeline.
+    // Yearly has no trial: normal CTA, no timeline.
+    fireEvent.press(screen.getByTestId('paywall-plan-yearly'));
     expect(screen.queryByTestId('paywall-trial-timeline')).toBeNull();
     fireEvent.press(screen.getByTestId('paywall-plan-monthly'));
     expect(
@@ -190,8 +191,8 @@ describe('PaywallScreen', () => {
     expect(timeline.getByText('£2.49 / month, cancel anytime')).toBeOnTheScreen();
   });
 
-  it('leads with the trial on the default yearly plan when it has one', async () => {
-    mockPremium.trialDays = { yearly: 7 };
+  it('leads with the trial on the default monthly plan when it has one', async () => {
+    mockPremium.trialDays = { monthly: 7 };
     mockPremium.purchase.mockImplementation(async () => 'purchased');
     render(<PaywallScreen />);
     expect(
@@ -301,8 +302,8 @@ describe('PaywallScreen funnel and win-back', () => {
   it('reports each plan the player taps', () => {
     mockParams = { source: 'hearts' };
     render(<PaywallScreen />);
-    fireEvent.press(screen.getByTestId('paywall-plan-monthly'));
-    expect(track).toHaveBeenCalledWith('paywall_plan_selected', { plan: 'monthly', source: 'hearts' });
+    fireEvent.press(screen.getByTestId('paywall-plan-yearly'));
+    expect(track).toHaveBeenCalledWith('paywall_plan_selected', { plan: 'yearly', source: 'hearts' });
   });
 
   it('reports leaving without buying, and starts the win-back clock', () => {

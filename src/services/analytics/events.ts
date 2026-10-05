@@ -22,7 +22,12 @@ export type PurchaseOffer = 'standard' | 'trial' | 'winback';
 export type AppTab = 'play' | 'campaign' | 'museum' | 'social' | 'profile';
 
 /** A proactive Premium pitch placed outside the paywall itself. */
-export type UpsellPlacement = 'run_summary' | 'home_chip' | 'era_complete' | 'winback_card';
+export type UpsellPlacement =
+  | 'run_summary'
+  | 'home_chip'
+  | 'era_complete'
+  | 'winback_card'
+  | 'trial_recap';
 
 /**
  * Every usage event the app records, with the properties each carries. One
@@ -62,6 +67,10 @@ export interface AnalyticsEvents {
   paywall_viewed: { source: PaywallSource };
   /** A Premium upsell was rendered (click-through = paywall_viewed by source / this). */
   upsell_shown: { placement: UpsellPlacement };
+  /** A free player made the first guess of a Premium taster ('endless' or 'category:<id>'). */
+  sample_started: { target: string };
+  /** A Premium taster was played to its end. */
+  sample_completed: { target: string; score: number };
   /** A plan was tapped on the paywall (the funnel step between viewing and buying). */
   paywall_plan_selected: { plan: string; source: PaywallSource };
   /** The buy button was pressed: the store's purchase sheet is opening. */

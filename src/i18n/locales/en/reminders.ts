@@ -17,6 +17,11 @@ export const reminders = {
       other: 'Your free trial ends in {count} days',
     },
     body: 'Do nothing to keep Premium, or cancel anytime in {store}.',
+    /** The same reminder once the player has played with Premium. */
+    bodyStats: {
+      one: '{count} round played with Premium so far. Do nothing to keep it, or cancel anytime in {store}.',
+      other: '{count} rounds played with Premium so far. Do nothing to keep it, or cancel anytime in {store}.',
+    },
   },
   winback: {
     title: '{percent}% off your first year of Premium',

@@ -8,6 +8,8 @@ import { getCategories } from '@/data';
 import { activeStreakCount, type Category } from '@/domain';
 import { usePremium } from '@/features/premium';
 import { paywallHref } from '@/features/premium/paywallSource';
+import { categorySample, useSamples } from '@/features/premium/sample';
+import { TrialRecapCard } from '@/features/premium/TrialRecapCard';
 import { WinbackCard } from '@/features/premium/WinbackCard';
 import { ProfileHeader, useProgression } from '@/features/progression';
 import { t, type TranslationKey } from '@/i18n';
@@ -85,12 +87,15 @@ function ModeCard({
   mode,
   index,
   locked,
+  taster,
   onPress,
 }: {
   mode: ModeCardData;
   index: number;
   /** Premium-only and the player isn't subscribed: shows a lock, opens the paywall. */
   locked: boolean;
+  /** Locked, but the free taster is unplayed: the card opens it. */
+  taster: boolean;
   onPress: () => void;
 }) {
   const title = t(mode.title);
@@ -103,13 +108,13 @@ function ModeCard({
         testID={`mode-${mode.key}`}
         className="flex-row items-center gap-4 overflow-hidden border border-hair bg-bg-raised p-4"
       >
-        <IconPlaque glyph={locked ? '🔒' : mode.icon} />
+        <IconPlaque glyph={locked && !taster ? '🔒' : mode.icon} />
         <View className="flex-1">
           <View className="flex-row items-center gap-2">
             <Text className="text-lg font-bold text-ink-primary">{title}</Text>
             {locked && (
               <Text className="text-[11px] font-bold uppercase tracking-wide text-accent">
-                Premium
+                {taster ? t('home.tryFree') : 'Premium'}
               </Text>
             )}
           </View>
@@ -126,12 +131,15 @@ function CategoryCard({
   category,
   index,
   locked,
+  taster,
   onPress,
 }: {
   category: Category;
   index: number;
   /** Premium-only and the player isn't subscribed: shows a lock, opens the paywall. */
   locked: boolean;
+  /** Locked, but the free taster is unplayed: the card opens it. */
+  taster: boolean;
   onPress: () => void;
 }) {
   return (
@@ -151,13 +159,15 @@ function CategoryCard({
         className="gap-2 overflow-hidden border border-hair bg-bg-raised p-4"
       >
         <View className="flex-row items-center gap-2.5">
-          <IconPlaque glyph={locked ? '🔒' : categoryIcon(category.icon)} size="md" />
+          <IconPlaque glyph={locked && !taster ? '🔒' : categoryIcon(category.icon)} size="md" />
           <Text numberOfLines={2} className="flex-1 text-base font-bold leading-tight text-ink-primary">
             {category.name}
           </Text>
         </View>
         {locked && (
-          <Text className="text-[11px] font-bold uppercase tracking-wide text-accent">Premium</Text>
+          <Text className="text-[11px] font-bold uppercase tracking-wide text-accent">
+            {taster ? t('home.tryFree') : 'Premium'}
+          </Text>
         )}
         <Text numberOfLines={2} className="text-xs text-ink-secondary">
           {category.description}
@@ -190,6 +200,7 @@ export function HomeHub() {
   const { mode, toggle } = useTheme();
   const { isPremium, isLoading: premiumLoading } = usePremium();
   const { state } = useProgression();
+  const { canSample } = useSamples();
   // Wait for the cached entitlement so a subscriber never sees the chip flash.
   const showPremiumChip = !isPremium && !premiumLoading;
   const chipReported = useRef(false);
@@ -274,6 +285,7 @@ export function HomeHub() {
 
         <ProfileHeader />
 
+        <TrialRecapCard />
         <WinbackCard />
         <DailyHeroCard onPress={() => router.push('/daily')} />
         <StreakSheet
@@ -291,14 +303,17 @@ export function HomeHub() {
         </Text>
         {MODES.map((mode, index) => {
           const locked = mode.premiumOnly === true && !isPremium;
+          // Endless is the one premium mode, and it has a free taster.
+          const taster = locked && canSample('endless');
           return (
             <ModeCard
               key={mode.key}
               mode={mode}
               index={index}
               locked={locked}
+              taster={taster}
               onPress={() => {
-                if (locked) router.push(paywallHref('locked_mode'));
+                if (locked && !taster) router.push(paywallHref('locked_mode'));
                 else if (mode.tab) router.navigate(mode.route);
                 else router.push(mode.route);
               }}
@@ -315,14 +330,20 @@ export function HomeHub() {
             .sort((a, b) => a.displayOrder - b.displayOrder)
             .map((category, index) => {
               const locked = category.premiumOnly && !isPremium;
+              const taster = locked && canSample(categorySample(category.id));
               return (
                 <CategoryCard
                   key={category.id}
                   category={category}
                   index={index}
                   locked={locked}
+                  taster={taster}
                   onPress={() =>
-                    router.push(locked ? paywallHref('locked_category', { category: category.id }) : `/category/${category.id}`)
+                    router.push(
+                      locked && !taster
+                        ? paywallHref('locked_category', { category: category.id })
+                        : `/category/${category.id}`,
+                    )
                   }
                 />
               );

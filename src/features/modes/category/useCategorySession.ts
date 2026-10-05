@@ -21,13 +21,21 @@ export interface CategorySession {
  * The Regional category is played one region at a time: pass `regionId` and
  * the pool narrows to that region's questions, of which a run deals
  * {@link REGION_RUN_LENGTH} at random.
+ *
+ * With `limit` (a free player's taster of a premium category) the run deals
+ * at most that many questions.
  */
-export function useCategorySession(categoryId: string, regionId?: string): CategorySession {
+export function useCategorySession(
+  categoryId: string,
+  regionId?: string,
+  limit?: number,
+): CategorySession {
   // Dealt once per mount (the screen remounts the hook for a new run); a
   // lazy initialiser keeps the random draw out of every render.
   const [questions] = useState(() => {
     const pool = regionId ? getRegionalQuestions(regionId) : getQuestionsByCategory(categoryId);
-    const count = regionId ? Math.min(REGION_RUN_LENGTH, pool.length) : pool.length;
+    const full = regionId ? Math.min(REGION_RUN_LENGTH, pool.length) : pool.length;
+    const count = limit === undefined ? full : Math.min(limit, full);
     return pickDeterministic(pool, count, Math.floor(Math.random() * 0xffffffff));
   });
 

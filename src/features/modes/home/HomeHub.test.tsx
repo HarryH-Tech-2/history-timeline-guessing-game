@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { act, fireEvent, render, screen } from '@testing-library/react-native';
 
 const mockPush = jest.fn();
 jest.mock('expo-router', () => ({
@@ -17,6 +17,8 @@ jest.mock('@/features/premium/PremiumProvider', () => ({
 
 // eslint-disable-next-line import/first
 import { getCategories } from '@/data';
+// eslint-disable-next-line import/first
+import { categorySample, resetSamplesForTests, sampleStore } from '@/features/premium/sample';
 // eslint-disable-next-line import/first
 import { track } from '@/services/analytics';
 // eslint-disable-next-line import/first
@@ -43,22 +45,40 @@ describe('HomeHub', () => {
     expect(screen.getByTestId('streak-sheet')).toBeOnTheScreen();
   });
 
-  it('sends free players from a locked mode to the paywall, tagged', () => {
-    mockPush.mockClear();
-    render(<HomeHub />);
-    fireEvent.press(screen.getByTestId('mode-endless'));
-    expect(mockPush).toHaveBeenCalledWith({ pathname: '/paywall', params: { source: 'locked_mode' } });
-  });
+  describe('locked cards', () => {
+    const locked = () => getCategories().find((c) => c.active && c.premiumOnly)!;
 
-  it('sends free players from a locked category to the paywall, tagged', () => {
-    mockPush.mockClear();
-    const locked = getCategories().find((c) => c.active && c.premiumOnly);
-    expect(locked).toBeDefined();
-    render(<HomeHub />);
-    fireEvent.press(screen.getByTestId(`category-${locked!.id}`));
-    expect(mockPush).toHaveBeenCalledWith({
-      pathname: '/paywall',
-      params: { source: 'locked_category', category: locked!.id },
+    /** Render with the taster store settled, `used` already played. */
+    async function renderWithTasters(used: string[]) {
+      await sampleStore.write({ used });
+      resetSamplesForTests();
+      mockPush.mockClear();
+      render(<HomeHub />);
+      await act(async () => {});
+    }
+
+    it('open the free taster while it is unplayed', async () => {
+      await renderWithTasters([]);
+      expect(screen.getByTestId('mode-endless')).toHaveTextContent(/Try it free/);
+      fireEvent.press(screen.getByTestId('mode-endless'));
+      expect(mockPush).toHaveBeenCalledWith('/endless');
+      fireEvent.press(screen.getByTestId(`category-${locked().id}`));
+      expect(mockPush).toHaveBeenCalledWith(`/category/${locked().id}`);
+    });
+
+    it('send free players from a played mode to the paywall, tagged', async () => {
+      await renderWithTasters(['endless']);
+      fireEvent.press(screen.getByTestId('mode-endless'));
+      expect(mockPush).toHaveBeenCalledWith({ pathname: '/paywall', params: { source: 'locked_mode' } });
+    });
+
+    it('send free players from a played category to the paywall, tagged', async () => {
+      await renderWithTasters([categorySample(locked().id)]);
+      fireEvent.press(screen.getByTestId(`category-${locked().id}`));
+      expect(mockPush).toHaveBeenCalledWith({
+        pathname: '/paywall',
+        params: { source: 'locked_category', category: locked().id },
+      });
     });
   });
 

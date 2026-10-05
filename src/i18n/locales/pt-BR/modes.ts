@@ -36,6 +36,16 @@ export const modes = {
     bestValue: { one: '{count} rodada · {score}', other: '{count} rodadas · {score}' },
     shareTitle: { one: 'Sobrevivência · {count} rodada', other: 'Sobrevivência · {count} rodadas' },
   },
+  /** A free player's taster of Endless or a premium category. */
+  sample: {
+    round: 'Amostra grátis · {round}/{total}',
+    overTitle: 'Esse foi um gostinho de {name}',
+    played: { one: '{count} rodada jogada', other: '{count} rodadas jogadas' },
+    withPremium: '{total} com o Premium',
+    keepPlaying: 'Continuar jogando {name}',
+    endlessBody: 'Com o Premium a partida nunca acaba: o catálogo inteiro, vidas ilimitadas.',
+    categoryBody: 'O Premium libera todas as perguntas de {name}, além de corações ilimitados.',
+  },
   endless: {
     round: 'Rodada {round}',
     roundBest: 'Rodada {round} · Recorde {best}',

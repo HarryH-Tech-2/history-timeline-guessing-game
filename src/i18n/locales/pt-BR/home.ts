@@ -2,6 +2,7 @@ import type { Translation } from '../../types';
 
 export const home = {
   seePremium: 'Ver Premium',
+  tryFree: 'Experimente grátis',
   streakChip: { one: 'Sequência de {count} dia', other: 'Sequência de {count} dias' },
   theme: {
     toLight: 'Mudar para o modo claro',
@@ -64,11 +65,19 @@ export const home = {
     refillRate: 'Os corações recarregam um a cada 15 minutos.',
     goPremium: 'Seja Premium · corações ilimitados',
     refill: 'Recarregar corações · {cost} 🪙',
+    trialCta: { one: 'Continue jogando · {count} dia grátis', other: 'Continue jogando · {count} dias grátis' },
+    trialSub: 'Corações ilimitados com o Premium',
   },
   signInNudge: {
     title: 'Guarde seu progresso',
     body: 'Seu progresso está salvo neste aparelho. Faça backup no Google e sua campanha, museu, XP e moedas vão com você para um celular novo.',
     notNow: 'Agora não',
+  },
+  /** The free trial's recap card, in the days before the first charge. */
+  trialRecap: {
+    rounds: { one: '{count} rodada jogada', other: '{count} rodadas jogadas' },
+    heartsSaved: { one: '{count} coração poupado', other: '{count} corações poupados' },
+    soFar: 'Até agora com o Premium: {stats}',
   },
   winback: {
     title: '{percent}% de desconto no primeiro ano',

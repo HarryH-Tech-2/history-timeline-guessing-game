@@ -36,6 +36,7 @@ import {
 import { paramValue, parsePaywallSource } from './paywallSource';
 import { PersonalPitch } from './PersonalPitch';
 import { usePremium } from './PremiumProvider';
+import { startTrialRecap } from './trialRecap';
 import { recordPaywallDismissal, useWinbackOffer, type LiveWinbackOffer } from './useWinbackOffer';
 import { daysLeft, percentOff } from './winback';
 
@@ -366,11 +367,13 @@ export function PaywallScreen() {
   } = usePremium();
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
-  const [plan, setPlan] = useState<PremiumPlan>('yearly');
+  const [picked, setPicked] = useState<PremiumPlan | null>(null);
   const { winback } = usePremium();
   const { offer: liveOffer, now, markShown } = useWinbackOffer();
   // The win-back discount applies only when the paywall was opened for it.
   const offer: LiveWinbackOffer | null = source === 'winback' ? liveOffer : null;
+  // Monthly leads until the player picks; the win-back discount is on yearly.
+  const plan: PremiumPlan = picked ?? (offer ? 'yearly' : 'monthly');
   const offerPlan = offer && plan === 'yearly';
 
   useEffect(() => {
@@ -382,7 +385,7 @@ export function PaywallScreen() {
 
   const selectPlan = (p: PremiumPlan) => {
     if (p !== plan) track('paywall_plan_selected', { plan: p, source });
-    setPlan(p);
+    setPicked(p);
   };
 
   // Leaving without buying — the close button, Android back or a swipe — is a
@@ -432,6 +435,7 @@ export function PaywallScreen() {
     setBusy(false);
     if (result === 'purchased') {
       left.current = true;
+      if (selectedTrial) void startTrialRecap(selectedTrial);
       // The timeline promised a reminder before the first charge: keep it.
       if (selectedTrial && trialReminderDay(selectedTrial) < selectedTrial) {
         void scheduleTrialReminder({

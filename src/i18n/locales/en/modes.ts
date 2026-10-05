@@ -35,6 +35,16 @@ export const modes = {
     bestValue: { one: '{count} round · {score}', other: '{count} rounds · {score}' },
     shareTitle: { one: 'Survival · {count} round', other: 'Survival · {count} rounds' },
   },
+  /** A free player's taster of Endless or a premium category. */
+  sample: {
+    round: 'Free taster · {round}/{total}',
+    overTitle: 'That was a taste of {name}',
+    played: { one: '{count} round played', other: '{count} rounds played' },
+    withPremium: '{total} with Premium',
+    keepPlaying: 'Keep playing {name}',
+    endlessBody: 'With Premium the run never ends: the whole catalogue, unlimited lives.',
+    categoryBody: 'Premium opens every {name} question, plus unlimited hearts.',
+  },
   endless: {
     round: 'Round {round}',
     roundBest: 'Round {round} · Best {best}',
