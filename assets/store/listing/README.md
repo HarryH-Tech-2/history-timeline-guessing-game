@@ -8,7 +8,7 @@ Endless = Premium; timeline 1000 BCE to today; up to 1,000 points per question.
 
 ## English (en-US) — `en-US.json`
 - Title: Date Guesser: History Quiz
-- Short: History quiz & trivia game: slide the timeline and guess the year of 538 events
+- Short: History quiz: know the year it happened. Win quiz night, settle every argument
 
 ## Portuguese, Brazil (pt-BR) — `pt-BR.json`
 - Title: Quiz de História: Que Ano Foi?

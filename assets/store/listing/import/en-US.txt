@@ -4,57 +4,45 @@ APP NAME:
 Date Guesser: History Quiz
 
 SHORT DESCRIPTION:
-History quiz & trivia game: slide the timeline and guess the year of 538 events
+History quiz: know the year it happened. Win quiz night, settle every argument
 
 FULL DESCRIPTION:
-Guess the year. Master history.
+Be the person who knows when it happened.
 
-Date Guesser is the history quiz where every answer is a year. See a famous historical event, slide the timeline to when you think it happened, and score up to 1,000 points for landing on the exact year. No multiple choice, no lucky guesses: just you, the timeline and 3,000 years of world history, from 1000 BCE to today.
+Someone at the table says the Berlin Wall came down in 1991. You know it was 1989. Date Guesser is the history quiz that gets you there: see a famous moment, slide the timeline to the year you think it happened, and find out how close you really are. A few minutes a day and the dates start to stick.
 
-Every one of the 538 history trivia questions comes with its own illustrated miniature scene, and every answer reveals the story behind the date. It's a history game you learn from: every guess teaches you something new.
+WHAT YOU WALK AWAY WITH
+• Settle the argument. Know that the Battle of Hastings was 1066, Constantinople fell in 1453, Waterloo was 1815 and the Moon landing was 1969. To the year, not "sometime around then"
+• Be the one your quiz team turns to. 538 events across 12 categories: battles, treaties, famous people, technology, exploration, sport, money and more
+• Drop the story, not just the date. Every answer comes with what actually happened, so you have something worth saying at dinner
+• See how history fits together. Place 3,000 years on one timeline, from 1000 BCE to today, and you start to notice what was happening at the same time
+• Remember it for good. There is no multiple choice to hide behind. You commit to a year, see how far off you were, and that near miss is what makes the date stay
 
-HOW TO PLAY
-• Read the moment, study the scene and drag the timeline to your year
-• Fine-tune one year at a time with the + and − buttons
-• The closer you land, the more you score. Nail the exact year for a perfect 1,000
-• Read the real story after every guess
+PROVE IT
+• Challenge a friend: send them the same eight questions you just played and see who really knows their history
+• Start a group with your family, classmates or quiz team and compete on weekly XP
+• Climb the leaderboard: Today, Week and All time
+• Play the Daily: eight questions, the same for everyone, new every day. Compare scores and keep your streak alive
 
-WAYS TO PLAY
-• Daily – a daily history quiz: eight fresh questions, the same for everyone. Keep your streak alive and share your score card
-• Survival – three lives. How far can you get?
-• Campaign – journey through five eras, from The Ancient World to The Modern Era. Pick your route, earn three stars on every stage and claim each era's trophy
-• Endless – unlimited lives, chase a high score (Premium)
-• Challenges – send a friend the same eight questions and see who knows their history, or start a group and compete on weekly XP
+WATCH YOURSELF GET BETTER
+• Score up to 1,000 points a question. Land on the exact year for a perfect score
+• Level up through the historian titles and unlock 28 achievements, from Bullseye to Time Lord
+• Fill your Museum: guess close to the real year and the artefact joins your collection, one exhibit for every date you now know
+• March through the Campaign: five eras, from The Ancient World to The Modern Era, with three stars to earn on every stage and a trophy for each era
+• Test your nerve in Survival: three lives, how far can you get?
 
-538 HISTORY QUESTIONS ACROSS 12 CATEGORIES
-• Historic Events, Battles, Famous People, Technology
-• Exploration & Discovery, Treaties, Sport, Money & Trade
-• Arts & Culture, Philosophy and Space (Premium)
-• Regional – pick Europe, Asia, Africa, North America, South America or Oceania and play its defining moments (Premium)
-
-BUILD YOUR MUSEUM
-Guess close to the real year and the artefact joins your collection. Fill each wing of the Museum, one exhibit for every question in the game.
-
-ACHIEVEMENTS, LEVELS AND LEADERBOARDS
-• Unlock 28 achievements, from Bullseye to Time Lord
-• Earn XP and coins, level up and climb the historian titles
-• Compete on the leaderboard: Today, Week and All time
-• Keep your Daily streak going, with streak freezes for the days you miss
-• Back up your progress to Google and pick it up on a new phone
-
-MEET MINERVA
-Your owl companion cheers your perfect years and picks you up after a miss.
-
-MADE TO FEEL GOOD
-• Light and dark themes
-• Sound effects and vibration, each with its own switch
-• An optional reminder so you never miss the Daily
+FIVE MINUTES IS ENOUGH
+• The Daily takes a few minutes, with an optional reminder so you don't miss it
+• Every question has its own illustrated miniature scene, so the moment is easy to picture and easier to recall
+• Fine-tune your guess one year at a time with the + and − buttons
+• Free to play, and no account needed to start
 • Play in English, Português (Brasil), Español (Latinoamérica) or 日本語
-• No account needed to start playing
+• Light and dark themes, with sound and vibration you can switch off
 
-Perfect for history buffs, students and teachers, quiz night regulars, trivia fans and anyone who has ever argued about when something happened.
+WHO IT'S FOR
+Quiz night regulars who are tired of guessing the century. Students revising dates for an exam. Teachers who want a warm-up the class asks for. History buffs who want to find out what they don't know. And anyone who has ever said "I think it was around then" and wished they were sure.
 
 PREMIUM
 Date Guesser is free to play. Optional Premium gives you unlimited hearts and coins, the full Campaign (every era after The Ancient World), Endless mode, the Arts & Culture, Philosophy, Regional and Space categories, and the premium wings of your Museum. Choose monthly (with a free trial where offered), yearly, or a one-time lifetime unlock. Subscriptions renew automatically until cancelled in Google Play.
 
-How well do you really know your history? Download Date Guesser and find out.
+How well do you really know your history? Download Date Guesser and find out before your friends do.
