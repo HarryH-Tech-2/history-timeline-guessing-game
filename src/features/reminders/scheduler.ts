@@ -3,10 +3,19 @@ import * as Notifications from 'expo-notifications';
 import { STORE_LABEL } from '@/config/store';
 import { t } from '@/i18n';
 
-import { nextReminderAt } from './reminderTime';
+import { REMINDER_DAYS, reminderDates } from './reminderTime';
 
-/** The one reminder ever pending; re-scheduling replaces it. */
+/**
+ * Prefix of the pending Daily reminders, one per queued morning
+ * (`daily-reminder-0` …). The bare id is the single reminder older versions
+ * scheduled; it is still cancelled so an update doesn't leave it behind.
+ */
 export const DAILY_REMINDER_ID = 'daily-reminder';
+
+const DAILY_REMINDER_IDS: readonly string[] = [
+  DAILY_REMINDER_ID,
+  ...Array.from({ length: REMINDER_DAYS }, (_, i) => `${DAILY_REMINDER_ID}-${i}`),
+];
 
 /** Android channel; creating it is also what makes Android 13+ show the
  * system permission prompt. */
@@ -39,10 +48,26 @@ export async function requestReminderPermission(): Promise<boolean> {
 }
 
 /**
- * Bring the pending reminder in line with the player's state: cancel whatever
- * is scheduled, then (if reminders are on and allowed) schedule one at the
- * next reminder time — tomorrow if today's Daily is already played. Idempotent
- * and safe to call on every app open and every Daily completion. Never rejects.
+ * True when the system will no longer show the permission prompt (the player
+ * refused it for good), so only the app's settings page can switch
+ * notifications on. Never rejects.
+ */
+export async function reminderPermissionBlocked(): Promise<boolean> {
+  try {
+    const permission = await Notifications.getPermissionsAsync();
+    return !permission.granted && permission.canAskAgain === false;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Bring the pending reminders in line with the player's state: cancel whatever
+ * is scheduled, then (if reminders are on and allowed) queue one for each of
+ * the next mornings, starting tomorrow if today's Daily is already played.
+ * Idempotent and safe to call on every app open and every Daily completion.
+ * Resolves false when reminders are on but the system won't show them (the
+ * permission is missing), true otherwise. Never rejects.
  */
 export async function syncDailyReminder({
   enabled,
@@ -52,23 +77,29 @@ export async function syncDailyReminder({
   enabled: boolean;
   playedToday: boolean;
   now: Date;
-}): Promise<void> {
+}): Promise<boolean> {
   try {
-    await Notifications.cancelScheduledNotificationAsync(DAILY_REMINDER_ID);
-    if (!enabled) return;
+    await Promise.all(DAILY_REMINDER_IDS.map((id) => Notifications.cancelScheduledNotificationAsync(id)));
+    if (!enabled) return true;
     const permission = await Notifications.getPermissionsAsync();
-    if (!permission.granted) return;
-    await Notifications.scheduleNotificationAsync({
-      identifier: DAILY_REMINDER_ID,
-      content: dailyContent(),
-      trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.DATE,
-        date: nextReminderAt({ now, playedToday }),
-        channelId: REMINDER_CHANNEL_ID,
-      },
-    });
+    if (!permission.granted) return false;
+    await Promise.all(
+      reminderDates({ now, playedToday }).map((date, i) =>
+        Notifications.scheduleNotificationAsync({
+          identifier: `${DAILY_REMINDER_ID}-${i}`,
+          content: dailyContent(),
+          trigger: {
+            type: Notifications.SchedulableTriggerInputTypes.DATE,
+            date,
+            channelId: REMINDER_CHANNEL_ID,
+          },
+        }),
+      ),
+    );
+    return true;
   } catch {
     // A reminder must never break the screen that asked for it.
+    return true;
   }
 }
 

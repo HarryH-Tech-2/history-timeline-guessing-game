@@ -5,6 +5,7 @@ import { getLanguage } from '@/i18n/translate';
 import { pickDeterministic, seedFromString } from '@/utils/rng';
 
 import { CATEGORIES } from './categories';
+import { DAILY_FAME_MIX_FROM, dealDailyByFame, pickByFame } from './fame';
 import {
   contentOverlay,
   localizeCategory,
@@ -12,6 +13,7 @@ import {
   localizeQuestion,
   localizeRouteName,
 } from './i18n';
+import { LANDMARK_IDS } from './landmarks';
 import { CAMPAIGN_ROUTES } from './packs/campaignRoutes';
 import { QUESTIONS } from './questions';
 import { REGION_RUN_LENGTH, REGIONAL_CATEGORY_ID, regionById, REGIONS, type Region } from './regions';
@@ -20,6 +22,7 @@ import { TOPICS, type Topic } from './topics';
 
 export { QUESTION_IMAGES, imageForQuestion } from './questionImages';
 export { CAMPAIGN_ROUTE_SPECS, type CampaignRouteSpec } from './packs/campaignRoutes';
+export { dealByFame, fameTier, type FameTier } from './fame';
 
 /**
  * Validate the local seed at module load. Bad data fails loudly and early
@@ -195,14 +198,15 @@ export function isPremiumCategory(categoryId: string): boolean {
 /**
  * The fixed set of questions for a given day. Seeded purely from the date key
  * (`YYYY-MM-DD`), so every player and every device sees the same run — and the
- * same day always reproduces it.
+ * same day always reproduces it. From {@link DAILY_FAME_MIX_FROM} the run is
+ * mostly well-known events (see ./fame); earlier days keep the uniform draw.
  */
 export function getDailyQuestions(dateKey: string, count = 8): readonly Question[] {
-  return pickDeterministic(
-    view().questions.filter(isInRotation),
-    count,
-    seedFromString(`daily-${dateKey}`),
-  );
+  const pool = view().questions.filter(isInRotation);
+  const seed = seedFromString(`daily-${dateKey}`);
+  return dateKey >= DAILY_FAME_MIX_FROM
+    ? dealDailyByFame(pool, count, seed)
+    : pickDeterministic(pool, count, seed);
 }
 
 /**
@@ -224,15 +228,22 @@ export function isCampaignRouteQuestion(question: Question): boolean {
   return ROUTE_QUESTION_IDS.has(question.id);
 }
 
-/** Pick a random question, optionally excluding ids already seen this session. */
+/**
+ * Pick a random question, optionally excluding ids already seen this session.
+ * Well-known events come up far more often than obscure ones (see ./fame).
+ */
 export function getRandomQuestion(excludeIds: ReadonlySet<string> = new Set()): Question {
   const all = view().questions;
   const pool = all.filter((q) => !excludeIds.has(q.id));
-  const source = pool.length > 0 ? pool : all;
-  const index = Math.floor(Math.random() * source.length);
-  const picked = source[index];
+  const picked = pickByFame(pool.length > 0 ? pool : all);
   if (!picked) throw new Error('No questions available in the seed dataset');
   return picked;
+}
+
+/** The landmark events hints measure against, in the player's language. */
+export function getLandmarks(): readonly Question[] {
+  const byId = new Map(view().questions.map((q) => [q.id, q] as const));
+  return LANDMARK_IDS.flatMap((id) => byId.get(id) ?? []);
 }
 
 /* ------------------------------------------------------------------------ */

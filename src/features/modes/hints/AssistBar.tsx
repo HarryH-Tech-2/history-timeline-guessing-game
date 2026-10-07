@@ -10,7 +10,7 @@ import { track } from '@/services/analytics';
 import { cn } from '@/utils/cn';
 
 import { MULTIPLE_CHOICE_COST, multipleChoiceYears } from './choices';
-import { centuryHint, HINT_COST, hintTemplate } from './hint';
+import { HINT_COST, landmarkHint } from './hint';
 
 interface AssistBarProps {
   question: Question;
@@ -77,7 +77,7 @@ function AssistButton({
 }
 
 /**
- * The guess footer, one row: the century hint and multiple choice either side
+ * The guess footer, one row: the landmark hint and multiple choice either side
  * of Submit, with whatever they unlocked shown above the row.
  * Mounted per question (RoundView keys it), so it starts fresh each round.
  */
@@ -116,19 +116,16 @@ export function AssistBar({ question, onSubmit, onChoose, onChoicesShown }: Assi
   // view that mounts as Submit unmounts left it measured short on Android, and
   // the chips below drew over it.
 
-  // The template is one sentence with a {band} slot; split it so the band
-  // (the actual information) renders bold inside the flavour copy.
-  const [before = '', after = ''] = hintTemplate(question.id).split('{band}');
+  const hint = hintShown ? landmarkHint(question) : null;
 
   return (
     <View className="gap-3">
-      {hintShown && (
+      {hint && (
         <View className="rounded-xl border border-hair bg-bg-raised px-3 py-2" testID="hint-line">
-          <Text className="text-center text-sm text-ink-secondary">
-            {before}
-            <Text className="font-bold text-ink-primary">{centuryHint(question.year)}</Text>
-            {after}
+          <Text className="text-center text-sm font-bold text-ink-primary">
+            {t('round.hints.landmark', { title: hint.landmark.title, year: displayYear(hint.landmark.year) })}
           </Text>
+          <Text className="text-center text-sm text-ink-secondary">{t(hint.relation)}</Text>
         </View>
       )}
 
@@ -179,6 +176,7 @@ export function AssistBar({ question, onSubmit, onChoose, onChoicesShown }: Assi
             label={t('round.submit')}
             onPress={onSubmit}
             className="flex-[1.4] px-2"
+            labelClassName="text-white"
             testID="submit-button"
           />
         )}

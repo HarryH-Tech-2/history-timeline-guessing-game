@@ -32,6 +32,8 @@ interface ButtonProps {
   /** Fire a light haptic on press (default true). */
   haptic?: boolean;
   className?: string;
+  /** Replaces the variant's label colour (the round's Submit reads white). */
+  labelClassName?: string;
   testID?: string;
 }
 
@@ -98,6 +100,7 @@ export function Button({
   disabled = false,
   haptic = true,
   className,
+  labelClassName,
   testID,
 }: ButtonProps) {
   const scale = useSharedValue(1);
@@ -124,10 +127,10 @@ export function Button({
       accessibilityLabel={sublabel ? `${label}, ${sublabel}` : label}
       disabled={disabled}
       onPressIn={() => {
-        scale.value = withTiming(0.96, { duration: 90 });
+        scale.set(withTiming(0.96, { duration: 90 }));
       }}
       onPressOut={() => {
-        scale.value = withTiming(1, { duration: 120 });
+        scale.set(withTiming(1, { duration: 120 }));
       }}
       onPress={handlePress}
       style={hero ? [animatedStyle, HERO_SHADOW] : animatedStyle}
@@ -143,7 +146,7 @@ export function Button({
       <Text
         className={cn(
           sublabel ? 'text-lg font-bold' : hero ? 'text-lg font-extrabold' : 'text-base font-semibold',
-          LABEL[variant],
+          labelClassName ?? LABEL[variant],
         )}
       >
         {label}

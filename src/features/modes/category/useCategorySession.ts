@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 
-import { getQuestionsByCategory, getRegionalQuestions, REGION_RUN_LENGTH } from '@/data';
+import { dealByFame, getQuestionsByCategory, getRegionalQuestions, REGION_RUN_LENGTH } from '@/data';
 import type { RoundResult } from '@/domain';
 import { useGameSession, type GameSession } from '@/features/round';
 import { comboModifiers } from '@/features/timeline/math';
@@ -36,7 +36,9 @@ export function useCategorySession(
     const pool = regionId ? getRegionalQuestions(regionId) : getQuestionsByCategory(categoryId);
     const full = regionId ? Math.min(REGION_RUN_LENGTH, pool.length) : pool.length;
     const count = limit === undefined ? full : Math.min(limit, full);
-    return pickDeterministic(pool, count, Math.floor(Math.random() * 0xffffffff));
+    const seed = Math.floor(Math.random() * 0xffffffff);
+    // A run that deals only part of the pool leads with its well-known events.
+    return count < pool.length ? dealByFame(pool, count, seed) : pickDeterministic(pool, count, seed);
   });
 
   const first = useCallback(() => {

@@ -7,7 +7,7 @@ import {
   syncDailyReminder,
   TRIAL_REMINDER_ID,
 } from './scheduler';
-import { REMINDER_HOUR } from './reminderTime';
+import { REMINDER_DAYS, REMINDER_HOUR } from './reminderTime';
 
 const mocked = Notifications as jest.Mocked<typeof Notifications>;
 
@@ -17,31 +17,42 @@ beforeEach(() => {
 });
 
 describe('syncDailyReminder', () => {
-  it('replaces the single pending reminder with one at the next reminder time', async () => {
+  it('replaces whatever is pending with a reminder for each of the next seven mornings', async () => {
     const now = new Date(2026, 8, 21, 9, 0);
-    await syncDailyReminder({ enabled: true, playedToday: true, now });
+    await expect(syncDailyReminder({ enabled: true, playedToday: true, now })).resolves.toBe(true);
 
+    // The single reminder older versions scheduled is cleared too.
     expect(mocked.cancelScheduledNotificationAsync).toHaveBeenCalledWith(DAILY_REMINDER_ID);
-    expect(mocked.scheduleNotificationAsync).toHaveBeenCalledTimes(1);
-    const call = mocked.scheduleNotificationAsync.mock.calls[0]![0];
-    expect(call.identifier).toBe(DAILY_REMINDER_ID);
-    expect(call.trigger).toEqual({
+    expect(mocked.cancelScheduledNotificationAsync).toHaveBeenCalledWith(`${DAILY_REMINDER_ID}-6`);
+    expect(mocked.scheduleNotificationAsync).toHaveBeenCalledTimes(REMINDER_DAYS);
+    const calls = mocked.scheduleNotificationAsync.mock.calls.map(([request]) => request);
+    expect(calls.map((call) => call.identifier)).toEqual(
+      Array.from({ length: REMINDER_DAYS }, (_, i) => `${DAILY_REMINDER_ID}-${i}`),
+    );
+    expect(calls.map((call) => (call.trigger as { date: Date }).date)).toEqual(
+      Array.from({ length: REMINDER_DAYS }, (_, i) => new Date(2026, 8, 22 + i, REMINDER_HOUR, 0, 0, 0)),
+    );
+    expect(calls[0]!.trigger).toEqual({
       type: 'date',
       date: new Date(2026, 8, 22, REMINDER_HOUR, 0, 0, 0),
       channelId: 'daily-reminder',
     });
-    expect(call.content.title).toMatch(/^Your daily is ready/);
+    expect(calls[0]!.content.title).toMatch(/^Your daily is ready/);
   });
 
   it('only cancels when reminders are off', async () => {
-    await syncDailyReminder({ enabled: false, playedToday: false, now: new Date() });
+    await expect(
+      syncDailyReminder({ enabled: false, playedToday: false, now: new Date() }),
+    ).resolves.toBe(true);
     expect(mocked.cancelScheduledNotificationAsync).toHaveBeenCalledWith(DAILY_REMINDER_ID);
     expect(mocked.scheduleNotificationAsync).not.toHaveBeenCalled();
   });
 
-  it('schedules nothing without notification permission', async () => {
+  it('schedules nothing, and says so, without notification permission', async () => {
     mocked.getPermissionsAsync.mockResolvedValue({ status: 'denied', granted: false } as never);
-    await syncDailyReminder({ enabled: true, playedToday: false, now: new Date() });
+    await expect(
+      syncDailyReminder({ enabled: true, playedToday: false, now: new Date() }),
+    ).resolves.toBe(false);
     expect(mocked.scheduleNotificationAsync).not.toHaveBeenCalled();
   });
 
@@ -49,7 +60,7 @@ describe('syncDailyReminder', () => {
     mocked.scheduleNotificationAsync.mockRejectedValueOnce(new Error('boom'));
     await expect(
       syncDailyReminder({ enabled: true, playedToday: false, now: new Date() }),
-    ).resolves.toBeUndefined();
+    ).resolves.toBe(true);
   });
 });
 

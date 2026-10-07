@@ -39,6 +39,10 @@ export const round = {
     score: 'Score',
     scoreLabel: 'Score {score}',
     next: 'Next',
+    favourite: 'Favourite',
+    favourited: 'Saved',
+    favouriteAdd: 'Add to favourites',
+    favouriteRemove: 'Remove from favourites',
   },
   hud: {
     exitMode: 'Exit mode',
@@ -69,22 +73,18 @@ export const round = {
     buttonLabel: '{label}, {price}',
     tapToAnswer: 'Tap a year to answer · half points',
     answer: 'Answer {year}',
-    band: {
-      century1: 'the 1st century',
-      century1Bce: 'the 1st century BCE',
-      hundreds: 'the {band}s',
-      hundredsBce: 'the {band}s BCE',
-    },
-    /** `{band}` stays unexpanded: the UI splits on it to bold the band. */
-    templates: {
-      minerva: 'Minerva hoots softly: look to {band}.',
-      archives: 'The archives file this one under {band}.',
-      scrolls: 'Dust off the scrolls from {band}.',
-      narrow: 'Somewhere in {band} — you can narrow it down from there.',
-      curator: 'A curator would shelve this in {band}.',
-      museum: 'Word around the museum is it belongs to {band}.',
-      carbon: 'The carbon dating comes back to {band}.',
-      historians: 'Historians agree on this much: {band}.',
+    /** The landmark a hint measures against, shown bold above the relation. */
+    landmark: '{title} · {year}',
+    relation: {
+      near: 'This happened within about a decade of it.',
+      decadesAfter: 'This came a few decades later.',
+      decadesBefore: 'This came a few decades earlier.',
+      halfCenturyAfter: 'This came around half a century later.',
+      halfCenturyBefore: 'This came around half a century earlier.',
+      centuryAfter: 'This came about a century later.',
+      centuryBefore: 'This came about a century earlier.',
+      centuriesAfter: 'This came a few centuries later.',
+      centuriesBefore: 'This came a few centuries earlier.',
     },
   },
   share: {

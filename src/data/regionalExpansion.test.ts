@@ -61,18 +61,16 @@ describe('Rotation (Daily and campaign) is unchanged by the expansion', () => {
 
   // Recorded from the build before the expansion: the same dates must keep
   // dealing the same Dailies, so old and new builds agree on the leaderboard.
+  // That holds up to the day before DAILY_FAME_MIX_FROM; from then on the
+  // Daily is dealt by fame (see fame.test.ts).
   it.each([
     [
       '2026-09-29',
       ['phi-on-liberty', 'trt-munich-agreement', 'tec-heart-transplant', 'exp-vasco-da-gama', 'tec-gunpowder-formula', 'art-snow-white', 'bat-yorktown', 'ppl-davinci'],
     ],
     [
-      '2026-12-25',
-      ['tec-dna-double-helix', 'spc-leonov-spacewalk', 'trt-munich-agreement', 'art-taj-mahal', 'art-thriller', 'bat-midway', 'trt-paris-climate', 'evt-vesuvius'],
-    ],
-    [
-      '2027-03-01',
-      ['trt-utrecht', 'art-starry-night', 'ppl-marcus-aurelius', 'evt-boston-tea-party', 'evt-hijra', 'trd-jiaozi', 'reg-granada-falls', 'spc-curiosity'],
+      '2026-10-11',
+      ['art-david', 'evt-wall-street-crash', 'spc-salyut-1', 'ppl-anne-frank', 'tec-light-bulb', 'spc-jwst', 'ppl-cicero', 'exp-vasco-da-gama'],
     ],
   ])('keeps the %s Daily exactly as before', (date, ids) => {
     expect(getDailyQuestions(date).map((q) => q.id)).toEqual(ids);

@@ -229,7 +229,12 @@ export function RoundView({
           {assist({ submit: handleSubmit, choose: handleChoose, hideTimeline })}
         </Fragment>
       ) : (
-        <Button label={t('round.submitGuess')} onPress={handleSubmit} testID="submit-button" />
+        <Button
+          label={t('round.submitGuess')}
+          onPress={handleSubmit}
+          labelClassName="text-white"
+          testID="submit-button"
+        />
       )}
     </View>
   );

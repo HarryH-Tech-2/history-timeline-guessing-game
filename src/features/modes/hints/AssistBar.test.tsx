@@ -71,7 +71,7 @@ describe('AssistBar', () => {
     );
   });
 
-  it('spends 10 coins and shows the century line for a hint', async () => {
+  it('spends 10 coins and shows the landmark line for a hint', async () => {
     await withCoins(25);
     renderBar();
     await waitFor(() =>
@@ -81,7 +81,7 @@ describe('AssistBar', () => {
       ),
     );
     fireEvent.press(screen.getByTestId('hint-button'));
-    await screen.findByText('the 1900s');
+    await screen.findByTestId('hint-line');
     await waitFor(async () => expect((await progressionStore.read()).coins).toBe(15));
   });
 

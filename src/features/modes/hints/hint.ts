@@ -1,59 +1,46 @@
-import { t, type TranslationKey } from '@/i18n';
+import { getLandmarks } from '@/data';
+import type { Question } from '@/domain';
+import type { TranslationKey } from '@/i18n';
 
-/** Coins a single century hint costs. */
+/** Coins a single hint costs. */
 export const HINT_COST = 10;
 
-/**
- * Coarsens a year to its 100-year band for a hint, e.g. 1969 → "the 1900s",
- * 2001 → "the 2000s", -450 → "the 400s BCE". Deliberately coarse: it narrows
- * the search without giving the answer away.
- *
- * BCE years band by their absolute value, because "the 400s BCE" means
- * 400–499 BCE (years -499..-400) — flooring the signed year put 450 BCE in
- * "the 500s BCE", a century off. The two double-digit bands read badly as
- * "the 0s", so they get their century names instead.
- */
-export function centuryHint(year: number): string {
-  if (year < 0) {
-    const band = Math.floor(Math.abs(year) / 100) * 100;
-    // The band goes in as a string so it never picks up a thousands separator.
-    return band === 0
-      ? t('round.hints.band.century1Bce')
-      : t('round.hints.band.hundredsBce', { band: String(band) });
-  }
-  const band = Math.floor(year / 100) * 100;
-  return band === 0
-    ? t('round.hints.band.century1')
-    : t('round.hints.band.hundreds', { band: String(band) });
+export interface LandmarkHint {
+  /** The well-known event the question is placed against. */
+  landmark: Question;
+  /** How far, and which way, the question sits from it. */
+  relation: TranslationKey;
 }
 
 /**
- * Hint sentences, phrased around the century band. `{band}` marks where the
- * band goes so the UI can render it bold. Varied so hints don't always read
- * "this happened in X"; the pick is deterministic per question (see
- * {@link hintTemplate}) so re-renders never reshuffle the wording mid-round.
+ * How the gap to the landmark is worded. Deliberately loose: the landmark's
+ * year is shown, so an exact gap would hand over the answer. The closest band
+ * drops the direction for the same reason.
  */
-const HINT_TEMPLATES: readonly TranslationKey[] = [
-  'round.hints.templates.minerva',
-  'round.hints.templates.archives',
-  'round.hints.templates.scrolls',
-  'round.hints.templates.narrow',
-  'round.hints.templates.curator',
-  'round.hints.templates.museum',
-  'round.hints.templates.carbon',
-  'round.hints.templates.historians',
-];
-
-/** Small deterministic string hash (djb2), for a stable template pick. */
-function hashString(value: string): number {
-  let hash = 5381;
-  for (let i = 0; i < value.length; i += 1) {
-    hash = (hash * 33) ^ value.charCodeAt(i);
+function relationKey(gap: number): TranslationKey {
+  const years = Math.abs(gap);
+  if (years <= 12) return 'round.hints.relation.near';
+  const after = gap > 0;
+  if (years <= 40) return after ? 'round.hints.relation.decadesAfter' : 'round.hints.relation.decadesBefore';
+  if (years <= 75) {
+    return after ? 'round.hints.relation.halfCenturyAfter' : 'round.hints.relation.halfCenturyBefore';
   }
-  return hash >>> 0;
+  if (years <= 150) return after ? 'round.hints.relation.centuryAfter' : 'round.hints.relation.centuryBefore';
+  return after ? 'round.hints.relation.centuriesAfter' : 'round.hints.relation.centuriesBefore';
 }
 
-/** The hint sentence for a question, with `{band}` still unexpanded. */
-export function hintTemplate(questionId: string): string {
-  return t(HINT_TEMPLATES[hashString(questionId) % HINT_TEMPLATES.length]!);
+/**
+ * A hint that teaches: the nearest landmark date (never the question itself)
+ * and roughly where the question falls around it, e.g. "The Storming of the
+ * Bastille · 1789 — this came a few decades later."
+ */
+export function landmarkHint(question: Question): LandmarkHint | null {
+  let nearest: Question | null = null;
+  for (const landmark of getLandmarks()) {
+    if (landmark.id === question.id) continue;
+    if (!nearest || Math.abs(landmark.year - question.year) < Math.abs(nearest.year - question.year)) {
+      nearest = landmark;
+    }
+  }
+  return nearest && { landmark: nearest, relation: relationKey(question.year - nearest.year) };
 }
