@@ -31,7 +31,7 @@ describe('SocialScreen', () => {
     await flush();
   });
 
-  it('restores the last chosen segment', async () => {
+  it('opens on Global again after a restart, whatever was last chosen', async () => {
     const first = render(<SocialScreen />);
     await flush();
     fireEvent.press(screen.getByTestId('segment-groups'));
@@ -40,7 +40,7 @@ describe('SocialScreen', () => {
 
     render(<SocialScreen />);
     await flush();
-    expect(screen.getByTestId('groups-panel')).toBeOnTheScreen();
-    expect(screen.queryByTestId('global-board')).toBeNull();
+    expect(screen.getByTestId('global-board')).toBeOnTheScreen();
+    expect(screen.queryByTestId('groups-panel')).toBeNull();
   });
 });

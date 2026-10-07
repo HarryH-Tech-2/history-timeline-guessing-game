@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -411,7 +411,8 @@ export function LeaderboardScreen({ embedded = false }: { embedded?: boolean } =
   const { state, setDisplayName } = useProgression();
   const colors = useThemeColors();
   const [editingName, setEditingName] = useState(false);
-  const [board, setBoard] = useState<Board | null>(null);
+  // Always opens on All time; a tab the player picks lasts until the app restarts.
+  const [board, setBoard] = useState<Board>('all');
   const [entries, setEntries] = useState<readonly LeaderboardEntry[]>([]);
   const [previousRanks, setPreviousRanks] = useState<Record<string, number>>({});
   const [myRank, setMyRank] = useState<number | null>(null);
@@ -419,18 +420,7 @@ export function LeaderboardScreen({ embedded = false }: { embedded?: boolean } =
   const [refreshing, setRefreshing] = useState(false);
 
   const ctx = useMemo<BoardContext>(() => ({ today: dateKey(), week: weekKey() }), []);
-  const myValue = board === null ? null : myBoardValue(state, board, ctx);
-
-  // Open on the tab the player last used.
-  useEffect(() => {
-    let active = true;
-    void leaderboardViewStore.read().then((view) => {
-      if (active) setBoard(view.tab);
-    });
-    return () => {
-      active = false;
-    };
-  }, []);
+  const myValue = myBoardValue(state, board, ctx);
 
   const load = useCallback(
     async (b: Board) => {
@@ -451,7 +441,7 @@ export function LeaderboardScreen({ embedded = false }: { embedded?: boolean } =
       const myRanks =
         uid !== null && rank !== null && ranks[uid] === undefined ? { [uid]: rank } : {};
       await leaderboardViewStore.write({
-        tab: b,
+        ...view,
         ranks: { ...view.ranks, [b]: { ...ranks, ...myRanks } },
       });
     },
@@ -460,7 +450,6 @@ export function LeaderboardScreen({ embedded = false }: { embedded?: boolean } =
 
   useFocusEffect(
     useCallback(() => {
-      if (board === null) return;
       let active = true;
       setLoading(true);
       void load(board).finally(() => {
@@ -473,12 +462,9 @@ export function LeaderboardScreen({ embedded = false }: { embedded?: boolean } =
   );
 
   const onRefresh = useCallback(() => {
-    if (board === null) return;
     setRefreshing(true);
     void load(board).finally(() => setRefreshing(false));
   }, [load, board]);
-
-  const activeBoard: Board = board ?? 'all';
 
   // With three or more players the top of the table becomes the podium and
   // the list picks up at rank 4; below that, everyone stays in plain rows.
@@ -496,10 +482,10 @@ export function LeaderboardScreen({ embedded = false }: { embedded?: boolean } =
       </Text>
       <Text className="text-center text-3xl font-extrabold text-ink-primary">{t('social.leaderboard.title')}</Text>
       <Text className="mb-4 text-center text-base text-ink-secondary">
-        {boardBlurb(activeBoard)}
+        {boardBlurb(board)}
       </Text>
       <View className="w-full">
-        <BoardTabs board={activeBoard} onChange={setBoard} />
+        <BoardTabs board={board} onChange={setBoard} />
       </View>
       {uid !== null && state.displayName === null && (
         <Pressable
@@ -522,7 +508,7 @@ export function LeaderboardScreen({ embedded = false }: { embedded?: boolean } =
         <Podium
           entries={entries}
           myUid={uid ?? undefined}
-          board={activeBoard}
+          board={board}
           ctx={ctx}
           previousRanks={previousRanks}
         />
@@ -573,7 +559,7 @@ export function LeaderboardScreen({ embedded = false }: { embedded?: boolean } =
                 rank={rank}
                 isMe={item.uid === uid}
                 index={index}
-                value={formatBoardValue(boardValue(item, activeBoard, ctx) ?? 0, activeBoard)}
+                value={formatBoardValue(boardValue(item, board, ctx) ?? 0, board)}
                 movement={movementFor(previousRanks, item.uid, rank)}
               />
             );
@@ -585,7 +571,7 @@ export function LeaderboardScreen({ embedded = false }: { embedded?: boolean } =
               </View>
             ) : hasPodium ? null : (
               <Text className="py-16 text-center text-base text-ink-secondary">
-                {emptyCopy(activeBoard)}
+                {emptyCopy(board)}
               </Text>
             )
           }
@@ -594,7 +580,7 @@ export function LeaderboardScreen({ embedded = false }: { embedded?: boolean } =
           <PinnedRank
             rank={myRank}
             name={resolveDisplayName(state.displayName, uid)}
-            value={formatBoardValue(myValue, activeBoard)}
+            value={formatBoardValue(myValue, board)}
             movement={movementFor(previousRanks, uid, myRank)}
           />
         )}
