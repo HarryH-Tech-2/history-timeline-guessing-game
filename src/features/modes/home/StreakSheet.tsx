@@ -16,6 +16,7 @@ import Animated, {
 import { Button } from '@/components/ui';
 import { activeStreakCount, type StreakState } from '@/domain';
 import { haptic, NotificationFeedbackType } from '@/features/haptics';
+import { useSheetBottomPadding } from '@/hooks/useSheetBottomPadding';
 import { t } from '@/i18n';
 import { palette } from '@/theme/tokens';
 import { dateKey } from '@/utils/date';
@@ -104,6 +105,7 @@ export function StreakSheet({ visible, streak, onPlay, onClose }: StreakSheetPro
   const count = activeStreakCount(streak, today);
   const doneToday = streak.lastDate === today;
   const week = streakWeek(streak, now);
+  const paddingBottom = useSheetBottomPadding(40);
 
   useEffect(() => {
     if (visible && count > 0) haptic.notification(NotificationFeedbackType.Success);
@@ -127,8 +129,8 @@ export function StreakSheet({ visible, streak, onPlay, onClose }: StreakSheetPro
         {visible && (
           <Pressable
             onPress={() => undefined}
-            className="gap-4 border-t-2 bg-bg-raised px-6 pb-10 pt-4"
-            style={{ borderColor: palette.accent.default }}
+            className="gap-4 border-t-2 bg-bg-raised px-6 pt-4"
+            style={{ borderColor: palette.accent.default, paddingBottom }}
             testID="streak-sheet"
           >
             <FlameBurst />

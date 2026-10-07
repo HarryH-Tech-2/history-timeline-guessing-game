@@ -7,6 +7,7 @@ import type { CampaignProgress } from '@/features/modes/persistence';
 import { usePremium } from '@/features/premium/PremiumProvider';
 import { paywallHref } from '@/features/premium/paywallSource';
 import { useSaves } from '@/features/save';
+import { useSheetBottomPadding } from '@/hooks/useSheetBottomPadding';
 import { t } from '@/i18n';
 
 import { earnedAchievementIds } from '../achievements';
@@ -60,6 +61,7 @@ export function AvatarSheet({ visible, onClose }: { visible: boolean; onClose: (
     [isPremium, state, campaignProgress],
   );
   const current = resolveAvatar(state.avatar, isPremium);
+  const paddingBottom = useSheetBottomPadding(40);
 
   const close = () => {
     setHint(null);
@@ -86,7 +88,11 @@ export function AvatarSheet({ visible, onClose }: { visible: boolean; onClose: (
         accessibilityLabel={t('common.close')}
         testID="avatar-backdrop"
       >
-        <Pressable className="gap-3 border-t border-hair bg-bg-overlay p-6 pb-10" onPress={() => {}}>
+        <Pressable
+          className="gap-3 border-t border-hair bg-bg-overlay p-6"
+          style={{ paddingBottom }}
+          onPress={() => {}}
+        >
           <View>
             <Text className="text-xl font-extrabold text-ink-primary">{t('profile.avatar.title')}</Text>
             <Text className="mt-1 text-sm text-ink-secondary">{t('profile.avatar.body')}</Text>

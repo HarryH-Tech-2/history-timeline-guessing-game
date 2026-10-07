@@ -7,6 +7,7 @@ import { Button } from '@/components/ui';
 import { usePremium } from '@/features/premium';
 import { anyTrialDays } from '@/features/premium/paywallCopy';
 import { trialCtaText } from '@/features/premium/paywallPricing';
+import { useSheetBottomPadding } from '@/hooks/useSheetBottomPadding';
 import { t } from '@/i18n';
 import { track } from '@/services/analytics';
 import { createStore } from '@/storage';
@@ -62,6 +63,7 @@ export function EraConqueredSheet({
   const { trialDays } = usePremium();
   const trial = anyTrialDays(trialDays);
   const { next, eras, stages } = premiumAhead();
+  const paddingBottom = useSheetBottomPadding(32);
 
   useEffect(() => {
     if (visible) track('upsell_shown', { placement: 'era_complete' });
@@ -71,8 +73,8 @@ export function EraConqueredSheet({
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose} statusBarTranslucent>
       <View
         testID="era-conquered"
-        className="flex-1 justify-end px-4 pb-8"
-        style={{ backgroundColor: 'rgba(12,9,6,0.72)' }}
+        className="flex-1 justify-end px-4"
+        style={{ backgroundColor: 'rgba(12,9,6,0.72)', paddingBottom }}
       >
         <Animated.View entering={ZoomIn.springify().damping(12)} className="gap-3 border-2 border-accent bg-bg-base px-5 pb-5 pt-6">
           <Text className="text-center text-5xl" style={{ includeFontPadding: false }}>

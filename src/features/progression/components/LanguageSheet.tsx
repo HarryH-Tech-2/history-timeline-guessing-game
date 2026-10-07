@@ -1,5 +1,6 @@
 import { Modal, Pressable, Text, View } from 'react-native';
 
+import { useSheetBottomPadding } from '@/hooks/useSheetBottomPadding';
 import { deviceLanguage, LANGUAGES, t, useLanguage, type LanguagePreference } from '@/i18n';
 
 interface LanguageSheetProps {
@@ -13,6 +14,7 @@ interface LanguageSheetProps {
  */
 export function LanguageSheet({ visible, onClose }: LanguageSheetProps) {
   const { preference, setPreference } = useLanguage();
+  const paddingBottom = useSheetBottomPadding(40);
   const phone = LANGUAGES.find((l) => l.code === deviceLanguage())?.name ?? 'English';
   const options: { value: LanguagePreference; label: string }[] = [
     { value: 'system', label: t('profile.settings.languageDevice', { language: phone }) },
@@ -33,7 +35,11 @@ export function LanguageSheet({ visible, onClose }: LanguageSheetProps) {
         accessibilityLabel={t('common.close')}
         testID="language-backdrop"
       >
-        <Pressable className="gap-2 border-t border-hair bg-bg-overlay p-6 pb-10" onPress={() => {}}>
+        <Pressable
+          className="gap-2 border-t border-hair bg-bg-overlay p-6"
+          style={{ paddingBottom }}
+          onPress={() => {}}
+        >
           <Text className="mb-2 text-xl font-extrabold text-ink-primary">
             {t('profile.settings.languageSheetTitle')}
           </Text>

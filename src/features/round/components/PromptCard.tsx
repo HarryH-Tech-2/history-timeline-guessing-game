@@ -119,6 +119,16 @@ function PromptCardComponent({
             className="h-full w-full bg-bg-overlay"
             testID="prompt-image"
           />
+          {/* Says "this opens": without it nothing hints the art is tappable. */}
+          <View
+            pointerEvents="none"
+            className="absolute bottom-2 right-2 h-7 w-7 items-center justify-center rounded-full bg-black/55"
+            testID="prompt-image-expand"
+          >
+            <Text className="text-sm font-bold text-white" style={{ includeFontPadding: false }}>
+              ⤢
+            </Text>
+          </View>
         </Pressable>
       )}
 

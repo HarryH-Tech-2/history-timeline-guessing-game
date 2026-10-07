@@ -5,6 +5,7 @@ import { Button } from '@/components/ui';
 // Direct module import (not the barrel) so this sheet doesn't drag the whole
 // leaderboard screen — and its navigation dependencies — into every consumer.
 import { MAX_DISPLAY_NAME, validatePlayerName } from '@/features/leaderboard/playerName';
+import { useSheetBottomPadding } from '@/hooks/useSheetBottomPadding';
 import { t, tRich } from '@/i18n';
 import { useThemeColors } from '@/theme';
 import { palette } from '@/theme/tokens';
@@ -24,6 +25,7 @@ type FormProps = Omit<PlayerNameSheetProps, 'visible'>;
 /** The editable body. Mounted fresh on every open, so its draft always starts from the saved name. */
 function NameForm({ currentName, fallbackName, onSave, onClose }: FormProps) {
   const colors = useThemeColors();
+  const paddingBottom = useSheetBottomPadding(40);
   const [draft, setDraft] = useState(currentName ?? '');
 
   const trimmed = draft.trim();
@@ -43,7 +45,11 @@ function NameForm({ currentName, fallbackName, onSave, onClose }: FormProps) {
   };
 
   return (
-    <Pressable className="gap-4 border-t border-hair bg-bg-overlay p-6 pb-10" onPress={() => {}}>
+    <Pressable
+      className="gap-4 border-t border-hair bg-bg-overlay p-6"
+      style={{ paddingBottom }}
+      onPress={() => {}}
+    >
       <View>
         <Text className="text-xl font-extrabold text-ink-primary">{t('profile.nameSheet.title')}</Text>
         <Text className="mt-1 text-sm text-ink-secondary">
