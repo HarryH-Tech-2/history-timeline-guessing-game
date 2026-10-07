@@ -17,6 +17,7 @@ import {
 import { ImageLightbox, Screen } from '@/components/ui';
 import { getCategories, getQuestionsByCategory, imageForQuestion } from '@/data';
 import { MASTERY_BADGES, masteryTier, type Category, type Question } from '@/domain';
+import { FavouritesList } from '@/features/favourites/FavouritesList';
 import { AchievementsList, useProgression } from '@/features/progression';
 import { displayYear, t } from '@/i18n';
 
@@ -193,12 +194,13 @@ function WingHeader({ section }: { section: WingSection }) {
  * by naming its exact year. Wings map to categories;
  * filling a wing earns its mastery badge.
  */
-type MuseumTab = 'artefacts' | 'achievements';
+type MuseumTab = 'artefacts' | 'favourites' | 'achievements';
 
-/** Artefacts · Achievements, underlined on the active one. */
+/** Artefacts · Favourites · Achievements, underlined on the active one. */
 function MuseumTabs({ tab, onChange }: { tab: MuseumTab; onChange: (next: MuseumTab) => void }) {
   const tabs: readonly [MuseumTab, string][] = [
     ['artefacts', t('social.museum.tabArtefacts')],
+    ['favourites', t('social.museum.tabFavourites')],
     ['achievements', t('social.museum.tabAchievements')],
   ];
   return (
@@ -226,14 +228,15 @@ function MuseumTabs({ tab, onChange }: { tab: MuseumTab; onChange: (next: Museum
   );
 }
 
-/** The Museum: your artefact collection on one tab, your achievements on the other. */
+/** The Museum: your artefact collection, the events you hearted, and your achievements. */
 export function MuseumScreen() {
   const { state } = useProgression();
   // The route param (Profile header → achievements) picks the tab; a tap on
   // the tabs overrides it until the param next changes. Derived, not synced,
   // so a fresh deep link always wins without an effect.
   const params = useLocalSearchParams<{ tab?: string }>();
-  const paramTab: MuseumTab = params.tab === 'achievements' ? 'achievements' : 'artefacts';
+  const paramTab: MuseumTab =
+    params.tab === 'achievements' || params.tab === 'favourites' ? params.tab : 'artefacts';
   const [selection, setSelection] = useState<{ from: MuseumTab; tab: MuseumTab }>({
     from: paramTab,
     tab: paramTab,
@@ -313,19 +316,21 @@ export function MuseumScreen() {
         </>
       ) : (
         <Text className="text-base text-ink-secondary">
-          {t('social.museum.achievementsIntro')}
+          {tab === 'favourites'
+            ? t('social.museum.favouritesIntro')
+            : t('social.museum.achievementsIntro')}
         </Text>
       )}
       <MuseumTabs tab={tab} onChange={setTab} />
     </View>
   );
 
-  if (tab === 'achievements') {
+  if (tab !== 'artefacts') {
     return (
       <Screen edges={['top']}>
         <ScrollView contentContainerClassName="px-5 pt-6 pb-4" showsVerticalScrollIndicator={false}>
           {title}
-          <AchievementsList />
+          {tab === 'favourites' ? <FavouritesList /> : <AchievementsList />}
         </ScrollView>
       </Screen>
     );

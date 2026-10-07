@@ -13,6 +13,7 @@ export type PaywallSource =
   | 'campaign'
   | 'era_complete'
   | 'winback'
+  | 'favourites'
   | 'unknown';
 
 /** Which price a purchase was attempted at: the plan's own, its free trial, or the win-back discount. */
@@ -96,6 +97,12 @@ export interface AnalyticsEvents {
   hint_used: { question_id: string };
   /** Multiple choice was bought for a question. */
   multiple_choice_used: { question_id: string };
+  /** An event was hearted from the reveal card. */
+  favourite_added: { question_id: string };
+  /** An event was un-hearted. */
+  favourite_removed: { question_id: string };
+  /** A favourite's detail page was opened; `locked` when the deep dive was behind Premium. */
+  favourite_opened: { question_id: string; locked: boolean };
   /** A sign-in or sign-up finished successfully. */
   sign_in_completed: { method: 'google' | 'apple' | 'email' | 'playgames' };
   /** A first-run onboarding step came on screen (1-based). */

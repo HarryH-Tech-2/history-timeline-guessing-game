@@ -182,6 +182,8 @@ export const ProgressionStateSchema = z.object({
    * acquired it. An entry's existence IS the acquisition (see domain/collection).
    */
   collection: z.record(z.string(), z.number().nonnegative()).default({}),
+  /** Question ids the player hearted, newest first; defaulted so older profiles start with none. */
+  favourites: z.array(z.string()).default([]),
   /** Play-energy meter; defaulted so older profiles start full. */
   hearts: HeartsStateSchema.default(INITIAL_HEARTS),
   /**
@@ -209,6 +211,7 @@ export const INITIAL_PROGRESSION: ProgressionState = {
   stats: { rounds: 0, perfectRounds: 0, gamesPlayed: 0, bestStreak: 0, bestDailyStreak: 0 },
   streak: INITIAL_STREAK,
   collection: {},
+  favourites: [],
   hearts: INITIAL_HEARTS,
   displayName: null,
   avatar: null,

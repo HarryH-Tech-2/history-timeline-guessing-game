@@ -30,6 +30,7 @@ import {
   buyHeartRefill,
   buyStreakFreeze,
   spendCoins,
+  toggleFavourite as foldFavourite,
   type DailyCompleteOutcome,
   type RoundOutcome,
 } from './reducer';
@@ -56,6 +57,8 @@ export interface ProgressionApi {
   setDisplayName: (name: string | null) => void;
   /** Picks the profile avatar (null = the default). */
   setAvatar: (avatarId: string | null) => void;
+  /** Heart or un-heart a question; returns whether it is now a favourite. */
+  toggleFavourite: (questionId: string) => boolean;
 }
 
 /**
@@ -75,6 +78,7 @@ const OFFLINE_API: ProgressionApi = {
   refillHearts: () => false,
   setDisplayName: () => {},
   setAvatar: () => {},
+  toggleFavourite: () => false,
 };
 
 const ProgressionContext = createContext<ProgressionApi>(OFFLINE_API);
@@ -220,6 +224,15 @@ export function ProgressionProvider({ children }: { children: ReactNode }) {
     [commit],
   );
 
+  const toggleFavourite = useCallback(
+    (questionId: string): boolean => {
+      const { state: next, favourite } = foldFavourite(ref.current, questionId);
+      commit(next);
+      return favourite;
+    },
+    [commit],
+  );
+
   const value = useMemo<ProgressionApi>(
     () => ({
       state,
@@ -233,6 +246,7 @@ export function ProgressionProvider({ children }: { children: ReactNode }) {
       refillHearts,
       setDisplayName,
       setAvatar,
+      toggleFavourite,
     }),
     [
       state,
@@ -246,6 +260,7 @@ export function ProgressionProvider({ children }: { children: ReactNode }) {
       refillHearts,
       setDisplayName,
       setAvatar,
+      toggleFavourite,
     ],
   );
 

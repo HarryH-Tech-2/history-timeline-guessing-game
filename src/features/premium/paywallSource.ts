@@ -16,6 +16,7 @@ export const PAYWALL_SOURCES: readonly PaywallSource[] = [
   'campaign',
   'era_complete',
   'winback',
+  'favourites',
   'unknown',
 ];
 

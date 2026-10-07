@@ -9,6 +9,19 @@ export const social = {
     undiscovered: 'Sin descubrir',
     tabArtefacts: 'Artefactos',
     tabAchievements: 'Logros',
+    tabFavourites: 'Favoritos',
+    favouritesIntro: 'Eventos que guardaste. Abre uno para leer la historia detrás de él.',
+    favouritesEmptyTitle: 'Aún no tienes favoritos',
+    favouritesEmpty: 'Toca el corazón en la tarjeta de respuesta para guardar un evento aquí.',
+  },
+  /** A favourite's detail page. */
+  event: {
+    why: 'Por qué ocurrió',
+    impact: 'Su impacto',
+    lockedTitle: 'La historia detrás',
+    lockedBody: 'Premium revela por qué ocurrió cada evento y qué cambió.',
+    unlock: 'Desbloquear con Premium',
+    notFound: 'Este evento ya no está disponible.',
   },
   leaderboard: {
     title: 'Clasificación',

@@ -102,6 +102,8 @@ export function paywallHeadline(source: PaywallSource, trialDays?: number): stri
       return t('paywall.headline.lockedCategory');
     case 'locked_mode':
       return t('paywall.headline.lockedMode');
+    case 'favourites':
+      return t('paywall.headline.favourites');
     case 'onboarding':
       return trialDays
         ? t('paywall.headline.onboardingTrial', { span: trialSpan(trialDays) })

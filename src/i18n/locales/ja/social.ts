@@ -9,6 +9,19 @@ export const social = {
     undiscovered: '未発見',
     tabArtefacts: '収蔵品',
     tabAchievements: '実績',
+    tabFavourites: 'お気に入り',
+    favouritesIntro: '保存した出来事です。開くと、その背景を読めます。',
+    favouritesEmptyTitle: 'お気に入りはまだありません',
+    favouritesEmpty: '答えのカードのハートをタップすると、ここに保存されます。',
+  },
+  /** A favourite's detail page. */
+  event: {
+    why: 'なぜ起きたのか',
+    impact: 'その影響',
+    lockedTitle: '出来事の背景',
+    lockedBody: 'プレミアムなら、出来事が起きた理由とその後の変化を読めます。',
+    unlock: 'プレミアムで解除',
+    notFound: 'この出来事は現在ご利用いただけません。',
   },
   leaderboard: {
     title: 'ランキング',

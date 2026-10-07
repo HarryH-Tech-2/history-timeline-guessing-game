@@ -147,6 +147,7 @@ export const paywall = {
     winback: 'おかえりなさい！初年度を割引価格で',
     lockedCategory: 'すべてのカテゴリーを解放',
     lockedMode: 'ライフ無制限でエンドレスを遊ぼう',
+    favourites: 'すべての出来事の背景を読もう',
     onboardingTrial: 'ようこそ！{span}すべて無料でお試しください',
   },
   /** "for a week" / "for 3 days", inside a headline or the founder's line. */

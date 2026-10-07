@@ -180,6 +180,18 @@ export function buyHeartRefill(
   };
 }
 
+/** Heart or un-heart a question. A new favourite goes to the front (newest first). */
+export function toggleFavourite(
+  state: ProgressionState,
+  questionId: string,
+): { state: ProgressionState; favourite: boolean } {
+  const had = state.favourites.includes(questionId);
+  const favourites = had
+    ? state.favourites.filter((id) => id !== questionId)
+    : [questionId, ...state.favourites];
+  return { state: { ...state, favourites }, favourite: !had };
+}
+
 /** Try to spend coins. Returns the unchanged state and `ok: false` if too poor. */
 export function spendCoins(
   state: ProgressionState,

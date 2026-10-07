@@ -8,6 +8,19 @@ export const social = {
     undiscovered: 'Undiscovered',
     tabArtefacts: 'Artefacts',
     tabAchievements: 'Achievements',
+    tabFavourites: 'Favourites',
+    favouritesIntro: 'Events you saved. Open one to read the story behind it.',
+    favouritesEmptyTitle: 'No favourites yet',
+    favouritesEmpty: 'Tap the heart on an answer card to save an event here.',
+  },
+  /** A favourite's detail page. */
+  event: {
+    why: 'Why it happened',
+    impact: 'Its impact',
+    lockedTitle: 'The story behind it',
+    lockedBody: 'Premium unlocks why each event happened and what it changed.',
+    unlock: 'Unlock with Premium',
+    notFound: 'This event is no longer available.',
   },
   leaderboard: {
     title: 'Leaderboard',

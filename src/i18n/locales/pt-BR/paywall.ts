@@ -142,6 +142,7 @@ export const paywall = {
     winback: 'Que bom te ver de volta! Seu primeiro ano com desconto',
     lockedCategory: 'Libere todas as categorias',
     lockedMode: 'Jogue o Infinito com vidas ilimitadas',
+    favourites: 'Leia a história por trás de cada evento',
     onboardingTrial: 'Boas-vindas! Experimente tudo grátis {span}',
   },
   trialSpan: {

@@ -3,6 +3,7 @@ import Animated, { Easing, FadeInDown } from 'react-native-reanimated';
 
 import { Button } from '@/components/ui';
 import type { RoundResult } from '@/domain';
+import { FavouriteButton } from '@/features/favourites/FavouriteButton';
 import { isRightAnswer } from '@/features/timeline/math';
 import { useCountUp } from '@/hooks/useCountUp';
 import { displayYear, t } from '@/i18n';
@@ -170,7 +171,11 @@ export function RevealSheet({
             </View>
           </View>
 
-          <View className="my-4 h-px bg-hair" />
+          {/* The divider carries the heart, so saving costs the card no extra row. */}
+          <View className="my-2.5 flex-row items-center gap-3">
+            <View className="h-px flex-1 bg-hair" />
+            <FavouriteButton questionId={question.id} />
+          </View>
 
           <ScrollView className="max-h-36" showsVerticalScrollIndicator={false}>
             <Text className="text-[15px] leading-6 text-ink-secondary">

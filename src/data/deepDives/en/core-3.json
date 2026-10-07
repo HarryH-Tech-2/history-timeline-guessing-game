@@ -1,0 +1,158 @@
+{
+  "art-parthenon": {
+    "why": "The Persians had sacked the Acropolis in 480 BC and its temples lay in ruins for a generation. Once Athens led the Delian League, Pericles drew on the alliance's treasury to rebuild. Work began in 447 BC, with the sculptor Phidias overseeing the decoration.",
+    "impact": "The building later served as a church and then a mosque. In 1687 a Venetian shell ignited Ottoman gunpowder stored inside and blew out its centre. Lord Elgin removed many sculptures in the early 1800s, and their place in the British Museum is still disputed by Greece."
+  },
+  "art-david": {
+    "why": "Florence's cathedral authorities commissioned the figure in 1501, intending it for the cathedral's roofline. The marble block had been started and abandoned by earlier sculptors. Michelangelo was 26. The city had expelled the Medici in 1494, and its republic liked the story of an underdog defeating a giant.",
+    "impact": "The statue was judged too fine to place high up and was set outside the seat of government instead. It made Michelangelo the leading sculptor in Italy and shaped later treatment of the male nude. In 1873 it was moved indoors to the Accademia, with a copy left in the square."
+  },
+  "art-sistine-chapel": {
+    "why": "Pope Julius II commissioned the work in 1508, pulling Michelangelo away from the papal tomb he had been carving. Michelangelo thought of himself as a sculptor and accepted reluctantly. The ceiling had previously been painted plain blue with gold stars.",
+    "impact": "The muscular, twisting figures influenced Raphael and a generation of painters afterwards. Michelangelo returned in the 1530s to paint the Last Judgement on the altar wall. A cleaning completed in the 1990s uncovered far brighter colours than expected, and the chapel now draws millions of visitors a year."
+  },
+  "art-globe-theatre": {
+    "why": "The company had played at The Theatre in Shoreditch, but the lease on the land ran out and the landlord would not renew on acceptable terms. In the winter of 1598 they dismantled the building and reused its timbers on Bankside, outside the control of the City of London authorities.",
+    "impact": "Shakespeare was a shareholder, so the playhouse's takings helped make him wealthy. It burned down in 1613 when a stage cannon set the thatch alight, was rebuilt the next year, and closed with all London theatres in 1642. A reconstruction opened near the site in 1997."
+  },
+  "art-don-quixote": {
+    "why": "Cervantes was in his late fifties and had known little success. He had been wounded at the battle of Lepanto, held captive in Algiers for five years and jailed over his accounts as a tax collector. Romances of chivalry were hugely popular in Spain and ripe for parody.",
+    "impact": "The book sold well at once and was translated into English within a few years. An unauthorised sequel by another writer pushed Cervantes to publish his own second part in 1615. It gave English the word quixotic and influenced novelists from Fielding to Flaubert and Dostoevsky."
+  },
+  "art-first-opera-house": {
+    "why": "Opera had emerged around 1600 in Florence and Mantua as entertainment paid for by princes. Venice was a republic with no court, but it had wealthy patrician families who owned theatres and a long carnival season that filled the city with visitors willing to buy tickets.",
+    "impact": "Several rival opera houses opened in Venice within a few years, and Monteverdi wrote his last operas for them. Ticket sales and rented boxes became the standard way to fund opera across Europe. Public taste favoured star singers and memorable arias, which shaped how operas were written."
+  },
+  "art-taj-mahal": {
+    "why": "Mumtaz Mahal died in 1631 after giving birth to her fourteenth child while accompanying the emperor on campaign. The Mughal Empire was then at its wealthiest and had a tradition of garden tombs, such as Humayun's in Delhi. Work at Agra began the following year.",
+    "impact": "Shah Jahan was deposed by his son Aurangzeb in 1658, spent his last years confined in Agra Fort and was buried beside his wife. The complex became a UNESCO World Heritage Site in 1983 and India's best-known monument. Air pollution discolouring the marble is a continuing concern."
+  },
+  "art-beethoven-ninth": {
+    "why": "Beethoven had wanted to set Schiller's poem to music since his youth. A commission from the Philharmonic Society of London in 1822 gave him the occasion for a new symphony. He had not appeared at a public concert in Vienna for years, and friends petitioned him to premiere it there.",
+    "impact": "Adding voices to a symphony opened a path later taken by Mahler and others, and Brahms and Wagner both measured themselves against the work. It is often played at moments of public significance, including in Berlin after the Wall fell. The Council of Europe adopted its theme as an anthem in 1972."
+  },
+  "art-swan-lake": {
+    "why": "The Moscow Imperial Theatres commissioned the score in 1875. Ballet music was normally supplied by house specialists, so asking a leading symphonic composer was unusual. Tchaikovsky wrote richer and more complex music than dancers and choreographers of the time were used to.",
+    "impact": "Tchaikovsky died in 1893 believing the ballet had not succeeded. Two years later Marius Petipa and Lev Ivanov restaged it in St Petersburg with a revised score, and most productions since descend from that version. The double role of Odette and Odile became a major test for ballerinas."
+  },
+  "art-eiffel-tower": {
+    "why": "The 1889 exhibition marked the centenary of the French Revolution, and the government wanted a striking centrepiece. The design came from engineers in Gustave Eiffel's company, which had long experience building iron railway bridges and viaducts. The firm won a competition among many entries.",
+    "impact": "The tower's permit ran for only twenty years, and it survived partly because it proved useful as a mast for radio telegraphy. It was overtaken in height by New York's Chrysler Building in 1930. It still carries broadcast antennas and receives several million paying visitors every year."
+  },
+  "art-starry-night": {
+    "why": "Van Gogh entered the asylum voluntarily in May 1889, some months after a breakdown in Arles during which he cut off part of his ear. He was allowed to paint there. The canvas was worked up indoors by day from memory, and the village in it is largely invented.",
+    "impact": "Van Gogh died in July 1890. His sister-in-law, Johanna van Gogh-Bonger, spent years arranging exhibitions and publishing his letters, which built his reputation. The painting has belonged to the Museum of Modern Art in New York since 1941, and his expressive brushwork influenced the Expressionist painters."
+  },
+  "art-the-scream": {
+    "why": "Munch lost his mother and an older sister to tuberculosis in childhood and returned to illness and grief throughout his work. Time in Paris and Berlin exposed him to Symbolist art. The scene recalls a sunset walk on a hillside road above the Oslo fjord.",
+    "impact": "Munch made several versions in paint and pastel plus a lithograph, which helped the image spread. It influenced German Expressionism. Versions were stolen from Oslo museums in 1994 and 2004 and both were recovered. A pastel version sold at auction in 2012 for close to 120 million US dollars."
+  },
+  "art-lumiere-cinema": {
+    "why": "The Lumière family ran a successful photographic plate factory in Lyon. Edison's Kinetoscope already showed moving pictures, but only to one person at a time through a peephole. The brothers patented the Cinématographe in 1895, a light hand-cranked device that worked as camera, printer and projector.",
+    "impact": "Within a couple of years Lumière operators were filming and screening on several continents. Georges Méliès, who was in the early audiences, went on to make the first fantasy and trick films. Watching projected films together in a darkened room became the standard form of the new medium."
+  },
+  "art-academy-awards": {
+    "why": "The Academy of Motion Picture Arts and Sciences was founded in 1927, largely at the urging of MGM head Louis B. Mayer. It was meant to settle labour disputes within the industry and improve Hollywood's public image. Awards for merit were added to its aims soon afterwards.",
+    "impact": "The war film Wings took the top prize. Later ceremonies were broadcast on radio and, from 1953, on television. Sealed envelopes were introduced in 1941 after a newspaper printed the results early. An Oscar win or nomination became a major factor in a film's box office and a career's value."
+  },
+  "art-snow-white": {
+    "why": "Disney's studio had prospered with Mickey Mouse and the Silly Symphonies, but short cartoons earned little compared with features. Three-strip Technicolor and the studio's multiplane camera made richer images possible. The film took about three years and ran far over budget, forcing Disney to borrow heavily.",
+    "impact": "It was a huge box office success and earned Disney an honorary Academy Award with seven miniature statuettes. The profits paid for a new studio in Burbank and for Pinocchio, Fantasia and Bambi. It proved that audiences would sit through a full-length cartoon, creating the animated feature industry."
+  },
+  "art-wizard-of-oz": {
+    "why": "The film adapts L. Frank Baum's children's novel of 1900, which had already been staged and filmed. The success of Disney's Snow White persuaded MGM that an expensive fantasy could pay. Production was troubled, with several directors working on it before Victor Fleming received the credit.",
+    "impact": "Because it cost so much, the film made little profit on first release, and it lost the Best Picture award to Gone with the Wind. It won Oscars for its song and score. Regular American television broadcasts from 1956 onwards turned it into one of the most watched films ever made."
+  },
+  "art-elvis-first-single": {
+    "why": "Sun Records owner Sam Phillips recorded Black blues musicians and was looking for a white singer who could carry that sound to a wider audience. The song was a 1940s blues by Arthur Crudup. Presley began playing it casually during a break in an unproductive session with two local musicians.",
+    "impact": "A Memphis disc jockey played the record repeatedly and it became a regional hit. In late 1955 Sun sold Presley's contract to RCA, and Heartbreak Hotel made him a national star in 1956. His success raised lasting arguments about white performers profiting from Black musical styles."
+  },
+  "art-beatles-ed-sullivan": {
+    "why": "The group were already a sensation in Britain during 1963. Ed Sullivan booked them for three shows after noticing the crowds they drew. Their American label then promoted them heavily, and I Want to Hold Your Hand reached number one in the United States days before the broadcast.",
+    "impact": "In April 1964 the Beatles held the top five places on the American singles chart. Other British groups, including the Rolling Stones and the Kinks, followed them across the Atlantic. Many later American musicians said that watching the broadcast made them want to form a band."
+  },
+  "art-woodstock": {
+    "why": "Four young promoters planned a ticketed festival as a business venture. The town first chosen refused a permit, and dairy farmer Max Yasgur rented them his land at Bethel only weeks beforehand. Far more people arrived than expected, the fences came down and it became a free event.",
+    "impact": "Rain, mud and shortages of food and toilets did not lead to serious violence, which shaped the event's peaceful reputation. The organisers lost money until a documentary film and albums released in 1970 repaid the debts. Woodstock became the model, and the warning, for later large outdoor festivals."
+  },
+  "art-sydney-opera-house": {
+    "why": "Sydney had no proper hall for opera or large orchestral concerts, and the conductor Eugene Goossens campaigned for one. New South Wales premier Joseph Cahill backed the idea and launched an international design competition. The little-known Danish architect's sketches were chosen as the winner in 1957.",
+    "impact": "The roof shells took years to engineer and costs rose to many times the original estimate, paid for largely by a state lottery. Utzon resigned in 1966 after a dispute with a new state government and never saw the finished building. It became a UNESCO World Heritage Site in 2007."
+  },
+  "art-thriller": {
+    "why": "Jackson had sold millions with Off the Wall in 1979 but felt the album was overlooked at the Grammy Awards. He and producer Quincy Jones set out to make a record on which every track was strong enough to be a single, mixing pop, rock, funk and soul.",
+    "impact": "Seven of its nine songs reached the American top ten, and it won a record eight Grammys in 1984. The video for Billie Jean helped open MTV to Black artists. The fourteen-minute Thriller film, directed by John Landis, showed that a music video could be an event in itself."
+  },
+  "art-harry-potter": {
+    "why": "J. K. Rowling has said the idea came to her on a delayed train to London in 1990. She wrote the book over several years, part of that time as a single mother in Edinburgh. Several publishers turned the manuscript down before Bloomsbury, a small London house, accepted it.",
+    "impact": "Seven novels appeared by 2007, followed by a film series, a stage play and theme parks. The books showed that children would read very long novels, and that adults would read them too. In 2000 the New York Times created a separate children's bestseller list in response to their dominance."
+  },
+  "phi-socrates-trial": {
+    "why": "Athens had lost the Peloponnesian War in 404 BC and then endured the brutal rule of the Thirty Tyrants. Some of the men who had harmed the city, including Critias and Alcibiades, had been associates of Socrates. His habit of publicly questioning respected citizens had also made him enemies.",
+    "impact": "Socrates wrote nothing, so he is known mainly through Plato and Xenophon, who both wrote accounts of his defence. Plato went on to found the Academy in Athens. The case became the standard example in arguments about free speech, individual conscience and the limits of majority rule."
+  },
+  "phi-utopia": {
+    "why": "More was a London lawyer and a friend of the humanist Erasmus. He began the book during a diplomatic mission to Flanders in 1515. News of voyages to the Americas supplied the frame of a traveller's tale, and English problems such as enclosure and the hanging of thieves supplied the targets.",
+    "impact": "The book founded a genre of imagined societies, which later produced its opposite, dystopian fiction. An English translation appeared in 1551. More became Lord Chancellor and was executed in 1535 for refusing to accept Henry VIII as head of the Church. Later socialists claimed the book as a forerunner."
+  },
+  "phi-discourse-method": {
+    "why": "Descartes had settled in the Dutch Republic, where publishing was freer. After Galileo was condemned in 1633 he held back a treatise on physics that assumed a moving Earth. The Discourse appeared instead as a preface to three scientific essays, written in French to reach readers beyond the universities.",
+    "impact": "One of the attached essays introduced the coordinate geometry that links algebra to curves. Descartes developed the philosophy further in his Meditations of 1641. His sharp division between mind and body set problems that Spinoza, Leibniz and Locke all tried to answer. The Catholic Church placed his works on its Index in 1663."
+  },
+  "phi-leviathan": {
+    "why": "Hobbes had royalist connections and fled to Paris in 1640 as conflict loomed, staying eleven years. There he taught mathematics to the exiled future Charles II. Admiration for geometry and the new science led him to try to build politics from first principles about human nature.",
+    "impact": "The book pleased few. Royalists disliked authority resting on consent instead of divine right, and churchmen disliked its treatment of religion. Hobbes returned to England and was later accused of atheism. Locke and Rousseau borrowed his idea of a social contract but drew very different conclusions."
+  },
+  "phi-spinoza-ethics": {
+    "why": "Spinoza had been expelled from Amsterdam's Portuguese Jewish community in 1656 and lived modestly, grinding lenses. His anonymous Theological-Political Treatise of 1670 was widely denounced and then banned. When he considered printing the Ethics in 1675, rumours of its content made him abandon the attempt.",
+    "impact": "The Dutch authorities banned his posthumous works in 1678, and Spinozist became a term of abuse for a century. German writers rediscovered him in the 1780s, and Goethe admired him. His approach to scripture fed later biblical criticism, and Einstein described his own idea of God in Spinoza's terms."
+  },
+  "phi-locke-essay": {
+    "why": "By Locke's own account the book grew out of a discussion among friends around 1671 that stalled until they asked what the human mind is capable of knowing. He worked on it for nearly twenty years, partly in exile in the Netherlands, returning after the revolution of 1688.",
+    "impact": "The Essay went through four editions in Locke's lifetime. Berkeley and Hume pushed its empiricism further, and Leibniz wrote a book-length reply. Voltaire popularised Locke in France, where the claim that people are formed by experience encouraged Enlightenment hopes for reform through education."
+  },
+  "phi-social-contract": {
+    "why": "Rousseau was born in Geneva and prized his status as citizen of a republic while living under French absolute monarchy. His earlier Discourse on Inequality had blamed private property and society for corrupting people. He was also answering Hobbes and Locke on how political authority could be justified.",
+    "impact": "His novel Emile, published the same year, was condemned too, and Rousseau fled France to avoid arrest. Revolutionary leaders including Robespierre revered him, and his remains were moved to the Panthéon in 1794. Critics have long argued over whether the general will protects freedom or licenses its suppression."
+  },
+  "phi-wealth-of-nations": {
+    "why": "Smith had taught moral philosophy at Glasgow, a growing trading city. Travelling in France as tutor to a young duke in the 1760s, he met economists who argued against state control of trade. He then spent about ten years writing an attack on the system of tariffs and monopolies known as mercantilism.",
+    "impact": "The book reached five editions in Smith's lifetime and was read by British politicians. In the nineteenth century it armed the campaign for free trade that led to the repeal of the Corn Laws in 1846. Ricardo and Marx both built on it. The famous invisible hand appears in it only once."
+  },
+  "phi-critique-pure-reason": {
+    "why": "Kant said that reading David Hume, who doubted we can ever know cause and effect, woke him from his dogmatic slumber. Philosophy was split between rationalists who trusted pure reasoning and empiricists who trusted only experience. Kant published almost nothing through the 1770s while he worked out a way between them.",
+    "impact": "Early readers found the book baffling, so Kant wrote a shorter introduction in 1783 and revised the text in 1787. Two further Critiques, on morality and on judgement, followed. Fichte, Schelling and Hegel built German idealism in response, and later philosophy has had to take a position on Kant."
+  },
+  "phi-vindication": {
+    "why": "Wollstonecraft had run a school and worked as a writer for the radical London publisher Joseph Johnson. In 1790 she answered Edmund Burke's attack on the French Revolution. The following year Talleyrand proposed to the French assembly that girls be educated only for domestic life, and she addressed her reply to him.",
+    "impact": "The book was well reviewed at first. Wollstonecraft died in 1797 after giving birth to the future Mary Shelley. A frank memoir by her husband William Godwin scandalised readers and damaged her standing for decades. Suffrage campaigners revived the book in the late nineteenth century."
+  },
+  "phi-communist-manifesto": {
+    "why": "The Communist League, a small society made up largely of German emigrant workers, asked Marx and Engels in late 1847 to write its programme. Engels supplied earlier drafts and his knowledge of industrial Manchester. Marx wrote the final German text in Brussels, at a time of hunger and unrest across Europe.",
+    "impact": "The pamphlet had little influence on the 1848 revolutions, and the League dissolved within a few years. It was rediscovered from the 1870s as socialist parties grew. After the Russian Revolution of 1917 it became a foundational text for communist states and was translated into most major languages."
+  },
+  "phi-on-liberty": {
+    "why": "Mill said the essay was worked out jointly with his wife Harriet Taylor Mill, who died in 1858, and he dedicated it to her. Both feared that in a democratic age the pressure of public opinion and custom could stifle individuality as effectively as any government.",
+    "impact": "The harm principle became a reference point in arguments over censorship and private morality. It was central to British debates on decriminalising homosexuality after the Wolfenden Report of 1957. Mill sat in Parliament in the 1860s, where he argued for votes for women. Critics have always disputed what counts as harm."
+  },
+  "phi-zarathustra": {
+    "why": "Ill health had forced Nietzsche to give up his professorship at Basel in 1879, and he lived in boarding houses in Switzerland and Italy. He had broken with Wagner, and a painful rejection by Lou Salomé in 1882 left him isolated. He began the book that winter on the Italian coast.",
+    "impact": "The work grew to four parts but sold very few copies. After Nietzsche's mental collapse in 1889 his sister Elisabeth controlled his papers and promoted a nationalist reading that the Nazis later exploited. Scholars after 1945 worked to correct it. Richard Strauss named a tone poem after the book in 1896."
+  },
+  "phi-being-and-time": {
+    "why": "Heidegger had been assistant to Edmund Husserl, the founder of phenomenology, and taught at Marburg from 1923. He was known as a brilliant lecturer but had published almost nothing for a decade. He dedicated the book to Husserl while moving away from his teacher's approach.",
+    "impact": "Heidegger succeeded Husserl at Freiburg in 1928. The book shaped Sartre's Being and Nothingness and the work of Hannah Arendt, Hans-Georg Gadamer and Jacques Derrida. The promised second half never appeared. Heidegger joined the Nazi Party in 1933, and how far that taints his philosophy remains disputed."
+  },
+  "phi-second-sex": {
+    "why": "French women had voted for the first time only in 1945. Beauvoir, already known as a novelist and existentialist thinker alongside Sartre, set out to write about herself and found she first had to ask what being a woman meant. Extracts appeared in their journal Les Temps modernes.",
+    "impact": "An abridged English translation of 1953 carried the book to American and British readers, including Betty Friedan. A complete translation followed only in 2009. Its separation of biological sex from social role underlies later thinking about gender. Beauvoir herself joined the French campaign for abortion rights in the 1970s."
+  },
+  "phi-theory-of-justice": {
+    "why": "In mid-century English-speaking philosophy, utilitarianism dominated ethics and many thought large-scale political theory was finished. Rawls, a Harvard professor, had been developing his alternative in articles since the 1950s. He drew on the social contract tradition of Locke, Rousseau and Kant, amid American arguments over civil rights and Vietnam.",
+    "impact": "His difference principle, that inequalities are fair only if they benefit the worst off, became a standard position in debates about welfare and taxation. Robert Nozick published a libertarian reply in 1974, and communitarian critics followed. Rawls revised his view in Political Liberalism in 1993."
+  },
+  "art-empire-state": {
+    "why": "In the boom of the late 1920s New York developers raced to build the tallest tower, with the Chrysler Building briefly ahead. Financier John J. Raskob backed the project, with former governor Al Smith as its public face. It replaced the original Waldorf-Astoria hotel on Fifth Avenue.",
+    "impact": "Opening in a slump, it struggled to find tenants and was nicknamed the Empty State Building, relying on its observation deck for income. The film King Kong made it famous worldwide in 1933. A bomber struck it in fog in 1945. The World Trade Center overtook its height in 1970."
+  }
+}

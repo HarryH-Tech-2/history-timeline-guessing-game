@@ -1,0 +1,190 @@
+{
+  "evt-justinian-plague": {
+    "why": "The bacterium Yersinia pestis, carried by fleas on rats, is thought to have travelled along shipping routes, and contemporary writers first reported it at the Egyptian port of Pelusium. Constantinople depended on grain fleets from Egypt, and its crowded streets and warehouses gave the disease an easy path.",
+    "impact": "The loss of taxpayers and soldiers strained Justinian's campaigns to recover the western provinces. Plague returned in waves for about two centuries. Historians disagree about the death toll, and some recent studies argue that its effects were smaller than was once assumed."
+  },
+  "evt-boston-tea-party": {
+    "why": "The Tea Act of 1773 let the struggling East India Company sell tea directly to the colonies, undercutting local merchants and smugglers while keeping an existing duty on tea. Governor Thomas Hutchinson refused to let the ships leave without unloading, so the Sons of Liberty acted.",
+    "impact": "Parliament answered in 1774 with the Coercive Acts, which closed Boston's port and curbed self-government in Massachusetts. The other colonies rallied round and sent delegates to the First Continental Congress. Fighting began at Lexington and Concord in April 1775."
+  },
+  "evt-rosetta-stone": {
+    "why": "Napoleon invaded Egypt in 1798 and brought a corps of scholars to study the country. The stone had been reused as building material in an old wall. The officer in charge of the works, Pierre-François Bouchard, saw that the inscriptions might matter and reported the find.",
+    "impact": "Britain took the stone after the French surrender at Alexandria in 1801, and it has been in the British Museum since 1802. Thomas Young made early progress on the text and Jean-François Champollion announced his breakthrough in 1822. Egypt has asked for its return."
+  },
+  "evt-great-exhibition": {
+    "why": "Prince Albert and the civil servant Henry Cole promoted the exhibition, inspired by French national industrial fairs, to display Britain's manufacturing lead and encourage trade. Joseph Paxton, a gardener who designed greenhouses, proposed a prefabricated building that could be put up within months.",
+    "impact": "The profits bought land in South Kensington, where the Victoria and Albert Museum, the Science Museum and the Natural History Museum later rose. The event set the pattern for later world's fairs. The Crystal Palace was moved to Sydenham in south London and burned down in 1936."
+  },
+  "evt-krakatoa": {
+    "why": "Krakatoa lies where the Indo-Australian plate slides beneath Indonesia, a zone that feeds a long chain of volcanoes. Smaller eruptions began in May 1883. In the climax, the magma chamber emptied and collapsed, and most of the island fell into the sea.",
+    "impact": "Ash and gas in the upper atmosphere slightly lowered global temperatures and produced vivid red sunsets for months. News travelled by telegraph cable, making it one of the first disasters reported around the world within days. A new volcano, Anak Krakatau, emerged from the sea in 1927."
+  },
+  "evt-sf-earthquake": {
+    "why": "The San Andreas Fault, the boundary between the Pacific and North American plates, ruptured along several hundred kilometres of northern California. Broken water mains left firefighters almost without water, and the largely wooden city burned. Attempts to blast firebreaks with dynamite sometimes started new fires.",
+    "impact": "The city was rebuilt quickly and hosted a world's fair, the Panama-Pacific Exposition, in 1915. Study of the rupture led the geologist Harry Fielding Reid to the elastic rebound theory, still the basic explanation of earthquakes. The search for a secure water supply led to the damming of Hetch Hetchy Valley."
+  },
+  "evt-versailles-treaty": {
+    "why": "Germany asked for an armistice in November 1918 as its western front gave way and its allies collapsed. In Paris the victors disagreed. Clemenceau of France wanted security and reparations, while the American president Woodrow Wilson wanted a League of Nations. Germany was not allowed to negotiate.",
+    "impact": "Germany lost territory, including Alsace-Lorraine, along with its colonies and most of its armed forces, and had to accept responsibility for war damage and pay reparations. The United States Senate refused to ratify the treaty. German resentment of it was later exploited by Hitler."
+  },
+  "evt-tutankhamun": {
+    "why": "Carter had searched the valley for years with money from Lord Carnarvon, who was close to ending his support and agreed to one final season. The entrance had been buried under rubble and ancient workmen's huts, which hid it from tomb robbers and from earlier excavators.",
+    "impact": "Carter spent about ten years recording and removing more than 5,000 objects. The find came in the year Egypt gained formal independence, and the Egyptian government insisted the contents stay in the country. Egyptian motifs spread through 1920s design, and touring exhibitions later drew huge crowds."
+  },
+  "evt-wall-street-crash": {
+    "why": "Share prices rose steeply through the 1920s, and many investors bought on margin, using borrowed money. Prices peaked in September 1929 and began to slide. Heavy selling in late October triggered demands for repayment of those loans, which forced still more selling.",
+    "impact": "Economists still debate how far the crash caused the Depression rather than signalling it, since bank failures and falling demand did much of the damage. About a quarter of American workers were unemployed by 1933. Congress responded with new rules, including the Securities and Exchange Commission in 1934."
+  },
+  "evt-hindenburg": {
+    "why": "The Hindenburg was designed to use helium, but the United States controlled the supply and restricted its export, so the ship flew with flammable hydrogen. The cause of ignition was never settled. The most widely accepted explanation is a static spark igniting leaking gas.",
+    "impact": "Most of the 97 people on board survived, but Herbert Morrison's recorded commentary and the newsreel footage destroyed public confidence. Germany's remaining large airships were grounded and later scrapped. Long-distance passenger travel passed to flying boats and then to airliners."
+  },
+  "evt-chernobyl": {
+    "why": "The Soviet RBMK reactor design became unstable at low power, and its control rods could briefly increase the reaction when first inserted. Operators ran the test at low power with safety systems switched off, against procedure. The reactor also lacked the strong containment building used elsewhere.",
+    "impact": "Soviet authorities said little until radiation was detected in Sweden. About 30 plant workers and firefighters died within months, and estimates of later deaths from cancer vary widely. An exclusion zone of roughly 30 kilometres remains. The disaster damaged public trust in the Soviet state."
+  },
+  "bat-gaugamela": {
+    "why": "Alexander invaded the Persian Empire in 334 BC, carrying out a plan made by his father Philip II. He won at the Granicus and at Issus, then took the Mediterranean coast and Egypt. Darius raised a new army and chose level ground to suit his chariots and cavalry.",
+    "impact": "Darius fled and was murdered the following year by one of his own governors. Alexander took Babylon, Susa and Persepolis with their treasuries. Greek language and Greek-style cities spread across the Near East, shaping the kingdoms that his generals founded after his death in 323 BC."
+  },
+  "bat-zama": {
+    "why": "Hannibal had campaigned in Italy since 218 BC, winning great victories but never able to take Rome. Scipio drove the Carthaginians from Spain and then invaded Africa, forcing Carthage to recall Hannibal. The Numidian prince Masinissa sided with Rome, giving Scipio the stronger cavalry.",
+    "impact": "The peace terms stripped Carthage of Spain and nearly all its warships, imposed a large indemnity paid over fifty years and forbade it to make war without Roman consent. Masinissa's Numidia grew at its expense. Rome destroyed Carthage altogether in 146 BC."
+  },
+  "bat-alesia": {
+    "why": "Caesar had been campaigning in Gaul since 58 BC, defeating its peoples one at a time. In 52 BC Vercingetorix of the Arverni united many of them in revolt, burned supplies to starve the Romans and repelled Caesar at Gergovia. After a cavalry defeat he withdrew into Alesia.",
+    "impact": "Vercingetorix was held in Rome for years and executed after Caesar's triumph in 46 BC. Gaul stayed Roman for about five centuries, and its Latin eventually became French. The conquest gave Caesar wealth and a loyal veteran army, which he led across the Rubicon in 49 BC."
+  },
+  "bat-teutoburg": {
+    "why": "Under Augustus, Rome had pushed east of the Rhine and was starting to govern and tax the region as a province. The governor, Varus, trusted Arminius, a Cheruscan noble who had served with Roman forces and held Roman citizenship. Arminius secretly united several tribes and led Varus's column into difficult country.",
+    "impact": "Varus killed himself during the fighting. Germanicus later led punitive campaigns and recovered two of the three lost eagle standards, but the emperor Tiberius recalled him. In the nineteenth century Arminius, as Hermann, became a symbol of German nationalism. Archaeologists identified the Kalkriese site from the late 1980s."
+  },
+  "bat-adrianople": {
+    "why": "In 376 Goths fleeing the Huns were allowed across the Danube into Roman territory. Roman officials exploited them and food ran short, so they rebelled. Valens attacked without waiting for the western emperor Gratian, who was bringing reinforcements. Ancient writers say he wanted the victory for himself.",
+    "impact": "The historian Ammianus says about two thirds of the Roman army was lost. In 382 the emperor Theodosius I made peace, letting the Goths settle inside the empire under their own leaders in return for military service. Goths under Alaric went on to sack Rome in 410."
+  },
+  "bat-jerusalem-1099": {
+    "why": "Pope Urban II called for the crusade at Clermont in 1095, after the Byzantine emperor Alexios I asked for help against the Seljuk Turks. The crusaders took Nicaea and Antioch on the way. The Muslim powers were divided, and Egypt's Fatimids had only recently retaken Jerusalem from the Seljuks.",
+    "impact": "Godfrey of Bouillon became the first ruler of a Kingdom of Jerusalem, which held the city until Saladin retook it in 1187. The Templars and Hospitallers grew up to defend pilgrims and territory. Venice, Genoa and Pisa gained trading privileges in the ports of the Levant."
+  },
+  "bat-crecy": {
+    "why": "Edward III claimed the French crown through his mother, and war began in 1337 when Philip VI confiscated his duchy of Gascony. In 1346 Edward landed in Normandy and raided across northern France, pursued by a larger French army. He chose a slope and fought on the defensive.",
+    "impact": "Edward went on to besiege Calais, which fell in 1347 and stayed English until 1558. Many French nobles died, as did the blind King John of Bohemia. The English method of dismounted men-at-arms flanked by archers was used again at Poitiers and Agincourt."
+  },
+  "bat-orleans": {
+    "why": "After Agincourt and the Treaty of Troyes, the English and their Burgundian allies held Paris and northern France. Orléans guarded a crossing of the Loire into the lands loyal to the dauphin Charles. Joan, a peasant girl from Domrémy, persuaded him to send her with a relief force.",
+    "impact": "The French won again at Patay in June and Charles was crowned at Reims in July 1429. Joan was captured by Burgundians in 1430, sold to the English and burned at Rouen in 1431. Burgundy made peace with Charles in 1435, and by 1453 England held only Calais."
+  },
+  "bat-bosworth": {
+    "why": "Richard III took the throne in 1483, setting aside his young nephew Edward V, who then disappeared in the Tower with his brother. That divided the Yorkists. Henry Tudor, the exiled Lancastrian claimant, landed in Wales with French backing. During the battle the Stanley family's forces came in on his side.",
+    "impact": "Henry VII married Elizabeth of York, joining the two rival houses, and defeated a further Yorkist challenge at Stoke Field in 1487. Richard's remains were found beneath a car park in Leicester in 2012 and reburied in the city's cathedral in 2015."
+  },
+  "bat-culloden": {
+    "why": "The Stuart kings had been deposed in 1688, and their supporters were known as Jacobites. In 1745 Charles Edward Stuart landed in Scotland, raised Highland clans, took Edinburgh and marched as far as Derby before retreating. His tired, hungry army made its stand on open moorland that suited the government artillery.",
+    "impact": "Charles spent months in hiding before escaping to France. Parliament disarmed the clans, restricted Highland dress and abolished the chiefs' hereditary legal powers, which weakened the clan system. In the decades that followed, many Highlanders were cleared from the land or emigrated."
+  },
+  "bat-yorktown": {
+    "why": "After failing to subdue the southern colonies, Cornwallis moved into Virginia and fortified Yorktown to keep a sea link with New York. France had been an American ally since 1778. A French fleet under de Grasse drove off the Royal Navy while Washington and Rochambeau marched south.",
+    "impact": "Several thousand British troops became prisoners. Lord North's government fell in March 1782 and peace talks began. The Treaty of Paris in 1783 recognised American independence and set the western boundary at the Mississippi. The cost of the war deepened the French crown's debts."
+  },
+  "bat-austerlitz": {
+    "why": "Britain, Austria and Russia formed a new coalition against Napoleon, who had crowned himself emperor in 1804. He dropped his plans to invade Britain, marched his army from the Channel coast, forced an Austrian army to surrender at Ulm and occupied Vienna. Far from home, he needed a quick decision.",
+    "impact": "Austria made peace within weeks, giving up Venetia and the Tyrol. In 1806 Napoleon grouped many German states into the Confederation of the Rhine, and Francis II dissolved the Holy Roman Empire after about a thousand years. Russia fought on until the treaties of Tilsit in 1807."
+  },
+  "bat-somme": {
+    "why": "The Allies had agreed in late 1915 to attack together. Germany's assault on Verdun from February 1916 drew away French troops, so Britain took the main role and the offensive became partly a way to relieve Verdun. A week-long bombardment failed to destroy deep German dugouts and barbed wire.",
+    "impact": "The Allies advanced about ten kilometres at most. Tanks were used in battle for the first time in September 1916. Many British soldiers were volunteers serving alongside friends from the same town, so losses fell heavily on particular communities. Historians still debate whether the attrition was justified."
+  },
+  "bat-midway": {
+    "why": "Admiral Yamamoto planned to seize Midway in order to draw out and destroy the American carriers that had escaped Pearl Harbor. American codebreakers had partly broken the Japanese naval code and identified the target and rough date, so Admiral Nimitz placed three carriers in ambush.",
+    "impact": "The United States lost one carrier, the Yorktown. Japan could not replace four fleet carriers and their trained crews at anything like the pace of American shipyards. From August 1942, with the landings on Guadalcanal, the United States went onto the offensive."
+  },
+  "bat-dday": {
+    "why": "Stalin had pressed his allies for a second front since 1941, and at Tehran in 1943 they agreed to invade France the next spring under General Eisenhower. A deception plan persuaded the Germans that the main landing would come near Calais. Bad weather forced a day's delay.",
+    "impact": "The Allies suffered around 10,000 casualties on the day, though estimates vary. Weeks of hard fighting in the Normandy hedgerows followed before the breakout, and Paris was liberated on 25 August. With Soviet forces advancing from the east, Germany surrendered in May 1945."
+  },
+  "ppl-aristotle": {
+    "why": "His father Nicomachus was physician to the king of Macedon, which may explain both his interest in living things and his later link to the Macedonian court. At about seventeen he went to Athens to join Plato's Academy and stayed some twenty years, later founding his own school, the Lyceum.",
+    "impact": "His works were translated into Arabic and studied by commentators such as Avicenna and Averroes, then returned to western Europe in Latin, where Thomas Aquinas joined them to Christian theology. His physics was overturned in the seventeenth century, but his logic stayed standard into the nineteenth."
+  },
+  "ppl-augustus": {
+    "why": "His mother Atia was Caesar's niece, and Caesar's will named him heir and adopted son when he was eighteen. He joined Mark Antony and Lepidus to defeat Caesar's assassins at Philippi, then turned on Antony, beating him and Cleopatra at Actium in 31 BC.",
+    "impact": "In 27 BC the Senate gave him the name Augustus. He kept the forms of the Republic while holding real power, a model later emperors followed. He created a standing professional army and the Praetorian Guard and annexed Egypt. The month of August is named after him."
+  },
+  "ppl-elizabeth-i": {
+    "why": "Henry VIII had broken with Rome to marry Anne Boleyn in the hope of a son. Anne was executed when Elizabeth was two, and the child was declared illegitimate, though later restored to the succession. She was briefly imprisoned under her Catholic half-sister Mary I and succeeded her in 1558.",
+    "impact": "Her religious settlement of 1559 established a moderate Protestant Church of England that still exists. The East India Company was chartered in 1600. She never married, and on her death in 1603 the crown passed to James VI of Scotland, uniting the two crowns."
+  },
+  "ppl-galileo": {
+    "why": "The son of the musician Vincenzo Galilei, he began studying medicine at Pisa but switched to mathematics and became a professor at Padua in 1592. In 1609, hearing of a Dutch spyglass, he built much better instruments of his own and pointed them at the night sky.",
+    "impact": "His experiments on motion and falling bodies prepared the ground for Newton. After his trial in 1633 he lived under house arrest near Florence until his death in 1642, still publishing. In 1992 Pope John Paul II acknowledged that the Church had erred in handling his case."
+  },
+  "ppl-washington": {
+    "why": "Born into a Virginia planter family, he worked as a surveyor, inherited the Mount Vernon estate and commanded Virginia troops in the French and Indian War. His marriage to the wealthy widow Martha Custis raised his standing. In 1775 Congress chose him as a commander who could unite the colonies.",
+    "impact": "He resigned his commission in 1783 and left office after two terms in 1797, strengthening civilian rule and the peaceful handover of power. The two-term custom lasted until Franklin Roosevelt. He owned enslaved people, and his will provided for freeing those he held after his wife's death."
+  },
+  "ppl-lincoln": {
+    "why": "With little formal schooling, he taught himself law and practised in Springfield, Illinois, serving in the state legislature and one term in Congress. He returned to politics in 1854 to oppose the spread of slavery into new territories. His 1858 debates with Stephen Douglas made him nationally known.",
+    "impact": "His election in 1860 prompted seven southern states to secede before he took office. The Thirteenth Amendment, which he pressed through Congress, abolished slavery in 1865. He also signed the Homestead Act and backed a transcontinental railway. His death left Reconstruction to Andrew Johnson."
+  },
+  "ppl-nightingale": {
+    "why": "Her wealthy English parents were travelling in Europe when she was born, and her father educated her at home. She felt called to nursing against her family's wishes, since it was not thought respectable work. In 1854 Sidney Herbert, a friend in government, asked her to lead nurses to Scutari.",
+    "impact": "Back in Britain she pressed for a royal commission on army health and used striking diagrams to show that most soldiers had died of disease, not wounds. In 1860 she opened a nursing school at St Thomas' Hospital in London. International Nurses Day falls on her birthday."
+  },
+  "ppl-van-gogh": {
+    "why": "A minister's son, he worked for an art dealer and tried teaching and preaching in a Belgian mining district before turning to art at about twenty-seven. His brother Theo, an art dealer, supported him with money. In Paris he met the Impressionists and brightened his palette, then moved to Arles in 1888.",
+    "impact": "After Vincent died in 1890 and Theo months later, Theo's widow Johanna van Gogh-Bonger arranged exhibitions and published the brothers' letters, building his reputation. His colour and brushwork influenced the Fauves and German Expressionists. The Van Gogh Museum opened in Amsterdam in 1973."
+  },
+  "ppl-churchill": {
+    "why": "The son of Lord Randolph Churchill and the American Jennie Jerome, he served as a cavalry officer and war correspondent and became famous for escaping Boer captivity in 1899. He entered Parliament in 1900. In the 1930s, out of office, he warned against German rearmament, which gave him credibility in 1940.",
+    "impact": "He built the wartime alliance with Roosevelt and Stalin, lost the 1945 election to Labour and returned as prime minister from 1951 to 1955. His 1946 speech in Fulton popularised the phrase iron curtain. His record on India and empire remains much debated."
+  },
+  "ppl-mlk": {
+    "why": "The son and grandson of Baptist ministers, he grew up under segregation laws in the American South. He studied at Morehouse College and took a doctorate at Boston University, and drew on Gandhi's ideas of nonviolence. As a new pastor in Montgomery he was chosen to lead the boycott after Rosa Parks's arrest.",
+    "impact": "Campaigns he led in Birmingham and Selma built pressure for the Civil Rights Act of 1964 and the Voting Rights Act of 1965. He later spoke against the Vietnam War and poverty. He was assassinated in Memphis in 1968. A federal holiday in his honour was first observed in 1986."
+  },
+  "ppl-anne-frank": {
+    "why": "Her Jewish family left Frankfurt for Amsterdam after Hitler took power in 1933, and her father Otto ran a business there. Germany occupied the Netherlands in 1940 and imposed anti-Jewish measures. The family went into hiding in July 1942 when her sister Margot was summoned to a labour camp.",
+    "impact": "The group was arrested in August 1944, and it is not known for certain whether they were betrayed. Miep Gies, one of their helpers, saved the papers. The diary appeared in Dutch in 1947 and has been translated into dozens of languages. The hiding place opened as a museum in 1960."
+  },
+  "tec-spinning-jenny": {
+    "why": "John Kay's flying shuttle had made weaving faster, so weavers needed more yarn than hand spinners could supply, while demand for cotton cloth kept rising. Hargreaves was a weaver and carpenter near Blackburn. The story that he named the machine after a daughter is doubted.",
+    "impact": "Local spinners who feared for their wages broke into his house and smashed his machines, and he moved to Nottingham. Jenny yarn was fairly weak, so Richard Arkwright's water frame and Samuel Crompton's mule soon overtook it. Spinning moved from cottages into factories."
+  },
+  "tec-hot-air-balloon": {
+    "why": "Joseph and Étienne Montgolfier, paper makers from Annonay, had noticed that heated air made paper and cloth bags rise. They flew an unmanned balloon in public in June 1783. In September, at Versailles before Louis XVI, a balloon carried a sheep, a duck and a cockerel.",
+    "impact": "Ten days later Jacques Charles flew from Paris in a hydrogen balloon, a design that proved more practical. In 1785 a balloon crossed the English Channel. The French army used a tethered balloon to observe the enemy at the Battle of Fleurus in 1794."
+  },
+  "tec-telegraph": {
+    "why": "Discoveries in electromagnetism in the 1820s and 1830s made electrical signalling possible. Morse, a painter by profession, worked with Alfred Vail on a single-wire system and a code of dots and dashes. Cooke and Wheatstone already had a telegraph working in Britain. Congress paid for the trial line.",
+    "impact": "Lines spread alongside the railways and were used to control trains and to send news and market prices. In 1861 a line across the United States put the Pony Express out of business. A lasting transatlantic cable in 1866 cut message times between Europe and America from days to minutes."
+  },
+  "tec-light-bulb": {
+    "why": "Gas lit most homes and streets, and electric arc lamps were too harsh for indoor use. Several inventors, including Joseph Swan in England, were working on incandescent lamps. Better vacuum pumps made long-lasting filaments possible, and Edison's well-funded laboratory tested thousands of materials.",
+    "impact": "Edison built a whole system of generators, wiring and meters, and opened the Pearl Street power station in Manhattan in 1882. He and Swan merged their British interests after a patent dispute. His direct current later lost out to the alternating current backed by Westinghouse and Tesla."
+  },
+  "tec-automobile": {
+    "why": "Nikolaus Otto's four-stroke engine of 1876 offered a compact source of power. Benz, an engineer, built a light petrol engine with electric ignition and designed a vehicle around it instead of adapting a horse carriage. Bertha Benz's money helped fund the business. Gottlieb Daimler was working separately on similar ideas.",
+    "impact": "Bertha's 1888 journey from Mannheim to Pforzheim covered about 100 kilometres and led to practical improvements. Benz was selling cars commercially in the 1890s. His firm merged with Daimler's in 1926, creating the maker of Mercedes-Benz. Mass motoring arrived with cheaper cars such as Ford's Model T."
+  },
+  "tec-transatlantic-radio": {
+    "why": "Heinrich Hertz had demonstrated radio waves in the 1880s. Marconi began experimenting in Italy as a young man, found little official interest and moved to Britain in 1896, where he took out patents and found backers. Many physicists doubted the waves could follow the Earth's curve.",
+    "impact": "Some historians doubt that he truly heard the signal that day, but tests in 1902 confirmed reception across the ocean. Scientists later showed the waves bounce off a layer of the upper atmosphere. Ships adopted wireless, which summoned help to the Titanic. Marconi shared the 1909 Nobel Prize in Physics."
+  },
+  "tec-eniac": {
+    "why": "The United States Army needed firing tables for artillery, and each one took many hours of calculation by hand. In 1943 it funded John Mauchly and J. Presper Eckert to build an electronic calculator. The machine was finished too late for the war.",
+    "impact": "It was programmed by setting cables and switches, work done largely by six women whose role was long overlooked. Its limits encouraged designs that stored programs in memory. Eckert and Mauchly went on to build the commercial UNIVAC. Which machine counts as the first computer is still disputed."
+  },
+  "tec-dna-double-helix": {
+    "why": "Experiments in the 1940s and early 1950s had shown that DNA, not protein, carries genetic information. Erwin Chargaff found its chemical bases occur in matching amounts. Several groups were racing to find the structure, among them Franklin and Maurice Wilkins in London and Linus Pauling in California.",
+    "impact": "Watson, Crick and Wilkins shared a Nobel Prize in 1962. Franklin had died in 1958, and the prize is not awarded posthumously. The genetic code was worked out in the 1960s. Later came genetic engineering, DNA fingerprinting and the sequencing of the human genome, completed in 2003."
+  },
+  "tec-sputnik": {
+    "why": "Both superpowers had announced plans to launch a satellite during the International Geophysical Year of 1957 to 1958. Sergei Korolev's R-7 rocket, built as an intercontinental missile, had the power to do it. When a larger scientific satellite fell behind schedule, he chose a simple sphere instead.",
+    "impact": "Americans saw that a rocket able to orbit a satellite could also carry a nuclear warhead. The United States launched its own satellite in January 1958, created NASA that year and increased spending on science education. A month after Sputnik 1, Sputnik 2 carried the dog Laika into orbit."
+  },
+  "tec-heart-transplant": {
+    "why": "Heart-lung machines, developed in the 1950s, made open-heart surgery possible, and Norman Shumway in California had worked out the transplant technique on dogs. Barnard had trained in the United States. The patient, Louis Washkansky, was dying of heart failure. The donor, Denise Darvall, had been fatally injured in a road accident.",
+    "impact": "Washkansky lived for 18 days and died of pneumonia, his immune system weakened by drugs given to prevent rejection. Many teams attempted transplants in 1968, but most patients died quickly and numbers fell. Survival improved greatly once the drug ciclosporin came into use in the early 1980s."
+  }
+}

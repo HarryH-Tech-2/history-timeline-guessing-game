@@ -1,0 +1,234 @@
+{
+  "evt-moon-landing": {
+    "why": "The Soviet Union had led the early space race, launching the first satellite in 1957 and the first man into orbit in 1961. The United States answered with the Apollo programme, building the Saturn V rocket and testing each step on earlier Mercury, Gemini and Apollo flights.",
+    "impact": "Five more crewed landings followed before Apollo ended in 1972, and twelve astronauts walked on the Moon in all. The missions brought back lunar rock that reshaped ideas about how the Moon formed, and the engineering effort pushed forward computing and materials science."
+  },
+  "evt-berlin-wall": {
+    "why": "Gorbachev's reforms in the Soviet Union signalled that Moscow would no longer use force to prop up its allies. In 1989 Hungary opened its border with Austria, thousands of East Germans fled west, and mass demonstrations in Leipzig and other cities left the government without options.",
+    "impact": "East Germany's ruling party lost power within weeks, and Germany was reunified on 3 October 1990. Communist governments across Eastern Europe fell in the same period, the Warsaw Pact was dissolved, and the Soviet Union itself broke up at the end of 1991."
+  },
+  "evt-french-revolution": {
+    "why": "France was close to bankruptcy after costly wars, and poor harvests had driven up the price of bread. Louis XVI called the Estates-General to raise taxes, but the Third Estate declared itself a National Assembly. Rumours that troops would crush it sent Parisians looking for weapons and gunpowder.",
+    "impact": "Within weeks the Assembly abolished feudal privileges and issued the Declaration of the Rights of Man and of the Citizen. The monarchy fell in 1792 and Louis XVI was executed the following year. The upheaval led to the Terror, long wars and Napoleon's rise."
+  },
+  "evt-magna-carta": {
+    "why": "John had lost Normandy and most of his other French lands, and his attempt to win them back ended in defeat at Bouvines in 1214. Heavy taxation to pay for the wars, arbitrary justice and a long quarrel with the Pope had turned many barons against him.",
+    "impact": "John soon repudiated the charter, and civil war followed. It was reissued after his death under Henry III and confirmed many times. Clauses promising lawful judgement and no sale or delay of justice were later cited by English parliamentarians and American colonists."
+  },
+  "evt-us-independence": {
+    "why": "After the Seven Years' War Britain tried to tax its American colonies to help pay its debts, without giving them seats in Parliament. Protests grew into boycotts and then fighting at Lexington and Concord in 1775. Thomas Paine's pamphlet Common Sense helped turn opinion towards a full break.",
+    "impact": "The declaration made a negotiated return to British rule far less likely and helped the colonies seek foreign allies. France joined the war in 1778, and Britain recognised American independence in the Treaty of Paris in 1783. Its language was later borrowed by other independence movements."
+  },
+  "evt-constantinople": {
+    "why": "By the fifteenth century the Byzantine Empire had shrunk to little more than the city itself, surrounded by Ottoman territory. It had never fully recovered from its sack by crusaders in 1204. Mehmed II brought a large army and heavy cannon, and Western help was small.",
+    "impact": "Mehmed made the city his capital, and Hagia Sophia became a mosque. The Ottomans now controlled the crossing between Europe and Asia and went on to expand in the Balkans and the eastern Mediterranean. Greek scholars who moved to Italy carried classical texts with them."
+  },
+  "evt-columbus": {
+    "why": "European merchants wanted direct access to Asian spices and silk, and Portugal was already pushing down the African coast to find a sea route. Columbus underestimated the size of the globe and argued Asia lay a short sail west. Ferdinand and Isabella agreed to back him after conquering Granada in 1492.",
+    "impact": "Spain founded colonies in the Caribbean within a few years and later conquered the Aztec and Inca empires. Crops, animals and diseases crossed the ocean in both directions. Smallpox and other infections killed a large share of the indigenous population, and the Atlantic slave trade followed."
+  },
+  "evt-russian-revolution": {
+    "why": "Russia had suffered huge losses in the First World War, and food shortages brought down the Tsar in the February Revolution of 1917. The provisional government kept fighting and delayed land reform. The Bolsheviks won support in the soviets with promises of peace, land and bread.",
+    "impact": "The new government left the war through the Treaty of Brest-Litovsk in 1918 and then fought a civil war against its opponents, which it won. The Soviet Union was founded in 1922. Communist parties formed in many countries, taking the Bolshevik takeover as their model."
+  },
+  "evt-titanic": {
+    "why": "The ship was travelling at high speed through an area where ice had been reported by other vessels that day. The regulations of the time based lifeboat numbers on a ship's tonnage, not its passengers, so Titanic carried boats for only about half the people on board.",
+    "impact": "An international convention on safety at sea was agreed in 1914. It required lifeboat places for everyone on board and a continuous radio watch. An International Ice Patrol was set up to track icebergs in the North Atlantic. The wreck was found on the seabed in 1985."
+  },
+  "evt-great-fire-london": {
+    "why": "London's houses were mostly timber, packed tightly along narrow streets, and a long dry summer had left them ready to burn. A strong east wind drove the flames. The Lord Mayor hesitated to pull down houses to make firebreaks, and there was no organised fire service.",
+    "impact": "New building rules required brick or stone and wider streets. Christopher Wren designed a new St Paul's Cathedral and dozens of parish churches. The recorded death toll was small, though historians doubt it was complete. Fire insurance companies appeared in London in the following decades."
+  },
+  "bat-hastings": {
+    "why": "Edward the Confessor died childless in January 1066, and Harold Godwinson was crowned at once. William claimed Edward had promised him the throne. Harold had just marched north to defeat a Norwegian invasion at Stamford Bridge when William landed on the south coast.",
+    "impact": "William was crowned at Westminster on Christmas Day 1066. Over the next two decades most English landholders were replaced by Normans, castles were built across the country, and Domesday Book recorded who owned what. French became the language of the court for about three centuries."
+  },
+  "bat-waterloo": {
+    "why": "Napoleon had abdicated in 1814 and been sent to the island of Elba. He escaped in early 1815, landed in France and retook power without a fight. The European powers declared him an outlaw and gathered armies, so he marched into Belgium to strike before they could combine.",
+    "impact": "Napoleon abdicated again four days later and was exiled to St Helena in the South Atlantic, where he died in 1821. Louis XVIII returned to the French throne. The settlement agreed at the Congress of Vienna held, and Europe avoided another general war for decades."
+  },
+  "bat-gettysburg": {
+    "why": "After his victory at Chancellorsville, Lee took his army north in June 1863. He hoped to draw the fighting away from Virginia, gather supplies and win a battle on Union soil that might weaken Northern support for the war. The two armies met at Gettysburg almost by chance.",
+    "impact": "Lee retreated to Virginia and never invaded the North again. Vicksburg surrendered to Grant the next day, giving the Union control of the Mississippi. That November Lincoln spoke at the dedication of the soldiers' cemetery, giving the short speech known as the Gettysburg Address."
+  },
+  "bat-thermopylae": {
+    "why": "Persia had been beaten at Marathon ten years earlier, and Xerxes returned with a much larger army and fleet to subdue Greece. An alliance of Greek cities chose to block the narrow coastal pass while their ships held the nearby strait at Artemisium.",
+    "impact": "The Persians marched on and burned Athens, which had been evacuated. Weeks later the Greek fleet won at Salamis, and the Persian army was defeated at Plataea the following year. The last stand became a lasting story of courage against the odds, told first by Herodotus."
+  },
+  "bat-agincourt": {
+    "why": "Henry V revived the English kings' claim to the French crown while France was split by a feud between the Armagnac and Burgundian factions. He captured the port of Harfleur, but disease thinned his army. The French blocked his march to English-held Calais.",
+    "impact": "Many French nobles were killed or captured. Henry returned to conquer Normandy, and the Treaty of Troyes in 1420 named him heir to the French throne. He died in 1422, and France recovered over the following decades, helped at first by Joan of Arc."
+  },
+  "bat-stalingrad": {
+    "why": "After failing to take Moscow in 1941, Hitler sent his armies south in 1942 towards the oilfields of the Caucasus. Stalingrad was an industrial city on the Volga, a key transport route. Its name gave it added symbolic weight for both Hitler and Stalin.",
+    "impact": "In November 1942 Soviet forces attacked the weaker armies guarding the German flanks and closed a ring around the city. The surrender came in early 1943. After Stalingrad Germany was largely on the defensive in the east, and the Red Army began the advance that ended in Berlin."
+  },
+  "bat-trafalgar": {
+    "why": "Napoleon had gathered an army at Boulogne to invade Britain and needed control of the Channel. The Royal Navy had blockaded French and Spanish ports. When the combined fleet under Admiral Villeneuve left Cadiz, Nelson attacked in two columns to break its line.",
+    "impact": "Britain lost no ships, while most of the enemy fleet was captured or destroyed. A French invasion was no longer practical, although Napoleon had already marched his army east. Unable to beat Britain at sea, he turned to a trade blockade known as the Continental System."
+  },
+  "bat-actium": {
+    "why": "After Caesar's murder, Octavian and Antony divided the Roman world, Octavian taking the west and Antony the east. Antony's alliance with Cleopatra of Egypt, and his abandonment of Octavian's sister, gave Octavian the means to present the war as one against a foreign queen.",
+    "impact": "Antony and Cleopatra fled to Alexandria and killed themselves the following year when Octavian invaded. Egypt became a Roman province, and its grain helped feed Rome. The long run of civil wars ended, and the Senate granted Octavian the name Augustus in 27 BCE."
+  },
+  "bat-tours": {
+    "why": "Umayyad forces had conquered most of the Iberian Peninsula after 711 and began raiding north of the Pyrenees. In 732 the governor of al-Andalus, Abd al-Rahman al-Ghafiqi, defeated Duke Odo of Aquitaine, who then turned to his rival Charles Martel for help.",
+    "impact": "Abd al-Rahman was killed and his army withdrew. Historians disagree on whether it was a major invasion or a large raid. The victory strengthened Charles Martel's hold over the Frankish kingdom, and his family, the Carolingians, later took the throne. His grandson was Charlemagne."
+  },
+  "bat-bannockburn": {
+    "why": "Edward I of England had claimed overlordship of Scotland in the 1290s. Robert the Bruce took the Scottish crown in 1306 and slowly recaptured castles held by English garrisons. Edward II marched north in 1314 to relieve Stirling Castle, which had agreed to surrender if not rescued.",
+    "impact": "Edward II escaped, but his army was broken and Stirling Castle surrendered. The war continued for years. In 1320 Scottish nobles asserted their independence in the Declaration of Arbroath, and England recognised Robert as king of an independent Scotland in a treaty of 1328."
+  },
+  "ppl-einstein": {
+    "why": "Einstein was born into a Jewish family that ran an electrical business. He studied in Zurich and, unable to find a university post, worked as a clerk in the Swiss patent office in Bern. There, in 1905, he published the papers that made his name.",
+    "impact": "His equation linking mass and energy helped explain nuclear power, and general relativity underlies modern cosmology and the corrections used by satellite navigation. He left Germany in 1933 when the Nazis took power and settled at Princeton in the United States, where he died in 1955."
+  },
+  "ppl-curie": {
+    "why": "Born Maria Sklodowska in a Warsaw under Russian rule, she could not attend university there because she was a woman. She worked as a governess to save money, then moved to Paris in 1891 to study at the Sorbonne, where she met and married Pierre Curie.",
+    "impact": "Her work showed that radioactivity comes from within the atom, which opened the way to nuclear physics. Radium was soon used to treat cancer. In the First World War she organised mobile X-ray units for the wounded. She died in 1934 of an illness linked to radiation exposure."
+  },
+  "ppl-davinci": {
+    "why": "Leonardo was the illegitimate son of a notary and a local woman, which closed some professions to him. As a teenager he was apprenticed in Florence to the artist Verrocchio. He later worked for Ludovico Sforza, ruler of Milan, as a painter and engineer.",
+    "impact": "His use of soft shading and close study of nature influenced painters such as Raphael. Few of his paintings survive, and most of his notebooks were not published for centuries, so his scientific ideas had little effect in his own time. He died in France in 1519."
+  },
+  "ppl-newton": {
+    "why": "Newton's father died before he was born, and he was raised largely by his grandmother. He went to Cambridge in 1661. When plague closed the university in 1665 he returned home for many months and worked on mathematics, light and gravity.",
+    "impact": "His laws let astronomers predict the motion of planets, comets and tides, and they remained the basis of physics until the twentieth century. He also showed that white light is a mixture of colours and built a reflecting telescope. He later ran the Royal Mint and led the Royal Society."
+  },
+  "ppl-shakespeare": {
+    "why": "He was the son of a glove-maker who served on the town council, and probably attended the local grammar school. By the early 1590s he was working in London as an actor and playwright, at a time when new permanent playhouses were drawing large paying audiences.",
+    "impact": "Many common English words and phrases are first recorded in his plays. Seven years after his death in 1616, fellow actors published thirty-six of them in the First Folio, saving about half from being lost. His works have been translated into most major languages."
+  },
+  "ppl-napoleon": {
+    "why": "Corsica had passed from Genoa to France only the year before his birth, which made him a French subject. His family were minor nobility, and he won a place at French military schools. The Revolution removed many aristocratic officers, opening rapid promotion to talented men.",
+    "impact": "His armies ended the Holy Roman Empire and spread French legal and administrative reforms across much of Europe. Resistance to his rule also fed national feeling in Germany, Spain and elsewhere. He sold Louisiana to the United States in 1803, roughly doubling that country's size."
+  },
+  "ppl-gandhi": {
+    "why": "Gandhi was born into a Hindu merchant-caste family, and his father was chief minister of a small princely state. He trained as a barrister in London, then spent about two decades in South Africa, where discrimination against Indians led him to develop his methods of protest.",
+    "impact": "His campaigns, including the Salt March of 1930, turned the Indian National Congress into a mass movement. Independence came with the partition of India and Pakistan, which he opposed, and with widespread violence. He was assassinated by a Hindu nationalist in January 1948."
+  },
+  "ppl-mandela": {
+    "why": "Mandela was born into the Thembu royal family and trained as a lawyer. He joined the African National Congress in the 1940s, shortly before the National Party introduced apartheid in 1948. After the Sharpeville killings of 1960 and the banning of the ANC, he helped found its armed wing.",
+    "impact": "After his release in 1990 he negotiated an end to white minority rule with President F. W. de Klerk, and the two shared the Nobel Peace Prize in 1993. As president he backed a Truth and Reconciliation Commission. He stepped down after one term in 1999."
+  },
+  "ppl-darwin": {
+    "why": "Darwin came from a wealthy family of doctors and was the grandson of the potter Josiah Wedgwood. He dropped medical studies in Edinburgh and went to Cambridge intending to become a clergyman. A botany professor there recommended him for the Beagle voyage in 1831.",
+    "impact": "He published in 1859 after Alfred Russel Wallace reached a similar idea independently. The theory met religious objections, but most scientists accepted evolution within a few decades. The later discovery of genetics explained how traits are inherited and strengthened the case for natural selection."
+  },
+  "tec-telephone": {
+    "why": "The electric telegraph already carried coded messages, and inventors were competing to send several at once along one wire. Bell taught deaf pupils and had studied how speech works. Elisha Gray filed a similar design at the patent office on the same day, and the rivalry led to lawsuits.",
+    "impact": "The Bell Telephone Company was founded in 1877 and exchanges opened in American cities within a few years. Bell's patents survived hundreds of court challenges. By the early twentieth century millions of telephones were in use, and a long-distance line linked the American coasts in 1915."
+  },
+  "tec-powered-flight": {
+    "why": "The brothers ran a bicycle shop in Dayton, Ohio, and studied earlier glider experiments by Otto Lilienthal and others. They built a wind tunnel to test wing shapes, designed their own light engine and propellers, and worked out how to steer by twisting the wings.",
+    "impact": "The longest of the four flights that day lasted 59 seconds. The brothers had a practical aeroplane by 1905 and gave public demonstrations in 1908. Louis Blériot flew across the English Channel in 1909, and aircraft were used in war within a few years."
+  },
+  "tec-television": {
+    "why": "Engineers had long hoped to send pictures by wire or radio as they already sent sound. Baird used a spinning disc with a spiral of holes, patented by Paul Nipkow in 1884, to scan an image line by line. Improved light-sensitive cells and amplifiers made the idea workable.",
+    "impact": "The BBC began experimental broadcasts with Baird's system in 1929. His mechanical method could not match the picture quality of electronic systems using cathode ray tubes, and the BBC dropped it in 1937. Television spread widely in homes after the Second World War."
+  },
+  "tec-transistor": {
+    "why": "Telephone networks relied on vacuum tubes, which ran hot, used much power and burned out. Bell Labs wanted a solid replacement and set up a research group after the war. John Bardeen and Walter Brattain built the first device, working in a group led by William Shockley.",
+    "impact": "The three men shared the Nobel Prize in Physics in 1956. Transistor radios went on sale in the 1950s. From about 1960 many transistors could be made together on one chip of silicon, and a modern processor contains billions of them."
+  },
+  "tec-world-wide-web": {
+    "why": "The internet already linked computers, but finding and sharing documents on it was awkward. Scientists at CERN used many incompatible systems. In 1989 Berners-Lee proposed linking documents with hypertext, and by the end of 1990 he had written the first browser and server.",
+    "impact": "In 1993 CERN made the web's software free for anyone to use. That year the Mosaic browser showed images alongside text and made the web easy for the public. Search engines, online shops and social media followed, and most of the world's population is now online."
+  },
+  "tec-iphone": {
+    "why": "Mobile phones with email and web access existed, but most relied on small keyboards or a stylus. Touchscreens that sensed several fingers at once had become practical, and mobile data networks were improving. Apple had already succeeded with the iPod and feared phones would replace it.",
+    "impact": "The phone went on sale in June 2007. The App Store opened in 2008 and let outside developers sell software, creating a new industry. Rivals using Google's Android system adopted the same touchscreen design, and smartphones became the main way many people use the internet."
+  },
+  "tec-chatgpt": {
+    "why": "The system was built on the transformer, a neural network design published by Google researchers in 2017. Training such models on very large amounts of text, with powerful graphics chips, made them fluent. OpenAI had released earlier GPT models, but mainly to developers.",
+    "impact": "Rival companies released their own chatbots within months, and investment in artificial intelligence and in the chips it needs rose sharply. Schools and employers debated how to handle machine-written text. Governments began drafting rules, and concerns grew over accuracy, copyright and jobs."
+  },
+  "tec-steam-engine": {
+    "why": "Thomas Newcomen's engines had pumped water from mines since 1712 but wasted fuel by heating and cooling the same cylinder on every stroke. Watt, an instrument maker at the University of Glasgow, was asked to repair a model of one in the 1760s and saw the flaw.",
+    "impact": "Watt went into partnership with the manufacturer Matthew Boulton in Birmingham in 1775. Their engines used far less coal, and later versions produced rotary motion to drive machinery, so factories no longer had to sit beside rivers. The unit of power is named after him."
+  },
+  "tec-nuclear-reactor": {
+    "why": "Nuclear fission was discovered in Germany at the end of 1938, and physicists quickly saw that a chain reaction might release vast energy. Fearing a German bomb, the United States began the Manhattan Project. Fermi, a refugee from Fascist Italy, stacked uranium and graphite blocks to test the idea.",
+    "impact": "The experiment showed that reactors could be built to make plutonium, and large ones followed at Hanford in Washington state. Plutonium fuelled the bomb dropped on Nagasaki in 1945. After the war reactors were adapted to generate electricity and to power submarines."
+  },
+  "evt-caesar-assassination": {
+    "why": "Caesar had won a civil war against Pompey and the Senate's forces. Early in 44 BCE he was named dictator for life, and his honours looked to many like kingship, which Romans had rejected centuries before. He was about to leave Rome for a campaign against Parthia.",
+    "impact": "The conspirators had no plan for government, and public anger turned against them after Caesar's funeral. Mark Antony and Caesar's adopted heir Octavian defeated Brutus and Cassius at Philippi in 42 BCE. The two victors later fought each other for sole control."
+  },
+  "evt-vesuvius": {
+    "why": "Vesuvius sits where the African plate pushes beneath the Eurasian plate. It had been quiet for centuries, and few Romans living nearby regarded it as dangerous. A strong earthquake had damaged Pompeii some years earlier, and repairs were still under way when the eruption came.",
+    "impact": "The towns lay largely forgotten until excavations began in the eighteenth century. Their houses, wall paintings, graffiti and food remains give an unusually detailed picture of everyday Roman life. Letters by Pliny the Younger describing the eruption are the earliest detailed eyewitness account of one."
+  },
+  "evt-lindisfarne": {
+    "why": "Scandinavians had developed fast, shallow ships that could cross the North Sea and land on open beaches. Monasteries held silver, books and people who could be ransomed or enslaved, and they had no defences. Historians still debate what first pushed the raiders overseas.",
+    "impact": "Raids on Britain and Ireland became frequent, and from the 860s large Viking armies conquered much of England. Scandinavians settled in northern and eastern England, founded towns such as Dublin, and left many words in the English language. The monks of Lindisfarne later abandoned the island."
+  },
+  "evt-black-death": {
+    "why": "The disease is caused by the bacterium Yersinia pestis, carried by fleas on rodents. It spread west from Asia along trade routes, though its exact origin is debated. It struck the Black Sea port of Caffa, from where Genoese merchant ships sailed to the Mediterranean.",
+    "impact": "With so many dead, labour became scarce. Wages rose, and landlords' efforts to hold them down contributed to revolts such as the English rising of 1381. Jewish communities were falsely blamed and attacked in many towns. Plague returned in waves for about three hundred years."
+  },
+  "evt-gold-rush": {
+    "why": "Marshall was building a sawmill for the settler John Sutter. Days later, Mexico ceded California to the United States in the treaty that ended the Mexican-American War. News spread slowly until President Polk confirmed the find in December 1848, prompting the rush of 1849.",
+    "impact": "California became a state in 1850. San Francisco grew from a small settlement into a major city. The Native Californian population fell sharply through disease, displacement and killings. Few miners became rich, while merchants who supplied them often did better."
+  },
+  "bat-marathon": {
+    "why": "Athens had sent ships to help Greek cities in Asia Minor rebel against Persian rule, and the rebels burned the city of Sardis. King Darius sent a fleet across the Aegean to punish Athens. It landed at Marathon, guided by the exiled Athenian tyrant Hippias.",
+    "impact": "The victory showed that Greek heavy infantry could beat Persian troops, and it gave the young Athenian democracy great confidence. Persia returned ten years later under Xerxes with a far bigger force. Athens used the interval to build the fleet that fought at Salamis."
+  },
+  "bat-cannae": {
+    "why": "Rome and Carthage were fighting their second war for control of the western Mediterranean. Hannibal had crossed the Alps into Italy in 218 BCE and won battles at the Trebia and Lake Trasimene. Rome raised an unusually large army to crush him in one blow.",
+    "impact": "Several of Rome's allies in southern Italy went over to Hannibal, including Capua. Rome refused to negotiate, avoided pitched battles in Italy and attacked Carthaginian Spain instead. Scipio later invaded Africa and defeated Hannibal at Zama in 202 BCE, ending the war."
+  },
+  "bat-lepanto": {
+    "why": "The Ottomans invaded Venetian-ruled Cyprus in 1570. Pope Pius V persuaded Spain, Venice and smaller Italian states to form the Holy League and combine their fleets. Command went to Don John of Austria, the young half-brother of Philip II of Spain.",
+    "impact": "The Ottomans rebuilt their fleet within a year and kept Cyprus, which Venice formally gave up in 1573. Even so, the victory ended the belief that the Ottoman navy could not be beaten. Miguel de Cervantes, later the author of Don Quixote, was wounded in the fighting."
+  },
+  "bat-spanish-armada": {
+    "why": "Philip II of Spain wanted to stop English support for Dutch rebels and English raids on his treasure ships, and to restore Catholicism in England. The execution of Mary, Queen of Scots in 1587 removed the Catholic claimant. The fleet was to escort an army across from the Netherlands.",
+    "impact": "Spain rebuilt its navy and the war went on until 1604, with an English counter-attack in 1589 also failing. England stayed Protestant under Elizabeth, and the victory was celebrated as a sign of divine favour. It became a lasting part of English national memory."
+  },
+  "bat-vienna": {
+    "why": "The Ottoman grand vizier Kara Mustafa led a large army against the Habsburg capital, encouraged by a revolt against Habsburg rule in Hungary. The siege began in July 1683. Emperor Leopold I left the city, and Poland, German states of the Empire and the Pope organised a relief force.",
+    "impact": "Kara Mustafa was executed on the sultan's orders. A new Holy League pushed the Ottomans back over the following years, and in the Treaty of Karlowitz of 1699 they ceded most of Hungary to the Habsburgs, who became the leading power in central Europe."
+  },
+  "ppl-alexander": {
+    "why": "His father, Philip II, turned Macedon from a marginal kingdom into the dominant power in Greece, with a professional army built around long pikes and cavalry. Philip was planning to invade Persia when he was murdered in 336 BCE, leaving Alexander the throne at twenty.",
+    "impact": "He left no clear heir, and his generals divided the empire into rival kingdoms, including Ptolemaic Egypt and the Seleucid realm in Asia. Greek became the common language of trade and learning across the eastern Mediterranean. Alexandria in Egypt, which he founded, became a great centre of scholarship."
+  },
+  "ppl-caesar": {
+    "why": "Caesar's family was old and patrician but not especially rich or powerful. Rome in his youth was torn by violent rivalry between the generals Marius, his uncle by marriage, and Sulla. He rose through the usual offices, then allied with Pompey and Crassus to win the consulship.",
+    "impact": "His conquest of Gaul brought the region under Roman rule for centuries, and Latin there developed into French. His calendar, with small corrections made in 1582, is the one used today. The month of July is named after him, and his name became a title, as in Kaiser and Tsar."
+  },
+  "ppl-mozart": {
+    "why": "His father Leopold was a violinist and composer at the court of the Prince-Archbishop of Salzburg, and a noted teacher. He recognised the talent of Wolfgang and his sister Maria Anna early and gave up much of his own career to train and present them.",
+    "impact": "Mozart left Salzburg for Vienna in 1781 and tried to live as a freelance musician, unusual at the time. Operas such as The Marriage of Figaro and Don Giovanni are still staged around the world. He died in 1791, leaving his Requiem unfinished. Beethoven studied his work closely."
+  },
+  "ppl-victoria": {
+    "why": "Princess Charlotte, the only legitimate grandchild of George III, died in 1817, and his ageing sons hurried to marry and produce an heir. Victoria was the daughter of the fourth son, the Duke of Kent, who died months after her birth. Her uncles left no surviving legitimate children.",
+    "impact": "During her reign the monarchy lost most of its political power and became a largely ceremonial institution. She took the title Empress of India in 1876. Her nine children married into royal houses across the continent, and her grandchildren included Germany's last emperor and Russia's last empress."
+  },
+  "tec-paper": {
+    "why": "Chinese officials wrote on bamboo strips, which were heavy, or on silk, which was expensive. A growing imperial bureaucracy needed something cheaper for records. Cai Lun was in charge of workshops making goods for the court, which gave him the means to experiment with materials.",
+    "impact": "Papermaking reached Korea and Japan, and by the eighth century the Islamic world, where mills operated in Samarkand and Baghdad. It arrived in Europe through Spain and Italy in the Middle Ages. Cheap paper later made printing with movable type commercially worthwhile."
+  },
+  "tec-telescope": {
+    "why": "Dutch craftsmen had become skilled at grinding lenses for spectacles, and combining a convex and a concave lens in a tube made distant objects look closer. Several makers seem to have had the idea at once, so the Dutch government refused Lippershey an exclusive patent.",
+    "impact": "Galileo saw mountains on the Moon, four moons circling Jupiter and the phases of Venus. These observations supported the view of Copernicus that the planets orbit the Sun, and led to Galileo's conflict with the Church. Telescopes also became standard equipment for ships and armies."
+  },
+  "tec-vaccination": {
+    "why": "Smallpox killed a large share of those it infected. Doctors already practised variolation, giving people a mild dose of smallpox itself, which was risky. Country people had long noticed that milkmaids who caught cowpox seemed to escape smallpox, and Jenner decided to test the belief.",
+    "impact": "Jenner published his results in 1798 and the method spread across Europe and the Americas within a few years. The word vaccine comes from the Latin for cow. Louis Pasteur later extended the principle to other diseases. The World Health Organization declared smallpox eradicated in 1980."
+  },
+  "tec-locomotive": {
+    "why": "Watt's engines used low-pressure steam and were too big and heavy to move themselves. Trevithick, a Cornish mining engineer, built compact engines using high-pressure steam. Horse-drawn tramways already carried iron and coal in South Wales, and the run is said to have settled a bet between ironmasters.",
+    "impact": "The engine was too heavy for the brittle cast-iron rails and soon went back to stationary work. Stronger rails and better engines followed. George Stephenson built the Stockton and Darlington Railway, opened in 1825, and the Liverpool and Manchester, opened in 1830, starting the railway age."
+  },
+  "tec-photography": {
+    "why": "Artists had long used the camera obscura to project a scene, but could not fix the image. Nicéphore Niépce made the first surviving photograph in the 1820s with exposures lasting hours. Daguerre, his partner, found after Niépce's death that silvered plates and mercury fumes cut this to minutes.",
+    "impact": "Portrait studios opened in cities across Europe and the United States within a few years. Each daguerreotype was a single image that could not be copied. William Henry Fox Talbot's rival process used a negative to make many prints, and that approach came to dominate."
+  },
+  "tec-penicillin": {
+    "why": "Fleming, a bacteriologist, had seen soldiers die of infected wounds in the First World War and was searching for substances that kill bacteria without harming the body. He had already found a mild one, lysozyme, in tears and mucus. The mould contamination itself was an accident.",
+    "impact": "Fleming could not purify the substance. From 1939 a team at Oxford under Howard Florey and Ernst Chain turned it into a usable drug, and it was mass-produced in time to treat Allied wounded late in the Second World War. Bacterial resistance has since become a serious problem."
+  }
+}

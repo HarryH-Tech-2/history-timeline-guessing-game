@@ -146,6 +146,7 @@ export const paywall = {
     winback: 'Welcome back! Your first year, discounted',
     lockedCategory: 'Unlock every category',
     lockedMode: 'Play Endless with unlimited lives',
+    favourites: 'Read the story behind every event',
     onboardingTrial: 'Welcome! Try everything free {span}',
   },
   /** "for a week" / "for 3 days", inside a headline or the founder's line. */
