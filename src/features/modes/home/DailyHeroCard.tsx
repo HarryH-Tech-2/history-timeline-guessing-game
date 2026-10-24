@@ -60,7 +60,7 @@ function PlayPill() {
       ]}
       className="rounded-full bg-accent px-5 py-3"
     >
-      <Text className="text-base font-extrabold text-bg-base">{t('home.daily.play')}</Text>
+      <Text className="text-base font-extrabold text-white">{t('home.daily.play')}</Text>
     </Animated.View>
   );
 }

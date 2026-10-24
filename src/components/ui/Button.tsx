@@ -55,16 +55,16 @@ const HERO_SHADOW = {
 } as const;
 
 const LABEL: Record<ButtonVariant, string> = {
-  // Near-black on the metallic orange accent — white fails contrast there.
-  primary: 'text-black',
+  // White on the metallic orange accent, in both themes.
+  primary: 'text-white',
   ghost: 'text-ink-primary',
-  hero: 'text-black',
+  hero: 'text-white',
 };
 
 const SUBLABEL: Record<ButtonVariant, string> = {
-  primary: 'text-black/70',
+  primary: 'text-white/80',
   ghost: 'text-ink-secondary',
-  hero: 'text-black/70',
+  hero: 'text-white/80',
 };
 
 /** The hero glyph's slow nudge: a few px right and back, forever, until unmount. */

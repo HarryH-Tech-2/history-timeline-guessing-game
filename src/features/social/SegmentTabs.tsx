@@ -22,7 +22,7 @@ export function SegmentTabs<T extends string>({
             testID={`segment-${o.value}`}
             className={`flex-1 items-center py-2 ${active ? 'bg-accent' : ''}`}
           >
-            <Text className={`text-sm font-bold ${active ? 'text-bg-base' : 'text-ink-secondary'}`}>
+            <Text className={`text-sm font-bold ${active ? 'text-white' : 'text-ink-secondary'}`}>
               {o.label}
             </Text>
           </Pressable>
