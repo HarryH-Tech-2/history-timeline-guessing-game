@@ -1,8 +1,16 @@
 import { CAMPAIGN } from '@/features/modes/campaign/campaignMap';
 
-import { getDailyQuestions, getQuestions, getRegionalQuestions, isInRotation, REGIONS } from './index';
+import {
+  DAILY_WHOLE_CATALOGUE_FROM,
+  getDailyQuestions,
+  getQuestions,
+  getRegionalQuestions,
+  isInRotation,
+  REGIONS,
+} from './index';
 import { imageForQuestion } from './questionImages';
 import { CAMPAIGN_ROUTES } from './packs/campaignRoutes';
+import { CATEGORY_EXPANSION } from './packs/categoryExpansion';
 import { REGIONAL_EXPANSION } from './packs/regionalExpansion';
 
 const expansionIds = new Set(REGIONAL_EXPANSION.map((q) => q.id));
@@ -11,9 +19,9 @@ describe('Regional expansion', () => {
   // Europe is one short: the Battle of Kosovo was pulled (2026-09-29).
   const expected = (tag: string) => (tag === 'europe' ? 13 : 14);
 
-  it('brings every region to twenty questions (Europe nineteen)', () => {
+  it('brings every region to twenty-two questions (Europe twenty-one) with the category expansion', () => {
     for (const region of REGIONS) {
-      expect(getRegionalQuestions(region.id)).toHaveLength(expected(region.tag) + 6);
+      expect(getRegionalQuestions(region.id)).toHaveLength(expected(region.tag) + 6 + 2);
     }
   });
 
@@ -50,11 +58,12 @@ describe('Regional expansion', () => {
 });
 
 describe('Rotation (Daily and campaign) is unchanged by the expansion', () => {
-  it('never deals an expansion question in the Daily', () => {
+  it('never deals an expansion question in the Daily before the whole catalogue joins it', () => {
     const start = new Date(2026, 0, 1);
     for (let i = 0; i < 400; i += 1) {
       const day = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
       const key = `${day.getFullYear()}-${`${day.getMonth() + 1}`.padStart(2, '0')}-${`${day.getDate()}`.padStart(2, '0')}`;
+      if (key >= DAILY_WHOLE_CATALOGUE_FROM) break;
       for (const q of getDailyQuestions(key)) expect(expansionIds.has(q.id)).toBe(false);
     }
   });
@@ -84,7 +93,7 @@ describe('Rotation (Daily and campaign) is unchanged by the expansion', () => {
 
   it('keeps the original questions in rotation', () => {
     expect(getQuestions().filter(isInRotation)).toHaveLength(
-      getQuestions().length - 83 - CAMPAIGN_ROUTES.length,
+      getQuestions().length - 83 - CAMPAIGN_ROUTES.length - CATEGORY_EXPANSION.length,
     );
   });
 });

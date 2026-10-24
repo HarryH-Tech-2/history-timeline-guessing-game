@@ -1,7 +1,14 @@
 import { mulberry32 } from '@/utils/rng';
 
 import { dealByFame, fameTier, pickByFame } from './fame';
-import { getDailyQuestions, getQuestionById, getQuestions, isInRotation } from './index';
+import {
+  DAILY_WHOLE_CATALOGUE_FROM,
+  getDailyQuestions,
+  getQuestionById,
+  getQuestions,
+  isDailyEligible,
+  isInRotation,
+} from './index';
 
 describe('fameTier', () => {
   it('reads fame off difficulty unless overridden', () => {
@@ -50,7 +57,7 @@ describe('the Daily fame mix', () => {
       const tiers = daily.map(fameTier).sort();
       expect(tiers).toEqual(['famous', 'famous', 'famous', 'famous', 'known', 'known', 'known', 'niche']);
       expect(new Set(daily.map((q) => q.id)).size).toBe(8);
-      expect(daily.every(isInRotation)).toBe(true);
+      expect(daily.every(key < DAILY_WHOLE_CATALOGUE_FROM ? isInRotation : isDailyEligible)).toBe(true);
       expect(getDailyQuestions(key).map((q) => q.id)).toEqual(daily.map((q) => q.id));
     }
   });

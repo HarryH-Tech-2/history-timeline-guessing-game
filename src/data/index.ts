@@ -196,26 +196,44 @@ export function isPremiumCategory(categoryId: string): boolean {
 }
 
 /**
+ * The first Daily dealt from the whole catalogue (every category pack, the
+ * Regional expansion and the campaign routes), limited to easy and medium
+ * questions. Earlier days keep the rotation pool, so a past Daily still
+ * reproduces. Builds from before this date deal a different Daily from it on,
+ * so ship it over the air before then.
+ */
+export const DAILY_WHOLE_CATALOGUE_FROM = '2026-10-27';
+
+/** Whether a question may appear in the Daily from {@link DAILY_WHOLE_CATALOGUE_FROM}. */
+export function isDailyEligible(question: Question): boolean {
+  return question.difficulty === 'easy' || question.difficulty === 'medium';
+}
+
+/**
  * The fixed set of questions for a given day. Seeded purely from the date key
  * (`YYYY-MM-DD`), so every player and every device sees the same run — and the
  * same day always reproduces it. From {@link DAILY_FAME_MIX_FROM} the run is
  * mostly well-known events (see ./fame); earlier days keep the uniform draw.
+ * From {@link DAILY_WHOLE_CATALOGUE_FROM} it draws on every easy or medium
+ * question.
  */
 export function getDailyQuestions(dateKey: string, count = 8): readonly Question[] {
-  const pool = view().questions.filter(isInRotation);
   const seed = seedFromString(`daily-${dateKey}`);
+  if (dateKey >= DAILY_WHOLE_CATALOGUE_FROM) {
+    return dealDailyByFame(view().questions.filter(isDailyEligible), count, seed);
+  }
+  const pool = view().questions.filter(isInRotation);
   return dateKey >= DAILY_FAME_MIX_FROM
     ? dealDailyByFame(pool, count, seed)
     : pickDeterministic(pool, count, seed);
 }
 
 /**
- * Whether a question takes part in the shared, seeded modes (the Daily and the
- * campaign main path). The Regional expansion and the campaign route questions
- * do not: the Daily is seeded over the whole pool and the campaign slices it
- * into stages, so adding questions there would give old and new builds
- * different Dailies on the same day and move questions between stages players
- * have already starred.
+ * Whether a question takes part in the campaign main path, random Social
+ * challenges and (before {@link DAILY_WHOLE_CATALOGUE_FROM}) the Daily. The
+ * Regional expansion, the campaign route questions and the category expansion
+ * do not: the campaign slices this pool into stages, so adding questions would
+ * move questions between stages players have already starred.
  */
 export function isInRotation(question: Question): boolean {
   return !OUT_OF_ROTATION_IDS.has(question.id);

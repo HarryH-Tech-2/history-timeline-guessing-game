@@ -3,6 +3,7 @@ import { CAMPAIGN } from '@/features/modes/campaign/campaignMap';
 import {
   CAMPAIGN_ROUTE_SPECS,
   getCategoryById,
+  DAILY_WHOLE_CATALOGUE_FROM,
   getDailyQuestions,
   getQuestionById,
   getQuestions,
@@ -10,6 +11,7 @@ import {
   isInRotation,
 } from './index';
 import { CAMPAIGN_ROUTES } from './packs/campaignRoutes';
+import { CATEGORY_EXPANSION } from './packs/categoryExpansion';
 import { REGIONAL_EXPANSION } from './packs/regionalExpansion';
 import { imageForQuestion } from './questionImages';
 import { OUT_OF_ROTATION_IDS } from './rotation';
@@ -56,9 +58,9 @@ describe('campaign route specs', () => {
 });
 
 describe('rotation', () => {
-  it('takes exactly the Regional expansion and the route questions out of rotation', () => {
+  it('takes exactly the Regional expansion, the route questions and the category expansion out of rotation', () => {
     expect([...OUT_OF_ROTATION_IDS].sort()).toEqual(
-      [...REGIONAL_EXPANSION, ...CAMPAIGN_ROUTES].map((q) => q.id).sort(),
+      [...REGIONAL_EXPANSION, ...CAMPAIGN_ROUTES, ...CATEGORY_EXPANSION].map((q) => q.id).sort(),
     );
     for (const q of getQuestions()) expect(isInRotation(q)).toBe(!OUT_OF_ROTATION_IDS.has(q.id));
   });
@@ -73,8 +75,8 @@ describe('rotation', () => {
     for (const q of CAMPAIGN_ROUTES) expect(isCampaignRouteQuestion(q)).toBe(true);
   });
 
-  it('never deals a route question in the Daily', () => {
-    for (const key of dateKeys(400)) {
+  it('never deals a route question in the Daily before the whole catalogue joins it', () => {
+    for (const key of dateKeys(400).filter((k) => k < DAILY_WHOLE_CATALOGUE_FROM)) {
       for (const q of getDailyQuestions(key)) expect(routeQuestionIds.has(q.id)).toBe(false);
     }
   });

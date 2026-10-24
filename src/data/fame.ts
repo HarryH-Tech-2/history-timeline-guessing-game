@@ -1,7 +1,7 @@
 import type { Question } from '@/domain';
 import { mulberry32, pickDeterministic } from '@/utils/rng';
 
-import { OUT_OF_ROTATION_IDS } from './rotation';
+import { NARROW_GRADED_IDS } from './rotation';
 
 /**
  * How widely known a question's subject is, which is not what `difficulty`
@@ -228,7 +228,7 @@ export function fameTier(question: Question): FameTier {
   const override = TIER_OVERRIDES.get(question.id);
   if (override) return override;
   const tier = DIFFICULTY_TIER[question.difficulty];
-  if (!OUT_OF_ROTATION_IDS.has(question.id)) return tier;
+  if (!NARROW_GRADED_IDS.has(question.id)) return tier;
   return TIERS[Math.min(TIERS.indexOf(tier) + 1, TIERS.length - 1)]!;
 }
 

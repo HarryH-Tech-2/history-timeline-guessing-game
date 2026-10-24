@@ -1,6 +1,7 @@
 import type { Question } from '@/domain';
 
 import { CAMPAIGN_ROUTES } from './packs/campaignRoutes';
+import { CATEGORY_EXPANSION } from './packs/categoryExpansion';
 import { REGIONAL_QUESTIONS } from './packs/regional';
 import { REGIONAL_EXPANSION } from './packs/regionalExpansion';
 import { SPACE_QUESTIONS } from './packs/space';
@@ -4164,4 +4165,5 @@ export const QUESTIONS: readonly Question[] = [
   ...REGIONAL_QUESTIONS,
   ...REGIONAL_EXPANSION,
   ...CAMPAIGN_ROUTES,
+  ...CATEGORY_EXPANSION,
 ];

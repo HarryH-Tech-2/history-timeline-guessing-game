@@ -1,5 +1,5 @@
-import { HomeHub } from '@/features/modes/home/HomeHub';
+import { CampaignMapScreen } from '@/features/modes/campaign/CampaignMapScreen';
 
-export default function Home() {
-  return <HomeHub />;
+export default function Campaign() {
+  return <CampaignMapScreen />;
 }

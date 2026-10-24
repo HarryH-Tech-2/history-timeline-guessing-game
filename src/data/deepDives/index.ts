@@ -1,3 +1,5 @@
+import categoryExpansion1 from './en/category-expansion-1.json';
+import categoryExpansion2 from './en/category-expansion-2.json';
 import core1 from './en/core-1.json';
 import core2 from './en/core-2.json';
 import core3 from './en/core-3.json';
@@ -32,6 +34,8 @@ const DEEP_DIVES: Record<string, DeepDive> = {
   ...routes1,
   ...routes2,
   ...routes3,
+  ...categoryExpansion1,
+  ...categoryExpansion2,
 };
 
 /** The deep dive for a question, or undefined when none has been written. */

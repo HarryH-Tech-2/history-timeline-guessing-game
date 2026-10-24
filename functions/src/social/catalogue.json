@@ -2150,5 +2150,493 @@
  "rte-first-implanted-pacemaker": {
   "year": 1958,
   "inRotation": false
+ },
+ "evt-salem-witch-trials": {
+  "year": 1692,
+  "inRotation": false
+ },
+ "evt-charles-i-executed": {
+  "year": 1649,
+  "inRotation": false
+ },
+ "evt-great-chicago-fire": {
+  "year": 1871,
+  "inRotation": false
+ },
+ "evt-rosa-parks": {
+  "year": 1955,
+  "inRotation": false
+ },
+ "evt-jfk-assassination": {
+  "year": 1963,
+  "inRotation": false
+ },
+ "evt-mandela-released": {
+  "year": 1990,
+  "inRotation": false
+ },
+ "evt-soviet-flag-lowered": {
+  "year": 1991,
+  "inRotation": false
+ },
+ "evt-death-of-diana": {
+  "year": 1997,
+  "inRotation": false
+ },
+ "evt-september-11": {
+  "year": 2001,
+  "inRotation": false
+ },
+ "evt-covid-pandemic-declared": {
+  "year": 2020,
+  "inRotation": false
+ },
+ "bat-stirling-bridge": {
+  "year": 1297,
+  "inRotation": false
+ },
+ "bat-lexington-concord": {
+  "year": 1775,
+  "inRotation": false
+ },
+ "bat-borodino": {
+  "year": 1812,
+  "inRotation": false
+ },
+ "bat-antietam": {
+  "year": 1862,
+  "inRotation": false
+ },
+ "bat-little-bighorn": {
+  "year": 1876,
+  "inRotation": false
+ },
+ "bat-battle-of-britain-day": {
+  "year": 1940,
+  "inRotation": false
+ },
+ "bat-battle-of-the-bulge": {
+  "year": 1944,
+  "inRotation": false
+ },
+ "bat-iwo-jima-flag": {
+  "year": 1945,
+  "inRotation": false
+ },
+ "bat-bay-of-pigs": {
+  "year": 1961,
+  "inRotation": false
+ },
+ "bat-desert-storm": {
+  "year": 1991,
+  "inRotation": false
+ },
+ "ppl-henry-viii": {
+  "year": 1491,
+  "inRotation": false
+ },
+ "ppl-jane-austen": {
+  "year": 1775,
+  "inRotation": false
+ },
+ "ppl-marie-antoinette-executed": {
+  "year": 1793,
+  "inRotation": false
+ },
+ "ppl-charles-dickens": {
+  "year": 1812,
+  "inRotation": false
+ },
+ "ppl-nikola-tesla": {
+  "year": 1856,
+  "inRotation": false
+ },
+ "ppl-pablo-picasso": {
+  "year": 1881,
+  "inRotation": false
+ },
+ "ppl-elizabeth-ii": {
+  "year": 1926,
+  "inRotation": false
+ },
+ "ppl-thatcher-prime-minister": {
+  "year": 1979,
+  "inRotation": false
+ },
+ "ppl-john-lennon-shot": {
+  "year": 1980,
+  "inRotation": false
+ },
+ "ppl-obama-inaugurated": {
+  "year": 2009,
+  "inRotation": false
+ },
+ "tec-ferris-wheel": {
+  "year": 1893,
+  "inRotation": false
+ },
+ "tec-model-t": {
+  "year": 1908,
+  "inRotation": false
+ },
+ "tec-first-tank-battle": {
+  "year": 1916,
+  "inRotation": false
+ },
+ "tec-walkman": {
+  "year": 1979,
+  "inRotation": false
+ },
+ "tec-compact-disc": {
+  "year": 1982,
+  "inRotation": false
+ },
+ "tec-game-boy": {
+  "year": 1989,
+  "inRotation": false
+ },
+ "tec-first-text-message": {
+  "year": 1992,
+  "inRotation": false
+ },
+ "tec-google-founded": {
+  "year": 1998,
+  "inRotation": false
+ },
+ "tec-facebook-launch": {
+  "year": 2004,
+  "inRotation": false
+ },
+ "tec-youtube-first-video": {
+  "year": 2005,
+  "inRotation": false
+ },
+ "exp-mont-blanc": {
+  "year": 1786,
+  "inRotation": false
+ },
+ "exp-nellie-bly": {
+  "year": 1890,
+  "inRotation": false
+ },
+ "exp-bleriot-channel": {
+  "year": 1909,
+  "inRotation": false
+ },
+ "exp-alcock-brown": {
+  "year": 1919,
+  "inRotation": false
+ },
+ "exp-lascaux": {
+  "year": 1940,
+  "inRotation": false
+ },
+ "exp-kon-tiki": {
+  "year": 1947,
+  "inRotation": false
+ },
+ "exp-sound-barrier": {
+  "year": 1947,
+  "inRotation": false
+ },
+ "exp-terracotta-army": {
+  "year": 1974,
+  "inRotation": false
+ },
+ "exp-titanic-wreck": {
+  "year": 1985,
+  "inRotation": false
+ },
+ "exp-baumgartner-jump": {
+  "year": 2012,
+  "inRotation": false
+ },
+ "trt-acts-of-union": {
+  "year": 1707,
+  "inRotation": false
+ },
+ "trt-first-geneva-convention": {
+  "year": 1864,
+  "inRotation": false
+ },
+ "trt-alaska-purchase": {
+  "year": 1867,
+  "inRotation": false
+ },
+ "trt-japan-surrender": {
+  "year": 1945,
+  "inRotation": false
+ },
+ "trt-partial-test-ban": {
+  "year": 1963,
+  "inRotation": false
+ },
+ "trt-korean-armistice": {
+  "year": 1953,
+  "inRotation": false
+ },
+ "trt-warsaw-pact": {
+  "year": 1955,
+  "inRotation": false
+ },
+ "trt-oslo-accords": {
+  "year": 1993,
+  "inRotation": false
+ },
+ "trt-kyoto-protocol": {
+  "year": 1997,
+  "inRotation": false
+ },
+ "trt-brexit": {
+  "year": 2020,
+  "inRotation": false
+ },
+ "spt-pele-first-world-cup": {
+  "year": 1958,
+  "inRotation": false
+ },
+ "spt-england-world-cup": {
+  "year": 1966,
+  "inRotation": false
+ },
+ "spt-fight-of-the-century": {
+  "year": 1971,
+  "inRotation": false
+ },
+ "spt-first-cricket-world-cup": {
+  "year": 1975,
+  "inRotation": false
+ },
+ "spt-rugby-world-cup-mandela": {
+  "year": 1995,
+  "inRotation": false
+ },
+ "spt-tiger-woods-masters": {
+  "year": 1997,
+  "inRotation": false
+ },
+ "spt-london-olympics-opening": {
+  "year": 2012,
+  "inRotation": false
+ },
+ "spt-leicester-champions": {
+  "year": 2016,
+  "inRotation": false
+ },
+ "spt-kipchoge-sub-two": {
+  "year": 2019,
+  "inRotation": false
+ },
+ "spt-messi-world-cup": {
+  "year": 2022,
+  "inRotation": false
+ },
+ "trd-coca-cola-first-sold": {
+  "year": 1886,
+  "inRotation": false
+ },
+ "trd-dow-jones-average": {
+  "year": 1896,
+  "inRotation": false
+ },
+ "trd-ford-assembly-line": {
+  "year": 1913,
+  "inRotation": false
+ },
+ "trd-first-walmart": {
+  "year": 1962,
+  "inRotation": false
+ },
+ "trd-decimal-day": {
+  "year": 1971,
+  "inRotation": false
+ },
+ "trd-apple-founded": {
+  "year": 1976,
+  "inRotation": false
+ },
+ "trd-amazon-founded": {
+  "year": 1994,
+  "inRotation": false
+ },
+ "trd-kroc-mcdonalds": {
+  "year": 1955,
+  "inRotation": false
+ },
+ "trd-dot-com-peak": {
+  "year": 2000,
+  "inRotation": false
+ },
+ "trd-bitcoin-pizza": {
+  "year": 2010,
+  "inRotation": false
+ },
+ "art-pride-and-prejudice": {
+  "year": 1813,
+  "inRotation": false
+ },
+ "art-frankenstein": {
+  "year": 1818,
+  "inRotation": false
+ },
+ "art-christmas-carol": {
+  "year": 1843,
+  "inRotation": false
+ },
+ "art-statue-of-liberty": {
+  "year": 1886,
+  "inRotation": false
+ },
+ "art-mona-lisa-stolen": {
+  "year": 1911,
+  "inRotation": false
+ },
+ "art-jazz-singer": {
+  "year": 1927,
+  "inRotation": false
+ },
+ "art-steamboat-willie": {
+  "year": 1928,
+  "inRotation": false
+ },
+ "art-star-wars": {
+  "year": 1977,
+  "inRotation": false
+ },
+ "art-mtv-launch": {
+  "year": 1981,
+  "inRotation": false
+ },
+ "art-live-aid": {
+  "year": 1985,
+  "inRotation": false
+ },
+ "phi-the-prince": {
+  "year": 1532,
+  "inRotation": false
+ },
+ "phi-newton-principia": {
+  "year": 1687,
+  "inRotation": false
+ },
+ "phi-candide": {
+  "year": 1759,
+  "inRotation": false
+ },
+ "phi-common-sense": {
+  "year": 1776,
+  "inRotation": false
+ },
+ "phi-rights-of-man-declaration": {
+  "year": 1789,
+  "inRotation": false
+ },
+ "phi-origin-of-species": {
+  "year": 1859,
+  "inRotation": false
+ },
+ "phi-das-kapital": {
+  "year": 1867,
+  "inRotation": false
+ },
+ "phi-universal-declaration-human-rights": {
+  "year": 1948,
+  "inRotation": false
+ },
+ "phi-silent-spring": {
+  "year": 1962,
+  "inRotation": false
+ },
+ "phi-i-have-a-dream": {
+  "year": 1963,
+  "inRotation": false
+ },
+ "reg-hungarian-revolution": {
+  "year": 1956,
+  "inRotation": false
+ },
+ "reg-brexit-referendum": {
+  "year": 2016,
+  "inRotation": false
+ },
+ "reg-korean-war-begins": {
+  "year": 1950,
+  "inRotation": false
+ },
+ "reg-shinkansen-opens": {
+  "year": 1964,
+  "inRotation": false
+ },
+ "reg-nigeria-independence": {
+  "year": 1960,
+  "inRotation": false
+ },
+ "reg-suez-nationalised": {
+  "year": 1956,
+  "inRotation": false
+ },
+ "reg-golden-gate-bridge": {
+  "year": 1937,
+  "inRotation": false
+ },
+ "reg-hurricane-katrina": {
+  "year": 2005,
+  "inRotation": false
+ },
+ "reg-christ-the-redeemer": {
+  "year": 1931,
+  "inRotation": false
+ },
+ "reg-falklands-war": {
+  "year": 1982,
+  "inRotation": false
+ },
+ "reg-cyclone-tracy": {
+  "year": 1974,
+  "inRotation": false
+ },
+ "reg-sydney-olympics": {
+  "year": 2000,
+  "inRotation": false
+ },
+ "spc-uranus-discovered": {
+  "year": 1781,
+  "inRotation": false
+ },
+ "spc-pluto-discovered": {
+  "year": 1930,
+  "inRotation": false
+ },
+ "spc-glenn-orbit": {
+  "year": 1962,
+  "inRotation": false
+ },
+ "spc-we-choose-the-moon": {
+  "year": 1962,
+  "inRotation": false
+ },
+ "spc-pathfinder": {
+  "year": 1997,
+  "inRotation": false
+ },
+ "spc-first-space-tourist": {
+  "year": 2001,
+  "inRotation": false
+ },
+ "spc-columbia-disaster": {
+  "year": 2003,
+  "inRotation": false
+ },
+ "spc-falcon-heavy": {
+  "year": 2018,
+  "inRotation": false
+ },
+ "spc-crew-dragon": {
+  "year": 2020,
+  "inRotation": false
+ },
+ "spc-ingenuity": {
+  "year": 2021,
+  "inRotation": false
  }
 }

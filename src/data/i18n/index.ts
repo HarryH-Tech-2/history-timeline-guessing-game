@@ -8,6 +8,7 @@ import esQ3 from './es-419/questions-3.json';
 import esQ4 from './es-419/questions-4.json';
 import esQ5 from './es-419/questions-5.json';
 import esQ6 from './es-419/questions-6.json';
+import esQ7 from './es-419/questions-7.json';
 import jaMeta from './ja/meta.json';
 import jaQ1 from './ja/questions-1.json';
 import jaQ2 from './ja/questions-2.json';
@@ -15,6 +16,7 @@ import jaQ3 from './ja/questions-3.json';
 import jaQ4 from './ja/questions-4.json';
 import jaQ5 from './ja/questions-5.json';
 import jaQ6 from './ja/questions-6.json';
+import jaQ7 from './ja/questions-7.json';
 import ptMeta from './pt-BR/meta.json';
 import ptQ1 from './pt-BR/questions-1.json';
 import ptQ2 from './pt-BR/questions-2.json';
@@ -22,6 +24,7 @@ import ptQ3 from './pt-BR/questions-3.json';
 import ptQ4 from './pt-BR/questions-4.json';
 import ptQ5 from './pt-BR/questions-5.json';
 import ptQ6 from './pt-BR/questions-6.json';
+import ptQ7 from './pt-BR/questions-7.json';
 
 /**
  * Translated catalogue text, keyed by id. Only what players see is
@@ -39,9 +42,9 @@ interface ContentOverlay {
 }
 
 const OVERLAYS: Partial<Record<Language, ContentOverlay>> = {
-  'pt-BR': { ...ptMeta, questions: { ...ptQ1, ...ptQ2, ...ptQ3, ...ptQ4, ...ptQ5, ...ptQ6 } },
-  'es-419': { ...esMeta, questions: { ...esQ1, ...esQ2, ...esQ3, ...esQ4, ...esQ5, ...esQ6 } },
-  ja: { ...jaMeta, questions: { ...jaQ1, ...jaQ2, ...jaQ3, ...jaQ4, ...jaQ5, ...jaQ6 } },
+  'pt-BR': { ...ptMeta, questions: { ...ptQ1, ...ptQ2, ...ptQ3, ...ptQ4, ...ptQ5, ...ptQ6, ...ptQ7 } },
+  'es-419': { ...esMeta, questions: { ...esQ1, ...esQ2, ...esQ3, ...esQ4, ...esQ5, ...esQ6, ...esQ7 } },
+  ja: { ...jaMeta, questions: { ...jaQ1, ...jaQ2, ...jaQ3, ...jaQ4, ...jaQ5, ...jaQ6, ...jaQ7 } },
 };
 
 export function contentOverlay(language: Language): ContentOverlay | undefined {
