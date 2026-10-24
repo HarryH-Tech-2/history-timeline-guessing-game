@@ -14,14 +14,14 @@ function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
 
 /** Route name → the tab name reported to analytics. */
 const TAB_NAMES: Record<string, AppTab> = {
-  index: 'play',
-  campaign: 'campaign',
+  index: 'campaign',
+  play: 'play',
   museum: 'museum',
   social: 'social',
   profile: 'profile',
 };
 
-/** Bottom navigation: Play, Campaign, Museum, Social, Profile. */
+/** Bottom navigation: Campaign (the home tab, `/`), Play, Museum, Social, Profile. */
 export default function TabsLayout() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
@@ -53,15 +53,15 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: t('tabs.play'),
-          tabBarIcon: ({ focused }) => <TabIcon emoji="🎯" focused={focused} />,
+          title: t('tabs.campaign'),
+          tabBarIcon: ({ focused }) => <TabIcon emoji="🗺️" focused={focused} />,
         }}
       />
       <Tabs.Screen
-        name="campaign"
+        name="play"
         options={{
-          title: t('tabs.campaign'),
-          tabBarIcon: ({ focused }) => <TabIcon emoji="🗺️" focused={focused} />,
+          title: t('tabs.play'),
+          tabBarIcon: ({ focused }) => <TabIcon emoji="🎯" focused={focused} />,
         }}
       />
       <Tabs.Screen

@@ -166,7 +166,7 @@ export function CampaignStageScreen() {
       // At a fork: back down to the map tab, opened on the fork itself —
       // popping to it rather than pushing, so this stage doesn't stay stacked.
       if (action.focusStageId !== undefined) {
-        router.dismissTo({ pathname: '/campaign', params: { focus: action.focusStageId } });
+        router.dismissTo({ pathname: '/', params: { focus: action.focusStageId } });
       } else router.back();
     } else if (action.kind === 'paywall') router.push(paywallHref('campaign', { era: action.eraId }));
     else

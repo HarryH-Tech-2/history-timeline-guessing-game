@@ -110,7 +110,7 @@ describe('CampaignStageScreen quest buttons', () => {
 
     fireEvent.press(screen.getByTestId('summary-primary'));
     expect(mockRouter.dismissTo).toHaveBeenCalledWith({
-      pathname: '/campaign',
+      pathname: '/',
       params: { focus: fork.id },
     });
     expect(mockRouter.back).not.toHaveBeenCalled();

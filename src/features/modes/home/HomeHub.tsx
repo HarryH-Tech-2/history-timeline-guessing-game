@@ -49,7 +49,7 @@ const MODES: readonly ModeCardData[] = [
     title: 'home.modes.campaign.title',
     description: 'home.modes.campaign.description',
     icon: '🗺️',
-    route: '/campaign',
+    route: '/',
     tab: true,
   },
   // Premium mode last, mirroring the premium categories at the end of their list.
